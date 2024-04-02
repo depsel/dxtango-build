@@ -1,0 +1,1 @@
+import{w as o}from"/build/_shared/chunk-AN2JWTYU.js";import{h as t}from"/build/_shared/chunk-AXWLPIOK.js";t();var A=o("/tango/perfil"),r=o("/tango/cliente"),a=o("/tango/vendedor"),I=o("/tango/auxiliares");export{A as a,r as b,a as c,I as d};
