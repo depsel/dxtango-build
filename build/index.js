@@ -372,7 +372,15 @@ var ApiEndpoint = class {
     req.params = params ?? {}, req.urlObject = urlObject;
     let { searchParams } = urlObject, queryValues = {};
     searchParams.forEach((v, k) => {
-      queryValues[k] = v;
+      let current = queryValues[k];
+      if (current == null) {
+        queryValues[k] = v;
+        return;
+      }
+      Array.isArray(current) && current.push(v), queryValues[k] = [
+        current,
+        v
+      ];
     }), req.query = {
       ...queryValues,
       ...options?.query
@@ -468,8 +476,9 @@ async function axiosRequestPlus(config2) {
 import { AxiosError as AxiosError2 } from "axios";
 
 // src/@core/strings/index.ts
+var isStr = (value) => typeof value == "string";
 function valueToString(value, includeStringQuotes) {
-  return typeof value == "string" && (includeStringQuotes ?? !1) ? `'${value}'` : value === void 0 ? "[undefined]" : value === null ? "[null]" : value.toString();
+  return Array.isArray(value) || isObj(value) ? stringifyJSON(value) : typeof value == "string" && (includeStringQuotes ?? !1) ? `'${value}'` : value === null ? "[null]" : value?.toString?.() ?? "[undefined]";
 }
 
 // src/@core/validation/errors.ts
@@ -665,7 +674,7 @@ function _initEnvironmentConfig() {
   }
   if (!isNode())
     return;
-  let nodeEnv = "production";
+  let nodeEnv = "development";
   if (nodeEnv === "development") {
     _executionMode = 0 /* development */;
     return;
@@ -702,7 +711,7 @@ function isProduction() {
 }
 
 // src/app/entry.server.tsx
-import { jsx, jsxs } from "react/jsx-runtime";
+import { jsxDEV } from "react/jsx-dev-runtime";
 var ABORT_DELAY = 5e3;
 async function handleRequest(request, responseStatusCode, responseHeaders, remixContext) {
   return new URL(request.url).pathname.startsWith("/api/") ? await notFoundApiResponse() : await handleBrowserRequest(
@@ -715,17 +724,33 @@ async function handleRequest(request, responseStatusCode, responseHeaders, remix
 async function handleBrowserRequest(request, responseStatusCode, responseHeaders, remixContext) {
   return await new Promise((resolve, reject) => {
     let shellRendered = !1, emotionCache = createEmotionCache({ key: "css" }), { pipe, abort } = renderToPipeableStream(
-      /* @__PURE__ */ jsxs(EmotionCacheProvider, { value: emotionCache, children: [
-        /* @__PURE__ */ jsx(
+      /* @__PURE__ */ jsxDEV(EmotionCacheProvider, { value: emotionCache, children: [
+        /* @__PURE__ */ jsxDEV(
           RemixServer,
           {
             context: remixContext,
             url: request.url,
             abortDelay: ABORT_DELAY
-          }
+          },
+          void 0,
+          !1,
+          {
+            fileName: "src/app/entry.server.tsx",
+            lineNumber: 66,
+            columnNumber: 9
+          },
+          this
         ),
-        /* @__PURE__ */ jsx("div", { dangerouslySetInnerHTML: { __html: getEnvScript() } })
-      ] }),
+        /* @__PURE__ */ jsxDEV("div", { dangerouslySetInnerHTML: { __html: getEnvScript() } }, void 0, !1, {
+          fileName: "src/app/entry.server.tsx",
+          lineNumber: 71,
+          columnNumber: 9
+        }, this)
+      ] }, void 0, !0, {
+        fileName: "src/app/entry.server.tsx",
+        lineNumber: 65,
+        columnNumber: 7
+      }, this),
       {
         onShellReady() {
           shellRendered = !0;
@@ -765,7 +790,7 @@ __export(root_exports, {
 import { useMemo as useMemo2 } from "react";
 
 // css-bundle-plugin-ns:@remix-run/css-bundle
-var cssBundleHref = "/build/css-bundle-2ZBAPZ6C.css";
+var cssBundleHref = "/build/css-bundle-RWB3XPLB.css";
 
 // src/app/root.tsx
 import { Outlet, useLoaderData } from "@remix-run/react";
@@ -1259,13 +1284,10 @@ function createDXTApiParams(app, options) {
   let newTransformers = [
     (data, headers) => {
       if (typeof data < "u")
-        return JSON.parse(data);
+        return parseJSON(data);
     }
   ], token = app?.authToken;
-  return Array.isArray(originalTransformers) ? newTransformers.push(...originalTransformers) : typeof originalTransformers == "function" && (newTransformers = [
-    originalTransformers,
-    ...newTransformers
-  ]), {
+  return Array.isArray(originalTransformers) ? newTransformers.push(...originalTransformers) : typeof originalTransformers == "function" && newTransformers.push(originalTransformers), {
     headers: {
       ...token != null ? { authorization: token } : null,
       ...originalHeaders
@@ -1396,7 +1418,7 @@ import { join as join2 } from "path";
 // src/texts/common.ts
 var RETRY = "Reintentar", CANCEL = "Cancelar";
 var DELETE = "Eliminar", NO_NAME = "Sin nombre", NO_DATE = "Sin fecha";
-var NONE_M = "Ninguno";
+var NONE_M = "Ninguno", NONEXISTENT_PRODUCT = "Art\xEDculo inexistente";
 
 // src/code.client/utils/index.ts
 var dateToLocale = (value) => value == null ? NO_DATE : (value instanceof Date ? value : new Date(value)).toLocaleDateString("es-AR", {
@@ -1685,7 +1707,7 @@ var config = extendTheme({
 }), theme = extendTheme(config);
 
 // src/app/dialogs/CustomDialog.tsx
-import { Fragment, jsx as jsx2, jsxs as jsxs2 } from "react/jsx-runtime";
+import { Fragment, jsxDEV as jsxDEV2 } from "react/jsx-dev-runtime";
 function CustomDialog(props) {
   let {
     dialogTitle,
@@ -1697,25 +1719,41 @@ function CustomDialog(props) {
     handleAccept,
     handleAcceptWording
   } = props, cancelRef = useRef(null), maxWidth = theme.sizes?.container?.[dialogSize ?? "sm"];
-  return /* @__PURE__ */ jsx2(
+  return /* @__PURE__ */ jsxDEV2(
     AlertDialog,
     {
       onClose: handleCancel,
       "aria-labelledby": "customized-dialog-title",
       isOpen,
       leastDestructiveRef: cancelRef,
-      children: /* @__PURE__ */ jsx2(
+      children: /* @__PURE__ */ jsxDEV2(
         AlertDialogOverlay,
         {
           bg: "blackAlpha.300",
           backdropFilter: "auto",
           backdropInvert: "80%",
           backdropBlur: "2px",
-          children: /* @__PURE__ */ jsxs2(AlertDialogContent, { maxWidth, children: [
-            dialogTitle != null && /* @__PURE__ */ jsx2(AlertDialogHeader, { sx: { m: 0, p: 3 }, children: dialogTitle ?? /* @__PURE__ */ jsx2(Fragment, { children: "\xA0" }) }),
-            /* @__PURE__ */ jsx2(AlertDialogBody, { children: dialogContents ?? /* @__PURE__ */ jsx2(Fragment, { children: "\xA0" }) }),
-            /* @__PURE__ */ jsxs2(AlertDialogFooter, { children: [
-              /* @__PURE__ */ jsx2(
+          children: /* @__PURE__ */ jsxDEV2(AlertDialogContent, { maxWidth, children: [
+            dialogTitle != null && /* @__PURE__ */ jsxDEV2(AlertDialogHeader, { sx: { m: 0, p: 3 }, children: dialogTitle ?? /* @__PURE__ */ jsxDEV2(Fragment, { children: "\xA0" }, void 0, !1, {
+              fileName: "src/app/dialogs/CustomDialog.tsx",
+              lineNumber: 71,
+              columnNumber: 31
+            }, this) }, void 0, !1, {
+              fileName: "src/app/dialogs/CustomDialog.tsx",
+              lineNumber: 70,
+              columnNumber: 13
+            }, this),
+            /* @__PURE__ */ jsxDEV2(AlertDialogBody, { children: dialogContents ?? /* @__PURE__ */ jsxDEV2(Fragment, { children: "\xA0" }, void 0, !1, {
+              fileName: "src/app/dialogs/CustomDialog.tsx",
+              lineNumber: 74,
+              columnNumber: 47
+            }, this) }, void 0, !1, {
+              fileName: "src/app/dialogs/CustomDialog.tsx",
+              lineNumber: 74,
+              columnNumber: 11
+            }, this),
+            /* @__PURE__ */ jsxDEV2(AlertDialogFooter, { children: [
+              /* @__PURE__ */ jsxDEV2(
                 Button,
                 {
                   ref: cancelRef,
@@ -1723,32 +1761,72 @@ function CustomDialog(props) {
                   color: "darkGrey",
                   onClick: handleCancel,
                   children: handleCancelWording ?? CANCEL
-                }
+                },
+                void 0,
+                !1,
+                {
+                  fileName: "src/app/dialogs/CustomDialog.tsx",
+                  lineNumber: 77,
+                  columnNumber: 13
+                },
+                this
               ),
-              handleAccept && /* @__PURE__ */ jsx2(
+              handleAccept && /* @__PURE__ */ jsxDEV2(
                 Button,
                 {
                   variant: "contained",
                   color: "primary",
                   onClick: handleAccept,
                   children: handleAcceptWording ?? RETRY
-                }
+                },
+                void 0,
+                !1,
+                {
+                  fileName: "src/app/dialogs/CustomDialog.tsx",
+                  lineNumber: 86,
+                  columnNumber: 15
+                },
+                this
               )
-            ] })
-          ] })
-        }
+            ] }, void 0, !0, {
+              fileName: "src/app/dialogs/CustomDialog.tsx",
+              lineNumber: 76,
+              columnNumber: 11
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/dialogs/CustomDialog.tsx",
+            lineNumber: 68,
+            columnNumber: 9
+          }, this)
+        },
+        void 0,
+        !1,
+        {
+          fileName: "src/app/dialogs/CustomDialog.tsx",
+          lineNumber: 62,
+          columnNumber: 7
+        },
+        this
       )
-    }
+    },
+    void 0,
+    !1,
+    {
+      fileName: "src/app/dialogs/CustomDialog.tsx",
+      lineNumber: 56,
+      columnNumber: 5
+    },
+    this
   );
 }
 
 // src/app/dialogs/RetryDialog.tsx
-import { jsx as jsx3 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV3 } from "react/jsx-dev-runtime";
 var RetryDialog = ({
   message,
   retryable,
   onResolve
-}) => (retryable = retryable ?? !0, /* @__PURE__ */ jsx3(
+}) => (retryable = retryable ?? !0, /* @__PURE__ */ jsxDEV3(
   CustomDialog,
   {
     isOpen: !0,
@@ -1759,7 +1837,15 @@ var RetryDialog = ({
       onResolve(!0);
     } : void 0,
     dialogContents: message ?? ERRORS_FALLBACK
-  }
+  },
+  void 0,
+  !1,
+  {
+    fileName: "src/app/dialogs/RetryDialog.tsx",
+    lineNumber: 23,
+    columnNumber: 5
+  },
+  this
 ));
 function useRetryDialog() {
   return useModal(RetryDialog);
@@ -1778,7 +1864,7 @@ function useBasicAppResources(authStateOverride, authDispatchOverride) {
 }
 
 // src/code.client/auth/auth_context/auth_context.tsx
-import { jsx as jsx4 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV4 } from "react/jsx-dev-runtime";
 var AUTH_NEW_TOKEN_EVENT = "auth_new_token", defaultValues = {
   state: _resolveState(),
   dispatch: async (action25) => {
@@ -1837,7 +1923,11 @@ var AuthProvider = ({ children, onRetry }) => {
     }),
     [authState]
   );
-  return /* @__PURE__ */ jsx4(AuthContext.Provider, { value: values, children });
+  return /* @__PURE__ */ jsxDEV4(AuthContext.Provider, { value: values, children }, void 0, !1, {
+    fileName: "src/code.client/auth/auth_context/auth_context.tsx",
+    lineNumber: 167,
+    columnNumber: 10
+  }, this);
 };
 var useAuth = () => useContext(AuthContext);
 
@@ -1868,7 +1958,7 @@ var ServerStyleContext = createContext2(null), ClientStyleContext = createContex
 );
 
 // src/app/RootDocument.tsx
-import { jsx as jsx5, jsxs as jsxs3 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV5 } from "react/jsx-dev-runtime";
 var RootDocument = withEmotionCache(
   ({ children, colorMode }, emotionCache) => {
     let serverStyleData = useContext2(ServerStyleContext), clientStyleData = useContext2(ClientStyleContext);
@@ -1878,7 +1968,7 @@ var RootDocument = withEmotionCache(
       emotionCache.sheet.flush(), tags.forEach((tag) => {
         emotionCache.sheet._insertTag(tag);
       }), clientStyleData?.reset();
-    }, []), /* @__PURE__ */ jsxs3(
+    }, []), /* @__PURE__ */ jsxDEV5(
       "html",
       {
         lang: "es",
@@ -1887,19 +1977,38 @@ var RootDocument = withEmotionCache(
           style: { colorScheme: colorMode }
         },
         children: [
-          /* @__PURE__ */ jsxs3("head", { children: [
-            /* @__PURE__ */ jsx5(Meta, {}),
-            /* @__PURE__ */ jsx5(Links, {}),
-            serverStyleData?.map(({ key, ids, css }) => /* @__PURE__ */ jsx5(
+          /* @__PURE__ */ jsxDEV5("head", { children: [
+            /* @__PURE__ */ jsxDEV5(Meta, {}, void 0, !1, {
+              fileName: "src/app/RootDocument.tsx",
+              lineNumber: 51,
+              columnNumber: 11
+            }, this),
+            /* @__PURE__ */ jsxDEV5(Links, {}, void 0, !1, {
+              fileName: "src/app/RootDocument.tsx",
+              lineNumber: 52,
+              columnNumber: 11
+            }, this),
+            serverStyleData?.map(({ key, ids, css }) => /* @__PURE__ */ jsxDEV5(
               "style",
               {
                 "data-emotion": `${key} ${ids.join(" ")}`,
                 dangerouslySetInnerHTML: { __html: css }
               },
-              key
+              key,
+              !1,
+              {
+                fileName: "src/app/RootDocument.tsx",
+                lineNumber: 54,
+                columnNumber: 13
+              },
+              this
             ))
-          ] }),
-          /* @__PURE__ */ jsxs3(
+          ] }, void 0, !0, {
+            fileName: "src/app/RootDocument.tsx",
+            lineNumber: 50,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV5(
             "body",
             {
               ...colorMode != null && {
@@ -1907,20 +2016,48 @@ var RootDocument = withEmotionCache(
               },
               children: [
                 children,
-                /* @__PURE__ */ jsx5(ScrollRestoration, {}),
-                /* @__PURE__ */ jsx5(Scripts, {}),
-                /* @__PURE__ */ jsx5(LiveReload, {})
+                /* @__PURE__ */ jsxDEV5(ScrollRestoration, {}, void 0, !1, {
+                  fileName: "src/app/RootDocument.tsx",
+                  lineNumber: 67,
+                  columnNumber: 11
+                }, this),
+                /* @__PURE__ */ jsxDEV5(Scripts, {}, void 0, !1, {
+                  fileName: "src/app/RootDocument.tsx",
+                  lineNumber: 68,
+                  columnNumber: 11
+                }, this),
+                /* @__PURE__ */ jsxDEV5(LiveReload, {}, void 0, !1, {
+                  fileName: "src/app/RootDocument.tsx",
+                  lineNumber: 69,
+                  columnNumber: 11
+                }, this)
               ]
-            }
+            },
+            void 0,
+            !0,
+            {
+              fileName: "src/app/RootDocument.tsx",
+              lineNumber: 61,
+              columnNumber: 9
+            },
+            this
           )
         ]
-      }
+      },
+      void 0,
+      !0,
+      {
+        fileName: "src/app/RootDocument.tsx",
+        lineNumber: 43,
+        columnNumber: 7
+      },
+      this
     );
   }
 );
 
 // src/app/root.tsx
-import { jsx as jsx6 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV6 } from "react/jsx-dev-runtime";
 var loader = async ({ request }) => request.headers.get("cookie") ?? "", links = () => [
   ...cssBundleHref != null ? [{ rel: "stylesheet", href: cssBundleHref }] : []
 ], meta = () => [
@@ -1944,7 +2081,7 @@ function App() {
     let color = getColorMode(cookies);
     return color == null && DEFAULT_COLOR_MODE && (cookies += ` ${CHAKRA_COOKIE_COLOR_KEY}=${DEFAULT_COLOR_MODE}`, color = DEFAULT_COLOR_MODE), color;
   }, [cookies]), cookieManager = useConst(cookieStorageManagerSSR(cookies));
-  return /* @__PURE__ */ jsx6(RootDocument, { colorMode, children: /* @__PURE__ */ jsx6(
+  return /* @__PURE__ */ jsxDEV6(RootDocument, { colorMode, children: /* @__PURE__ */ jsxDEV6(
     ChakraProvider,
     {
       theme,
@@ -1956,9 +2093,33 @@ function App() {
           isClosable: !0
         }
       },
-      children: /* @__PURE__ */ jsx6(ModalProvider, { children: /* @__PURE__ */ jsx6(AuthProvider, { children: /* @__PURE__ */ jsx6(Outlet, {}) }) })
-    }
-  ) });
+      children: /* @__PURE__ */ jsxDEV6(ModalProvider, { children: /* @__PURE__ */ jsxDEV6(AuthProvider, { children: /* @__PURE__ */ jsxDEV6(Outlet, {}, void 0, !1, {
+        fileName: "src/app/root.tsx",
+        lineNumber: 107,
+        columnNumber: 13
+      }, this) }, void 0, !1, {
+        fileName: "src/app/root.tsx",
+        lineNumber: 106,
+        columnNumber: 11
+      }, this) }, void 0, !1, {
+        fileName: "src/app/root.tsx",
+        lineNumber: 105,
+        columnNumber: 9
+      }, this)
+    },
+    void 0,
+    !1,
+    {
+      fileName: "src/app/root.tsx",
+      lineNumber: 92,
+      columnNumber: 7
+    },
+    this
+  ) }, void 0, !1, {
+    fileName: "src/app/root.tsx",
+    lineNumber: 91,
+    columnNumber: 5
+  }, this);
 }
 
 // src/app/routes/_admin.settings.users.customers.$id.edit/route.tsx
@@ -2175,7 +2336,7 @@ var customerCreateRequest = async (input, app) => await dxtApiRequest(
 );
 
 // src/code.client/crud_configs/users/index.tsx
-import { jsx as jsx7 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV7 } from "react/jsx-dev-runtime";
 var settings = {
   customers: {
     api: {
@@ -2195,7 +2356,11 @@ var settings = {
           value: "id",
           isEnabled: "habilitado"
         },
-        disabledIcon: /* @__PURE__ */ jsx7(Icon, { as: AccountCancelIcon, color: "red.400", ml: 2, boxSize: 5 })
+        disabledIcon: /* @__PURE__ */ jsxDEV7(Icon, { as: AccountCancelIcon, color: "red.400", ml: 2, boxSize: 5 }, void 0, !1, {
+          fileName: "src/code.client/crud_configs/users/index.tsx",
+          lineNumber: 140,
+          columnNumber: 13
+        }, this)
       }),
       post: async (input, app) => customerCreateRequest(input, app),
       patch: async (id, input, app) => customerUpdateRequest(id, input, app),
@@ -2234,7 +2399,11 @@ var settings = {
           value: "id",
           isEnabled: "habilitado"
         },
-        disabledIcon: /* @__PURE__ */ jsx7(Icon, { as: AccountCancelIcon, color: "red.400", ml: 2, boxSize: 5 })
+        disabledIcon: /* @__PURE__ */ jsxDEV7(Icon, { as: AccountCancelIcon, color: "red.400", ml: 2, boxSize: 5 }, void 0, !1, {
+          fileName: "src/code.client/crud_configs/users/index.tsx",
+          lineNumber: 198,
+          columnNumber: 13
+        }, this)
       }),
       post: async (input, app) => vendorCreateRequest(input, app),
       patch: async (id, input, app) => vendorUpdateRequest(id, input, app),
@@ -2327,15 +2496,15 @@ import {
   Box,
   Button as Button2
 } from "@chakra-ui/react";
-import { jsx as jsx8, jsxs as jsxs4 } from "react/jsx-runtime";
-var CommonErrors = ({ error, buttonProps }) => /* @__PURE__ */ jsx8(
+import { jsxDEV as jsxDEV8 } from "react/jsx-dev-runtime";
+var CommonErrors = ({ error, buttonProps }) => /* @__PURE__ */ jsxDEV8(
   Box,
   {
     width: "full",
     sx: {
       mt: 6
     },
-    children: /* @__PURE__ */ jsxs4(
+    children: /* @__PURE__ */ jsxDEV8(
       Alert,
       {
         status: "error",
@@ -2346,9 +2515,17 @@ var CommonErrors = ({ error, buttonProps }) => /* @__PURE__ */ jsx8(
         textAlign: "center",
         height: "200px",
         children: [
-          /* @__PURE__ */ jsx8(AlertIcon, { boxSize: "40px", sx: { mr: 0, mb: 4 } }),
-          /* @__PURE__ */ jsx8(AlertDescription, { maxWidth: "sm", children: error }),
-          buttonProps != null && /* @__PURE__ */ jsx8(
+          /* @__PURE__ */ jsxDEV8(AlertIcon, { boxSize: "40px", sx: { mr: 0, mb: 4 } }, void 0, !1, {
+            fileName: "src/app/components/CommonErrors.tsx",
+            lineNumber: 36,
+            columnNumber: 9
+          }, this),
+          /* @__PURE__ */ jsxDEV8(AlertDescription, { maxWidth: "sm", children: error }, void 0, !1, {
+            fileName: "src/app/components/CommonErrors.tsx",
+            lineNumber: 37,
+            columnNumber: 9
+          }, this),
+          buttonProps != null && /* @__PURE__ */ jsxDEV8(
             Button2,
             {
               ...buttonProps,
@@ -2356,12 +2533,36 @@ var CommonErrors = ({ error, buttonProps }) => /* @__PURE__ */ jsx8(
                 mt: 4
               },
               children: buttonProps.label
-            }
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/components/CommonErrors.tsx",
+              lineNumber: 39,
+              columnNumber: 11
+            },
+            this
           )
         ]
-      }
+      },
+      void 0,
+      !0,
+      {
+        fileName: "src/app/components/CommonErrors.tsx",
+        lineNumber: 27,
+        columnNumber: 7
+      },
+      this
     )
-  }
+  },
+  void 0,
+  !1,
+  {
+    fileName: "src/app/components/CommonErrors.tsx",
+    lineNumber: 21,
+    columnNumber: 5
+  },
+  this
 );
 
 // src/app/components/SettingsFormHeading.tsx
@@ -2373,30 +2574,50 @@ import {
   CardBody,
   useColorModeValue
 } from "@chakra-ui/react";
-import { jsx as jsx9 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV9 } from "react/jsx-dev-runtime";
 var CommonCard = (props) => {
   let { children, cardProps, cardBodyProps } = props, borderColor = useColorModeValue("gray.200", "white.200");
-  return /* @__PURE__ */ jsx9(
+  return /* @__PURE__ */ jsxDEV9(
     Card,
     {
       boxShadow: "lg",
       sx: { mb: 4 },
       borderColor,
       ...cardProps,
-      children: /* @__PURE__ */ jsx9(CardBody, { ...cardBodyProps, children })
-    }
+      children: /* @__PURE__ */ jsxDEV9(CardBody, { ...cardBodyProps, children }, void 0, !1, {
+        fileName: "src/app/components/CommonCard.tsx",
+        lineNumber: 27,
+        columnNumber: 7
+      }, this)
+    },
+    void 0,
+    !1,
+    {
+      fileName: "src/app/components/CommonCard.tsx",
+      lineNumber: 21,
+      columnNumber: 5
+    },
+    this
   );
 };
 
 // src/app/components/SettingsFormHeading.tsx
-import { Fragment as Fragment2, jsx as jsx10, jsxs as jsxs5 } from "react/jsx-runtime";
+import { Fragment as Fragment2, jsxDEV as jsxDEV10 } from "react/jsx-dev-runtime";
 var SettingsFormHeading = (props) => {
   let { title, actionButton } = props;
-  return /* @__PURE__ */ jsx10(CommonCard, { children: /* @__PURE__ */ jsxs5(Flex, { direction: "row", alignItems: "center", children: [
-    /* @__PURE__ */ jsx10(Heading, { size: "md", textTransform: "uppercase", children: title }),
-    actionButton && /* @__PURE__ */ jsxs5(Fragment2, { children: [
-      /* @__PURE__ */ jsx10(Spacer, {}),
-      /* @__PURE__ */ jsx10(
+  return /* @__PURE__ */ jsxDEV10(CommonCard, { children: /* @__PURE__ */ jsxDEV10(Flex, { direction: "row", alignItems: "center", children: [
+    /* @__PURE__ */ jsxDEV10(Heading, { size: "md", textTransform: "uppercase", children: title }, void 0, !1, {
+      fileName: "src/app/components/SettingsFormHeading.tsx",
+      lineNumber: 21,
+      columnNumber: 9
+    }, this),
+    actionButton && /* @__PURE__ */ jsxDEV10(Fragment2, { children: [
+      /* @__PURE__ */ jsxDEV10(Spacer, {}, void 0, !1, {
+        fileName: "src/app/components/SettingsFormHeading.tsx",
+        lineNumber: 26,
+        columnNumber: 13
+      }, this),
+      /* @__PURE__ */ jsxDEV10(
         Button3,
         {
           size: "sm",
@@ -2406,10 +2627,30 @@ var SettingsFormHeading = (props) => {
             textTransform: "uppercase"
           },
           children: actionButton.label
-        }
+        },
+        void 0,
+        !1,
+        {
+          fileName: "src/app/components/SettingsFormHeading.tsx",
+          lineNumber: 27,
+          columnNumber: 13
+        },
+        this
       )
-    ] })
-  ] }) });
+    ] }, void 0, !0, {
+      fileName: "src/app/components/SettingsFormHeading.tsx",
+      lineNumber: 25,
+      columnNumber: 11
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/components/SettingsFormHeading.tsx",
+    lineNumber: 20,
+    columnNumber: 7
+  }, this) }, void 0, !1, {
+    fileName: "src/app/components/SettingsFormHeading.tsx",
+    lineNumber: 19,
+    columnNumber: 5
+  }, this);
 };
 
 // src/app/components/ApiErrors.tsx
@@ -2423,21 +2664,21 @@ import {
   Button as Button4,
   HStack
 } from "@chakra-ui/react";
-import { Fragment as Fragment3, jsx as jsx11, jsxs as jsxs6 } from "react/jsx-runtime";
+import { Fragment as Fragment3, jsxDEV as jsxDEV11 } from "react/jsx-dev-runtime";
 var ApiErrors = ({
   error,
   retry,
   cancelAndNavigateTo
 }) => {
   let navigate = useNavigate2();
-  return /* @__PURE__ */ jsx11(
+  return /* @__PURE__ */ jsxDEV11(
     Box2,
     {
       width: "full",
       sx: {
         mt: 6
       },
-      children: /* @__PURE__ */ jsxs6(
+      children: /* @__PURE__ */ jsxDEV11(
         Alert2,
         {
           status: "error",
@@ -2448,12 +2689,32 @@ var ApiErrors = ({
           textAlign: "center",
           height: "200px",
           children: [
-            /* @__PURE__ */ jsx11(AlertIcon2, { boxSize: "40px", sx: { mr: 0, mb: 4 } }),
-            error.message_to_user ? /* @__PURE__ */ jsxs6(Fragment3, { children: [
-              /* @__PURE__ */ jsx11(AlertTitle, { mt: 4, mb: 1, fontSize: "lg", children: error.message_to_user?.title }),
-              /* @__PURE__ */ jsx11(AlertDescription2, { maxWidth: "sm", children: error.message_to_user?.content })
-            ] }) : /* @__PURE__ */ jsx11(AlertDescription2, { maxWidth: "sm", children: error.error }),
-            /* @__PURE__ */ jsxs6(
+            /* @__PURE__ */ jsxDEV11(AlertIcon2, { boxSize: "40px", sx: { mr: 0, mb: 4 } }, void 0, !1, {
+              fileName: "src/app/components/ApiErrors.tsx",
+              lineNumber: 45,
+              columnNumber: 9
+            }, this),
+            error.message_to_user ? /* @__PURE__ */ jsxDEV11(Fragment3, { children: [
+              /* @__PURE__ */ jsxDEV11(AlertTitle, { mt: 4, mb: 1, fontSize: "lg", children: error.message_to_user?.title }, void 0, !1, {
+                fileName: "src/app/components/ApiErrors.tsx",
+                lineNumber: 50,
+                columnNumber: 13
+              }, this),
+              /* @__PURE__ */ jsxDEV11(AlertDescription2, { maxWidth: "sm", children: error.message_to_user?.content }, void 0, !1, {
+                fileName: "src/app/components/ApiErrors.tsx",
+                lineNumber: 53,
+                columnNumber: 13
+              }, this)
+            ] }, void 0, !0, {
+              fileName: "src/app/components/ApiErrors.tsx",
+              lineNumber: 49,
+              columnNumber: 11
+            }, this) : /* @__PURE__ */ jsxDEV11(AlertDescription2, { maxWidth: "sm", children: error.error }, void 0, !1, {
+              fileName: "src/app/components/ApiErrors.tsx",
+              lineNumber: 47,
+              columnNumber: 11
+            }, this),
+            /* @__PURE__ */ jsxDEV11(
               HStack,
               {
                 sx: {
@@ -2461,8 +2722,12 @@ var ApiErrors = ({
                 },
                 spacing: 4,
                 children: [
-                  retry && /* @__PURE__ */ jsx11(Button4, { onClick: retry, colorScheme: "green", children: "Reintentar" }),
-                  cancelAndNavigateTo != null && /* @__PURE__ */ jsx11(
+                  retry && /* @__PURE__ */ jsxDEV11(Button4, { onClick: retry, colorScheme: "green", children: "Reintentar" }, void 0, !1, {
+                    fileName: "src/app/components/ApiErrors.tsx",
+                    lineNumber: 65,
+                    columnNumber: 13
+                  }, this),
+                  cancelAndNavigateTo != null && /* @__PURE__ */ jsxDEV11(
                     Button4,
                     {
                       onClick: () => {
@@ -2470,15 +2735,47 @@ var ApiErrors = ({
                       },
                       colorScheme: "red",
                       children: "Cancelar"
-                    }
+                    },
+                    void 0,
+                    !1,
+                    {
+                      fileName: "src/app/components/ApiErrors.tsx",
+                      lineNumber: 70,
+                      columnNumber: 13
+                    },
+                    this
                   )
                 ]
-              }
+              },
+              void 0,
+              !0,
+              {
+                fileName: "src/app/components/ApiErrors.tsx",
+                lineNumber: 58,
+                columnNumber: 9
+              },
+              this
             )
           ]
-        }
+        },
+        void 0,
+        !0,
+        {
+          fileName: "src/app/components/ApiErrors.tsx",
+          lineNumber: 36,
+          columnNumber: 7
+        },
+        this
       )
-    }
+    },
+    void 0,
+    !1,
+    {
+      fileName: "src/app/components/ApiErrors.tsx",
+      lineNumber: 30,
+      columnNumber: 5
+    },
+    this
   );
 };
 
@@ -2487,12 +2784,20 @@ import { Box as Box3, Divider, Grid, GridItem, HStack as HStack2, Stack } from "
 
 // src/app/components/form_elements/FormSkeletons.tsx
 import { Skeleton } from "@chakra-ui/react";
-import { jsx as jsx12 } from "react/jsx-runtime";
-var FormInputSkeleton = ({ height }) => /* @__PURE__ */ jsx12(Skeleton, { width: "full", height: height ?? "36px", borderRadius: "md" }), FormTextareaSkeleton = ({ height }) => /* @__PURE__ */ jsx12(Skeleton, { width: "full", height: height ?? "80px", borderRadius: "md" });
+import { jsxDEV as jsxDEV12 } from "react/jsx-dev-runtime";
+var FormInputSkeleton = ({ height }) => /* @__PURE__ */ jsxDEV12(Skeleton, { width: "full", height: height ?? "36px", borderRadius: "md" }, void 0, !1, {
+  fileName: "src/app/components/form_elements/FormSkeletons.tsx",
+  lineNumber: 8,
+  columnNumber: 3
+}, this), FormTextareaSkeleton = ({ height }) => /* @__PURE__ */ jsxDEV12(Skeleton, { width: "full", height: height ?? "80px", borderRadius: "md" }, void 0, !1, {
+  fileName: "src/app/components/form_elements/FormSkeletons.tsx",
+  lineNumber: 12,
+  columnNumber: 3
+}, this);
 
 // src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx
-import { jsx as jsx13, jsxs as jsxs7 } from "react/jsx-runtime";
-var Loading = () => /* @__PURE__ */ jsx13(
+import { jsxDEV as jsxDEV13 } from "react/jsx-dev-runtime";
+var Loading = () => /* @__PURE__ */ jsxDEV13(
   Box3,
   {
     width: "full",
@@ -2500,53 +2805,345 @@ var Loading = () => /* @__PURE__ */ jsx13(
       mt: 8,
       mb: 4
     },
-    children: /* @__PURE__ */ jsxs7(
+    children: /* @__PURE__ */ jsxDEV13(
       Grid,
       {
         templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
         alignItems: "center",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, { children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, { children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, { children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, { children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx13(Divider, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx13(Divider, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx13(Divider, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxs7(Stack, { spacing: 4, direction: { base: "column" }, children: [
-            /* @__PURE__ */ jsx13(HStack2, { spacing: 4, children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-            /* @__PURE__ */ jsx13(HStack2, { spacing: 4, children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-            /* @__PURE__ */ jsx13(HStack2, { spacing: 4, children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-            /* @__PURE__ */ jsx13(HStack2, { spacing: 4, children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-            /* @__PURE__ */ jsx13(HStack2, { spacing: 4, children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-            /* @__PURE__ */ jsx13(HStack2, { spacing: 4, children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-            /* @__PURE__ */ jsx13(HStack2, { spacing: 4, children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-            /* @__PURE__ */ jsx13(HStack2, { spacing: 4, children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) })
-          ] }) }),
-          /* @__PURE__ */ jsx13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx13(Divider, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, { children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, {}),
-          /* @__PURE__ */ jsx13(GridItem, { children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, { children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, { children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, { children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, { children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, { children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, { children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, { children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx13(GridItem, { children: /* @__PURE__ */ jsx13(FormInputSkeleton, {}) })
+          /* @__PURE__ */ jsxDEV13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 19,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 18,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 22,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 21,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 25,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 24,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 28,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 27,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 31,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 30,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 34,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 33,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV13(Divider, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 37,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 36,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 40,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 39,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 43,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 42,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV13(Divider, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 46,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 45,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 49,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 48,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 52,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 51,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV13(Divider, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 55,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 54,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 58,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 57,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV13(Stack, { spacing: 4, direction: { base: "column" }, children: [
+            /* @__PURE__ */ jsxDEV13(HStack2, { spacing: 4, children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+              lineNumber: 63,
+              columnNumber: 13
+            }, this) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+              lineNumber: 62,
+              columnNumber: 11
+            }, this),
+            /* @__PURE__ */ jsxDEV13(HStack2, { spacing: 4, children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+              lineNumber: 66,
+              columnNumber: 13
+            }, this) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+              lineNumber: 65,
+              columnNumber: 11
+            }, this),
+            /* @__PURE__ */ jsxDEV13(HStack2, { spacing: 4, children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+              lineNumber: 69,
+              columnNumber: 13
+            }, this) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+              lineNumber: 68,
+              columnNumber: 11
+            }, this),
+            /* @__PURE__ */ jsxDEV13(HStack2, { spacing: 4, children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+              lineNumber: 72,
+              columnNumber: 13
+            }, this) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+              lineNumber: 71,
+              columnNumber: 11
+            }, this),
+            /* @__PURE__ */ jsxDEV13(HStack2, { spacing: 4, children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+              lineNumber: 75,
+              columnNumber: 13
+            }, this) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+              lineNumber: 74,
+              columnNumber: 11
+            }, this),
+            /* @__PURE__ */ jsxDEV13(HStack2, { spacing: 4, children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+              lineNumber: 78,
+              columnNumber: 13
+            }, this) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+              lineNumber: 77,
+              columnNumber: 11
+            }, this),
+            /* @__PURE__ */ jsxDEV13(HStack2, { spacing: 4, children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+              lineNumber: 81,
+              columnNumber: 13
+            }, this) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+              lineNumber: 80,
+              columnNumber: 11
+            }, this),
+            /* @__PURE__ */ jsxDEV13(HStack2, { spacing: 4, children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+              lineNumber: 84,
+              columnNumber: 13
+            }, this) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+              lineNumber: 83,
+              columnNumber: 11
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 61,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 60,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV13(Divider, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 89,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 88,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 92,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 91,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 94,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 96,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 95,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 99,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 98,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 102,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 101,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 105,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 104,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 108,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 107,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 111,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 110,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 114,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 113,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 117,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 116,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV13(GridItem, { children: /* @__PURE__ */ jsxDEV13(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 120,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+            lineNumber: 119,
+            columnNumber: 7
+          }, this)
         ]
-      }
+      },
+      void 0,
+      !0,
+      {
+        fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+        lineNumber: 13,
+        columnNumber: 5
+      },
+      this
     )
-  }
+  },
+  void 0,
+  !1,
+  {
+    fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx",
+    lineNumber: 6,
+    columnNumber: 3
+  },
+  this
 );
 
 // src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx
@@ -2616,7 +3213,7 @@ import {
   InputGroup
 } from "@chakra-ui/react";
 import { useController } from "react-hook-form";
-import { jsx as jsx14, jsxs as jsxs8 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV14 } from "react/jsx-dev-runtime";
 var ControlledInput = (props) => {
   let { fieldProps, formControlProps, formControlInnerProps, control } = props, {
     field: { ref, onChange, value },
@@ -2626,21 +3223,45 @@ var ControlledInput = (props) => {
     name: fieldProps.name,
     control
   }), { label, helperText, icon } = formControlInnerProps || {};
-  return /* @__PURE__ */ jsxs8(FormControl, { ...formControlProps, isInvalid: invalid, children: [
-    label != null && /* @__PURE__ */ jsx14(
+  return /* @__PURE__ */ jsxDEV14(FormControl, { ...formControlProps, isInvalid: invalid, children: [
+    label != null && /* @__PURE__ */ jsxDEV14(
       FormLabel,
       {
         htmlFor: fieldProps.name,
         sx: fieldProps.variant === "flushed" ? { fontSize: "sm", mb: 0 } : {},
         children: label
-      }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/components/form_elements/ControlledInput.tsx",
+        lineNumber: 48,
+        columnNumber: 9
+      },
+      this
     ),
-    /* @__PURE__ */ jsxs8(InputGroup, { children: [
+    /* @__PURE__ */ jsxDEV14(InputGroup, { children: [
       icon,
-      /* @__PURE__ */ jsx14(Input, { ...fieldProps, onChange, value, ref })
-    ] }),
-    helperText != null && /* @__PURE__ */ jsx14(FormHelperText, { children: helperText })
-  ] });
+      /* @__PURE__ */ jsxDEV14(Input, { ...fieldProps, onChange, value, ref }, void 0, !1, {
+        fileName: "src/app/components/form_elements/ControlledInput.tsx",
+        lineNumber: 57,
+        columnNumber: 9
+      }, this)
+    ] }, void 0, !0, {
+      fileName: "src/app/components/form_elements/ControlledInput.tsx",
+      lineNumber: 55,
+      columnNumber: 7
+    }, this),
+    helperText != null && /* @__PURE__ */ jsxDEV14(FormHelperText, { children: helperText }, void 0, !1, {
+      fileName: "src/app/components/form_elements/ControlledInput.tsx",
+      lineNumber: 59,
+      columnNumber: 30
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/components/form_elements/ControlledInput.tsx",
+    lineNumber: 46,
+    columnNumber: 5
+  }, this);
 };
 
 // src/app/components/form_elements/ControlledRadio.tsx
@@ -2652,7 +3273,7 @@ import {
   Stack as Stack2
 } from "@chakra-ui/react";
 import { useController as useController2 } from "react-hook-form";
-import { jsx as jsx15, jsxs as jsxs9 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV15 } from "react/jsx-dev-runtime";
 var ControlledRadio = (props) => {
   let {
     fieldProps,
@@ -2669,27 +3290,54 @@ var ControlledRadio = (props) => {
     name: fieldProps.name,
     control
   });
-  return /* @__PURE__ */ jsxs9(FormControl2, { ...formControlProps, isInvalid: invalid, children: [
-    /* @__PURE__ */ jsx15(
+  return /* @__PURE__ */ jsxDEV15(FormControl2, { ...formControlProps, isInvalid: invalid, children: [
+    /* @__PURE__ */ jsxDEV15(
       RadioGroup,
       {
         ...fieldProps,
         onChange,
         value: value.toString(),
         ref,
-        children: /* @__PURE__ */ jsx15(Stack2, { direction: "row", spacing: 4, ...stackProps, children: fieldProps.options.map((option, index) => /* @__PURE__ */ jsx15(
+        children: /* @__PURE__ */ jsxDEV15(Stack2, { direction: "row", spacing: 4, ...stackProps, children: fieldProps.options.map((option, index) => /* @__PURE__ */ jsxDEV15(
           Radio,
           {
             value: option.value.toString(),
             ...radioProps,
             children: option.label
           },
-          `${name}-option-${index}`
-        )) })
-      }
+          `${name}-option-${index}`,
+          !1,
+          {
+            fileName: "src/app/components/form_elements/ControlledRadio.tsx",
+            lineNumber: 65,
+            columnNumber: 13
+          },
+          this
+        )) }, void 0, !1, {
+          fileName: "src/app/components/form_elements/ControlledRadio.tsx",
+          lineNumber: 63,
+          columnNumber: 9
+        }, this)
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/components/form_elements/ControlledRadio.tsx",
+        lineNumber: 57,
+        columnNumber: 7
+      },
+      this
     ),
-    helperText != null && /* @__PURE__ */ jsx15(FormHelperText2, { children: helperText })
-  ] });
+    helperText != null && /* @__PURE__ */ jsxDEV15(FormHelperText2, { children: helperText }, void 0, !1, {
+      fileName: "src/app/components/form_elements/ControlledRadio.tsx",
+      lineNumber: 75,
+      columnNumber: 30
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/components/form_elements/ControlledRadio.tsx",
+    lineNumber: 56,
+    columnNumber: 5
+  }, this);
 };
 
 // src/app/components/form_elements/ControlledSelect.tsx
@@ -2714,7 +3362,7 @@ import {
   useMultiStyleConfig,
   useTheme
 } from "@chakra-ui/react";
-import { jsx as jsx16 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV16 } from "react/jsx-dev-runtime";
 var isSize = (size) => typeof size == "string" && ["sm", "md", "lg"].includes(size), getDefaultSize = (size) => isSize(size) ? size : size === "xs" ? "sm" : size === "xl" ? "lg" : "md", useSize = (size) => {
   let chakraTheme = useTheme(), defaultSize = getDefaultSize(
     chakraTheme.components.Input.defaultProps.size
@@ -2758,7 +3406,7 @@ var isSize = (size) => typeof size == "string" && ["sm", "md", "lg"].includes(si
     // required for offset[Height, Top] > keyboard scroll
     // WebkitOverflowScrolling: 'touch',
   }, sx = chakraStyles?.menuList ? chakraStyles.menuList(initialSx, props) : initialSx;
-  return /* @__PURE__ */ jsx16(
+  return /* @__PURE__ */ jsxDEV16(
     Box4,
     {
       role: "listbox",
@@ -2772,15 +3420,23 @@ var isSize = (size) => typeof size == "string" && ["sm", "md", "lg"].includes(si
       ),
       sx,
       children
-    }
+    },
+    void 0,
+    !1,
+    {
+      fileName: "src/app/components/form_elements/ChakraReactSelectCustomMenuList.tsx",
+      lineNumber: 114,
+      columnNumber: 5
+    },
+    this
   );
 };
 
 // src/app/components/form_elements/ControlledSelect.tsx
-import { jsx as jsx17, jsxs as jsxs10 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV17 } from "react/jsx-dev-runtime";
 var CustomMenuList = (props) => {
   let { children, ...restProps } = props, itemHeight = 35, { options, maxHeight, getValue } = props, [value] = getValue(), valueIndexOf = options.indexOf(value), itemsPerPage = Math.floor(maxHeight / itemHeight), initialOffset = valueIndexOf > itemsPerPage ? valueIndexOf * itemHeight : 0, minHeight = Math.min(options.length * itemHeight, maxHeight);
-  return /* @__PURE__ */ jsx17(ChakraReactSelectCustomMenuList, { ...props, children: /* @__PURE__ */ jsx17(
+  return /* @__PURE__ */ jsxDEV17(ChakraReactSelectCustomMenuList, { ...props, children: /* @__PURE__ */ jsxDEV17(
     FixedSizeList,
     {
       height: minHeight + 2,
@@ -2789,9 +3445,25 @@ var CustomMenuList = (props) => {
       initialScrollOffset: initialOffset,
       width: "100%",
       outerRef: props.innerRef,
-      children: ({ index, style }) => /* @__PURE__ */ jsx17("div", { style, children: Children.toArray(children)[index] })
-    }
-  ) });
+      children: ({ index, style }) => /* @__PURE__ */ jsxDEV17("div", { style, children: Children.toArray(children)[index] }, void 0, !1, {
+        fileName: "src/app/components/form_elements/ControlledSelect.tsx",
+        lineNumber: 71,
+        columnNumber: 11
+      }, this)
+    },
+    void 0,
+    !1,
+    {
+      fileName: "src/app/components/form_elements/ControlledSelect.tsx",
+      lineNumber: 62,
+      columnNumber: 7
+    },
+    this
+  ) }, void 0, !1, {
+    fileName: "src/app/components/form_elements/ControlledSelect.tsx",
+    lineNumber: 61,
+    columnNumber: 5
+  }, this);
 }, ControlledSelect = (props) => {
   let {
     fieldProps,
@@ -2812,15 +3484,23 @@ var CustomMenuList = (props) => {
     name: fieldProps.name,
     control
   });
-  return /* @__PURE__ */ jsxs10(FormControl3, { ...formControlProps, isInvalid: invalid, children: [
-    /* @__PURE__ */ jsx17(
+  return /* @__PURE__ */ jsxDEV17(FormControl3, { ...formControlProps, isInvalid: invalid, children: [
+    /* @__PURE__ */ jsxDEV17(
       FormLabel2,
       {
         sx: fieldProps.variant === "flushed" ? { fontSize: "sm", mb: 0 } : {},
         children: label
-      }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/components/form_elements/ControlledSelect.tsx",
+        lineNumber: 108,
+        columnNumber: 7
+      },
+      this
     ),
-    /* @__PURE__ */ jsx17(
+    /* @__PURE__ */ jsxDEV17(
       Select,
       {
         ...fieldProps,
@@ -2842,17 +3522,37 @@ var CustomMenuList = (props) => {
           Option: ({ children, ...props2 }) => {
             delete props2.innerProps.onMouseMove, delete props2.innerProps.onMouseOver;
             let propsData = props2.data;
-            return /* @__PURE__ */ jsxs10(chakraComponents.Option, { ...props2, children: [
+            return /* @__PURE__ */ jsxDEV17(chakraComponents.Option, { ...props2, children: [
               children,
               " ",
               propsData.icon != null && propsData.icon
-            ] });
+            ] }, void 0, !0, {
+              fileName: "src/app/components/form_elements/ControlledSelect.tsx",
+              lineNumber: 142,
+              columnNumber: 15
+            }, this);
           }
         }
-      }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/components/form_elements/ControlledSelect.tsx",
+        lineNumber: 113,
+        columnNumber: 7
+      },
+      this
     ),
-    helperText != null && /* @__PURE__ */ jsx17(FormHelperText3, { children: helperText })
-  ] });
+    helperText != null && /* @__PURE__ */ jsxDEV17(FormHelperText3, { children: helperText }, void 0, !1, {
+      fileName: "src/app/components/form_elements/ControlledSelect.tsx",
+      lineNumber: 149,
+      columnNumber: 30
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/components/form_elements/ControlledSelect.tsx",
+    lineNumber: 107,
+    columnNumber: 5
+  }, this);
 };
 
 // src/app/components/form_elements/ControlledSwitch.tsx
@@ -2862,7 +3562,7 @@ import {
   Switch
 } from "@chakra-ui/react";
 import { useController as useController4 } from "react-hook-form";
-import { jsx as jsx18, jsxs as jsxs11 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV18 } from "react/jsx-dev-runtime";
 var ControlledSwitch = (props) => {
   let {
     fieldProps,
@@ -2878,7 +3578,7 @@ var ControlledSwitch = (props) => {
     name: fieldProps.name,
     control
   });
-  return /* @__PURE__ */ jsxs11(
+  return /* @__PURE__ */ jsxDEV18(
     FormControl4,
     {
       display: "flex",
@@ -2886,7 +3586,7 @@ var ControlledSwitch = (props) => {
       ...formControlProps,
       isInvalid: invalid,
       children: [
-        /* @__PURE__ */ jsx18(
+        /* @__PURE__ */ jsxDEV18(
           Switch,
           {
             ...fieldProps,
@@ -2895,29 +3595,53 @@ var ControlledSwitch = (props) => {
             onChange: (e) => onChange(e.target.checked),
             onBlur,
             ref
-          }
+          },
+          void 0,
+          !1,
+          {
+            fileName: "src/app/components/form_elements/ControlledSwitch.tsx",
+            lineNumber: 54,
+            columnNumber: 7
+          },
+          this
         ),
-        label != null && /* @__PURE__ */ jsx18(
+        label != null && /* @__PURE__ */ jsxDEV18(
           FormLabel3,
           {
             htmlFor: fieldProps.id,
             sx: { mb: 0, ms: 4 },
             cursor: "pointer",
             children: label
-          }
+          },
+          void 0,
+          !1,
+          {
+            fileName: "src/app/components/form_elements/ControlledSwitch.tsx",
+            lineNumber: 63,
+            columnNumber: 9
+          },
+          this
         )
       ]
-    }
+    },
+    void 0,
+    !0,
+    {
+      fileName: "src/app/components/form_elements/ControlledSwitch.tsx",
+      lineNumber: 48,
+      columnNumber: 5
+    },
+    this
   );
 };
 
 // src/app/components/form_elements/FormErrors.tsx
 import { useRef as useRef3 } from "react";
 import { Alert as Alert3, Box as Box5, ListItem, UnorderedList } from "@chakra-ui/react";
-import { Fragment as Fragment4, jsx as jsx19 } from "react/jsx-runtime";
+import { Fragment as Fragment4, jsxDEV as jsxDEV19 } from "react/jsx-dev-runtime";
 var FormErrors = ({ errors }) => {
   let formErrorsRef = useRef3(null);
-  return Object.keys(errors).length ? /* @__PURE__ */ jsx19(
+  return Object.keys(errors).length ? /* @__PURE__ */ jsxDEV19(
     Box5,
     {
       width: "full",
@@ -2925,15 +3649,39 @@ var FormErrors = ({ errors }) => {
         mb: 4
       },
       ref: formErrorsRef,
-      children: /* @__PURE__ */ jsx19(Alert3, { status: "error", variant: "left-accent", sx: { p: 4 }, children: /* @__PURE__ */ jsx19(UnorderedList, { fontSize: "sm", styleType: "none", sx: { m: 0 }, children: Object.values(errors).map((error, key) => /* @__PURE__ */ jsx19(ListItem, { children: error?.message?.toString() }, key)) }) })
-    }
-  ) : /* @__PURE__ */ jsx19(Fragment4, {});
+      children: /* @__PURE__ */ jsxDEV19(Alert3, { status: "error", variant: "left-accent", sx: { p: 4 }, children: /* @__PURE__ */ jsxDEV19(UnorderedList, { fontSize: "sm", styleType: "none", sx: { m: 0 }, children: Object.values(errors).map((error, key) => /* @__PURE__ */ jsxDEV19(ListItem, { children: error?.message?.toString() }, key, !1, {
+        fileName: "src/app/components/form_elements/FormErrors.tsx",
+        lineNumber: 27,
+        columnNumber: 13
+      }, this)) }, void 0, !1, {
+        fileName: "src/app/components/form_elements/FormErrors.tsx",
+        lineNumber: 25,
+        columnNumber: 9
+      }, this) }, void 0, !1, {
+        fileName: "src/app/components/form_elements/FormErrors.tsx",
+        lineNumber: 24,
+        columnNumber: 7
+      }, this)
+    },
+    void 0,
+    !1,
+    {
+      fileName: "src/app/components/form_elements/FormErrors.tsx",
+      lineNumber: 17,
+      columnNumber: 5
+    },
+    this
+  ) : /* @__PURE__ */ jsxDEV19(Fragment4, {}, void 0, !1, {
+    fileName: "src/app/components/form_elements/FormErrors.tsx",
+    lineNumber: 33,
+    columnNumber: 5
+  }, this);
 };
 
 // src/app/components/InlineError.tsx
 import { Badge } from "@chakra-ui/react";
-import { jsx as jsx20 } from "react/jsx-runtime";
-var InlineError = ({ error }) => /* @__PURE__ */ jsx20(
+import { jsxDEV as jsxDEV20 } from "react/jsx-dev-runtime";
+var InlineError = ({ error }) => /* @__PURE__ */ jsxDEV20(
   Badge,
   {
     colorScheme: "red",
@@ -2943,17 +3691,25 @@ var InlineError = ({ error }) => /* @__PURE__ */ jsx20(
       whiteSpace: "normal"
     },
     children: error
-  }
+  },
+  void 0,
+  !1,
+  {
+    fileName: "src/app/components/InlineError.tsx",
+    lineNumber: 9,
+    columnNumber: 5
+  },
+  this
 );
 
 // src/app/components/SettingsFormButtons.tsx
 import { useNavigate as useNavigate3 } from "@remix-run/react";
 import { Button as Button5, Stack as Stack3 } from "@chakra-ui/react";
-import { Fragment as Fragment5, jsx as jsx21, jsxs as jsxs12 } from "react/jsx-runtime";
+import { Fragment as Fragment5, jsxDEV as jsxDEV21 } from "react/jsx-dev-runtime";
 var SettingsFormsButtons = (props) => {
   let { isLoading, buttonActionText, buttonCancelUrl } = props, navigate = useNavigate3();
-  return /* @__PURE__ */ jsx21(Fragment5, { children: /* @__PURE__ */ jsxs12(Stack3, { direction: { base: "column", md: "row" }, children: [
-    /* @__PURE__ */ jsx21(
+  return /* @__PURE__ */ jsxDEV21(Fragment5, { children: /* @__PURE__ */ jsxDEV21(Stack3, { direction: { base: "column", md: "row" }, children: [
+    /* @__PURE__ */ jsxDEV21(
       Button5,
       {
         type: "submit",
@@ -2961,9 +3717,17 @@ var SettingsFormsButtons = (props) => {
         width: "full",
         isLoading,
         children: buttonActionText ?? "Actualizar"
-      }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/components/SettingsFormButtons.tsx",
+        lineNumber: 20,
+        columnNumber: 9
+      },
+      this
     ),
-    /* @__PURE__ */ jsx21(
+    /* @__PURE__ */ jsxDEV21(
       Button5,
       {
         type: "button",
@@ -2972,9 +3736,25 @@ var SettingsFormsButtons = (props) => {
         isLoading,
         onClick: () => navigate(buttonCancelUrl ?? URL_SETTINGS_PATH),
         children: "Cancelar"
-      }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/components/SettingsFormButtons.tsx",
+        lineNumber: 28,
+        columnNumber: 9
+      },
+      this
     )
-  ] }) });
+  ] }, void 0, !0, {
+    fileName: "src/app/components/SettingsFormButtons.tsx",
+    lineNumber: 19,
+    columnNumber: 7
+  }, this) }, void 0, !1, {
+    fileName: "src/app/components/SettingsFormButtons.tsx",
+    lineNumber: 18,
+    columnNumber: 5
+  }, this);
 };
 
 // src/app/routes/_admin.settings.users.customers.$id.edit/validation.ts
@@ -3107,6 +3887,13 @@ var VODXTPassword = class extends ValueObject {
   }
 };
 
+// src/domain/shared/value_objects/vo_strings.ts
+var VOStrings = class extends ValueObject {
+  validate(input) {
+    return typeof input == "string" ? [input] : (Array.isArray(input) || this.throwError(input), input.map((e) => (e == null && this.throwError(input), e.toString())));
+  }
+};
+
 // src/app/routes/_admin.settings.users.customers.$id.edit/validation.ts
 var useCustomValidationSchema = () => {
   let [passwordStatus, setPasswordStatus] = useState4(null), customValidationSchema = yup2.object({
@@ -3132,7 +3919,7 @@ var useCustomValidationSchema = () => {
 };
 
 // src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx
-import { jsx as jsx22, jsxs as jsxs13 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV22 } from "react/jsx-dev-runtime";
 var Success = (props) => {
   let { stateData, typeSettings } = props, updateData = {
     ...stateData
@@ -3179,7 +3966,7 @@ var Success = (props) => {
     }
   }, [stateRelationship, statePerfiles]);
   let disableForm = isSubmitSuccessful || isSubmitting;
-  return /* @__PURE__ */ jsx22("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
+  return /* @__PURE__ */ jsxDEV22("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
     let { password_repeat, ...data } = dataUnsafe;
     data.email === "" && delete data.email, data.password === "" && delete data.password;
     let input = data, result = await typeSettings.api.patch(updateData.id, input, app);
@@ -3196,18 +3983,30 @@ var Success = (props) => {
     }).catch((e) => {
       setError("root", { message: e });
     });
-  }), children: /* @__PURE__ */ jsxs13(Box6, { children: [
-    /* @__PURE__ */ jsx22(FormErrors, { errors }),
-    /* @__PURE__ */ jsx22(CommonCard, { children: /* @__PURE__ */ jsxs13(
+  }), children: /* @__PURE__ */ jsxDEV22(Box6, { children: [
+    /* @__PURE__ */ jsxDEV22(FormErrors, { errors }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+      lineNumber: 162,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV22(CommonCard, { children: /* @__PURE__ */ jsxDEV22(
       Grid2,
       {
         templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
         alignItems: "center",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx22(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx22(Heading2, { size: "sm", textTransform: "uppercase", children: "Informaci\xF3n del Cliente" }) }),
-          /* @__PURE__ */ jsxs13(GridItem2, { colSpan: { md: 2 }, children: [
-            /* @__PURE__ */ jsx22(
+          /* @__PURE__ */ jsxDEV22(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV22(Heading2, { size: "sm", textTransform: "uppercase", children: "Informaci\xF3n del Cliente" }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 170,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 169,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV22(GridItem2, { colSpan: { md: 2 }, children: [
+            /* @__PURE__ */ jsxDEV22(
               ControlledSelect,
               {
                 fieldProps: {
@@ -3228,11 +4027,27 @@ var Success = (props) => {
                   label: typeSettings.tangoRelatedFields?.label
                 },
                 control
-              }
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+                lineNumber: 175,
+                columnNumber: 15
+              },
+              this
             ),
-            stateRelationship instanceof FetchStateError && /* @__PURE__ */ jsx22(InlineError, { error: stateRelationship.errorOrNull().error })
-          ] }),
-          /* @__PURE__ */ jsx22(GridItem2, { children: /* @__PURE__ */ jsx22(
+            stateRelationship instanceof FetchStateError && /* @__PURE__ */ jsxDEV22(InlineError, { error: stateRelationship.errorOrNull().error }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+              lineNumber: 198,
+              columnNumber: 17
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 174,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV22(GridItem2, { children: /* @__PURE__ */ jsxDEV22(
             ControlledInput,
             {
               fieldProps: {
@@ -3247,9 +4062,21 @@ var Success = (props) => {
                 label: "Nombre de Usuario"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx22(GridItem2, { children: /* @__PURE__ */ jsx22(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+              lineNumber: 202,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 201,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV22(GridItem2, { children: /* @__PURE__ */ jsxDEV22(
             ControlledInput,
             {
               fieldProps: {
@@ -3265,9 +4092,21 @@ var Success = (props) => {
                 label: "Correo electr\xF3nico"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx22(GridItem2, { children: /* @__PURE__ */ jsx22(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+              lineNumber: 218,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 217,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV22(GridItem2, { children: /* @__PURE__ */ jsxDEV22(
             ControlledInput,
             {
               fieldProps: {
@@ -3282,9 +4121,21 @@ var Success = (props) => {
                 label: "Nueva contrase\xF1a"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx22(GridItem2, { children: /* @__PURE__ */ jsx22(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+              lineNumber: 235,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 234,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV22(GridItem2, { children: /* @__PURE__ */ jsxDEV22(
             ControlledInput,
             {
               fieldProps: {
@@ -3299,16 +4150,52 @@ var Success = (props) => {
                 label: "Confirmaci\xF3n de Contrase\xF1a"
               },
               control
-            }
-          ) }),
-          passwordStatus != null && /* @__PURE__ */ jsxs13(GridItem2, { colSpan: { md: 2 }, children: [
-            passwordStatus.tooShort && /* @__PURE__ */ jsx22(Badge2, { colorScheme: "red", children: "Contrase\xF1a muy corta" }),
-            passwordStatus.tooLong && /* @__PURE__ */ jsx22(Badge2, { colorScheme: "red", children: "Contrase\xF1a muy larga" }),
-            passwordStatus.invalidCharsPresent && /* @__PURE__ */ jsx22(Badge2, { colorScheme: "red", children: "Evite caracteres no v\xE1lidos" })
-          ] }),
-          /* @__PURE__ */ jsx22(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx22(Divider2, {}) }),
-          /* @__PURE__ */ jsxs13(GridItem2, { colSpan: { md: 2 }, children: [
-            /* @__PURE__ */ jsx22(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+              lineNumber: 251,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 250,
+            columnNumber: 13
+          }, this),
+          passwordStatus != null && /* @__PURE__ */ jsxDEV22(GridItem2, { colSpan: { md: 2 }, children: [
+            passwordStatus.tooShort && /* @__PURE__ */ jsxDEV22(Badge2, { colorScheme: "red", children: "Contrase\xF1a muy corta" }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+              lineNumber: 269,
+              columnNumber: 19
+            }, this),
+            passwordStatus.tooLong && /* @__PURE__ */ jsxDEV22(Badge2, { colorScheme: "red", children: "Contrase\xF1a muy larga" }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+              lineNumber: 272,
+              columnNumber: 19
+            }, this),
+            passwordStatus.invalidCharsPresent && /* @__PURE__ */ jsxDEV22(Badge2, { colorScheme: "red", children: "Evite caracteres no v\xE1lidos" }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+              lineNumber: 275,
+              columnNumber: 19
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 267,
+            columnNumber: 15
+          }, this),
+          /* @__PURE__ */ jsxDEV22(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV22(Divider2, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 280,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 279,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV22(GridItem2, { colSpan: { md: 2 }, children: [
+            /* @__PURE__ */ jsxDEV22(
               ControlledSelect,
               {
                 fieldProps: {
@@ -3328,13 +4215,45 @@ var Success = (props) => {
                 formControlInnerProps: {
                   label: "Perfil de facturaci\xF3n"
                 }
-              }
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+                lineNumber: 283,
+                columnNumber: 15
+              },
+              this
             ),
-            statePerfiles instanceof FetchStateError && /* @__PURE__ */ jsx22(InlineError, { error: statePerfiles.errorOrNull().error })
-          ] }),
-          /* @__PURE__ */ jsx22(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx22(Divider2, {}) }),
-          /* @__PURE__ */ jsx22(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx22(Heading2, { size: "sm", textTransform: "uppercase", children: "Estado" }) }),
-          /* @__PURE__ */ jsx22(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx22(
+            statePerfiles instanceof FetchStateError && /* @__PURE__ */ jsxDEV22(InlineError, { error: statePerfiles.errorOrNull().error }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+              lineNumber: 305,
+              columnNumber: 17
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 282,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV22(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV22(Divider2, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 309,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 308,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV22(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV22(Heading2, { size: "sm", textTransform: "uppercase", children: "Estado" }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 312,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 311,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV22(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV22(
             ControlledRadio,
             {
               fieldProps: {
@@ -3357,11 +4276,39 @@ var Success = (props) => {
                 size: { base: "sm", sm: "md" }
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx22(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx22(Divider2, {}) }),
-          /* @__PURE__ */ jsx22(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx22(Heading2, { size: "sm", textTransform: "uppercase", children: "Comunicaci\xF3n" }) }),
-          /* @__PURE__ */ jsx22(GridItem2, { children: /* @__PURE__ */ jsx22(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+              lineNumber: 317,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 316,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV22(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV22(Divider2, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 341,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 340,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV22(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV22(Heading2, { size: "sm", textTransform: "uppercase", children: "Comunicaci\xF3n" }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 344,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 343,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV22(GridItem2, { children: /* @__PURE__ */ jsxDEV22(
             ControlledSwitch,
             {
               fieldProps: {
@@ -3376,21 +4323,53 @@ var Success = (props) => {
                 label: "Mostrar mensaje de advertencia"
               },
               control
-            }
-          ) })
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+              lineNumber: 349,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 348,
+            columnNumber: 13
+          }, this)
         ]
-      }
-    ) }),
-    /* @__PURE__ */ jsx22(CommonCard, { children: /* @__PURE__ */ jsxs13(
+      },
+      void 0,
+      !0,
+      {
+        fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+        lineNumber: 164,
+        columnNumber: 11
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+      lineNumber: 163,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV22(CommonCard, { children: /* @__PURE__ */ jsxDEV22(
       Grid2,
       {
         templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
         alignItems: "center",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx22(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx22(Heading2, { size: "sm", textTransform: "uppercase", children: "Pedidos" }) }),
-          /* @__PURE__ */ jsx22(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxs13(Stack4, { spacing: 4, direction: { base: "column" }, children: [
-            /* @__PURE__ */ jsx22(HStack3, { spacing: 4, children: /* @__PURE__ */ jsx22(
+          /* @__PURE__ */ jsxDEV22(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV22(Heading2, { size: "sm", textTransform: "uppercase", children: "Pedidos" }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 373,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 372,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV22(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV22(Stack4, { spacing: 4, direction: { base: "column" }, children: [
+            /* @__PURE__ */ jsxDEV22(HStack3, { spacing: 4, children: /* @__PURE__ */ jsxDEV22(
               ControlledSwitch,
               {
                 fieldProps: {
@@ -3405,9 +4384,21 @@ var Success = (props) => {
                   label: "Puede crear pedidos"
                 },
                 control
-              }
-            ) }),
-            /* @__PURE__ */ jsx22(HStack3, { spacing: 4, children: /* @__PURE__ */ jsx22(
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+                lineNumber: 380,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+              lineNumber: 379,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV22(HStack3, { spacing: 4, children: /* @__PURE__ */ jsxDEV22(
               ControlledSwitch,
               {
                 fieldProps: {
@@ -3422,9 +4413,21 @@ var Success = (props) => {
                   label: "Puede editar pedidos"
                 },
                 control
-              }
-            ) }),
-            /* @__PURE__ */ jsx22(HStack3, { spacing: 4, children: /* @__PURE__ */ jsx22(
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+                lineNumber: 396,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+              lineNumber: 395,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV22(HStack3, { spacing: 4, children: /* @__PURE__ */ jsxDEV22(
               ControlledSwitch,
               {
                 fieldProps: {
@@ -3439,9 +4442,21 @@ var Success = (props) => {
                   label: "Puede anular pedidos"
                 },
                 control
-              }
-            ) }),
-            /* @__PURE__ */ jsx22(HStack3, { spacing: 4, children: /* @__PURE__ */ jsx22(
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+                lineNumber: 412,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+              lineNumber: 411,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV22(HStack3, { spacing: 4, children: /* @__PURE__ */ jsxDEV22(
               ControlledSwitch,
               {
                 fieldProps: {
@@ -3462,9 +4477,21 @@ var Success = (props) => {
                     isChecked: !1
                   }
                 }
-              }
-            ) }),
-            /* @__PURE__ */ jsx22(HStack3, { spacing: 4, children: /* @__PURE__ */ jsx22(
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+                lineNumber: 428,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+              lineNumber: 427,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV22(HStack3, { spacing: 4, children: /* @__PURE__ */ jsxDEV22(
               ControlledSwitch,
               {
                 fieldProps: {
@@ -3479,9 +4506,21 @@ var Success = (props) => {
                   label: "Los pedidos se aprueban al crearlos"
                 },
                 control
-              }
-            ) }),
-            /* @__PURE__ */ jsx22(HStack3, { spacing: 4, children: /* @__PURE__ */ jsx22(
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+                lineNumber: 450,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+              lineNumber: 449,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV22(HStack3, { spacing: 4, children: /* @__PURE__ */ jsxDEV22(
               ControlledSwitch,
               {
                 fieldProps: {
@@ -3496,9 +4535,21 @@ var Success = (props) => {
                   label: "Puede ver los pedidos cumplidos"
                 },
                 control
-              }
-            ) }),
-            /* @__PURE__ */ jsx22(HStack3, { spacing: 4, children: /* @__PURE__ */ jsx22(
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+                lineNumber: 466,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+              lineNumber: 465,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV22(HStack3, { spacing: 4, children: /* @__PURE__ */ jsxDEV22(
               ControlledSwitch,
               {
                 fieldProps: {
@@ -3513,11 +4564,39 @@ var Success = (props) => {
                   label: "Puede ver art\xEDculos sin precios"
                 },
                 control
-              }
-            ) })
-          ] }) }),
-          /* @__PURE__ */ jsx22(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx22(Divider2, {}) }),
-          /* @__PURE__ */ jsx22(GridItem2, { children: /* @__PURE__ */ jsx22(
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+                lineNumber: 482,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+              lineNumber: 481,
+              columnNumber: 17
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 378,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 377,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV22(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV22(Divider2, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 500,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 499,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV22(GridItem2, { children: /* @__PURE__ */ jsxDEV22(
             ControlledInput,
             {
               fieldProps: {
@@ -3534,48 +4613,112 @@ var Success = (props) => {
                 helperText: "Expresado en d\xEDas"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx22(GridItem2, {})
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+              lineNumber: 503,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 502,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV22(GridItem2, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+            lineNumber: 520,
+            columnNumber: 13
+          }, this)
         ]
-      }
-    ) }),
-    /* @__PURE__ */ jsx22(CommonCard, { children: /* @__PURE__ */ jsx22(
+      },
+      void 0,
+      !0,
+      {
+        fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+        lineNumber: 367,
+        columnNumber: 11
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+      lineNumber: 366,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV22(CommonCard, { children: /* @__PURE__ */ jsxDEV22(
       SettingsFormsButtons,
       {
         buttonActionText: "Actualizar",
         isLoading: disableForm
-      }
-    ) })
-  ] }) });
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+        lineNumber: 524,
+        columnNumber: 11
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+      lineNumber: 523,
+      columnNumber: 9
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+    lineNumber: 161,
+    columnNumber: 7
+  }, this) }, void 0, !1, {
+    fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx",
+    lineNumber: 160,
+    columnNumber: 5
+  }, this);
 };
 
 // src/app/routes/_admin.settings.users.customers.$id.edit/components/index.tsx
-import { jsx as jsx23 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV23 } from "react/jsx-dev-runtime";
 var FormEdit = (props) => {
   let { typeSettings, id } = props, { state, retry } = typeSettings.api.getOne(id);
   return state.map({
-    loading: (_11) => /* @__PURE__ */ jsx23(Loading, {}),
-    error: ({ error }) => /* @__PURE__ */ jsx23(
+    loading: (_11) => /* @__PURE__ */ jsxDEV23(Loading, {}, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/index.tsx",
+      lineNumber: 20,
+      columnNumber: 21
+    }, this),
+    error: ({ error }) => /* @__PURE__ */ jsxDEV23(
       ApiErrors,
       {
         error,
         retry,
         cancelAndNavigateTo: URL_SETTINGS_PATH
-      }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/index.tsx",
+        lineNumber: 23,
+        columnNumber: 7
+      },
+      this
     ),
-    success: (state2) => /* @__PURE__ */ jsx23(Success, { stateData: state2.data, typeSettings })
+    success: (state2) => /* @__PURE__ */ jsxDEV23(Success, { stateData: state2.data, typeSettings }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/components/index.tsx",
+      lineNumber: 31,
+      columnNumber: 7
+    }, this)
   });
 };
 
 // src/app/routes/_admin.settings.users.customers.$id.edit/route.tsx
-import { Fragment as Fragment6, jsx as jsx24, jsxs as jsxs14 } from "react/jsx-runtime";
+import { Fragment as Fragment6, jsxDEV as jsxDEV24 } from "react/jsx-dev-runtime";
 function Edit() {
   let navigate = useNavigate4(), { id } = useParams(), typeSettings = settings.customers;
   try {
     if (integerValidator(id))
-      return /* @__PURE__ */ jsxs14(Fragment6, { children: [
-        /* @__PURE__ */ jsx24(
+      return /* @__PURE__ */ jsxDEV24(Fragment6, { children: [
+        /* @__PURE__ */ jsxDEV24(
           SettingsFormHeading,
           {
             title: typeSettings.titles.edit,
@@ -3588,12 +4731,28 @@ function Edit() {
                 }
               }
             }
-          }
+          },
+          void 0,
+          !1,
+          {
+            fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/route.tsx",
+            lineNumber: 25,
+            columnNumber: 11
+          },
+          this
         ),
-        /* @__PURE__ */ jsx24(FormEdit, { typeSettings, id })
-      ] });
+        /* @__PURE__ */ jsxDEV24(FormEdit, { typeSettings, id }, void 0, !1, {
+          fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/route.tsx",
+          lineNumber: 37,
+          columnNumber: 11
+        }, this)
+      ] }, void 0, !0, {
+        fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/route.tsx",
+        lineNumber: 24,
+        columnNumber: 9
+      }, this);
   } catch {
-    return /* @__PURE__ */ jsx24(
+    return /* @__PURE__ */ jsxDEV24(
       CommonErrors,
       {
         error: "Usuario no encontrado",
@@ -3604,7 +4763,15 @@ function Edit() {
             navigate(URL_SETTINGS_PATH);
           }
         }
-      }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings.users.customers.$id.edit/route.tsx",
+        lineNumber: 43,
+        columnNumber: 7
+      },
+      this
     );
   }
 }
@@ -3618,8 +4785,8 @@ import { useNavigate as useNavigate5, useParams as useParams2 } from "@remix-run
 
 // src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx
 import { Box as Box7, Divider as Divider3, Grid as Grid3, GridItem as GridItem3, HStack as HStack4, Stack as Stack5 } from "@chakra-ui/react";
-import { jsx as jsx25, jsxs as jsxs15 } from "react/jsx-runtime";
-var Loading2 = () => /* @__PURE__ */ jsx25(
+import { jsxDEV as jsxDEV25 } from "react/jsx-dev-runtime";
+var Loading2 = () => /* @__PURE__ */ jsxDEV25(
   Box7,
   {
     width: "full",
@@ -3627,53 +4794,345 @@ var Loading2 = () => /* @__PURE__ */ jsx25(
       mt: 8,
       mb: 4
     },
-    children: /* @__PURE__ */ jsxs15(
+    children: /* @__PURE__ */ jsxDEV25(
       Grid3,
       {
         templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
         alignItems: "center",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, { children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, { children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, { children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, { children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx25(Divider3, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx25(Divider3, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx25(Divider3, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxs15(Stack5, { spacing: 4, direction: { base: "column" }, children: [
-            /* @__PURE__ */ jsx25(HStack4, { spacing: 4, children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-            /* @__PURE__ */ jsx25(HStack4, { spacing: 4, children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-            /* @__PURE__ */ jsx25(HStack4, { spacing: 4, children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-            /* @__PURE__ */ jsx25(HStack4, { spacing: 4, children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-            /* @__PURE__ */ jsx25(HStack4, { spacing: 4, children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-            /* @__PURE__ */ jsx25(HStack4, { spacing: 4, children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-            /* @__PURE__ */ jsx25(HStack4, { spacing: 4, children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-            /* @__PURE__ */ jsx25(HStack4, { spacing: 4, children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) })
-          ] }) }),
-          /* @__PURE__ */ jsx25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx25(Divider3, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, { children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, {}),
-          /* @__PURE__ */ jsx25(GridItem3, { children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, { children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, { children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, { children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, { children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, { children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, { children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, { children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx25(GridItem3, { children: /* @__PURE__ */ jsx25(FormInputSkeleton, {}) })
+          /* @__PURE__ */ jsxDEV25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 19,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 18,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 22,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 21,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 25,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 24,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 28,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 27,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 31,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 30,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 34,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 33,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV25(Divider3, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 37,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 36,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 40,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 39,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 43,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 42,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV25(Divider3, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 46,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 45,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 49,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 48,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 52,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 51,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV25(Divider3, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 55,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 54,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 58,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 57,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV25(Stack5, { spacing: 4, direction: { base: "column" }, children: [
+            /* @__PURE__ */ jsxDEV25(HStack4, { spacing: 4, children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+              lineNumber: 63,
+              columnNumber: 13
+            }, this) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+              lineNumber: 62,
+              columnNumber: 11
+            }, this),
+            /* @__PURE__ */ jsxDEV25(HStack4, { spacing: 4, children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+              lineNumber: 66,
+              columnNumber: 13
+            }, this) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+              lineNumber: 65,
+              columnNumber: 11
+            }, this),
+            /* @__PURE__ */ jsxDEV25(HStack4, { spacing: 4, children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+              lineNumber: 69,
+              columnNumber: 13
+            }, this) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+              lineNumber: 68,
+              columnNumber: 11
+            }, this),
+            /* @__PURE__ */ jsxDEV25(HStack4, { spacing: 4, children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+              lineNumber: 72,
+              columnNumber: 13
+            }, this) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+              lineNumber: 71,
+              columnNumber: 11
+            }, this),
+            /* @__PURE__ */ jsxDEV25(HStack4, { spacing: 4, children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+              lineNumber: 75,
+              columnNumber: 13
+            }, this) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+              lineNumber: 74,
+              columnNumber: 11
+            }, this),
+            /* @__PURE__ */ jsxDEV25(HStack4, { spacing: 4, children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+              lineNumber: 78,
+              columnNumber: 13
+            }, this) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+              lineNumber: 77,
+              columnNumber: 11
+            }, this),
+            /* @__PURE__ */ jsxDEV25(HStack4, { spacing: 4, children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+              lineNumber: 81,
+              columnNumber: 13
+            }, this) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+              lineNumber: 80,
+              columnNumber: 11
+            }, this),
+            /* @__PURE__ */ jsxDEV25(HStack4, { spacing: 4, children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+              lineNumber: 84,
+              columnNumber: 13
+            }, this) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+              lineNumber: 83,
+              columnNumber: 11
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 61,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 60,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV25(Divider3, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 89,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 88,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 92,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 91,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 94,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 96,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 95,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 99,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 98,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 102,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 101,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 105,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 104,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 108,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 107,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 111,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 110,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 114,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 113,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 117,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 116,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV25(GridItem3, { children: /* @__PURE__ */ jsxDEV25(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 120,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+            lineNumber: 119,
+            columnNumber: 7
+          }, this)
         ]
-      }
+      },
+      void 0,
+      !0,
+      {
+        fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+        lineNumber: 13,
+        columnNumber: 5
+      },
+      this
     )
-  }
+  },
+  void 0,
+  !1,
+  {
+    fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/loading.tsx",
+    lineNumber: 6,
+    columnNumber: 3
+  },
+  this
 );
 
 // src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx
@@ -3720,7 +5179,7 @@ var useCustomValidationSchema2 = () => {
 };
 
 // src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx
-import { jsx as jsx26, jsxs as jsxs16 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV26 } from "react/jsx-dev-runtime";
 var Success2 = (props) => {
   let { stateData, typeSettings } = props, updateData = {
     ...stateData
@@ -3767,7 +5226,7 @@ var Success2 = (props) => {
     }
   }, [stateRelationship, statePerfiles]);
   let disableForm = isSubmitSuccessful || isSubmitting;
-  return /* @__PURE__ */ jsx26("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
+  return /* @__PURE__ */ jsxDEV26("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
     let { password_repeat, ...data } = dataUnsafe;
     data.email === "" && delete data.email, data.password === "" && delete data.password;
     let input = data, result = await typeSettings.api.patch(updateData.id, input, app);
@@ -3784,18 +5243,30 @@ var Success2 = (props) => {
     }).catch((e) => {
       setError("root", { message: e });
     });
-  }), children: /* @__PURE__ */ jsxs16(Box8, { children: [
-    /* @__PURE__ */ jsx26(FormErrors, { errors }),
-    /* @__PURE__ */ jsx26(CommonCard, { children: /* @__PURE__ */ jsxs16(
+  }), children: /* @__PURE__ */ jsxDEV26(Box8, { children: [
+    /* @__PURE__ */ jsxDEV26(FormErrors, { errors }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+      lineNumber: 162,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV26(CommonCard, { children: /* @__PURE__ */ jsxDEV26(
       Grid4,
       {
         templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
         alignItems: "center",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx26(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx26(Heading3, { size: "sm", textTransform: "uppercase", children: "Informaci\xF3n del Vendedor" }) }),
-          /* @__PURE__ */ jsxs16(GridItem4, { colSpan: { md: 2 }, children: [
-            /* @__PURE__ */ jsx26(
+          /* @__PURE__ */ jsxDEV26(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV26(Heading3, { size: "sm", textTransform: "uppercase", children: "Informaci\xF3n del Vendedor" }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 170,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 169,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV26(GridItem4, { colSpan: { md: 2 }, children: [
+            /* @__PURE__ */ jsxDEV26(
               ControlledSelect,
               {
                 fieldProps: {
@@ -3816,11 +5287,27 @@ var Success2 = (props) => {
                   label: typeSettings.tangoRelatedFields?.label
                 },
                 control
-              }
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+                lineNumber: 175,
+                columnNumber: 15
+              },
+              this
             ),
-            stateRelationship instanceof FetchStateError && /* @__PURE__ */ jsx26(InlineError, { error: stateRelationship.errorOrNull().error })
-          ] }),
-          /* @__PURE__ */ jsx26(GridItem4, { children: /* @__PURE__ */ jsx26(
+            stateRelationship instanceof FetchStateError && /* @__PURE__ */ jsxDEV26(InlineError, { error: stateRelationship.errorOrNull().error }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+              lineNumber: 198,
+              columnNumber: 17
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 174,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV26(GridItem4, { children: /* @__PURE__ */ jsxDEV26(
             ControlledInput,
             {
               fieldProps: {
@@ -3835,9 +5322,21 @@ var Success2 = (props) => {
                 label: "Nombre de Usuario"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx26(GridItem4, { children: /* @__PURE__ */ jsx26(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+              lineNumber: 202,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 201,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV26(GridItem4, { children: /* @__PURE__ */ jsxDEV26(
             ControlledInput,
             {
               fieldProps: {
@@ -3853,9 +5352,21 @@ var Success2 = (props) => {
                 label: "Correo electr\xF3nico"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx26(GridItem4, { children: /* @__PURE__ */ jsx26(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+              lineNumber: 218,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 217,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV26(GridItem4, { children: /* @__PURE__ */ jsxDEV26(
             ControlledInput,
             {
               fieldProps: {
@@ -3870,9 +5381,21 @@ var Success2 = (props) => {
                 label: "Nueva contrase\xF1a"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx26(GridItem4, { children: /* @__PURE__ */ jsx26(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+              lineNumber: 235,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 234,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV26(GridItem4, { children: /* @__PURE__ */ jsxDEV26(
             ControlledInput,
             {
               fieldProps: {
@@ -3887,16 +5410,52 @@ var Success2 = (props) => {
                 label: "Confirmaci\xF3n de Contrase\xF1a"
               },
               control
-            }
-          ) }),
-          passwordStatus != null && /* @__PURE__ */ jsxs16(GridItem4, { colSpan: { md: 2 }, children: [
-            passwordStatus.tooShort && /* @__PURE__ */ jsx26(Badge3, { colorScheme: "red", children: "Contrase\xF1a muy corta" }),
-            passwordStatus.tooLong && /* @__PURE__ */ jsx26(Badge3, { colorScheme: "red", children: "Contrase\xF1a muy larga" }),
-            passwordStatus.invalidCharsPresent && /* @__PURE__ */ jsx26(Badge3, { colorScheme: "red", children: "Evite caracteres no v\xE1lidos" })
-          ] }),
-          /* @__PURE__ */ jsx26(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx26(Divider4, {}) }),
-          /* @__PURE__ */ jsxs16(GridItem4, { colSpan: { md: 2 }, children: [
-            /* @__PURE__ */ jsx26(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+              lineNumber: 251,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 250,
+            columnNumber: 13
+          }, this),
+          passwordStatus != null && /* @__PURE__ */ jsxDEV26(GridItem4, { colSpan: { md: 2 }, children: [
+            passwordStatus.tooShort && /* @__PURE__ */ jsxDEV26(Badge3, { colorScheme: "red", children: "Contrase\xF1a muy corta" }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+              lineNumber: 269,
+              columnNumber: 19
+            }, this),
+            passwordStatus.tooLong && /* @__PURE__ */ jsxDEV26(Badge3, { colorScheme: "red", children: "Contrase\xF1a muy larga" }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+              lineNumber: 272,
+              columnNumber: 19
+            }, this),
+            passwordStatus.invalidCharsPresent && /* @__PURE__ */ jsxDEV26(Badge3, { colorScheme: "red", children: "Evite caracteres no v\xE1lidos" }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+              lineNumber: 275,
+              columnNumber: 19
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 267,
+            columnNumber: 15
+          }, this),
+          /* @__PURE__ */ jsxDEV26(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV26(Divider4, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 280,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 279,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV26(GridItem4, { colSpan: { md: 2 }, children: [
+            /* @__PURE__ */ jsxDEV26(
               ControlledSelect,
               {
                 fieldProps: {
@@ -3916,13 +5475,45 @@ var Success2 = (props) => {
                 formControlInnerProps: {
                   label: "Perfil de facturaci\xF3n"
                 }
-              }
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+                lineNumber: 283,
+                columnNumber: 15
+              },
+              this
             ),
-            statePerfiles instanceof FetchStateError && /* @__PURE__ */ jsx26(InlineError, { error: statePerfiles.errorOrNull().error })
-          ] }),
-          /* @__PURE__ */ jsx26(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx26(Divider4, {}) }),
-          /* @__PURE__ */ jsx26(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx26(Heading3, { size: "sm", textTransform: "uppercase", children: "Estado" }) }),
-          /* @__PURE__ */ jsx26(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx26(
+            statePerfiles instanceof FetchStateError && /* @__PURE__ */ jsxDEV26(InlineError, { error: statePerfiles.errorOrNull().error }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+              lineNumber: 305,
+              columnNumber: 17
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 282,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV26(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV26(Divider4, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 309,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 308,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV26(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV26(Heading3, { size: "sm", textTransform: "uppercase", children: "Estado" }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 312,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 311,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV26(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV26(
             ControlledRadio,
             {
               fieldProps: {
@@ -3945,11 +5536,39 @@ var Success2 = (props) => {
                 size: { base: "sm", sm: "md" }
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx26(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx26(Divider4, {}) }),
-          /* @__PURE__ */ jsx26(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx26(Heading3, { size: "sm", textTransform: "uppercase", children: "Comunicaci\xF3n" }) }),
-          /* @__PURE__ */ jsx26(GridItem4, { children: /* @__PURE__ */ jsx26(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+              lineNumber: 317,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 316,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV26(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV26(Divider4, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 341,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 340,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV26(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV26(Heading3, { size: "sm", textTransform: "uppercase", children: "Comunicaci\xF3n" }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 344,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 343,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV26(GridItem4, { children: /* @__PURE__ */ jsxDEV26(
             ControlledSwitch,
             {
               fieldProps: {
@@ -3964,21 +5583,53 @@ var Success2 = (props) => {
                 label: "Mostrar mensaje de advertencia"
               },
               control
-            }
-          ) })
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+              lineNumber: 349,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 348,
+            columnNumber: 13
+          }, this)
         ]
-      }
-    ) }),
-    /* @__PURE__ */ jsx26(CommonCard, { children: /* @__PURE__ */ jsxs16(
+      },
+      void 0,
+      !0,
+      {
+        fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+        lineNumber: 164,
+        columnNumber: 11
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+      lineNumber: 163,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV26(CommonCard, { children: /* @__PURE__ */ jsxDEV26(
       Grid4,
       {
         templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
         alignItems: "center",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx26(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx26(Heading3, { size: "sm", textTransform: "uppercase", children: "Pedidos" }) }),
-          /* @__PURE__ */ jsx26(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxs16(Stack6, { spacing: 4, direction: { base: "column" }, children: [
-            /* @__PURE__ */ jsx26(HStack5, { spacing: 4, children: /* @__PURE__ */ jsx26(
+          /* @__PURE__ */ jsxDEV26(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV26(Heading3, { size: "sm", textTransform: "uppercase", children: "Pedidos" }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 373,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 372,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV26(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV26(Stack6, { spacing: 4, direction: { base: "column" }, children: [
+            /* @__PURE__ */ jsxDEV26(HStack5, { spacing: 4, children: /* @__PURE__ */ jsxDEV26(
               ControlledSwitch,
               {
                 fieldProps: {
@@ -3993,9 +5644,21 @@ var Success2 = (props) => {
                   label: "Puede crear pedidos"
                 },
                 control
-              }
-            ) }),
-            /* @__PURE__ */ jsx26(HStack5, { spacing: 4, children: /* @__PURE__ */ jsx26(
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+                lineNumber: 380,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+              lineNumber: 379,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV26(HStack5, { spacing: 4, children: /* @__PURE__ */ jsxDEV26(
               ControlledSwitch,
               {
                 fieldProps: {
@@ -4010,9 +5673,21 @@ var Success2 = (props) => {
                   label: "Puede editar pedidos"
                 },
                 control
-              }
-            ) }),
-            /* @__PURE__ */ jsx26(HStack5, { spacing: 4, children: /* @__PURE__ */ jsx26(
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+                lineNumber: 396,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+              lineNumber: 395,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV26(HStack5, { spacing: 4, children: /* @__PURE__ */ jsxDEV26(
               ControlledSwitch,
               {
                 fieldProps: {
@@ -4027,9 +5702,21 @@ var Success2 = (props) => {
                   label: "Puede anular pedidos"
                 },
                 control
-              }
-            ) }),
-            /* @__PURE__ */ jsx26(HStack5, { spacing: 4, children: /* @__PURE__ */ jsx26(
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+                lineNumber: 412,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+              lineNumber: 411,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV26(HStack5, { spacing: 4, children: /* @__PURE__ */ jsxDEV26(
               ControlledSwitch,
               {
                 fieldProps: {
@@ -4050,9 +5737,21 @@ var Success2 = (props) => {
                     isChecked: !1
                   }
                 }
-              }
-            ) }),
-            /* @__PURE__ */ jsx26(HStack5, { spacing: 4, children: /* @__PURE__ */ jsx26(
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+                lineNumber: 428,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+              lineNumber: 427,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV26(HStack5, { spacing: 4, children: /* @__PURE__ */ jsxDEV26(
               ControlledSwitch,
               {
                 fieldProps: {
@@ -4067,9 +5766,21 @@ var Success2 = (props) => {
                   label: "Los pedidos se aprueban al crearlos"
                 },
                 control
-              }
-            ) }),
-            /* @__PURE__ */ jsx26(HStack5, { spacing: 4, children: /* @__PURE__ */ jsx26(
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+                lineNumber: 450,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+              lineNumber: 449,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV26(HStack5, { spacing: 4, children: /* @__PURE__ */ jsxDEV26(
               ControlledSwitch,
               {
                 fieldProps: {
@@ -4084,9 +5795,21 @@ var Success2 = (props) => {
                   label: "Puede ver los pedidos cumplidos"
                 },
                 control
-              }
-            ) }),
-            /* @__PURE__ */ jsx26(HStack5, { spacing: 4, children: /* @__PURE__ */ jsx26(
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+                lineNumber: 466,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+              lineNumber: 465,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV26(HStack5, { spacing: 4, children: /* @__PURE__ */ jsxDEV26(
               ControlledSwitch,
               {
                 fieldProps: {
@@ -4101,11 +5824,39 @@ var Success2 = (props) => {
                   label: "Puede ver art\xEDculos sin precios"
                 },
                 control
-              }
-            ) })
-          ] }) }),
-          /* @__PURE__ */ jsx26(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx26(Divider4, {}) }),
-          /* @__PURE__ */ jsx26(GridItem4, { children: /* @__PURE__ */ jsx26(
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+                lineNumber: 482,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+              lineNumber: 481,
+              columnNumber: 17
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 378,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 377,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV26(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV26(Divider4, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 500,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 499,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV26(GridItem4, { children: /* @__PURE__ */ jsxDEV26(
             ControlledInput,
             {
               fieldProps: {
@@ -4122,48 +5873,112 @@ var Success2 = (props) => {
                 helperText: "Expresado en d\xEDas"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx26(GridItem4, {})
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+              lineNumber: 503,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 502,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV26(GridItem4, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+            lineNumber: 520,
+            columnNumber: 13
+          }, this)
         ]
-      }
-    ) }),
-    /* @__PURE__ */ jsx26(CommonCard, { children: /* @__PURE__ */ jsx26(
+      },
+      void 0,
+      !0,
+      {
+        fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+        lineNumber: 367,
+        columnNumber: 11
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+      lineNumber: 366,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV26(CommonCard, { children: /* @__PURE__ */ jsxDEV26(
       SettingsFormsButtons,
       {
         buttonActionText: "Actualizar",
         isLoading: disableForm
-      }
-    ) })
-  ] }) });
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+        lineNumber: 524,
+        columnNumber: 11
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+      lineNumber: 523,
+      columnNumber: 9
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+    lineNumber: 161,
+    columnNumber: 7
+  }, this) }, void 0, !1, {
+    fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/success.tsx",
+    lineNumber: 160,
+    columnNumber: 5
+  }, this);
 };
 
 // src/app/routes/_admin.settings.users.vendors.$id.edit/components/index.tsx
-import { jsx as jsx27 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV27 } from "react/jsx-dev-runtime";
 var FormEdit2 = (props) => {
   let { typeSettings, id } = props, { state, retry } = typeSettings.api.getOne(id);
   return state.map({
-    loading: (_11) => /* @__PURE__ */ jsx27(Loading2, {}),
-    error: ({ error }) => /* @__PURE__ */ jsx27(
+    loading: (_11) => /* @__PURE__ */ jsxDEV27(Loading2, {}, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/index.tsx",
+      lineNumber: 20,
+      columnNumber: 21
+    }, this),
+    error: ({ error }) => /* @__PURE__ */ jsxDEV27(
       ApiErrors,
       {
         error,
         retry,
         cancelAndNavigateTo: URL_SETTINGS_PATH
-      }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/index.tsx",
+        lineNumber: 23,
+        columnNumber: 7
+      },
+      this
     ),
-    success: (state2) => /* @__PURE__ */ jsx27(Success2, { stateData: state2.data, typeSettings })
+    success: (state2) => /* @__PURE__ */ jsxDEV27(Success2, { stateData: state2.data, typeSettings }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/components/index.tsx",
+      lineNumber: 31,
+      columnNumber: 7
+    }, this)
   });
 };
 
 // src/app/routes/_admin.settings.users.vendors.$id.edit/route.tsx
-import { Fragment as Fragment7, jsx as jsx28, jsxs as jsxs17 } from "react/jsx-runtime";
+import { Fragment as Fragment7, jsxDEV as jsxDEV28 } from "react/jsx-dev-runtime";
 function Edit2() {
   let navigate = useNavigate5(), { id } = useParams2(), typeSettings = settings.vendors;
   try {
     if (integerValidator(id))
-      return /* @__PURE__ */ jsxs17(Fragment7, { children: [
-        /* @__PURE__ */ jsx28(
+      return /* @__PURE__ */ jsxDEV28(Fragment7, { children: [
+        /* @__PURE__ */ jsxDEV28(
           SettingsFormHeading,
           {
             title: typeSettings.titles.edit,
@@ -4176,12 +5991,28 @@ function Edit2() {
                 }
               }
             }
-          }
+          },
+          void 0,
+          !1,
+          {
+            fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/route.tsx",
+            lineNumber: 25,
+            columnNumber: 11
+          },
+          this
         ),
-        /* @__PURE__ */ jsx28(FormEdit2, { typeSettings, id })
-      ] });
+        /* @__PURE__ */ jsxDEV28(FormEdit2, { typeSettings, id }, void 0, !1, {
+          fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/route.tsx",
+          lineNumber: 37,
+          columnNumber: 11
+        }, this)
+      ] }, void 0, !0, {
+        fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/route.tsx",
+        lineNumber: 24,
+        columnNumber: 9
+      }, this);
   } catch {
-    return /* @__PURE__ */ jsx28(
+    return /* @__PURE__ */ jsxDEV28(
       CommonErrors,
       {
         error: "Usuario no encontrado",
@@ -4192,1463 +6023,22 @@ function Edit2() {
             navigate(URL_SETTINGS_PATH);
           }
         }
-      }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings.users.vendors.$id.edit/route.tsx",
+        lineNumber: 43,
+        columnNumber: 7
+      },
+      this
     );
   }
 }
 
-// src/app/routes/_admin.settings.users.customers.add/route.tsx
-var route_exports3 = {};
-__export(route_exports3, {
-  default: () => Add
-});
-import { useNavigate as useNavigate6 } from "@remix-run/react";
-
-// src/app/routes/_admin.settings.users.customers.add/components/success.tsx
-import { useEffect as useEffect8 } from "react";
-import {
-  Badge as Badge4,
-  Box as Box9,
-  Divider as Divider5,
-  Grid as Grid5,
-  GridItem as GridItem5,
-  Heading as Heading4,
-  HStack as HStack6,
-  Stack as Stack7,
-  useToast as useToast3
-} from "@chakra-ui/react";
-import { yupResolver as yupResolver3 } from "@hookform/resolvers/yup";
-import { useForm as useForm3 } from "react-hook-form";
-
-// src/app/routes/_admin.settings.users.customers.add/validation.ts
-import { useState as useState6 } from "react";
-import * as yup4 from "yup";
-import _4 from "lodash";
-var useCustomValidationSchema3 = () => {
-  let [passwordStatus, setPasswordStatus] = useState6(null), customValidationSchema = yup4.object({
-    password: yup4.string().required("Ingrese una contrase\xF1a").test("password", "Formato de contrase\xF1a no v\xE1lido", (v) => {
-      if (v != "" && v != null) {
-        let newPasswordStatus = dxtPasswordStatus(v);
-        return _4.isEqual(passwordStatus, newPasswordStatus) || setPasswordStatus(newPasswordStatus), yupVOValidation(VODXTPassword, v);
-      }
-      return !0;
-    }),
-    password_repeat: yup4.string().required("Repita la contrase\xF1a").test(
-      "passwords-match",
-      "Las contrase\xF1as no coinciden",
-      function(value) {
-        return this.parent.password === value;
-      }
-    )
-  }).required();
-  return { yupValidationSchema: commonValidationSchema.concat(customValidationSchema), passwordStatus };
-};
-
-// src/app/routes/_admin.settings.users.customers.add/components/success.tsx
-import { jsx as jsx29, jsxs as jsxs18 } from "react/jsx-runtime";
-var Success3 = (props) => {
-  let { typeSettings } = props, app = useAppResources(), toast = useToast3(), { yupValidationSchema: yupValidationSchema6, passwordStatus } = useCustomValidationSchema3(), { state: statePerfiles, result: resultPerfiles } = useTangoList({
-    url: API_TANGO_PERFIL,
-    fieldsMap: {
-      label: "name",
-      value: "id"
-    }
-  }), { state: stateRelationship, result: resultRelationship } = typeSettings.api.getRelation(), {
-    handleSubmit,
-    control,
-    setError,
-    resetField,
-    watch,
-    formState: { errors, isSubmitting, isSubmitSuccessful }
-  } = useForm3({
-    defaultValues: {
-      habilitado_en_dxt: !0,
-      puede_crear_pedido: !0,
-      puede_editar_pedido: !0,
-      ver_pedidos_cumplidos: !0,
-      ver_sin_precio: !1,
-      mostrar_mensaje_de_advertencia: !1,
-      puede_anular_pedido: !1,
-      borrar_pedido_al_anular: !1,
-      aprobar_pedido_al_crear: !1
-    },
-    resolver: yupResolver3(yupValidationSchema6)
-  }), watchPuedeAnularPedido = watch("puede_anular_pedido");
-  useEffect8(() => {
-    watchPuedeAnularPedido === !1 && resetField("borrar_pedido_al_anular", { defaultValue: !1 });
-  }, [watchPuedeAnularPedido]);
-  let disableForm = isSubmitSuccessful || isSubmitting;
-  return /* @__PURE__ */ jsx29("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
-    let { password_repeat, ...data } = dataUnsafe;
-    data.email === "" && delete data.email;
-    let input = data, result = await typeSettings.api.post(input, app);
-    await promiseBasedToast({
-      toast,
-      result,
-      messages: {
-        success: { title: "Usuario creado" },
-        error: { title: "Ha ocurrido un error" },
-        loading: { title: "Creando usuario" }
-      }
-    }).then(() => {
-      app.navigate(URL_SETTINGS_CUSTOMERS_PATH);
-    }).catch((e) => {
-      setError("root", { message: e });
-    });
-  }), children: /* @__PURE__ */ jsxs18(Box9, { children: [
-    /* @__PURE__ */ jsx29(FormErrors, { errors }),
-    /* @__PURE__ */ jsx29(CommonCard, { children: /* @__PURE__ */ jsxs18(
-      Grid5,
-      {
-        templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
-        alignItems: "center",
-        gap: 4,
-        children: [
-          /* @__PURE__ */ jsx29(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx29(Heading4, { size: "sm", textTransform: "uppercase", children: "Informaci\xF3n del Cliente" }) }),
-          /* @__PURE__ */ jsxs18(GridItem5, { colSpan: { md: 2 }, children: [
-            /* @__PURE__ */ jsx29(
-              ControlledSelect,
-              {
-                fieldProps: {
-                  name: "tango_id",
-                  placeholder: typeSettings.tangoRelatedFields?.placeholder,
-                  options: resultRelationship,
-                  noOptionsMessage(obj) {
-                    return typeSettings.tangoRelatedFields?.empty;
-                  },
-                  isSearchable: !0,
-                  selectedOptionStyle: "check",
-                  isLoading: stateRelationship instanceof FetchStateLoading
-                },
-                formControlProps: {
-                  isDisabled: disableForm || !(stateRelationship instanceof FetchStateSuccess)
-                },
-                formControlInnerProps: {
-                  label: typeSettings.tangoRelatedFields?.label
-                },
-                control
-              }
-            ),
-            stateRelationship instanceof FetchStateError && /* @__PURE__ */ jsx29(InlineError, { error: stateRelationship.errorOrNull().error })
-          ] }),
-          /* @__PURE__ */ jsx29(GridItem5, { children: /* @__PURE__ */ jsx29(
-            ControlledInput,
-            {
-              fieldProps: {
-                name: "username",
-                id: "username",
-                type: "text"
-              },
-              formControlProps: {
-                isDisabled: disableForm
-              },
-              formControlInnerProps: {
-                label: "Nombre de Usuario"
-              },
-              control
-            }
-          ) }),
-          /* @__PURE__ */ jsx29(GridItem5, { children: /* @__PURE__ */ jsx29(
-            ControlledInput,
-            {
-              fieldProps: {
-                name: "email",
-                id: "email",
-                type: "text",
-                inputMode: "email"
-              },
-              formControlProps: {
-                isDisabled: disableForm
-              },
-              formControlInnerProps: {
-                label: "Correo electr\xF3nico"
-              },
-              control
-            }
-          ) }),
-          /* @__PURE__ */ jsx29(GridItem5, { children: /* @__PURE__ */ jsx29(
-            ControlledInput,
-            {
-              fieldProps: {
-                name: "password",
-                id: "password",
-                type: "password"
-              },
-              formControlProps: {
-                isDisabled: disableForm
-              },
-              formControlInnerProps: {
-                label: "Contrase\xF1a"
-              },
-              control
-            }
-          ) }),
-          /* @__PURE__ */ jsx29(GridItem5, { children: /* @__PURE__ */ jsx29(
-            ControlledInput,
-            {
-              fieldProps: {
-                name: "password_repeat",
-                id: "password_repeat",
-                type: "password"
-              },
-              formControlProps: {
-                isDisabled: disableForm
-              },
-              formControlInnerProps: {
-                label: "Confirmaci\xF3n de Contrase\xF1a"
-              },
-              control
-            }
-          ) }),
-          passwordStatus != null && /* @__PURE__ */ jsxs18(GridItem5, { colSpan: { md: 2 }, children: [
-            passwordStatus.tooShort && /* @__PURE__ */ jsx29(Badge4, { colorScheme: "red", children: "Contrase\xF1a muy corta" }),
-            passwordStatus.tooLong && /* @__PURE__ */ jsx29(Badge4, { colorScheme: "red", children: "Contrase\xF1a muy larga" }),
-            passwordStatus.invalidCharsPresent && /* @__PURE__ */ jsx29(Badge4, { colorScheme: "red", children: "Evite caracteres no v\xE1lidos" })
-          ] }),
-          /* @__PURE__ */ jsx29(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx29(Divider5, {}) }),
-          /* @__PURE__ */ jsxs18(GridItem5, { colSpan: { md: 2 }, children: [
-            /* @__PURE__ */ jsx29(
-              ControlledSelect,
-              {
-                fieldProps: {
-                  name: "perfil_facturacion_id",
-                  placeholder: "Seleccione un perfil",
-                  options: resultPerfiles,
-                  noOptionsMessage(obj) {
-                    return "No hay perfiles disponibles";
-                  },
-                  isLoading: statePerfiles instanceof FetchStateLoading,
-                  selectedOptionStyle: "check"
-                },
-                formControlProps: {
-                  isDisabled: disableForm || !(statePerfiles instanceof FetchStateSuccess)
-                },
-                formControlInnerProps: {
-                  label: "Perfil de facturaci\xF3n"
-                },
-                control
-              }
-            ),
-            statePerfiles instanceof FetchStateError && /* @__PURE__ */ jsx29(InlineError, { error: statePerfiles.errorOrNull().error })
-          ] }),
-          /* @__PURE__ */ jsx29(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx29(Divider5, {}) }),
-          /* @__PURE__ */ jsx29(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx29(Heading4, { size: "sm", textTransform: "uppercase", children: "Estado" }) }),
-          /* @__PURE__ */ jsx29(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx29(
-            ControlledRadio,
-            {
-              fieldProps: {
-                name: "habilitado_en_dxt",
-                options: [
-                  {
-                    value: !0,
-                    label: "Establecido en Tango"
-                  },
-                  {
-                    value: !1,
-                    label: "Deshabilitado"
-                  }
-                ]
-              },
-              formControlProps: {
-                isDisabled: disableForm
-              },
-              radioProps: {
-                size: { base: "sm", sm: "md" }
-              },
-              control
-            }
-          ) }),
-          /* @__PURE__ */ jsx29(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx29(Divider5, {}) }),
-          /* @__PURE__ */ jsx29(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx29(Heading4, { size: "sm", textTransform: "uppercase", children: "Comunicaci\xF3n" }) }),
-          /* @__PURE__ */ jsx29(GridItem5, { children: /* @__PURE__ */ jsx29(
-            ControlledSwitch,
-            {
-              fieldProps: {
-                name: "mostrar_mensaje_de_advertencia",
-                id: "mostrar_mensaje_de_advertencia"
-              },
-              formControlProps: {
-                width: "auto",
-                isDisabled: disableForm
-              },
-              formControlInnerProps: {
-                label: "Mostrar mensaje de advertencia"
-              },
-              control
-            }
-          ) })
-        ]
-      }
-    ) }),
-    /* @__PURE__ */ jsx29(CommonCard, { children: /* @__PURE__ */ jsxs18(
-      Grid5,
-      {
-        templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
-        alignItems: "center",
-        gap: 4,
-        children: [
-          /* @__PURE__ */ jsx29(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx29(Heading4, { size: "sm", textTransform: "uppercase", children: "Pedidos" }) }),
-          /* @__PURE__ */ jsx29(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxs18(Stack7, { spacing: 4, direction: { base: "column" }, children: [
-            /* @__PURE__ */ jsx29(HStack6, { spacing: 4, children: /* @__PURE__ */ jsx29(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "puede_crear_pedido",
-                  id: "puede_crear_pedido"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Puede crear pedidos"
-                },
-                control
-              }
-            ) }),
-            /* @__PURE__ */ jsx29(HStack6, { spacing: 4, children: /* @__PURE__ */ jsx29(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "puede_editar_pedido",
-                  id: "puede_editar_pedido"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Puede editar pedidos"
-                },
-                control
-              }
-            ) }),
-            /* @__PURE__ */ jsx29(HStack6, { spacing: 4, children: /* @__PURE__ */ jsx29(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "puede_anular_pedido",
-                  id: "puede_anular_pedido"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Puede anular pedidos"
-                },
-                control
-              }
-            ) }),
-            /* @__PURE__ */ jsx29(HStack6, { spacing: 4, children: /* @__PURE__ */ jsx29(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "borrar_pedido_al_anular",
-                  id: "borrar_pedido_al_anular"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Borrar pedido al anular"
-                },
-                control,
-                watch: {
-                  isDisabled: watchPuedeAnularPedido === !1,
-                  ...watchPuedeAnularPedido === !1 && {
-                    isChecked: !1
-                  }
-                }
-              }
-            ) }),
-            /* @__PURE__ */ jsx29(HStack6, { spacing: 4, children: /* @__PURE__ */ jsx29(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "aprobar_pedido_al_crear",
-                  id: "aprobar_pedido_al_crear"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Los pedidos se aprueban al crearlos"
-                },
-                control
-              }
-            ) }),
-            /* @__PURE__ */ jsx29(HStack6, { spacing: 4, children: /* @__PURE__ */ jsx29(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "ver_pedidos_cumplidos",
-                  id: "ver_pedidos_cumplidos"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Puede ver los pedidos cumplidos"
-                },
-                control
-              }
-            ) }),
-            /* @__PURE__ */ jsx29(HStack6, { spacing: 4, children: /* @__PURE__ */ jsx29(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "ver_sin_precio",
-                  id: "ver_sin_precio"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Puede ver art\xEDculos sin precios"
-                },
-                control
-              }
-            ) })
-          ] }) }),
-          /* @__PURE__ */ jsx29(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx29(Divider5, {}) }),
-          /* @__PURE__ */ jsx29(GridItem5, { children: /* @__PURE__ */ jsx29(
-            ControlledInput,
-            {
-              fieldProps: {
-                name: "dia_de_entrega",
-                id: "dia_de_entrega",
-                type: "number",
-                inputMode: "tel"
-              },
-              formControlProps: {
-                isDisabled: disableForm
-              },
-              formControlInnerProps: {
-                label: "Tiempo de entrega de pedidos",
-                helperText: "Expresado en d\xEDas"
-              },
-              control
-            }
-          ) }),
-          /* @__PURE__ */ jsx29(GridItem5, {})
-        ]
-      }
-    ) }),
-    /* @__PURE__ */ jsx29(CommonCard, { children: /* @__PURE__ */ jsx29(
-      SettingsFormsButtons,
-      {
-        buttonActionText: "Guardar",
-        isLoading: disableForm,
-        buttonCancelUrl: typeSettings.cancelButtonNavigateTo
-      }
-    ) })
-  ] }) });
-};
-
-// src/app/routes/_admin.settings.users.customers.add/components/index.tsx
-import { jsx as jsx30 } from "react/jsx-runtime";
-var Form = (props) => {
-  let { typeSettings } = props;
-  return /* @__PURE__ */ jsx30(Success3, { typeSettings });
-};
-
-// src/app/routes/_admin.settings.users.customers.add/route.tsx
-import { Fragment as Fragment8, jsx as jsx31, jsxs as jsxs19 } from "react/jsx-runtime";
-function Add() {
-  let typeSettings = settings.customers, navigate = useNavigate6();
-  return /* @__PURE__ */ jsxs19(Fragment8, { children: [
-    /* @__PURE__ */ jsx31(
-      SettingsFormHeading,
-      {
-        title: typeSettings.titles.create,
-        actionButton: {
-          label: "Cancelar",
-          buttonProps: {
-            colorScheme: "gray",
-            onClick: () => {
-              navigate(URL_SETTINGS_CUSTOMERS_PATH);
-            }
-          }
-        }
-      }
-    ),
-    /* @__PURE__ */ jsx31(Form, { typeSettings })
-  ] });
-}
-
-// src/app/routes/_admin.settings.users.$type._index/route.tsx
-var route_exports4 = {};
-__export(route_exports4, {
-  default: () => Lists
-});
-import { useNavigate as useNavigate7, useParams as useParams3 } from "@remix-run/react";
-import { Icon as Icon5 } from "@chakra-ui/react";
-import AccountPlusIcon from "mdi-react/AccountPlusIcon.js";
-
-// src/app/routes/_admin.settings.users.$type._index/components/loading.tsx
-import { Box as Box10, Grid as Grid6, GridItem as GridItem6 } from "@chakra-ui/react";
-import { jsx as jsx32, jsxs as jsxs20 } from "react/jsx-runtime";
-var Loading3 = () => /* @__PURE__ */ jsx32(
-  Box10,
-  {
-    width: "full",
-    sx: {
-      mt: 8,
-      mb: 4
-    },
-    children: /* @__PURE__ */ jsxs20(Grid6, { templateColumns: "1fr", gap: { base: 2, md: 4 }, children: [
-      /* @__PURE__ */ jsx32(GridItem6, { children: /* @__PURE__ */ jsx32(FormInputSkeleton, {}) }),
-      /* @__PURE__ */ jsx32(GridItem6, { children: /* @__PURE__ */ jsx32(FormInputSkeleton, {}) }),
-      /* @__PURE__ */ jsx32(GridItem6, { children: /* @__PURE__ */ jsx32(FormTextareaSkeleton, { height: "400px" }) }),
-      /* @__PURE__ */ jsx32(GridItem6, { children: /* @__PURE__ */ jsx32(FormInputSkeleton, {}) })
-    ] })
-  }
-);
-
-// src/app/routes/_admin.settings.users.$type._index/components/success.tsx
-import { useMemo as useMemo5, useRef as useRef6, useState as useState9 } from "react";
-
-// src/code.client/hooks/useSearchField.ts
-import _5 from "lodash";
-import { useState as useState7 } from "react";
-function useSearchField(data, fieldsToFilter) {
-  let [isFiltering, setIsFiltering] = useState7(!1), [filteredData, setFilteredData] = useState7(data);
-  return { filteredData, handleSearchInputChange: (query) => {
-    if (setIsFiltering(query != null && query !== ""), _5.isArray(data)) {
-      let filterApplied = [...data];
-      query != null && Array.isArray(data) && (filterApplied = _5.filter(data, (obj) => _5.some(fieldsToFilter, (prop) => String(_5.get(obj, prop)).toLowerCase().includes(query.toLowerCase())))), setFilteredData(filterApplied);
-      return;
-    } else if (_5.isObject(data)) {
-      let filterApplied = { ...data };
-      query != null && _5.forEach(data, (array, key) => {
-        let filteredArray = _5.filter(array, (obj) => _5.some(fieldsToFilter, (prop) => String(_5.get(obj, prop)).toLowerCase().includes(query.toLowerCase())));
-        filterApplied[key] = filteredArray;
-      }), setFilteredData(filterApplied);
-      return;
-    }
-    setFilteredData(data);
-  }, isFiltering };
-}
-
-// src/app/routes/_admin.settings.users.$type._index/components/success.tsx
-import {
-  Box as Box11,
-  Flex as Flex3,
-  Grid as Grid7,
-  GridItem as GridItem7,
-  HStack as HStack8,
-  Icon as Icon4,
-  IconButton as IconButton3,
-  Table,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-  useDisclosure,
-  useToast as useToast4
-} from "@chakra-ui/react";
-import AccountCancelIcon2 from "mdi-react/AccountCancelIcon.js";
-import AccountCheckIcon from "mdi-react/AccountCheckIcon.js";
-import PencilIcon from "mdi-react/PencilIcon.js";
-import TrashIcon from "mdi-react/TrashIcon.js";
-
-// src/app/components/DeleteDialog.tsx
-import { useRef as useRef4 } from "react";
-import {
-  AlertDialog as AlertDialog2,
-  AlertDialogBody as AlertDialogBody2,
-  AlertDialogContent as AlertDialogContent2,
-  AlertDialogFooter as AlertDialogFooter2,
-  AlertDialogHeader as AlertDialogHeader2,
-  AlertDialogOverlay as AlertDialogOverlay2,
-  Button as Button6
-} from "@chakra-ui/react";
-import { jsx as jsx33, jsxs as jsxs21 } from "react/jsx-runtime";
-var DeleteDialog = ({
-  isOpen,
-  onClose,
-  handleDeletion,
-  message
-}) => {
-  let cancelRef = useRef4();
-  return /* @__PURE__ */ jsx33(
-    AlertDialog2,
-    {
-      isOpen,
-      leastDestructiveRef: cancelRef,
-      onClose,
-      motionPreset: "slideInBottom",
-      isCentered: !0,
-      children: /* @__PURE__ */ jsx33(AlertDialogOverlay2, { children: /* @__PURE__ */ jsxs21(AlertDialogContent2, { children: [
-        /* @__PURE__ */ jsx33(AlertDialogHeader2, { fontSize: "lg", fontWeight: "bold", children: message.title }),
-        /* @__PURE__ */ jsx33(AlertDialogBody2, { children: message.body }),
-        /* @__PURE__ */ jsxs21(AlertDialogFooter2, { children: [
-          /* @__PURE__ */ jsx33(Button6, { ref: cancelRef, onClick: onClose, children: CANCEL }),
-          /* @__PURE__ */ jsx33(Button6, { colorScheme: "red", onClick: handleDeletion, ml: 3, children: DELETE })
-        ] })
-      ] }) })
-    }
-  );
-};
-
-// src/code.client/hooks/usePagination.ts
-import { useMemo as useMemo4 } from "react";
-var DOTS_LEFT = "{left}", DOTS_RIGHT = "{right}", range = (start, end) => {
-  let length = end - start + 1;
-  return Array.from({ length }, (_11, idx) => idx + start);
-}, usePagination = ({ totalCount, pageSize, siblingCount = 1, currentPage }) => useMemo4(() => {
-  let totalPageCount = Math.ceil(totalCount / pageSize);
-  if (siblingCount + 5 >= totalPageCount)
-    return range(1, totalPageCount);
-  let leftSiblingIndex = Math.max(currentPage - siblingCount, 1), rightSiblingIndex = Math.min(currentPage + siblingCount, totalPageCount), shouldShowLeftDots = leftSiblingIndex > 2, shouldShowRightDots = rightSiblingIndex < totalPageCount - 2, firstPageIndex = 1, lastPageIndex = totalPageCount;
-  if (!shouldShowLeftDots && shouldShowRightDots) {
-    let leftItemCount = 3 + 2 * siblingCount;
-    return [...range(1, leftItemCount), DOTS_LEFT, totalPageCount];
-  }
-  if (shouldShowLeftDots && !shouldShowRightDots) {
-    let rightItemCount = 3 + 2 * siblingCount, rightRange = range(totalPageCount - rightItemCount + 1, totalPageCount);
-    return [firstPageIndex, DOTS_RIGHT, ...rightRange];
-  }
-  if (shouldShowLeftDots && shouldShowRightDots) {
-    let middleRange = range(leftSiblingIndex, rightSiblingIndex);
-    return [firstPageIndex, DOTS_LEFT, ...middleRange, DOTS_RIGHT, lastPageIndex];
-  }
-}, [totalCount, pageSize, siblingCount, currentPage]);
-
-// src/app/components/Pagination.tsx
-import { Button as Button7, HStack as HStack7, Icon as Icon2, IconButton, VStack } from "@chakra-ui/react";
-import ChevronLeftIcon from "mdi-react/ChevronLeftIcon.js";
-import ChevronRightIcon from "mdi-react/ChevronRightIcon.js";
-import DotsHorizontalIcon from "mdi-react/DotsHorizontalIcon.js";
-import { jsx as jsx34, jsxs as jsxs22 } from "react/jsx-runtime";
-var Pagination = (props) => {
-  let {
-    onPageChange,
-    totalCount,
-    siblingCount = 1,
-    currentPage,
-    pageSize
-  } = props, paginationRange = usePagination({
-    currentPage,
-    totalCount,
-    siblingCount,
-    pageSize
-  });
-  if (!paginationRange || currentPage === 0 || paginationRange.length < 2)
-    return null;
-  let onNext = () => {
-    onPageChange(currentPage + 1);
-  }, onPrevious = () => {
-    onPageChange(currentPage - 1);
-  }, lastPage = paginationRange[paginationRange.length - 1];
-  return /* @__PURE__ */ jsxs22(VStack, { children: [
-    /* @__PURE__ */ jsx34(HStack7, { spacing: 1, wrap: "wrap", justifyContent: "center", children: paginationRange.map((pageNumber) => pageNumber === DOTS_LEFT || pageNumber === DOTS_RIGHT ? /* @__PURE__ */ jsx34(
-      Icon2,
-      {
-        as: DotsHorizontalIcon,
-        boxSize: 3
-      },
-      `page-${pageNumber}`
-    ) : /* @__PURE__ */ jsx34(
-      Button7,
-      {
-        colorScheme: pageNumber === currentPage ? "blue" : "gray",
-        size: { base: "sm", md: "md" },
-        onClick: () => onPageChange(pageNumber),
-        children: pageNumber
-      },
-      `button-${pageNumber}`
-    )) }),
-    /* @__PURE__ */ jsxs22(HStack7, { children: [
-      /* @__PURE__ */ jsx34(
-        IconButton,
-        {
-          "aria-label": "Anterior",
-          size: { base: "sm", md: "md" },
-          onClick: onPrevious,
-          isDisabled: currentPage === 1,
-          children: /* @__PURE__ */ jsx34(Icon2, { as: ChevronLeftIcon })
-        }
-      ),
-      /* @__PURE__ */ jsx34(
-        IconButton,
-        {
-          "aria-label": "Siguiente",
-          size: { base: "sm", md: "md" },
-          onClick: onNext,
-          isDisabled: currentPage === lastPage,
-          children: /* @__PURE__ */ jsx34(Icon2, { as: ChevronRightIcon })
-        }
-      )
-    ] })
-  ] });
-};
-
-// src/app/components/SearchField.tsx
-import { useRef as useRef5, useState as useState8 } from "react";
-import {
-  Icon as Icon3,
-  Input as Input2,
-  InputGroup as InputGroup2,
-  InputLeftElement,
-  InputRightElement
-} from "@chakra-ui/react";
-import CloseIcon from "mdi-react/CloseIcon.js";
-import MagnifyIcon from "mdi-react/MagnifyIcon.js";
-import { jsx as jsx35, jsxs as jsxs23 } from "react/jsx-runtime";
-var SearchField = ({
-  handleSearchInputChange,
-  inputProps
-}) => {
-  let [searchValue, setSearchValue] = useState8(null), inputRef = useRef5(null), inputChangeRef = useRef5(), handleSearchReset = () => {
-    setSearchValue(null), handleSearchInputChange(), inputChangeRef.current && clearTimeout(inputChangeRef.current), inputRef.current && inputRef.current.focus();
-  };
-  return /* @__PURE__ */ jsxs23(InputGroup2, { children: [
-    /* @__PURE__ */ jsx35(InputLeftElement, { pointerEvents: "none", children: /* @__PURE__ */ jsx35(Icon3, { as: MagnifyIcon, boxSize: 4 }) }),
-    /* @__PURE__ */ jsx35(
-      Input2,
-      {
-        ref: inputRef,
-        type: "text",
-        name: "filter",
-        placeholder: "Filtrar...",
-        value: searchValue ?? "",
-        onChange: (e) => {
-          setSearchValue(e.target.value), inputChangeRef.current && clearTimeout(inputChangeRef.current), inputChangeRef.current = setTimeout(() => {
-            handleSearchInputChange(e.target.value);
-          }, 1e3);
-        },
-        ...inputProps
-      }
-    ),
-    searchValue !== "" && searchValue != null ? /* @__PURE__ */ jsx35(InputRightElement, { cursor: "pointer", children: /* @__PURE__ */ jsx35(Icon3, { as: CloseIcon, onClick: handleSearchReset }) }) : /* @__PURE__ */ jsx35(InputRightElement, {})
-  ] });
-};
-
-// src/app/components/TextWordBreak.tsx
-import { Text } from "@chakra-ui/react";
-import { jsx as jsx36 } from "react/jsx-runtime";
-var TextWordBreak = ({
-  children,
-  breakType,
-  props
-}) => /* @__PURE__ */ jsx36(
-  Text,
-  {
-    ...props,
-    sx: {
-      whiteSpace: "normal",
-      wordBreak: breakType ?? "break-all"
-    },
-    children
-  }
-);
-
-// src/app/routes/_admin.settings.users.$type._index/components/success.tsx
-import { Fragment as Fragment9, jsx as jsx37, jsxs as jsxs24 } from "react/jsx-runtime";
-var Success4 = (props) => {
-  let { stateData, retry, typeSettings } = props, app = useAppResources(), { isOpen, onOpen, onClose } = useDisclosure(), toast = useToast4(), selectedUser = useRef6(null), { filteredData, handleSearchInputChange } = useSearchField(stateData, [
-    "screen_name",
-    "username"
-  ]), [currentPage, setCurrentPage] = useState9(1), PageSize = 10, currentTableData = useMemo5(() => {
-    let firstPageIndex = (currentPage - 1) * PageSize, lastPageIndex = firstPageIndex + PageSize;
-    return filteredData.slice(firstPageIndex, lastPageIndex);
-  }, [currentPage, filteredData]), handleDeleteDialog = (id, username) => () => {
-    selectedUser.current = { id, username }, onOpen();
-  }, handleEdit = (id) => () => {
-    app.navigate(pathParamsToUrl(typeSettings.editButtonNavigateTo, { id }));
-  };
-  return /* @__PURE__ */ jsxs24(Fragment9, { children: [
-    /* @__PURE__ */ jsx37(
-      DeleteDialog,
-      {
-        isOpen,
-        onClose,
-        handleDeletion: async () => {
-          if (selectedUser.current != null) {
-            let { id, username } = selectedUser.current;
-            selectedUser.current = null;
-            let result = await typeSettings.api.delete(id, { username }, app), finalResult = await promiseBasedToast({
-              toast,
-              result,
-              messages: {
-                success: { title: "Usuario eliminado" },
-                error: { title: "Error al eliminar usuario" },
-                loading: { title: "Eliminando usuario" }
-              }
-            }).then(() => {
-              stateData.splice(
-                stateData.findIndex((object12) => object12.id === id),
-                1
-              ), handleSearchInputChange();
-            }).catch((e) => {
-            });
-            onClose();
-          }
-        },
-        message: {
-          title: "Eliminar usuario",
-          body: "\xBFEst\xE1 seguro que desea eliminar este usuario? Esta acci\xF3n no se puede deshacer."
-        }
-      }
-    ),
-    /* @__PURE__ */ jsxs24(CommonCard, { children: [
-      /* @__PURE__ */ jsx37(Box11, { sx: { pb: 4 }, children: /* @__PURE__ */ jsx37(SearchField, { handleSearchInputChange }) }),
-      /* @__PURE__ */ jsx37(Box11, { children: /* @__PURE__ */ jsxs24(Table, { variant: "grayOverCard", size: "md", children: [
-        /* @__PURE__ */ jsx37(Thead, { children: /* @__PURE__ */ jsx37(Tr, { children: /* @__PURE__ */ jsx37(
-          Th,
-          {
-            sx: {
-              p: { base: 2, md: 4 }
-            },
-            children: /* @__PURE__ */ jsxs24(
-              Grid7,
-              {
-                templateColumns: {
-                  base: "3fr 1fr 2fr",
-                  md: "3fr 3fr 1fr 2fr"
-                },
-                gap: { base: 2, md: 4 },
-                children: [
-                  /* @__PURE__ */ jsx37(GridItem7, { children: "Nombre completo" }),
-                  /* @__PURE__ */ jsx37(GridItem7, { sx: { display: { base: "none", md: "block" } }, children: "Nombre de usuario" }),
-                  /* @__PURE__ */ jsx37(GridItem7, { textAlign: "center", children: "Estado" }),
-                  /* @__PURE__ */ jsx37(GridItem7, {})
-                ]
-              }
-            )
-          }
-        ) }) }),
-        /* @__PURE__ */ jsx37(Tbody, { children: currentTableData.length > 0 && currentTableData.map((user) => /* @__PURE__ */ jsx37(Tr, { children: /* @__PURE__ */ jsx37(
-          Td,
-          {
-            sx: {
-              p: { base: 2, md: 4 }
-            },
-            children: /* @__PURE__ */ jsxs24(
-              Grid7,
-              {
-                templateColumns: {
-                  base: "3fr 1fr 2fr",
-                  md: "3fr 3fr 1fr 2fr"
-                },
-                gap: { base: 2, md: 4 },
-                alignItems: "center",
-                children: [
-                  /* @__PURE__ */ jsx37(GridItem7, { children: /* @__PURE__ */ jsx37(TextWordBreak, { breakType: "normal", children: user.screen_name }) }),
-                  /* @__PURE__ */ jsx37(
-                    GridItem7,
-                    {
-                      sx: { display: { base: "none", md: "block" } },
-                      children: /* @__PURE__ */ jsx37(TextWordBreak, { breakType: "normal", children: user.username })
-                    }
-                  ),
-                  /* @__PURE__ */ jsx37(GridItem7, { textAlign: "center", children: /* @__PURE__ */ jsx37(
-                    Icon4,
-                    {
-                      as: user.habilitado_en_dxt && user.usuario_tango_existe && user.habilitado_en_tango === !0 ? AccountCheckIcon : AccountCancelIcon2,
-                      boxSize: 6,
-                      color: resolveUserStatusColor(user)
-                    }
-                  ) }),
-                  /* @__PURE__ */ jsx37(GridItem7, { children: /* @__PURE__ */ jsxs24(HStack8, { justifyContent: "center", children: [
-                    /* @__PURE__ */ jsx37(
-                      IconButton3,
-                      {
-                        "aria-label": "Eliminar",
-                        size: "sm",
-                        colorScheme: "red",
-                        onClick: handleDeleteDialog(
-                          user.id,
-                          user.username
-                        ),
-                        children: /* @__PURE__ */ jsx37(Icon4, { as: TrashIcon, boxSize: 4 })
-                      }
-                    ),
-                    /* @__PURE__ */ jsx37(
-                      IconButton3,
-                      {
-                        "aria-label": "Editar",
-                        size: "sm",
-                        colorScheme: "blue",
-                        onClick: handleEdit(user.id),
-                        children: /* @__PURE__ */ jsx37(Icon4, { as: PencilIcon, boxSize: 4 })
-                      }
-                    )
-                  ] }) })
-                ]
-              }
-            )
-          }
-        ) }, `row_${user.id}`)) })
-      ] }) }),
-      /* @__PURE__ */ jsx37(Flex3, { sx: { pt: 4, justifyContent: "center" }, children: /* @__PURE__ */ jsx37(
-        Pagination,
-        {
-          currentPage,
-          totalCount: filteredData.length,
-          pageSize: PageSize,
-          onPageChange: (page) => setCurrentPage(page)
-        }
-      ) })
-    ] })
-  ] });
-};
-
-// src/app/routes/_admin.settings.users.$type._index/components/index.tsx
-import { jsx as jsx38 } from "react/jsx-runtime";
-var ListsUsers = (props) => {
-  let { typeSettings } = props, { state, retry } = typeSettings.api.getAll();
-  return state.map({
-    loading: (_11) => /* @__PURE__ */ jsx38(Loading3, {}),
-    error: ({ error }) => /* @__PURE__ */ jsx38(
-      ApiErrors,
-      {
-        error,
-        retry,
-        cancelAndNavigateTo: URL_SETTINGS_PATH
-      }
-    ),
-    success: (state2) => /* @__PURE__ */ jsx38(
-      Success4,
-      {
-        stateData: state2.data,
-        retry,
-        typeSettings
-      }
-    )
-  });
-};
-
-// src/app/routes/_admin.settings.users.$type._index/route.tsx
-import { Fragment as Fragment10, jsx as jsx39, jsxs as jsxs25 } from "react/jsx-runtime";
-function Lists() {
-  let navigate = useNavigate7(), { type } = useParams3(), typeSettings = settings[type];
-  return type != null && typeSettings != null ? /* @__PURE__ */ jsxs25(Fragment10, { children: [
-    /* @__PURE__ */ jsx39(
-      SettingsFormHeading,
-      {
-        title: typeSettings.titles.common,
-        actionButton: {
-          label: typeSettings.titles.create,
-          buttonProps: {
-            leftIcon: /* @__PURE__ */ jsx39(Icon5, { as: AccountPlusIcon }),
-            onClick: () => {
-              typeSettings.actionButtonNavigateTo != null && navigate(typeSettings.actionButtonNavigateTo);
-            }
-          }
-        }
-      }
-    ),
-    /* @__PURE__ */ jsx39(ListsUsers, { typeSettings })
-  ] }) : /* @__PURE__ */ jsx39(
-    CommonErrors,
-    {
-      error: "Tipo de lista no v\xE1lida",
-      buttonProps: {
-        label: "Volver a Configuraci\xF3n",
-        colorScheme: "green",
-        onClick: () => {
-          navigate(URL_SETTINGS_PATH);
-        }
-      }
-    }
-  );
-}
-
-// src/app/routes/_admin.settings.users.vendors.add/route.tsx
-var route_exports5 = {};
-__export(route_exports5, {
-  default: () => Add2
-});
-import { useNavigate as useNavigate8 } from "@remix-run/react";
-
-// src/app/routes/_admin.settings.users.vendors.add/components/success.tsx
-import { useEffect as useEffect9 } from "react";
-import {
-  Badge as Badge5,
-  Box as Box12,
-  Divider as Divider6,
-  Grid as Grid8,
-  GridItem as GridItem8,
-  Heading as Heading5,
-  HStack as HStack9,
-  Stack as Stack8,
-  useToast as useToast5
-} from "@chakra-ui/react";
-import { yupResolver as yupResolver4 } from "@hookform/resolvers/yup";
-import { useForm as useForm4 } from "react-hook-form";
-
-// src/app/routes/_admin.settings.users.vendors.add/validation.ts
-import { useState as useState10 } from "react";
-import * as yup5 from "yup";
-import _6 from "lodash";
-var useCustomValidationSchema4 = () => {
-  let [passwordStatus, setPasswordStatus] = useState10(null), customValidationSchema = yup5.object({
-    password: yup5.string().required("Ingrese una contrase\xF1a").test("password", "Formato de contrase\xF1a no v\xE1lido", (v) => {
-      if (v != "" && v != null) {
-        let newPasswordStatus = dxtPasswordStatus(v);
-        return _6.isEqual(passwordStatus, newPasswordStatus) || setPasswordStatus(newPasswordStatus), yupVOValidation(VODXTPassword, v);
-      }
-      return !0;
-    }),
-    password_repeat: yup5.string().required("Repita la contrase\xF1a").test(
-      "passwords-match",
-      "Las contrase\xF1as no coinciden",
-      function(value) {
-        return this.parent.password === value;
-      }
-    )
-  }).required();
-  return { yupValidationSchema: commonValidationSchema.concat(customValidationSchema), passwordStatus };
-};
-
-// src/app/routes/_admin.settings.users.vendors.add/components/success.tsx
-import { jsx as jsx40, jsxs as jsxs26 } from "react/jsx-runtime";
-var Success5 = (props) => {
-  let { typeSettings } = props, app = useAppResources(), toast = useToast5(), { yupValidationSchema: yupValidationSchema6, passwordStatus } = useCustomValidationSchema4(), { state: statePerfiles, result: resultPerfiles } = useTangoList({
-    url: API_TANGO_PERFIL,
-    fieldsMap: {
-      label: "name",
-      value: "id"
-    }
-  }), { state: stateRelationship, result: resultRelationship } = typeSettings.api.getRelation(), {
-    handleSubmit,
-    control,
-    setError,
-    resetField,
-    watch,
-    formState: { errors, isSubmitting, isSubmitSuccessful }
-  } = useForm4({
-    defaultValues: {
-      habilitado_en_dxt: !0,
-      puede_crear_pedido: !0,
-      puede_editar_pedido: !0,
-      ver_pedidos_cumplidos: !0,
-      ver_sin_precio: !1,
-      mostrar_mensaje_de_advertencia: !1,
-      puede_anular_pedido: !1,
-      borrar_pedido_al_anular: !1,
-      aprobar_pedido_al_crear: !1
-    },
-    resolver: yupResolver4(yupValidationSchema6)
-  }), watchPuedeAnularPedido = watch("puede_anular_pedido");
-  useEffect9(() => {
-    watchPuedeAnularPedido === !1 && resetField("borrar_pedido_al_anular", { defaultValue: !1 });
-  }, [watchPuedeAnularPedido]);
-  let disableForm = isSubmitSuccessful || isSubmitting;
-  return /* @__PURE__ */ jsx40("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
-    let { password_repeat, ...data } = dataUnsafe;
-    data.email === "" && delete data.email;
-    let input = data, result = await typeSettings.api.post(input, app);
-    await promiseBasedToast({
-      toast,
-      result,
-      messages: {
-        success: { title: "Usuario creado" },
-        error: { title: "Ha ocurrido un error" },
-        loading: { title: "Creando usuario" }
-      }
-    }).then(() => {
-      app.navigate(URL_SETTINGS_VENDORS_PATH);
-    }).catch((e) => {
-      setError("root", { message: e });
-    });
-  }), children: /* @__PURE__ */ jsxs26(Box12, { children: [
-    /* @__PURE__ */ jsx40(FormErrors, { errors }),
-    /* @__PURE__ */ jsx40(CommonCard, { children: /* @__PURE__ */ jsxs26(
-      Grid8,
-      {
-        templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
-        alignItems: "center",
-        gap: 4,
-        children: [
-          /* @__PURE__ */ jsx40(GridItem8, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx40(Heading5, { size: "sm", textTransform: "uppercase", children: "Informaci\xF3n del Vendedor" }) }),
-          /* @__PURE__ */ jsxs26(GridItem8, { colSpan: { md: 2 }, children: [
-            /* @__PURE__ */ jsx40(
-              ControlledSelect,
-              {
-                fieldProps: {
-                  name: "tango_id",
-                  placeholder: typeSettings.tangoRelatedFields?.placeholder,
-                  options: resultRelationship,
-                  noOptionsMessage(obj) {
-                    return typeSettings.tangoRelatedFields?.empty;
-                  },
-                  isSearchable: !0,
-                  selectedOptionStyle: "check",
-                  isLoading: stateRelationship instanceof FetchStateLoading
-                },
-                formControlProps: {
-                  isDisabled: disableForm || !(stateRelationship instanceof FetchStateSuccess)
-                },
-                formControlInnerProps: {
-                  label: typeSettings.tangoRelatedFields?.label
-                },
-                control
-              }
-            ),
-            stateRelationship instanceof FetchStateError && /* @__PURE__ */ jsx40(InlineError, { error: stateRelationship.errorOrNull().error })
-          ] }),
-          /* @__PURE__ */ jsx40(GridItem8, { children: /* @__PURE__ */ jsx40(
-            ControlledInput,
-            {
-              fieldProps: {
-                name: "username",
-                id: "username",
-                type: "text"
-              },
-              formControlProps: {
-                isDisabled: disableForm
-              },
-              formControlInnerProps: {
-                label: "Nombre de Usuario"
-              },
-              control
-            }
-          ) }),
-          /* @__PURE__ */ jsx40(GridItem8, { children: /* @__PURE__ */ jsx40(
-            ControlledInput,
-            {
-              fieldProps: {
-                name: "email",
-                id: "email",
-                type: "text",
-                inputMode: "email"
-              },
-              formControlProps: {
-                isDisabled: disableForm
-              },
-              formControlInnerProps: {
-                label: "Correo electr\xF3nico"
-              },
-              control
-            }
-          ) }),
-          /* @__PURE__ */ jsx40(GridItem8, { children: /* @__PURE__ */ jsx40(
-            ControlledInput,
-            {
-              fieldProps: {
-                name: "password",
-                id: "password",
-                type: "password"
-              },
-              formControlProps: {
-                isDisabled: disableForm
-              },
-              formControlInnerProps: {
-                label: "Contrase\xF1a"
-              },
-              control
-            }
-          ) }),
-          /* @__PURE__ */ jsx40(GridItem8, { children: /* @__PURE__ */ jsx40(
-            ControlledInput,
-            {
-              fieldProps: {
-                name: "password_repeat",
-                id: "password_repeat",
-                type: "password"
-              },
-              formControlProps: {
-                isDisabled: disableForm
-              },
-              formControlInnerProps: {
-                label: "Confirmaci\xF3n de Contrase\xF1a"
-              },
-              control
-            }
-          ) }),
-          passwordStatus != null && /* @__PURE__ */ jsxs26(GridItem8, { colSpan: { md: 2 }, children: [
-            passwordStatus.tooShort && /* @__PURE__ */ jsx40(Badge5, { colorScheme: "red", children: "Contrase\xF1a muy corta" }),
-            passwordStatus.tooLong && /* @__PURE__ */ jsx40(Badge5, { colorScheme: "red", children: "Contrase\xF1a muy larga" }),
-            passwordStatus.invalidCharsPresent && /* @__PURE__ */ jsx40(Badge5, { colorScheme: "red", children: "Evite caracteres no v\xE1lidos" })
-          ] }),
-          /* @__PURE__ */ jsx40(GridItem8, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx40(Divider6, {}) }),
-          /* @__PURE__ */ jsxs26(GridItem8, { colSpan: { md: 2 }, children: [
-            /* @__PURE__ */ jsx40(
-              ControlledSelect,
-              {
-                fieldProps: {
-                  name: "perfil_facturacion_id",
-                  placeholder: "Seleccione un perfil",
-                  options: resultPerfiles,
-                  noOptionsMessage(obj) {
-                    return "No hay perfiles disponibles";
-                  },
-                  isLoading: statePerfiles instanceof FetchStateLoading,
-                  selectedOptionStyle: "check"
-                },
-                formControlProps: {
-                  isDisabled: disableForm || !(statePerfiles instanceof FetchStateSuccess)
-                },
-                formControlInnerProps: {
-                  label: "Perfil de facturaci\xF3n"
-                },
-                control
-              }
-            ),
-            statePerfiles instanceof FetchStateError && /* @__PURE__ */ jsx40(InlineError, { error: statePerfiles.errorOrNull().error })
-          ] }),
-          /* @__PURE__ */ jsx40(GridItem8, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx40(Divider6, {}) }),
-          /* @__PURE__ */ jsx40(GridItem8, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx40(Heading5, { size: "sm", textTransform: "uppercase", children: "Estado" }) }),
-          /* @__PURE__ */ jsx40(GridItem8, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx40(
-            ControlledRadio,
-            {
-              fieldProps: {
-                name: "habilitado_en_dxt",
-                options: [
-                  {
-                    value: !0,
-                    label: "Establecido en Tango"
-                  },
-                  {
-                    value: !1,
-                    label: "Deshabilitado"
-                  }
-                ]
-              },
-              formControlProps: {
-                isDisabled: disableForm
-              },
-              radioProps: {
-                size: { base: "sm", sm: "md" }
-              },
-              control
-            }
-          ) }),
-          /* @__PURE__ */ jsx40(GridItem8, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx40(Divider6, {}) }),
-          /* @__PURE__ */ jsx40(GridItem8, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx40(Heading5, { size: "sm", textTransform: "uppercase", children: "Comunicaci\xF3n" }) }),
-          /* @__PURE__ */ jsx40(GridItem8, { children: /* @__PURE__ */ jsx40(
-            ControlledSwitch,
-            {
-              fieldProps: {
-                name: "mostrar_mensaje_de_advertencia",
-                id: "mostrar_mensaje_de_advertencia"
-              },
-              formControlProps: {
-                width: "auto",
-                isDisabled: disableForm
-              },
-              formControlInnerProps: {
-                label: "Mostrar mensaje de advertencia"
-              },
-              control
-            }
-          ) })
-        ]
-      }
-    ) }),
-    /* @__PURE__ */ jsx40(CommonCard, { children: /* @__PURE__ */ jsxs26(
-      Grid8,
-      {
-        templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
-        alignItems: "center",
-        gap: 4,
-        children: [
-          /* @__PURE__ */ jsx40(GridItem8, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx40(Heading5, { size: "sm", textTransform: "uppercase", children: "Pedidos" }) }),
-          /* @__PURE__ */ jsx40(GridItem8, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxs26(Stack8, { spacing: 4, direction: { base: "column" }, children: [
-            /* @__PURE__ */ jsx40(HStack9, { spacing: 4, children: /* @__PURE__ */ jsx40(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "puede_crear_pedido",
-                  id: "puede_crear_pedido"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Puede crear pedidos"
-                },
-                control
-              }
-            ) }),
-            /* @__PURE__ */ jsx40(HStack9, { spacing: 4, children: /* @__PURE__ */ jsx40(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "puede_editar_pedido",
-                  id: "puede_editar_pedido"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Puede editar pedidos"
-                },
-                control
-              }
-            ) }),
-            /* @__PURE__ */ jsx40(HStack9, { spacing: 4, children: /* @__PURE__ */ jsx40(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "puede_anular_pedido",
-                  id: "puede_anular_pedido"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Puede anular pedidos"
-                },
-                control
-              }
-            ) }),
-            /* @__PURE__ */ jsx40(HStack9, { spacing: 4, children: /* @__PURE__ */ jsx40(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "borrar_pedido_al_anular",
-                  id: "borrar_pedido_al_anular"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Borrar pedido al anular"
-                },
-                control,
-                watch: {
-                  isDisabled: watchPuedeAnularPedido === !1,
-                  ...watchPuedeAnularPedido === !1 && {
-                    isChecked: !1
-                  }
-                }
-              }
-            ) }),
-            /* @__PURE__ */ jsx40(HStack9, { spacing: 4, children: /* @__PURE__ */ jsx40(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "aprobar_pedido_al_crear",
-                  id: "aprobar_pedido_al_crear"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Los pedidos se aprueban al crearlos"
-                },
-                control
-              }
-            ) }),
-            /* @__PURE__ */ jsx40(HStack9, { spacing: 4, children: /* @__PURE__ */ jsx40(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "ver_pedidos_cumplidos",
-                  id: "ver_pedidos_cumplidos"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Puede ver los pedidos cumplidos"
-                },
-                control
-              }
-            ) }),
-            /* @__PURE__ */ jsx40(HStack9, { spacing: 4, children: /* @__PURE__ */ jsx40(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "ver_sin_precio",
-                  id: "ver_sin_precio"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Puede ver art\xEDculos sin precios"
-                },
-                control
-              }
-            ) })
-          ] }) }),
-          /* @__PURE__ */ jsx40(GridItem8, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx40(Divider6, {}) }),
-          /* @__PURE__ */ jsx40(GridItem8, { children: /* @__PURE__ */ jsx40(
-            ControlledInput,
-            {
-              fieldProps: {
-                name: "dia_de_entrega",
-                id: "dia_de_entrega",
-                type: "number",
-                inputMode: "tel"
-              },
-              formControlProps: {
-                isDisabled: disableForm
-              },
-              formControlInnerProps: {
-                label: "Tiempo de entrega de pedidos",
-                helperText: "Expresado en d\xEDas"
-              },
-              control
-            }
-          ) }),
-          /* @__PURE__ */ jsx40(GridItem8, {})
-        ]
-      }
-    ) }),
-    /* @__PURE__ */ jsx40(CommonCard, { children: /* @__PURE__ */ jsx40(
-      SettingsFormsButtons,
-      {
-        buttonActionText: "Guardar",
-        isLoading: disableForm,
-        buttonCancelUrl: typeSettings.cancelButtonNavigateTo
-      }
-    ) })
-  ] }) });
-};
-
-// src/app/routes/_admin.settings.users.vendors.add/components/index.tsx
-import { jsx as jsx41 } from "react/jsx-runtime";
-var Form2 = (props) => {
-  let { typeSettings } = props;
-  return /* @__PURE__ */ jsx41(Success5, { typeSettings });
-};
-
-// src/app/routes/_admin.settings.users.vendors.add/route.tsx
-import { Fragment as Fragment11, jsx as jsx42, jsxs as jsxs27 } from "react/jsx-runtime";
-function Add2() {
-  let typeSettings = settings.vendors, navigate = useNavigate8();
-  return /* @__PURE__ */ jsxs27(Fragment11, { children: [
-    /* @__PURE__ */ jsx42(
-      SettingsFormHeading,
-      {
-        title: typeSettings.titles.create,
-        actionButton: {
-          label: "Cancelar",
-          buttonProps: {
-            colorScheme: "gray",
-            onClick: () => {
-              navigate(URL_SETTINGS_VENDORS_PATH);
-            }
-          }
-        }
-      }
-    ),
-    /* @__PURE__ */ jsx42(Form2, { typeSettings })
-  ] });
-}
-
-// src/app/routes/api.dxt.pedido.articulos.screen.ts
-var api_dxt_pedido_articulos_screen_exports = {};
-__export(api_dxt_pedido_articulos_screen_exports, {
+// src/app/routes/api.dxt.pedido.articulos.screen_list.ts
+var api_dxt_pedido_articulos_screen_list_exports = {};
+__export(api_dxt_pedido_articulos_screen_list_exports, {
   action: () => action,
   loader: () => loader2
 });
@@ -6332,8 +6722,8 @@ var isCacheEnabledGlobally = tryVO(() => new VOBoolean(process.env.ENABLE_CACHE)
     (newDictionary || newCompany || resetCache) && this.clear();
   }
   onTablesChanged(event) {
-    let { payload: tablesChanged } = event, cacheOwnerDBTable = this._cacheOwnerStatus.getTableName();
-    tablesChanged.includes(cacheOwnerDBTable) && this.clear();
+    let { payload: tablesChanged } = event, dependencies = this._cacheOwnerStatus.getTableDependencies();
+    tablesChanged.findIndex((table) => dependencies.includes(table)) >= 0 && this.clear();
   }
   async isEnabled() {
     return isCacheEnabledGlobally && await this._cacheOwnerStatus.isReady();
@@ -6372,8 +6762,10 @@ var isCacheEnabledGlobally = tryVO(() => new VOBoolean(process.env.ENABLE_CACHE)
 var DXT_PEDIDO_ARTICULOS_PRINT_TABLE = "dxt_pedido_articulos_print";
 
 // src/code.server/infrastucture/dxt/pedido/models/dxt_pedido_articulo.model.ts
-var DXT_PEDIDO_ARTICULOS_ID_FIELD = "codigo_articulo", dxtPedidoArticuloCreationFieldsSQL = {
-  codigo_articulo: "varchar(100) COLLATE Latin1_General_BIN NOT NULL"
+var DXT_PEDIDO_ARTICULOS_CODE_FIELD = "codigo_articulo", DXT_PEDIDO_ARTICULOS_ID_FIELD = "id", dxtPedidoArticuloCreationFieldsSQL = {
+  id: "int IDENTITY(0,1) NOT NULL",
+  codigo_articulo: "varchar(100) COLLATE Latin1_General_BIN NOT NULL",
+  params: "varchar(500) COLLATE Latin1_General_BIN NULL"
 }, dxtPedidoArticuloCreationIndexesSQL = [];
 
 // src/code.server/infrastucture/dxt/pedido/models/dxt_pedido_articulo_screen.model.ts
@@ -6704,10 +7096,16 @@ var CompanyInitProvider = class extends TDBProvider {
 var CompanyProvider = class extends CompanyInitProvider {
   constructor(config2) {
     super();
-    this.config = config2, this.cache = new MemoryCache(this), eventBus.on(DBSettingsChangedEvent.NAME, this.onDBSettingsChanged.bind(this));
+    this.config = config2, this._tableDependencies = [
+      this.config.mainTable,
+      ...this.config.tableDependencies ?? []
+    ], this.cache = new MemoryCache(this), eventBus.on(DBSettingsChangedEvent.NAME, this.onDBSettingsChanged.bind(this));
   }
   getTableName() {
     return this.config.mainTable;
+  }
+  getTableDependencies() {
+    return this._tableDependencies;
   }
   async isReady() {
     return await this.getCompany(), !0;
@@ -7255,18 +7653,19 @@ var AdminRootController = class extends AuthenticatedRootController {
 var DXTPedidoArticuloRepository = class extends CompanyProvider {
   constructor(config2) {
     super({
-      mainIdField: DXT_PEDIDO_ARTICULOS_ID_FIELD,
+      mainIdField: DXT_PEDIDO_ARTICULOS_CODE_FIELD,
       ...config2
     });
   }
   async getList() {
-    return (await this.getAll()).map((v) => v.codigo_articulo);
+    return (await this.getAll()).map((v) => {
+      let line = v.codigo_articulo;
+      return v.params == null ? line : `${line}; ${v.params}`;
+    });
   }
   async setList(list) {
     this.cache.clear();
-    let finalList = list.map((e) => e.trim()).filter((e) => e.length > 0).map((e) => ({
-      codigo_articulo: e
-    })), { mainTable } = this.config, trx = await (await this.getCompany()).transaction();
+    let finalList = list.filter((e) => e.codigo_articulo.trim().length > 0), { mainTable } = this.config, trx = await (await this.getCompany()).transaction();
     return await trx(mainTable).truncate(), await trx.batchInsert(mainTable, finalList, 500), await trx.commit(), emitBusEvent(
       new DBSettingsChangedEvent({
         passiveDBChanges: !1,
@@ -7281,12 +7680,72 @@ var DXTPedidoArticuloRepository = class extends CompanyProvider {
   }
 };
 
+// src/code.server/infrastucture/articulo/models/articulo.model.ts
+var ARTICULO_TABLE = "STA11", ARTICULO_ID_FIELD = "ID_STA11", ARTICULO_CODE_FIELD = "COD_ARTICU";
+var ARTICULO_NAME_COLUMNS = ["DESCRIPCIO", "DESC_ADIC"];
+
+// src/domain/dxt/pedido/utils/index.ts
+function _getDXTPedidoArticuloParam(s) {
+  let chunks = s.split("=", 2);
+  if (chunks.length != 2)
+    return null;
+  let key = chunks[0].trim().toLowerCase(), value = chunks[1].trim();
+  return key.length == 0 ? null : { key, value };
+}
+function strToDXTPedidoArticuloRecord(s) {
+  if (!isStr(s))
+    return null;
+  let p = s.indexOf(";");
+  p <= 0 && (p = s.length);
+  let codigo_articulo = s.substring(0, p).trimEnd();
+  if (codigo_articulo.length == 0)
+    return null;
+  let params = s.substring(p + 1).trim();
+  return params.length == 0 ? { codigo_articulo } : {
+    codigo_articulo,
+    params
+  };
+}
+function strToDXTPedidoArticuloParams(paramsStr) {
+  if (paramsStr == null)
+    return;
+  let result = {}, emptyParams = !0;
+  return paramsStr.split(";").forEach((s, i) => {
+    let paramEntry = _getDXTPedidoArticuloParam(s);
+    if (paramEntry == null)
+      return;
+    let { key, value } = paramEntry;
+    result[key] = value, emptyParams = !1;
+  }), emptyParams ? void 0 : result;
+}
+
 // src/code.server/infrastucture/dxt/pedido/dxt_pedido_articulo_print.repository.ts
 var DXTPedidoArticuloPrintRepository = class extends DXTPedidoArticuloRepository {
   constructor() {
     super({
-      mainTable: DXT_PEDIDO_ARTICULOS_PRINT_TABLE
+      mainTable: DXT_PEDIDO_ARTICULOS_PRINT_TABLE,
+      tableDependencies: [ARTICULO_TABLE]
     });
+    this.mainColumns = [`${DXT_PEDIDO_ARTICULOS_PRINT_TABLE}.*`], this.articuloColumns = [ARTICULO_ID_FIELD].map((c) => `${ARTICULO_TABLE}.${c}`);
+  }
+  async getIdsWithParams(paramsToReturn) {
+    let cacheKey = `ids_${paramsToReturn?.join(".")}`, resultFromCache = await this.cache.getMetadata(cacheKey);
+    if (resultFromCache != null)
+      return resultFromCache;
+    let { mainTable } = this.config, rawData = await (await this.getCompany())(mainTable).select(...this.mainColumns, ...this.articuloColumns).innerJoin(ARTICULO_TABLE, `${mainTable}.${DXT_PEDIDO_ARTICULOS_CODE_FIELD}`, `${ARTICULO_TABLE}.${ARTICULO_CODE_FIELD}`).orderBy(DXT_PEDIDO_ARTICULOS_ID_FIELD);
+    if (rawData == null)
+      throw new DXTException(11e3 /* NOT_FOUND */);
+    let data = rawData.map((m) => this.toArticuloIdResult(m, paramsToReturn));
+    return await this.cache.setMetadata(cacheKey, data), data;
+  }
+  toArticuloIdResult(m, paramsToReturn) {
+    let { [ARTICULO_ID_FIELD]: id_articulo } = m, params = strToDXTPedidoArticuloParams(m.params);
+    if (paramsToReturn.length == 0)
+      return params != null ? [id_articulo, params] : id_articulo;
+    let filteredParamsEntries = params == null ? null : Object.entries(params).filter(
+      ([key, _11]) => paramsToReturn.includes(key)
+    );
+    return filteredParamsEntries != null && filteredParamsEntries.length > 0 ? [id_articulo, Object.fromEntries(filteredParamsEntries)] : id_articulo;
   }
 }, dxtPedidoArticuloPrintRepository = new DXTPedidoArticuloPrintRepository();
 
@@ -7294,36 +7753,42 @@ var DXTPedidoArticuloPrintRepository = class extends DXTPedidoArticuloRepository
 var DXTPedidoArticulosScreenRepository = class extends DXTPedidoArticuloRepository {
   constructor() {
     super({
-      mainTable: DXT_PEDIDO_ARTICULOS_SCREEN_TABLE
+      mainTable: DXT_PEDIDO_ARTICULOS_SCREEN_TABLE,
+      tableDependencies: [ARTICULO_TABLE]
     });
   }
 }, dxtPedidoArticuloScreenRepository = new DXTPedidoArticulosScreenRepository();
 
-// src/domain/dxt/pedido/value_objects/VOPedidoArticulos.ts
-var VOPedidoArticulos = class extends ValueObject {
+// src/domain/dxt/pedido/value_objects/VOPedidoArticuloRecords.ts
+var VOPedidoArticuloRecords = class extends ValueObject {
   validate(rawValue) {
     Array.isArray(rawValue) || this.throwError(rawValue);
     for (let e in rawValue)
       typeof e != "string" && this.throwError(rawValue);
-    return rawValue.map((e) => e.trim()).filter((e) => e.length >= 0);
+    return rawValue.map(
+      (s) => strToDXTPedidoArticuloRecord(s)
+    ).filter((e) => e != null);
   }
 };
 
 // src/domain/dxt/pedido/input/index.ts
 var setPedidoArticulosInputSchema = {
-  data: (v) => new VOPedidoArticulos(v)
+  data: (v) => new VOPedidoArticuloRecords(v)
 }, validatePedidoArticulosInput = (input) => validateInput(setPedidoArticulosInputSchema, input);
 
+// src/domain/shared/validate_schema/index.ts
+var optionalStringsValidator = (v, def) => v == null ? def : new VOStrings(v).valueOf();
+
 // src/code.server/api/dxt/pedido/endpoints/index.ts
-var dxtPedidoGetArticulosPrintEndpoint = createApiEndpoint(
+var dxtPedidoGetArticulosPrintListEndpoint = createApiEndpoint(
   adminRootController,
   void 0,
   async (req) => await dxtPedidoArticuloPrintRepository.getList()
-), dxtPedidoGetArticulosScreenEndpoint = createApiEndpoint(
+), dxtPedidoGetArticulosScreenListEndpoint = createApiEndpoint(
   adminRootController,
   void 0,
   async (req) => await dxtPedidoArticuloScreenRepository.getList()
-), dxtPedidoSetArticulosPrintEndpoint = createApiEndpoint(
+), dxtPedidoSetArticulosPrintListEndpoint = createApiEndpoint(
   adminRootController,
   {
     validation: {
@@ -7331,7 +7796,7 @@ var dxtPedidoGetArticulosPrintEndpoint = createApiEndpoint(
     }
   },
   async (req) => (await dxtPedidoArticuloPrintRepository.setList(req.validated.body.data), { ok: !0 })
-), dxtPedidoSetArticulosScreenEndpoint = createApiEndpoint(
+), dxtPedidoSetArticulosScreenListEndpoint = createApiEndpoint(
   adminRootController,
   {
     validation: {
@@ -7339,14 +7804,2610 @@ var dxtPedidoGetArticulosPrintEndpoint = createApiEndpoint(
     }
   },
   async (req) => (await dxtPedidoArticuloScreenRepository.setList(req.validated.body.data), { ok: !0 })
+), dxtPedidoGetArticulosPrintIdsEndpoint = createApiEndpoint(
+  adminRootController,
+  {
+    validation: {
+      query: {
+        param: optionalStringsValidator
+      }
+    }
+  },
+  async (req) => {
+    let { param: params } = req.validated.query, paramsToReturn = (params ?? []).map((p) => p.trim().toLowerCase()).filter((p) => p != null && p.length > 0);
+    return await dxtPedidoArticuloPrintRepository.getIdsWithParams(paramsToReturn);
+  }
 );
 
-// src/app/routes/api.dxt.pedido.articulos.screen.ts
+// src/app/routes/api.dxt.pedido.articulos.screen_list.ts
 async function loader2({ request, params }) {
-  return await dxtPedidoGetArticulosScreenEndpoint.get(request, params);
+  return await dxtPedidoGetArticulosScreenListEndpoint.get(request, params);
 }
 async function action({ request, params }) {
-  return await dxtPedidoSetArticulosScreenEndpoint.post(request, params);
+  return await dxtPedidoSetArticulosScreenListEndpoint.post(request, params);
+}
+
+// src/app/routes/_admin.settings.users.customers.add/route.tsx
+var route_exports3 = {};
+__export(route_exports3, {
+  default: () => Add
+});
+import { useNavigate as useNavigate6 } from "@remix-run/react";
+
+// src/app/routes/_admin.settings.users.customers.add/components/success.tsx
+import { useEffect as useEffect8 } from "react";
+import {
+  Badge as Badge4,
+  Box as Box9,
+  Divider as Divider5,
+  Grid as Grid5,
+  GridItem as GridItem5,
+  Heading as Heading4,
+  HStack as HStack6,
+  Stack as Stack7,
+  useToast as useToast3
+} from "@chakra-ui/react";
+import { yupResolver as yupResolver3 } from "@hookform/resolvers/yup";
+import { useForm as useForm3 } from "react-hook-form";
+
+// src/app/routes/_admin.settings.users.customers.add/validation.ts
+import { useState as useState6 } from "react";
+import * as yup4 from "yup";
+import _4 from "lodash";
+var useCustomValidationSchema3 = () => {
+  let [passwordStatus, setPasswordStatus] = useState6(null), customValidationSchema = yup4.object({
+    password: yup4.string().required("Ingrese una contrase\xF1a").test("password", "Formato de contrase\xF1a no v\xE1lido", (v) => {
+      if (v != "" && v != null) {
+        let newPasswordStatus = dxtPasswordStatus(v);
+        return _4.isEqual(passwordStatus, newPasswordStatus) || setPasswordStatus(newPasswordStatus), yupVOValidation(VODXTPassword, v);
+      }
+      return !0;
+    }),
+    password_repeat: yup4.string().required("Repita la contrase\xF1a").test(
+      "passwords-match",
+      "Las contrase\xF1as no coinciden",
+      function(value) {
+        return this.parent.password === value;
+      }
+    )
+  }).required();
+  return { yupValidationSchema: commonValidationSchema.concat(customValidationSchema), passwordStatus };
+};
+
+// src/app/routes/_admin.settings.users.customers.add/components/success.tsx
+import { jsxDEV as jsxDEV29 } from "react/jsx-dev-runtime";
+var Success3 = (props) => {
+  let { typeSettings } = props, app = useAppResources(), toast = useToast3(), { yupValidationSchema: yupValidationSchema6, passwordStatus } = useCustomValidationSchema3(), { state: statePerfiles, result: resultPerfiles } = useTangoList({
+    url: API_TANGO_PERFIL,
+    fieldsMap: {
+      label: "name",
+      value: "id"
+    }
+  }), { state: stateRelationship, result: resultRelationship } = typeSettings.api.getRelation(), {
+    handleSubmit,
+    control,
+    setError,
+    resetField,
+    watch,
+    formState: { errors, isSubmitting, isSubmitSuccessful }
+  } = useForm3({
+    defaultValues: {
+      habilitado_en_dxt: !0,
+      puede_crear_pedido: !0,
+      puede_editar_pedido: !0,
+      ver_pedidos_cumplidos: !0,
+      ver_sin_precio: !1,
+      mostrar_mensaje_de_advertencia: !1,
+      puede_anular_pedido: !1,
+      borrar_pedido_al_anular: !1,
+      aprobar_pedido_al_crear: !1
+    },
+    resolver: yupResolver3(yupValidationSchema6)
+  }), watchPuedeAnularPedido = watch("puede_anular_pedido");
+  useEffect8(() => {
+    watchPuedeAnularPedido === !1 && resetField("borrar_pedido_al_anular", { defaultValue: !1 });
+  }, [watchPuedeAnularPedido]);
+  let disableForm = isSubmitSuccessful || isSubmitting;
+  return /* @__PURE__ */ jsxDEV29("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
+    let { password_repeat, ...data } = dataUnsafe;
+    data.email === "" && delete data.email;
+    let input = data, result = await typeSettings.api.post(input, app);
+    await promiseBasedToast({
+      toast,
+      result,
+      messages: {
+        success: { title: "Usuario creado" },
+        error: { title: "Ha ocurrido un error" },
+        loading: { title: "Creando usuario" }
+      }
+    }).then(() => {
+      app.navigate(URL_SETTINGS_CUSTOMERS_PATH);
+    }).catch((e) => {
+      setError("root", { message: e });
+    });
+  }), children: /* @__PURE__ */ jsxDEV29(Box9, { children: [
+    /* @__PURE__ */ jsxDEV29(FormErrors, { errors }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+      lineNumber: 137,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV29(CommonCard, { children: /* @__PURE__ */ jsxDEV29(
+      Grid5,
+      {
+        templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
+        alignItems: "center",
+        gap: 4,
+        children: [
+          /* @__PURE__ */ jsxDEV29(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV29(Heading4, { size: "sm", textTransform: "uppercase", children: "Informaci\xF3n del Cliente" }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 145,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 144,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV29(GridItem5, { colSpan: { md: 2 }, children: [
+            /* @__PURE__ */ jsxDEV29(
+              ControlledSelect,
+              {
+                fieldProps: {
+                  name: "tango_id",
+                  placeholder: typeSettings.tangoRelatedFields?.placeholder,
+                  options: resultRelationship,
+                  noOptionsMessage(obj) {
+                    return typeSettings.tangoRelatedFields?.empty;
+                  },
+                  isSearchable: !0,
+                  selectedOptionStyle: "check",
+                  isLoading: stateRelationship instanceof FetchStateLoading
+                },
+                formControlProps: {
+                  isDisabled: disableForm || !(stateRelationship instanceof FetchStateSuccess)
+                },
+                formControlInnerProps: {
+                  label: typeSettings.tangoRelatedFields?.label
+                },
+                control
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+                lineNumber: 150,
+                columnNumber: 15
+              },
+              this
+            ),
+            stateRelationship instanceof FetchStateError && /* @__PURE__ */ jsxDEV29(InlineError, { error: stateRelationship.errorOrNull().error }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+              lineNumber: 173,
+              columnNumber: 17
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 149,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV29(GridItem5, { children: /* @__PURE__ */ jsxDEV29(
+            ControlledInput,
+            {
+              fieldProps: {
+                name: "username",
+                id: "username",
+                type: "text"
+              },
+              formControlProps: {
+                isDisabled: disableForm
+              },
+              formControlInnerProps: {
+                label: "Nombre de Usuario"
+              },
+              control
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+              lineNumber: 177,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 176,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV29(GridItem5, { children: /* @__PURE__ */ jsxDEV29(
+            ControlledInput,
+            {
+              fieldProps: {
+                name: "email",
+                id: "email",
+                type: "text",
+                inputMode: "email"
+              },
+              formControlProps: {
+                isDisabled: disableForm
+              },
+              formControlInnerProps: {
+                label: "Correo electr\xF3nico"
+              },
+              control
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+              lineNumber: 193,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 192,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV29(GridItem5, { children: /* @__PURE__ */ jsxDEV29(
+            ControlledInput,
+            {
+              fieldProps: {
+                name: "password",
+                id: "password",
+                type: "password"
+              },
+              formControlProps: {
+                isDisabled: disableForm
+              },
+              formControlInnerProps: {
+                label: "Contrase\xF1a"
+              },
+              control
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+              lineNumber: 210,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 209,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV29(GridItem5, { children: /* @__PURE__ */ jsxDEV29(
+            ControlledInput,
+            {
+              fieldProps: {
+                name: "password_repeat",
+                id: "password_repeat",
+                type: "password"
+              },
+              formControlProps: {
+                isDisabled: disableForm
+              },
+              formControlInnerProps: {
+                label: "Confirmaci\xF3n de Contrase\xF1a"
+              },
+              control
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+              lineNumber: 226,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 225,
+            columnNumber: 13
+          }, this),
+          passwordStatus != null && /* @__PURE__ */ jsxDEV29(GridItem5, { colSpan: { md: 2 }, children: [
+            passwordStatus.tooShort && /* @__PURE__ */ jsxDEV29(Badge4, { colorScheme: "red", children: "Contrase\xF1a muy corta" }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+              lineNumber: 244,
+              columnNumber: 19
+            }, this),
+            passwordStatus.tooLong && /* @__PURE__ */ jsxDEV29(Badge4, { colorScheme: "red", children: "Contrase\xF1a muy larga" }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+              lineNumber: 247,
+              columnNumber: 19
+            }, this),
+            passwordStatus.invalidCharsPresent && /* @__PURE__ */ jsxDEV29(Badge4, { colorScheme: "red", children: "Evite caracteres no v\xE1lidos" }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+              lineNumber: 250,
+              columnNumber: 19
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 242,
+            columnNumber: 15
+          }, this),
+          /* @__PURE__ */ jsxDEV29(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV29(Divider5, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 255,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 254,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV29(GridItem5, { colSpan: { md: 2 }, children: [
+            /* @__PURE__ */ jsxDEV29(
+              ControlledSelect,
+              {
+                fieldProps: {
+                  name: "perfil_facturacion_id",
+                  placeholder: "Seleccione un perfil",
+                  options: resultPerfiles,
+                  noOptionsMessage(obj) {
+                    return "No hay perfiles disponibles";
+                  },
+                  isLoading: statePerfiles instanceof FetchStateLoading,
+                  selectedOptionStyle: "check"
+                },
+                formControlProps: {
+                  isDisabled: disableForm || !(statePerfiles instanceof FetchStateSuccess)
+                },
+                formControlInnerProps: {
+                  label: "Perfil de facturaci\xF3n"
+                },
+                control
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+                lineNumber: 258,
+                columnNumber: 15
+              },
+              this
+            ),
+            statePerfiles instanceof FetchStateError && /* @__PURE__ */ jsxDEV29(InlineError, { error: statePerfiles.errorOrNull().error }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+              lineNumber: 280,
+              columnNumber: 17
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 257,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV29(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV29(Divider5, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 284,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 283,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV29(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV29(Heading4, { size: "sm", textTransform: "uppercase", children: "Estado" }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 287,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 286,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV29(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV29(
+            ControlledRadio,
+            {
+              fieldProps: {
+                name: "habilitado_en_dxt",
+                options: [
+                  {
+                    value: !0,
+                    label: "Establecido en Tango"
+                  },
+                  {
+                    value: !1,
+                    label: "Deshabilitado"
+                  }
+                ]
+              },
+              formControlProps: {
+                isDisabled: disableForm
+              },
+              radioProps: {
+                size: { base: "sm", sm: "md" }
+              },
+              control
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+              lineNumber: 292,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 291,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV29(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV29(Divider5, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 316,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 315,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV29(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV29(Heading4, { size: "sm", textTransform: "uppercase", children: "Comunicaci\xF3n" }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 319,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 318,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV29(GridItem5, { children: /* @__PURE__ */ jsxDEV29(
+            ControlledSwitch,
+            {
+              fieldProps: {
+                name: "mostrar_mensaje_de_advertencia",
+                id: "mostrar_mensaje_de_advertencia"
+              },
+              formControlProps: {
+                width: "auto",
+                isDisabled: disableForm
+              },
+              formControlInnerProps: {
+                label: "Mostrar mensaje de advertencia"
+              },
+              control
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+              lineNumber: 324,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 323,
+            columnNumber: 13
+          }, this)
+        ]
+      },
+      void 0,
+      !0,
+      {
+        fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+        lineNumber: 139,
+        columnNumber: 11
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+      lineNumber: 138,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV29(CommonCard, { children: /* @__PURE__ */ jsxDEV29(
+      Grid5,
+      {
+        templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
+        alignItems: "center",
+        gap: 4,
+        children: [
+          /* @__PURE__ */ jsxDEV29(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV29(Heading4, { size: "sm", textTransform: "uppercase", children: "Pedidos" }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 348,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 347,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV29(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV29(Stack7, { spacing: 4, direction: { base: "column" }, children: [
+            /* @__PURE__ */ jsxDEV29(HStack6, { spacing: 4, children: /* @__PURE__ */ jsxDEV29(
+              ControlledSwitch,
+              {
+                fieldProps: {
+                  name: "puede_crear_pedido",
+                  id: "puede_crear_pedido"
+                },
+                formControlProps: {
+                  width: "auto",
+                  isDisabled: disableForm
+                },
+                formControlInnerProps: {
+                  label: "Puede crear pedidos"
+                },
+                control
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+                lineNumber: 355,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+              lineNumber: 354,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV29(HStack6, { spacing: 4, children: /* @__PURE__ */ jsxDEV29(
+              ControlledSwitch,
+              {
+                fieldProps: {
+                  name: "puede_editar_pedido",
+                  id: "puede_editar_pedido"
+                },
+                formControlProps: {
+                  width: "auto",
+                  isDisabled: disableForm
+                },
+                formControlInnerProps: {
+                  label: "Puede editar pedidos"
+                },
+                control
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+                lineNumber: 371,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+              lineNumber: 370,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV29(HStack6, { spacing: 4, children: /* @__PURE__ */ jsxDEV29(
+              ControlledSwitch,
+              {
+                fieldProps: {
+                  name: "puede_anular_pedido",
+                  id: "puede_anular_pedido"
+                },
+                formControlProps: {
+                  width: "auto",
+                  isDisabled: disableForm
+                },
+                formControlInnerProps: {
+                  label: "Puede anular pedidos"
+                },
+                control
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+                lineNumber: 387,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+              lineNumber: 386,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV29(HStack6, { spacing: 4, children: /* @__PURE__ */ jsxDEV29(
+              ControlledSwitch,
+              {
+                fieldProps: {
+                  name: "borrar_pedido_al_anular",
+                  id: "borrar_pedido_al_anular"
+                },
+                formControlProps: {
+                  width: "auto",
+                  isDisabled: disableForm
+                },
+                formControlInnerProps: {
+                  label: "Borrar pedido al anular"
+                },
+                control,
+                watch: {
+                  isDisabled: watchPuedeAnularPedido === !1,
+                  ...watchPuedeAnularPedido === !1 && {
+                    isChecked: !1
+                  }
+                }
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+                lineNumber: 403,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+              lineNumber: 402,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV29(HStack6, { spacing: 4, children: /* @__PURE__ */ jsxDEV29(
+              ControlledSwitch,
+              {
+                fieldProps: {
+                  name: "aprobar_pedido_al_crear",
+                  id: "aprobar_pedido_al_crear"
+                },
+                formControlProps: {
+                  width: "auto",
+                  isDisabled: disableForm
+                },
+                formControlInnerProps: {
+                  label: "Los pedidos se aprueban al crearlos"
+                },
+                control
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+                lineNumber: 425,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+              lineNumber: 424,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV29(HStack6, { spacing: 4, children: /* @__PURE__ */ jsxDEV29(
+              ControlledSwitch,
+              {
+                fieldProps: {
+                  name: "ver_pedidos_cumplidos",
+                  id: "ver_pedidos_cumplidos"
+                },
+                formControlProps: {
+                  width: "auto",
+                  isDisabled: disableForm
+                },
+                formControlInnerProps: {
+                  label: "Puede ver los pedidos cumplidos"
+                },
+                control
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+                lineNumber: 441,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+              lineNumber: 440,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV29(HStack6, { spacing: 4, children: /* @__PURE__ */ jsxDEV29(
+              ControlledSwitch,
+              {
+                fieldProps: {
+                  name: "ver_sin_precio",
+                  id: "ver_sin_precio"
+                },
+                formControlProps: {
+                  width: "auto",
+                  isDisabled: disableForm
+                },
+                formControlInnerProps: {
+                  label: "Puede ver art\xEDculos sin precios"
+                },
+                control
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+                lineNumber: 457,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+              lineNumber: 456,
+              columnNumber: 17
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 353,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 352,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV29(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV29(Divider5, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 475,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 474,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV29(GridItem5, { children: /* @__PURE__ */ jsxDEV29(
+            ControlledInput,
+            {
+              fieldProps: {
+                name: "dia_de_entrega",
+                id: "dia_de_entrega",
+                type: "number",
+                inputMode: "tel"
+              },
+              formControlProps: {
+                isDisabled: disableForm
+              },
+              formControlInnerProps: {
+                label: "Tiempo de entrega de pedidos",
+                helperText: "Expresado en d\xEDas"
+              },
+              control
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+              lineNumber: 478,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 477,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV29(GridItem5, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+            lineNumber: 495,
+            columnNumber: 13
+          }, this)
+        ]
+      },
+      void 0,
+      !0,
+      {
+        fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+        lineNumber: 342,
+        columnNumber: 11
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+      lineNumber: 341,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV29(CommonCard, { children: /* @__PURE__ */ jsxDEV29(
+      SettingsFormsButtons,
+      {
+        buttonActionText: "Guardar",
+        isLoading: disableForm,
+        buttonCancelUrl: typeSettings.cancelButtonNavigateTo
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+        lineNumber: 499,
+        columnNumber: 11
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+      lineNumber: 498,
+      columnNumber: 9
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+    lineNumber: 136,
+    columnNumber: 7
+  }, this) }, void 0, !1, {
+    fileName: "src/app/routes/_admin.settings.users.customers.add/components/success.tsx",
+    lineNumber: 135,
+    columnNumber: 5
+  }, this);
+};
+
+// src/app/routes/_admin.settings.users.customers.add/components/index.tsx
+import { jsxDEV as jsxDEV30 } from "react/jsx-dev-runtime";
+var Form = (props) => {
+  let { typeSettings } = props;
+  return /* @__PURE__ */ jsxDEV30(Success3, { typeSettings }, void 0, !1, {
+    fileName: "src/app/routes/_admin.settings.users.customers.add/components/index.tsx",
+    lineNumber: 12,
+    columnNumber: 10
+  }, this);
+};
+
+// src/app/routes/_admin.settings.users.customers.add/route.tsx
+import { Fragment as Fragment8, jsxDEV as jsxDEV31 } from "react/jsx-dev-runtime";
+function Add() {
+  let typeSettings = settings.customers, navigate = useNavigate6();
+  return /* @__PURE__ */ jsxDEV31(Fragment8, { children: [
+    /* @__PURE__ */ jsxDEV31(
+      SettingsFormHeading,
+      {
+        title: typeSettings.titles.create,
+        actionButton: {
+          label: "Cancelar",
+          buttonProps: {
+            colorScheme: "gray",
+            onClick: () => {
+              navigate(URL_SETTINGS_CUSTOMERS_PATH);
+            }
+          }
+        }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings.users.customers.add/route.tsx",
+        lineNumber: 16,
+        columnNumber: 7
+      },
+      this
+    ),
+    /* @__PURE__ */ jsxDEV31(Form, { typeSettings }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.customers.add/route.tsx",
+      lineNumber: 28,
+      columnNumber: 7
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_admin.settings.users.customers.add/route.tsx",
+    lineNumber: 15,
+    columnNumber: 5
+  }, this);
+}
+
+// src/app/routes/api.dxt.pedido.articulos.print_list.ts
+var api_dxt_pedido_articulos_print_list_exports = {};
+__export(api_dxt_pedido_articulos_print_list_exports, {
+  action: () => action2,
+  loader: () => loader3
+});
+async function loader3({ request, params }) {
+  return await dxtPedidoGetArticulosPrintListEndpoint.get(request, params);
+}
+async function action2({ request, params }) {
+  return await dxtPedidoSetArticulosPrintListEndpoint.post(request, params);
+}
+
+// src/app/routes/_admin.settings.users.$type._index/route.tsx
+var route_exports4 = {};
+__export(route_exports4, {
+  default: () => Lists
+});
+import { useNavigate as useNavigate7, useParams as useParams3 } from "@remix-run/react";
+import { Icon as Icon5 } from "@chakra-ui/react";
+import AccountPlusIcon from "mdi-react/AccountPlusIcon.js";
+
+// src/app/routes/_admin.settings.users.$type._index/components/loading.tsx
+import { Box as Box10, Grid as Grid6, GridItem as GridItem6 } from "@chakra-ui/react";
+import { jsxDEV as jsxDEV32 } from "react/jsx-dev-runtime";
+var Loading3 = () => /* @__PURE__ */ jsxDEV32(
+  Box10,
+  {
+    width: "full",
+    sx: {
+      mt: 8,
+      mb: 4
+    },
+    children: /* @__PURE__ */ jsxDEV32(Grid6, { templateColumns: "1fr", gap: { base: 2, md: 4 }, children: [
+      /* @__PURE__ */ jsxDEV32(GridItem6, { children: /* @__PURE__ */ jsxDEV32(FormInputSkeleton, {}, void 0, !1, {
+        fileName: "src/app/routes/_admin.settings.users.$type._index/components/loading.tsx",
+        lineNumber: 19,
+        columnNumber: 11
+      }, this) }, void 0, !1, {
+        fileName: "src/app/routes/_admin.settings.users.$type._index/components/loading.tsx",
+        lineNumber: 18,
+        columnNumber: 9
+      }, this),
+      /* @__PURE__ */ jsxDEV32(GridItem6, { children: /* @__PURE__ */ jsxDEV32(FormInputSkeleton, {}, void 0, !1, {
+        fileName: "src/app/routes/_admin.settings.users.$type._index/components/loading.tsx",
+        lineNumber: 22,
+        columnNumber: 11
+      }, this) }, void 0, !1, {
+        fileName: "src/app/routes/_admin.settings.users.$type._index/components/loading.tsx",
+        lineNumber: 21,
+        columnNumber: 9
+      }, this),
+      /* @__PURE__ */ jsxDEV32(GridItem6, { children: /* @__PURE__ */ jsxDEV32(FormTextareaSkeleton, { height: "400px" }, void 0, !1, {
+        fileName: "src/app/routes/_admin.settings.users.$type._index/components/loading.tsx",
+        lineNumber: 25,
+        columnNumber: 11
+      }, this) }, void 0, !1, {
+        fileName: "src/app/routes/_admin.settings.users.$type._index/components/loading.tsx",
+        lineNumber: 24,
+        columnNumber: 9
+      }, this),
+      /* @__PURE__ */ jsxDEV32(GridItem6, { children: /* @__PURE__ */ jsxDEV32(FormInputSkeleton, {}, void 0, !1, {
+        fileName: "src/app/routes/_admin.settings.users.$type._index/components/loading.tsx",
+        lineNumber: 28,
+        columnNumber: 11
+      }, this) }, void 0, !1, {
+        fileName: "src/app/routes/_admin.settings.users.$type._index/components/loading.tsx",
+        lineNumber: 27,
+        columnNumber: 9
+      }, this)
+    ] }, void 0, !0, {
+      fileName: "src/app/routes/_admin.settings.users.$type._index/components/loading.tsx",
+      lineNumber: 17,
+      columnNumber: 7
+    }, this)
+  },
+  void 0,
+  !1,
+  {
+    fileName: "src/app/routes/_admin.settings.users.$type._index/components/loading.tsx",
+    lineNumber: 10,
+    columnNumber: 5
+  },
+  this
+);
+
+// src/app/routes/_admin.settings.users.$type._index/components/success.tsx
+import { useMemo as useMemo5, useRef as useRef6, useState as useState9 } from "react";
+
+// src/code.client/hooks/useSearchField.ts
+import _5 from "lodash";
+import { useState as useState7 } from "react";
+function useSearchField(data, fieldsToFilter) {
+  let [isFiltering, setIsFiltering] = useState7(!1), [filteredData, setFilteredData] = useState7(data);
+  return { filteredData, handleSearchInputChange: (query) => {
+    if (setIsFiltering(query != null && query !== ""), _5.isArray(data)) {
+      let filterApplied = [...data];
+      query != null && Array.isArray(data) && (filterApplied = _5.filter(data, (obj) => _5.some(fieldsToFilter, (prop) => String(_5.get(obj, prop)).toLowerCase().includes(query.toLowerCase())))), setFilteredData(filterApplied);
+      return;
+    } else if (_5.isObject(data)) {
+      let filterApplied = { ...data };
+      query != null && _5.forEach(data, (array, key) => {
+        let filteredArray = _5.filter(array, (obj) => _5.some(fieldsToFilter, (prop) => String(_5.get(obj, prop)).toLowerCase().includes(query.toLowerCase())));
+        filterApplied[key] = filteredArray;
+      }), setFilteredData(filterApplied);
+      return;
+    }
+    setFilteredData(data);
+  }, isFiltering };
+}
+
+// src/app/routes/_admin.settings.users.$type._index/components/success.tsx
+import {
+  Box as Box11,
+  Flex as Flex3,
+  Grid as Grid7,
+  GridItem as GridItem7,
+  HStack as HStack8,
+  Icon as Icon4,
+  IconButton as IconButton3,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+  useDisclosure,
+  useToast as useToast4
+} from "@chakra-ui/react";
+import AccountCancelIcon2 from "mdi-react/AccountCancelIcon.js";
+import AccountCheckIcon from "mdi-react/AccountCheckIcon.js";
+import PencilIcon from "mdi-react/PencilIcon.js";
+import TrashIcon from "mdi-react/TrashIcon.js";
+
+// src/app/components/DeleteDialog.tsx
+import { useRef as useRef4 } from "react";
+import {
+  AlertDialog as AlertDialog2,
+  AlertDialogBody as AlertDialogBody2,
+  AlertDialogContent as AlertDialogContent2,
+  AlertDialogFooter as AlertDialogFooter2,
+  AlertDialogHeader as AlertDialogHeader2,
+  AlertDialogOverlay as AlertDialogOverlay2,
+  Button as Button6
+} from "@chakra-ui/react";
+import { jsxDEV as jsxDEV33 } from "react/jsx-dev-runtime";
+var DeleteDialog = ({
+  isOpen,
+  onClose,
+  handleDeletion,
+  message
+}) => {
+  let cancelRef = useRef4();
+  return /* @__PURE__ */ jsxDEV33(
+    AlertDialog2,
+    {
+      isOpen,
+      leastDestructiveRef: cancelRef,
+      onClose,
+      motionPreset: "slideInBottom",
+      isCentered: !0,
+      children: /* @__PURE__ */ jsxDEV33(AlertDialogOverlay2, { children: /* @__PURE__ */ jsxDEV33(AlertDialogContent2, { children: [
+        /* @__PURE__ */ jsxDEV33(AlertDialogHeader2, { fontSize: "lg", fontWeight: "bold", children: message.title }, void 0, !1, {
+          fileName: "src/app/components/DeleteDialog.tsx",
+          lineNumber: 45,
+          columnNumber: 11
+        }, this),
+        /* @__PURE__ */ jsxDEV33(AlertDialogBody2, { children: message.body }, void 0, !1, {
+          fileName: "src/app/components/DeleteDialog.tsx",
+          lineNumber: 49,
+          columnNumber: 11
+        }, this),
+        /* @__PURE__ */ jsxDEV33(AlertDialogFooter2, { children: [
+          /* @__PURE__ */ jsxDEV33(Button6, { ref: cancelRef, onClick: onClose, children: CANCEL }, void 0, !1, {
+            fileName: "src/app/components/DeleteDialog.tsx",
+            lineNumber: 52,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV33(Button6, { colorScheme: "red", onClick: handleDeletion, ml: 3, children: DELETE }, void 0, !1, {
+            fileName: "src/app/components/DeleteDialog.tsx",
+            lineNumber: 55,
+            columnNumber: 13
+          }, this)
+        ] }, void 0, !0, {
+          fileName: "src/app/components/DeleteDialog.tsx",
+          lineNumber: 51,
+          columnNumber: 11
+        }, this)
+      ] }, void 0, !0, {
+        fileName: "src/app/components/DeleteDialog.tsx",
+        lineNumber: 44,
+        columnNumber: 9
+      }, this) }, void 0, !1, {
+        fileName: "src/app/components/DeleteDialog.tsx",
+        lineNumber: 43,
+        columnNumber: 7
+      }, this)
+    },
+    void 0,
+    !1,
+    {
+      fileName: "src/app/components/DeleteDialog.tsx",
+      lineNumber: 36,
+      columnNumber: 5
+    },
+    this
+  );
+};
+
+// src/code.client/hooks/usePagination.ts
+import { useMemo as useMemo4 } from "react";
+var DOTS_LEFT = "{left}", DOTS_RIGHT = "{right}", range = (start, end) => {
+  let length = end - start + 1;
+  return Array.from({ length }, (_11, idx) => idx + start);
+}, usePagination = ({ totalCount, pageSize, siblingCount = 1, currentPage }) => useMemo4(() => {
+  let totalPageCount = Math.ceil(totalCount / pageSize);
+  if (siblingCount + 5 >= totalPageCount)
+    return range(1, totalPageCount);
+  let leftSiblingIndex = Math.max(currentPage - siblingCount, 1), rightSiblingIndex = Math.min(currentPage + siblingCount, totalPageCount), shouldShowLeftDots = leftSiblingIndex > 2, shouldShowRightDots = rightSiblingIndex < totalPageCount - 2, firstPageIndex = 1, lastPageIndex = totalPageCount;
+  if (!shouldShowLeftDots && shouldShowRightDots) {
+    let leftItemCount = 3 + 2 * siblingCount;
+    return [...range(1, leftItemCount), DOTS_LEFT, totalPageCount];
+  }
+  if (shouldShowLeftDots && !shouldShowRightDots) {
+    let rightItemCount = 3 + 2 * siblingCount, rightRange = range(totalPageCount - rightItemCount + 1, totalPageCount);
+    return [firstPageIndex, DOTS_RIGHT, ...rightRange];
+  }
+  if (shouldShowLeftDots && shouldShowRightDots) {
+    let middleRange = range(leftSiblingIndex, rightSiblingIndex);
+    return [firstPageIndex, DOTS_LEFT, ...middleRange, DOTS_RIGHT, lastPageIndex];
+  }
+}, [totalCount, pageSize, siblingCount, currentPage]);
+
+// src/app/components/Pagination.tsx
+import { Button as Button7, HStack as HStack7, Icon as Icon2, IconButton, VStack } from "@chakra-ui/react";
+import ChevronLeftIcon from "mdi-react/ChevronLeftIcon.js";
+import ChevronRightIcon from "mdi-react/ChevronRightIcon.js";
+import DotsHorizontalIcon from "mdi-react/DotsHorizontalIcon.js";
+import { jsxDEV as jsxDEV34 } from "react/jsx-dev-runtime";
+var Pagination = (props) => {
+  let {
+    onPageChange,
+    totalCount,
+    siblingCount = 1,
+    currentPage,
+    pageSize
+  } = props, paginationRange = usePagination({
+    currentPage,
+    totalCount,
+    siblingCount,
+    pageSize
+  });
+  if (!paginationRange || currentPage === 0 || paginationRange.length < 2)
+    return null;
+  let onNext = () => {
+    onPageChange(currentPage + 1);
+  }, onPrevious = () => {
+    onPageChange(currentPage - 1);
+  }, lastPage = paginationRange[paginationRange.length - 1];
+  return /* @__PURE__ */ jsxDEV34(VStack, { children: [
+    /* @__PURE__ */ jsxDEV34(HStack7, { spacing: 1, wrap: "wrap", justifyContent: "center", children: paginationRange.map((pageNumber) => pageNumber === DOTS_LEFT || pageNumber === DOTS_RIGHT ? /* @__PURE__ */ jsxDEV34(
+      Icon2,
+      {
+        as: DotsHorizontalIcon,
+        boxSize: 3
+      },
+      `page-${pageNumber}`,
+      !1,
+      {
+        fileName: "src/app/components/Pagination.tsx",
+        lineNumber: 55,
+        columnNumber: 15
+      },
+      this
+    ) : /* @__PURE__ */ jsxDEV34(
+      Button7,
+      {
+        colorScheme: pageNumber === currentPage ? "blue" : "gray",
+        size: { base: "sm", md: "md" },
+        onClick: () => onPageChange(pageNumber),
+        children: pageNumber
+      },
+      `button-${pageNumber}`,
+      !1,
+      {
+        fileName: "src/app/components/Pagination.tsx",
+        lineNumber: 64,
+        columnNumber: 13
+      },
+      this
+    )) }, void 0, !1, {
+      fileName: "src/app/components/Pagination.tsx",
+      lineNumber: 51,
+      columnNumber: 7
+    }, this),
+    /* @__PURE__ */ jsxDEV34(HStack7, { children: [
+      /* @__PURE__ */ jsxDEV34(
+        IconButton,
+        {
+          "aria-label": "Anterior",
+          size: { base: "sm", md: "md" },
+          onClick: onPrevious,
+          isDisabled: currentPage === 1,
+          children: /* @__PURE__ */ jsxDEV34(Icon2, { as: ChevronLeftIcon }, void 0, !1, {
+            fileName: "src/app/components/Pagination.tsx",
+            lineNumber: 82,
+            columnNumber: 11
+          }, this)
+        },
+        void 0,
+        !1,
+        {
+          fileName: "src/app/components/Pagination.tsx",
+          lineNumber: 76,
+          columnNumber: 9
+        },
+        this
+      ),
+      /* @__PURE__ */ jsxDEV34(
+        IconButton,
+        {
+          "aria-label": "Siguiente",
+          size: { base: "sm", md: "md" },
+          onClick: onNext,
+          isDisabled: currentPage === lastPage,
+          children: /* @__PURE__ */ jsxDEV34(Icon2, { as: ChevronRightIcon }, void 0, !1, {
+            fileName: "src/app/components/Pagination.tsx",
+            lineNumber: 90,
+            columnNumber: 11
+          }, this)
+        },
+        void 0,
+        !1,
+        {
+          fileName: "src/app/components/Pagination.tsx",
+          lineNumber: 84,
+          columnNumber: 9
+        },
+        this
+      )
+    ] }, void 0, !0, {
+      fileName: "src/app/components/Pagination.tsx",
+      lineNumber: 75,
+      columnNumber: 7
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/components/Pagination.tsx",
+    lineNumber: 50,
+    columnNumber: 5
+  }, this);
+};
+
+// src/app/components/SearchField.tsx
+import { useRef as useRef5, useState as useState8 } from "react";
+import {
+  Icon as Icon3,
+  Input as Input2,
+  InputGroup as InputGroup2,
+  InputLeftElement,
+  InputRightElement
+} from "@chakra-ui/react";
+import CloseIcon from "mdi-react/CloseIcon.js";
+import MagnifyIcon from "mdi-react/MagnifyIcon.js";
+import { jsxDEV as jsxDEV35 } from "react/jsx-dev-runtime";
+var SearchField = ({
+  handleSearchInputChange,
+  inputProps
+}) => {
+  let [searchValue, setSearchValue] = useState8(null), inputRef = useRef5(null), inputChangeRef = useRef5(), handleSearchReset = () => {
+    setSearchValue(null), handleSearchInputChange(), inputChangeRef.current && clearTimeout(inputChangeRef.current), inputRef.current && inputRef.current.focus();
+  };
+  return /* @__PURE__ */ jsxDEV35(InputGroup2, { children: [
+    /* @__PURE__ */ jsxDEV35(InputLeftElement, { pointerEvents: "none", children: /* @__PURE__ */ jsxDEV35(Icon3, { as: MagnifyIcon, boxSize: 4 }, void 0, !1, {
+      fileName: "src/app/components/SearchField.tsx",
+      lineNumber: 52,
+      columnNumber: 9
+    }, this) }, void 0, !1, {
+      fileName: "src/app/components/SearchField.tsx",
+      lineNumber: 51,
+      columnNumber: 7
+    }, this),
+    /* @__PURE__ */ jsxDEV35(
+      Input2,
+      {
+        ref: inputRef,
+        type: "text",
+        name: "filter",
+        placeholder: "Filtrar...",
+        value: searchValue ?? "",
+        onChange: (e) => {
+          setSearchValue(e.target.value), inputChangeRef.current && clearTimeout(inputChangeRef.current), inputChangeRef.current = setTimeout(() => {
+            handleSearchInputChange(e.target.value);
+          }, 1e3);
+        },
+        ...inputProps
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/components/SearchField.tsx",
+        lineNumber: 54,
+        columnNumber: 7
+      },
+      this
+    ),
+    searchValue !== "" && searchValue != null ? /* @__PURE__ */ jsxDEV35(InputRightElement, { cursor: "pointer", children: /* @__PURE__ */ jsxDEV35(Icon3, { as: CloseIcon, onClick: handleSearchReset }, void 0, !1, {
+      fileName: "src/app/components/SearchField.tsx",
+      lineNumber: 65,
+      columnNumber: 11
+    }, this) }, void 0, !1, {
+      fileName: "src/app/components/SearchField.tsx",
+      lineNumber: 64,
+      columnNumber: 9
+    }, this) : /* @__PURE__ */ jsxDEV35(InputRightElement, {}, void 0, !1, {
+      fileName: "src/app/components/SearchField.tsx",
+      lineNumber: 68,
+      columnNumber: 9
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/components/SearchField.tsx",
+    lineNumber: 50,
+    columnNumber: 5
+  }, this);
+};
+
+// src/app/components/TextWordBreak.tsx
+import { Text } from "@chakra-ui/react";
+import { jsxDEV as jsxDEV36 } from "react/jsx-dev-runtime";
+var TextWordBreak = ({
+  children,
+  breakType,
+  props
+}) => /* @__PURE__ */ jsxDEV36(
+  Text,
+  {
+    ...props,
+    sx: {
+      whiteSpace: "normal",
+      wordBreak: breakType ?? "break-all"
+    },
+    children
+  },
+  void 0,
+  !1,
+  {
+    fileName: "src/app/components/TextWordBreak.tsx",
+    lineNumber: 15,
+    columnNumber: 5
+  },
+  this
+);
+
+// src/app/routes/_admin.settings.users.$type._index/components/success.tsx
+import { Fragment as Fragment9, jsxDEV as jsxDEV37 } from "react/jsx-dev-runtime";
+var Success4 = (props) => {
+  let { stateData, retry, typeSettings } = props, app = useAppResources(), { isOpen, onOpen, onClose } = useDisclosure(), toast = useToast4(), selectedUser = useRef6(null), { filteredData, handleSearchInputChange } = useSearchField(stateData, [
+    "screen_name",
+    "username"
+  ]), [currentPage, setCurrentPage] = useState9(1), PageSize = 10, currentTableData = useMemo5(() => {
+    let firstPageIndex = (currentPage - 1) * PageSize, lastPageIndex = firstPageIndex + PageSize;
+    return filteredData.slice(firstPageIndex, lastPageIndex);
+  }, [currentPage, filteredData]), handleDeleteDialog = (id, username) => () => {
+    selectedUser.current = { id, username }, onOpen();
+  }, handleEdit = (id) => () => {
+    app.navigate(pathParamsToUrl(typeSettings.editButtonNavigateTo, { id }));
+  };
+  return /* @__PURE__ */ jsxDEV37(Fragment9, { children: [
+    /* @__PURE__ */ jsxDEV37(
+      DeleteDialog,
+      {
+        isOpen,
+        onClose,
+        handleDeletion: async () => {
+          if (selectedUser.current != null) {
+            let { id, username } = selectedUser.current;
+            selectedUser.current = null;
+            let result = await typeSettings.api.delete(id, { username }, app), finalResult = await promiseBasedToast({
+              toast,
+              result,
+              messages: {
+                success: { title: "Usuario eliminado" },
+                error: { title: "Error al eliminar usuario" },
+                loading: { title: "Eliminando usuario" }
+              }
+            }).then(() => {
+              stateData.splice(
+                stateData.findIndex((object12) => object12.id === id),
+                1
+              ), handleSearchInputChange();
+            }).catch((e) => {
+            });
+            onClose();
+          }
+        },
+        message: {
+          title: "Eliminar usuario",
+          body: "\xBFEst\xE1 seguro que desea eliminar este usuario? Esta acci\xF3n no se puede deshacer."
+        }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+        lineNumber: 131,
+        columnNumber: 7
+      },
+      this
+    ),
+    /* @__PURE__ */ jsxDEV37(CommonCard, { children: [
+      /* @__PURE__ */ jsxDEV37(Box11, { sx: { pb: 4 }, children: /* @__PURE__ */ jsxDEV37(SearchField, { handleSearchInputChange }, void 0, !1, {
+        fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+        lineNumber: 142,
+        columnNumber: 11
+      }, this) }, void 0, !1, {
+        fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+        lineNumber: 141,
+        columnNumber: 9
+      }, this),
+      /* @__PURE__ */ jsxDEV37(Box11, { children: /* @__PURE__ */ jsxDEV37(Table, { variant: "grayOverCard", size: "md", children: [
+        /* @__PURE__ */ jsxDEV37(Thead, { children: /* @__PURE__ */ jsxDEV37(Tr, { children: /* @__PURE__ */ jsxDEV37(
+          Th,
+          {
+            sx: {
+              p: { base: 2, md: 4 }
+            },
+            children: /* @__PURE__ */ jsxDEV37(
+              Grid7,
+              {
+                templateColumns: {
+                  base: "3fr 1fr 2fr",
+                  md: "3fr 3fr 1fr 2fr"
+                },
+                gap: { base: 2, md: 4 },
+                children: [
+                  /* @__PURE__ */ jsxDEV37(GridItem7, { children: "Nombre completo" }, void 0, !1, {
+                    fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+                    lineNumber: 160,
+                    columnNumber: 21
+                  }, this),
+                  /* @__PURE__ */ jsxDEV37(GridItem7, { sx: { display: { base: "none", md: "block" } }, children: "Nombre de usuario" }, void 0, !1, {
+                    fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+                    lineNumber: 161,
+                    columnNumber: 21
+                  }, this),
+                  /* @__PURE__ */ jsxDEV37(GridItem7, { textAlign: "center", children: "Estado" }, void 0, !1, {
+                    fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+                    lineNumber: 164,
+                    columnNumber: 21
+                  }, this),
+                  /* @__PURE__ */ jsxDEV37(GridItem7, {}, void 0, !1, {
+                    fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+                    lineNumber: 165,
+                    columnNumber: 21
+                  }, this)
+                ]
+              },
+              void 0,
+              !0,
+              {
+                fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+                lineNumber: 153,
+                columnNumber: 19
+              },
+              this
+            )
+          },
+          void 0,
+          !1,
+          {
+            fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+            lineNumber: 148,
+            columnNumber: 17
+          },
+          this
+        ) }, void 0, !1, {
+          fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+          lineNumber: 147,
+          columnNumber: 15
+        }, this) }, void 0, !1, {
+          fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+          lineNumber: 146,
+          columnNumber: 13
+        }, this),
+        /* @__PURE__ */ jsxDEV37(Tbody, { children: currentTableData.length > 0 && currentTableData.map((user) => /* @__PURE__ */ jsxDEV37(Tr, { children: /* @__PURE__ */ jsxDEV37(
+          Td,
+          {
+            sx: {
+              p: { base: 2, md: 4 }
+            },
+            children: /* @__PURE__ */ jsxDEV37(
+              Grid7,
+              {
+                templateColumns: {
+                  base: "3fr 1fr 2fr",
+                  md: "3fr 3fr 1fr 2fr"
+                },
+                gap: { base: 2, md: 4 },
+                alignItems: "center",
+                children: [
+                  /* @__PURE__ */ jsxDEV37(GridItem7, { children: /* @__PURE__ */ jsxDEV37(TextWordBreak, { breakType: "normal", children: user.screen_name }, void 0, !1, {
+                    fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+                    lineNumber: 188,
+                    columnNumber: 27
+                  }, this) }, void 0, !1, {
+                    fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+                    lineNumber: 187,
+                    columnNumber: 25
+                  }, this),
+                  /* @__PURE__ */ jsxDEV37(
+                    GridItem7,
+                    {
+                      sx: { display: { base: "none", md: "block" } },
+                      children: /* @__PURE__ */ jsxDEV37(TextWordBreak, { breakType: "normal", children: user.username }, void 0, !1, {
+                        fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+                        lineNumber: 195,
+                        columnNumber: 27
+                      }, this)
+                    },
+                    void 0,
+                    !1,
+                    {
+                      fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+                      lineNumber: 192,
+                      columnNumber: 25
+                    },
+                    this
+                  ),
+                  /* @__PURE__ */ jsxDEV37(GridItem7, { textAlign: "center", children: /* @__PURE__ */ jsxDEV37(
+                    Icon4,
+                    {
+                      as: user.habilitado_en_dxt && user.usuario_tango_existe && user.habilitado_en_tango === !0 ? AccountCheckIcon : AccountCancelIcon2,
+                      boxSize: 6,
+                      color: resolveUserStatusColor(user)
+                    },
+                    void 0,
+                    !1,
+                    {
+                      fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+                      lineNumber: 200,
+                      columnNumber: 27
+                    },
+                    this
+                  ) }, void 0, !1, {
+                    fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+                    lineNumber: 199,
+                    columnNumber: 25
+                  }, this),
+                  /* @__PURE__ */ jsxDEV37(GridItem7, { children: /* @__PURE__ */ jsxDEV37(HStack8, { justifyContent: "center", children: [
+                    /* @__PURE__ */ jsxDEV37(
+                      IconButton3,
+                      {
+                        "aria-label": "Eliminar",
+                        size: "sm",
+                        colorScheme: "red",
+                        onClick: handleDeleteDialog(
+                          user.id,
+                          user.username
+                        ),
+                        children: /* @__PURE__ */ jsxDEV37(Icon4, { as: TrashIcon, boxSize: 4 }, void 0, !1, {
+                          fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+                          lineNumber: 223,
+                          columnNumber: 31
+                        }, this)
+                      },
+                      void 0,
+                      !1,
+                      {
+                        fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+                        lineNumber: 214,
+                        columnNumber: 29
+                      },
+                      this
+                    ),
+                    /* @__PURE__ */ jsxDEV37(
+                      IconButton3,
+                      {
+                        "aria-label": "Editar",
+                        size: "sm",
+                        colorScheme: "blue",
+                        onClick: handleEdit(user.id),
+                        children: /* @__PURE__ */ jsxDEV37(Icon4, { as: PencilIcon, boxSize: 4 }, void 0, !1, {
+                          fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+                          lineNumber: 231,
+                          columnNumber: 31
+                        }, this)
+                      },
+                      void 0,
+                      !1,
+                      {
+                        fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+                        lineNumber: 225,
+                        columnNumber: 29
+                      },
+                      this
+                    )
+                  ] }, void 0, !0, {
+                    fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+                    lineNumber: 213,
+                    columnNumber: 27
+                  }, this) }, void 0, !1, {
+                    fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+                    lineNumber: 212,
+                    columnNumber: 25
+                  }, this)
+                ]
+              },
+              void 0,
+              !0,
+              {
+                fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+                lineNumber: 179,
+                columnNumber: 23
+              },
+              this
+            )
+          },
+          void 0,
+          !1,
+          {
+            fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+            lineNumber: 174,
+            columnNumber: 21
+          },
+          this
+        ) }, `row_${user.id}`, !1, {
+          fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+          lineNumber: 173,
+          columnNumber: 19
+        }, this)) }, void 0, !1, {
+          fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+          lineNumber: 170,
+          columnNumber: 13
+        }, this)
+      ] }, void 0, !0, {
+        fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+        lineNumber: 145,
+        columnNumber: 11
+      }, this) }, void 0, !1, {
+        fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+        lineNumber: 144,
+        columnNumber: 9
+      }, this),
+      /* @__PURE__ */ jsxDEV37(Flex3, { sx: { pt: 4, justifyContent: "center" }, children: /* @__PURE__ */ jsxDEV37(
+        Pagination,
+        {
+          currentPage,
+          totalCount: filteredData.length,
+          pageSize: PageSize,
+          onPageChange: (page) => setCurrentPage(page)
+        },
+        void 0,
+        !1,
+        {
+          fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+          lineNumber: 243,
+          columnNumber: 11
+        },
+        this
+      ) }, void 0, !1, {
+        fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+        lineNumber: 242,
+        columnNumber: 9
+      }, this)
+    ] }, void 0, !0, {
+      fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+      lineNumber: 140,
+      columnNumber: 7
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_admin.settings.users.$type._index/components/success.tsx",
+    lineNumber: 130,
+    columnNumber: 5
+  }, this);
+};
+
+// src/app/routes/_admin.settings.users.$type._index/components/index.tsx
+import { jsxDEV as jsxDEV38 } from "react/jsx-dev-runtime";
+var ListsUsers = (props) => {
+  let { typeSettings } = props, { state, retry } = typeSettings.api.getAll();
+  return state.map({
+    loading: (_11) => /* @__PURE__ */ jsxDEV38(Loading3, {}, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.$type._index/components/index.tsx",
+      lineNumber: 19,
+      columnNumber: 21
+    }, this),
+    error: ({ error }) => /* @__PURE__ */ jsxDEV38(
+      ApiErrors,
+      {
+        error,
+        retry,
+        cancelAndNavigateTo: URL_SETTINGS_PATH
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings.users.$type._index/components/index.tsx",
+        lineNumber: 22,
+        columnNumber: 7
+      },
+      this
+    ),
+    success: (state2) => /* @__PURE__ */ jsxDEV38(
+      Success4,
+      {
+        stateData: state2.data,
+        retry,
+        typeSettings
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings.users.$type._index/components/index.tsx",
+        lineNumber: 30,
+        columnNumber: 7
+      },
+      this
+    )
+  });
+};
+
+// src/app/routes/_admin.settings.users.$type._index/route.tsx
+import { Fragment as Fragment10, jsxDEV as jsxDEV39 } from "react/jsx-dev-runtime";
+function Lists() {
+  let navigate = useNavigate7(), { type } = useParams3(), typeSettings = settings[type];
+  return type != null && typeSettings != null ? /* @__PURE__ */ jsxDEV39(Fragment10, { children: [
+    /* @__PURE__ */ jsxDEV39(
+      SettingsFormHeading,
+      {
+        title: typeSettings.titles.common,
+        actionButton: {
+          label: typeSettings.titles.create,
+          buttonProps: {
+            leftIcon: /* @__PURE__ */ jsxDEV39(Icon5, { as: AccountPlusIcon }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.$type._index/route.tsx",
+              lineNumber: 28,
+              columnNumber: 25
+            }, this),
+            onClick: () => {
+              typeSettings.actionButtonNavigateTo != null && navigate(typeSettings.actionButtonNavigateTo);
+            }
+          }
+        }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings.users.$type._index/route.tsx",
+        lineNumber: 23,
+        columnNumber: 9
+      },
+      this
+    ),
+    /* @__PURE__ */ jsxDEV39(ListsUsers, { typeSettings }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.$type._index/route.tsx",
+      lineNumber: 36,
+      columnNumber: 9
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_admin.settings.users.$type._index/route.tsx",
+    lineNumber: 22,
+    columnNumber: 7
+  }, this) : /* @__PURE__ */ jsxDEV39(
+    CommonErrors,
+    {
+      error: "Tipo de lista no v\xE1lida",
+      buttonProps: {
+        label: "Volver a Configuraci\xF3n",
+        colorScheme: "green",
+        onClick: () => {
+          navigate(URL_SETTINGS_PATH);
+        }
+      }
+    },
+    void 0,
+    !1,
+    {
+      fileName: "src/app/routes/_admin.settings.users.$type._index/route.tsx",
+      lineNumber: 42,
+      columnNumber: 5
+    },
+    this
+  );
+}
+
+// src/app/routes/api.dxt.pedido.articulos.print_ids.ts
+var api_dxt_pedido_articulos_print_ids_exports = {};
+__export(api_dxt_pedido_articulos_print_ids_exports, {
+  action: () => action3,
+  loader: () => loader4
+});
+async function loader4({ request, params }) {
+  return await dxtPedidoGetArticulosPrintIdsEndpoint.get(request, params);
+}
+var action3 = unimplementedApiResponse;
+
+// src/app/routes/_admin.settings.users.vendors.add/route.tsx
+var route_exports5 = {};
+__export(route_exports5, {
+  default: () => Add2
+});
+import { useNavigate as useNavigate8 } from "@remix-run/react";
+
+// src/app/routes/_admin.settings.users.vendors.add/components/success.tsx
+import { useEffect as useEffect9 } from "react";
+import {
+  Badge as Badge5,
+  Box as Box12,
+  Divider as Divider6,
+  Grid as Grid8,
+  GridItem as GridItem8,
+  Heading as Heading5,
+  HStack as HStack9,
+  Stack as Stack8,
+  useToast as useToast5
+} from "@chakra-ui/react";
+import { yupResolver as yupResolver4 } from "@hookform/resolvers/yup";
+import { useForm as useForm4 } from "react-hook-form";
+
+// src/app/routes/_admin.settings.users.vendors.add/validation.ts
+import { useState as useState10 } from "react";
+import * as yup5 from "yup";
+import _6 from "lodash";
+var useCustomValidationSchema4 = () => {
+  let [passwordStatus, setPasswordStatus] = useState10(null), customValidationSchema = yup5.object({
+    password: yup5.string().required("Ingrese una contrase\xF1a").test("password", "Formato de contrase\xF1a no v\xE1lido", (v) => {
+      if (v != "" && v != null) {
+        let newPasswordStatus = dxtPasswordStatus(v);
+        return _6.isEqual(passwordStatus, newPasswordStatus) || setPasswordStatus(newPasswordStatus), yupVOValidation(VODXTPassword, v);
+      }
+      return !0;
+    }),
+    password_repeat: yup5.string().required("Repita la contrase\xF1a").test(
+      "passwords-match",
+      "Las contrase\xF1as no coinciden",
+      function(value) {
+        return this.parent.password === value;
+      }
+    )
+  }).required();
+  return { yupValidationSchema: commonValidationSchema.concat(customValidationSchema), passwordStatus };
+};
+
+// src/app/routes/_admin.settings.users.vendors.add/components/success.tsx
+import { jsxDEV as jsxDEV40 } from "react/jsx-dev-runtime";
+var Success5 = (props) => {
+  let { typeSettings } = props, app = useAppResources(), toast = useToast5(), { yupValidationSchema: yupValidationSchema6, passwordStatus } = useCustomValidationSchema4(), { state: statePerfiles, result: resultPerfiles } = useTangoList({
+    url: API_TANGO_PERFIL,
+    fieldsMap: {
+      label: "name",
+      value: "id"
+    }
+  }), { state: stateRelationship, result: resultRelationship } = typeSettings.api.getRelation(), {
+    handleSubmit,
+    control,
+    setError,
+    resetField,
+    watch,
+    formState: { errors, isSubmitting, isSubmitSuccessful }
+  } = useForm4({
+    defaultValues: {
+      habilitado_en_dxt: !0,
+      puede_crear_pedido: !0,
+      puede_editar_pedido: !0,
+      ver_pedidos_cumplidos: !0,
+      ver_sin_precio: !1,
+      mostrar_mensaje_de_advertencia: !1,
+      puede_anular_pedido: !1,
+      borrar_pedido_al_anular: !1,
+      aprobar_pedido_al_crear: !1
+    },
+    resolver: yupResolver4(yupValidationSchema6)
+  }), watchPuedeAnularPedido = watch("puede_anular_pedido");
+  useEffect9(() => {
+    watchPuedeAnularPedido === !1 && resetField("borrar_pedido_al_anular", { defaultValue: !1 });
+  }, [watchPuedeAnularPedido]);
+  let disableForm = isSubmitSuccessful || isSubmitting;
+  return /* @__PURE__ */ jsxDEV40("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
+    let { password_repeat, ...data } = dataUnsafe;
+    data.email === "" && delete data.email;
+    let input = data, result = await typeSettings.api.post(input, app);
+    await promiseBasedToast({
+      toast,
+      result,
+      messages: {
+        success: { title: "Usuario creado" },
+        error: { title: "Ha ocurrido un error" },
+        loading: { title: "Creando usuario" }
+      }
+    }).then(() => {
+      app.navigate(URL_SETTINGS_VENDORS_PATH);
+    }).catch((e) => {
+      setError("root", { message: e });
+    });
+  }), children: /* @__PURE__ */ jsxDEV40(Box12, { children: [
+    /* @__PURE__ */ jsxDEV40(FormErrors, { errors }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+      lineNumber: 136,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV40(CommonCard, { children: /* @__PURE__ */ jsxDEV40(
+      Grid8,
+      {
+        templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
+        alignItems: "center",
+        gap: 4,
+        children: [
+          /* @__PURE__ */ jsxDEV40(GridItem8, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV40(Heading5, { size: "sm", textTransform: "uppercase", children: "Informaci\xF3n del Vendedor" }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 144,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 143,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV40(GridItem8, { colSpan: { md: 2 }, children: [
+            /* @__PURE__ */ jsxDEV40(
+              ControlledSelect,
+              {
+                fieldProps: {
+                  name: "tango_id",
+                  placeholder: typeSettings.tangoRelatedFields?.placeholder,
+                  options: resultRelationship,
+                  noOptionsMessage(obj) {
+                    return typeSettings.tangoRelatedFields?.empty;
+                  },
+                  isSearchable: !0,
+                  selectedOptionStyle: "check",
+                  isLoading: stateRelationship instanceof FetchStateLoading
+                },
+                formControlProps: {
+                  isDisabled: disableForm || !(stateRelationship instanceof FetchStateSuccess)
+                },
+                formControlInnerProps: {
+                  label: typeSettings.tangoRelatedFields?.label
+                },
+                control
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+                lineNumber: 149,
+                columnNumber: 15
+              },
+              this
+            ),
+            stateRelationship instanceof FetchStateError && /* @__PURE__ */ jsxDEV40(InlineError, { error: stateRelationship.errorOrNull().error }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+              lineNumber: 172,
+              columnNumber: 17
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 148,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV40(GridItem8, { children: /* @__PURE__ */ jsxDEV40(
+            ControlledInput,
+            {
+              fieldProps: {
+                name: "username",
+                id: "username",
+                type: "text"
+              },
+              formControlProps: {
+                isDisabled: disableForm
+              },
+              formControlInnerProps: {
+                label: "Nombre de Usuario"
+              },
+              control
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+              lineNumber: 176,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 175,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV40(GridItem8, { children: /* @__PURE__ */ jsxDEV40(
+            ControlledInput,
+            {
+              fieldProps: {
+                name: "email",
+                id: "email",
+                type: "text",
+                inputMode: "email"
+              },
+              formControlProps: {
+                isDisabled: disableForm
+              },
+              formControlInnerProps: {
+                label: "Correo electr\xF3nico"
+              },
+              control
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+              lineNumber: 192,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 191,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV40(GridItem8, { children: /* @__PURE__ */ jsxDEV40(
+            ControlledInput,
+            {
+              fieldProps: {
+                name: "password",
+                id: "password",
+                type: "password"
+              },
+              formControlProps: {
+                isDisabled: disableForm
+              },
+              formControlInnerProps: {
+                label: "Contrase\xF1a"
+              },
+              control
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+              lineNumber: 209,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 208,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV40(GridItem8, { children: /* @__PURE__ */ jsxDEV40(
+            ControlledInput,
+            {
+              fieldProps: {
+                name: "password_repeat",
+                id: "password_repeat",
+                type: "password"
+              },
+              formControlProps: {
+                isDisabled: disableForm
+              },
+              formControlInnerProps: {
+                label: "Confirmaci\xF3n de Contrase\xF1a"
+              },
+              control
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+              lineNumber: 225,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 224,
+            columnNumber: 13
+          }, this),
+          passwordStatus != null && /* @__PURE__ */ jsxDEV40(GridItem8, { colSpan: { md: 2 }, children: [
+            passwordStatus.tooShort && /* @__PURE__ */ jsxDEV40(Badge5, { colorScheme: "red", children: "Contrase\xF1a muy corta" }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+              lineNumber: 243,
+              columnNumber: 19
+            }, this),
+            passwordStatus.tooLong && /* @__PURE__ */ jsxDEV40(Badge5, { colorScheme: "red", children: "Contrase\xF1a muy larga" }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+              lineNumber: 246,
+              columnNumber: 19
+            }, this),
+            passwordStatus.invalidCharsPresent && /* @__PURE__ */ jsxDEV40(Badge5, { colorScheme: "red", children: "Evite caracteres no v\xE1lidos" }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+              lineNumber: 249,
+              columnNumber: 19
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 241,
+            columnNumber: 15
+          }, this),
+          /* @__PURE__ */ jsxDEV40(GridItem8, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV40(Divider6, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 254,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 253,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV40(GridItem8, { colSpan: { md: 2 }, children: [
+            /* @__PURE__ */ jsxDEV40(
+              ControlledSelect,
+              {
+                fieldProps: {
+                  name: "perfil_facturacion_id",
+                  placeholder: "Seleccione un perfil",
+                  options: resultPerfiles,
+                  noOptionsMessage(obj) {
+                    return "No hay perfiles disponibles";
+                  },
+                  isLoading: statePerfiles instanceof FetchStateLoading,
+                  selectedOptionStyle: "check"
+                },
+                formControlProps: {
+                  isDisabled: disableForm || !(statePerfiles instanceof FetchStateSuccess)
+                },
+                formControlInnerProps: {
+                  label: "Perfil de facturaci\xF3n"
+                },
+                control
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+                lineNumber: 257,
+                columnNumber: 15
+              },
+              this
+            ),
+            statePerfiles instanceof FetchStateError && /* @__PURE__ */ jsxDEV40(InlineError, { error: statePerfiles.errorOrNull().error }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+              lineNumber: 279,
+              columnNumber: 17
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 256,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV40(GridItem8, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV40(Divider6, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 283,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 282,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV40(GridItem8, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV40(Heading5, { size: "sm", textTransform: "uppercase", children: "Estado" }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 286,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 285,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV40(GridItem8, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV40(
+            ControlledRadio,
+            {
+              fieldProps: {
+                name: "habilitado_en_dxt",
+                options: [
+                  {
+                    value: !0,
+                    label: "Establecido en Tango"
+                  },
+                  {
+                    value: !1,
+                    label: "Deshabilitado"
+                  }
+                ]
+              },
+              formControlProps: {
+                isDisabled: disableForm
+              },
+              radioProps: {
+                size: { base: "sm", sm: "md" }
+              },
+              control
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+              lineNumber: 291,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 290,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV40(GridItem8, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV40(Divider6, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 315,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 314,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV40(GridItem8, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV40(Heading5, { size: "sm", textTransform: "uppercase", children: "Comunicaci\xF3n" }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 318,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 317,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV40(GridItem8, { children: /* @__PURE__ */ jsxDEV40(
+            ControlledSwitch,
+            {
+              fieldProps: {
+                name: "mostrar_mensaje_de_advertencia",
+                id: "mostrar_mensaje_de_advertencia"
+              },
+              formControlProps: {
+                width: "auto",
+                isDisabled: disableForm
+              },
+              formControlInnerProps: {
+                label: "Mostrar mensaje de advertencia"
+              },
+              control
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+              lineNumber: 323,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 322,
+            columnNumber: 13
+          }, this)
+        ]
+      },
+      void 0,
+      !0,
+      {
+        fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+        lineNumber: 138,
+        columnNumber: 11
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+      lineNumber: 137,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV40(CommonCard, { children: /* @__PURE__ */ jsxDEV40(
+      Grid8,
+      {
+        templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
+        alignItems: "center",
+        gap: 4,
+        children: [
+          /* @__PURE__ */ jsxDEV40(GridItem8, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV40(Heading5, { size: "sm", textTransform: "uppercase", children: "Pedidos" }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 347,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 346,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV40(GridItem8, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV40(Stack8, { spacing: 4, direction: { base: "column" }, children: [
+            /* @__PURE__ */ jsxDEV40(HStack9, { spacing: 4, children: /* @__PURE__ */ jsxDEV40(
+              ControlledSwitch,
+              {
+                fieldProps: {
+                  name: "puede_crear_pedido",
+                  id: "puede_crear_pedido"
+                },
+                formControlProps: {
+                  width: "auto",
+                  isDisabled: disableForm
+                },
+                formControlInnerProps: {
+                  label: "Puede crear pedidos"
+                },
+                control
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+                lineNumber: 354,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+              lineNumber: 353,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV40(HStack9, { spacing: 4, children: /* @__PURE__ */ jsxDEV40(
+              ControlledSwitch,
+              {
+                fieldProps: {
+                  name: "puede_editar_pedido",
+                  id: "puede_editar_pedido"
+                },
+                formControlProps: {
+                  width: "auto",
+                  isDisabled: disableForm
+                },
+                formControlInnerProps: {
+                  label: "Puede editar pedidos"
+                },
+                control
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+                lineNumber: 370,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+              lineNumber: 369,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV40(HStack9, { spacing: 4, children: /* @__PURE__ */ jsxDEV40(
+              ControlledSwitch,
+              {
+                fieldProps: {
+                  name: "puede_anular_pedido",
+                  id: "puede_anular_pedido"
+                },
+                formControlProps: {
+                  width: "auto",
+                  isDisabled: disableForm
+                },
+                formControlInnerProps: {
+                  label: "Puede anular pedidos"
+                },
+                control
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+                lineNumber: 386,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+              lineNumber: 385,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV40(HStack9, { spacing: 4, children: /* @__PURE__ */ jsxDEV40(
+              ControlledSwitch,
+              {
+                fieldProps: {
+                  name: "borrar_pedido_al_anular",
+                  id: "borrar_pedido_al_anular"
+                },
+                formControlProps: {
+                  width: "auto",
+                  isDisabled: disableForm
+                },
+                formControlInnerProps: {
+                  label: "Borrar pedido al anular"
+                },
+                control,
+                watch: {
+                  isDisabled: watchPuedeAnularPedido === !1,
+                  ...watchPuedeAnularPedido === !1 && {
+                    isChecked: !1
+                  }
+                }
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+                lineNumber: 402,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+              lineNumber: 401,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV40(HStack9, { spacing: 4, children: /* @__PURE__ */ jsxDEV40(
+              ControlledSwitch,
+              {
+                fieldProps: {
+                  name: "aprobar_pedido_al_crear",
+                  id: "aprobar_pedido_al_crear"
+                },
+                formControlProps: {
+                  width: "auto",
+                  isDisabled: disableForm
+                },
+                formControlInnerProps: {
+                  label: "Los pedidos se aprueban al crearlos"
+                },
+                control
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+                lineNumber: 424,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+              lineNumber: 423,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV40(HStack9, { spacing: 4, children: /* @__PURE__ */ jsxDEV40(
+              ControlledSwitch,
+              {
+                fieldProps: {
+                  name: "ver_pedidos_cumplidos",
+                  id: "ver_pedidos_cumplidos"
+                },
+                formControlProps: {
+                  width: "auto",
+                  isDisabled: disableForm
+                },
+                formControlInnerProps: {
+                  label: "Puede ver los pedidos cumplidos"
+                },
+                control
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+                lineNumber: 440,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+              lineNumber: 439,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV40(HStack9, { spacing: 4, children: /* @__PURE__ */ jsxDEV40(
+              ControlledSwitch,
+              {
+                fieldProps: {
+                  name: "ver_sin_precio",
+                  id: "ver_sin_precio"
+                },
+                formControlProps: {
+                  width: "auto",
+                  isDisabled: disableForm
+                },
+                formControlInnerProps: {
+                  label: "Puede ver art\xEDculos sin precios"
+                },
+                control
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+                lineNumber: 456,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+              lineNumber: 455,
+              columnNumber: 17
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 352,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 351,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV40(GridItem8, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV40(Divider6, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 474,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 473,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV40(GridItem8, { children: /* @__PURE__ */ jsxDEV40(
+            ControlledInput,
+            {
+              fieldProps: {
+                name: "dia_de_entrega",
+                id: "dia_de_entrega",
+                type: "number",
+                inputMode: "tel"
+              },
+              formControlProps: {
+                isDisabled: disableForm
+              },
+              formControlInnerProps: {
+                label: "Tiempo de entrega de pedidos",
+                helperText: "Expresado en d\xEDas"
+              },
+              control
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+              lineNumber: 477,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 476,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV40(GridItem8, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+            lineNumber: 494,
+            columnNumber: 13
+          }, this)
+        ]
+      },
+      void 0,
+      !0,
+      {
+        fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+        lineNumber: 341,
+        columnNumber: 11
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+      lineNumber: 340,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV40(CommonCard, { children: /* @__PURE__ */ jsxDEV40(
+      SettingsFormsButtons,
+      {
+        buttonActionText: "Guardar",
+        isLoading: disableForm,
+        buttonCancelUrl: typeSettings.cancelButtonNavigateTo
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+        lineNumber: 498,
+        columnNumber: 11
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+      lineNumber: 497,
+      columnNumber: 9
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+    lineNumber: 135,
+    columnNumber: 7
+  }, this) }, void 0, !1, {
+    fileName: "src/app/routes/_admin.settings.users.vendors.add/components/success.tsx",
+    lineNumber: 134,
+    columnNumber: 5
+  }, this);
+};
+
+// src/app/routes/_admin.settings.users.vendors.add/components/index.tsx
+import { jsxDEV as jsxDEV41 } from "react/jsx-dev-runtime";
+var Form2 = (props) => {
+  let { typeSettings } = props;
+  return /* @__PURE__ */ jsxDEV41(Success5, { typeSettings }, void 0, !1, {
+    fileName: "src/app/routes/_admin.settings.users.vendors.add/components/index.tsx",
+    lineNumber: 12,
+    columnNumber: 10
+  }, this);
+};
+
+// src/app/routes/_admin.settings.users.vendors.add/route.tsx
+import { Fragment as Fragment11, jsxDEV as jsxDEV42 } from "react/jsx-dev-runtime";
+function Add2() {
+  let typeSettings = settings.vendors, navigate = useNavigate8();
+  return /* @__PURE__ */ jsxDEV42(Fragment11, { children: [
+    /* @__PURE__ */ jsxDEV42(
+      SettingsFormHeading,
+      {
+        title: typeSettings.titles.create,
+        actionButton: {
+          label: "Cancelar",
+          buttonProps: {
+            colorScheme: "gray",
+            onClick: () => {
+              navigate(URL_SETTINGS_VENDORS_PATH);
+            }
+          }
+        }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings.users.vendors.add/route.tsx",
+        lineNumber: 16,
+        columnNumber: 7
+      },
+      this
+    ),
+    /* @__PURE__ */ jsxDEV42(Form2, { typeSettings }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.users.vendors.add/route.tsx",
+      lineNumber: 28,
+      columnNumber: 7
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_admin.settings.users.vendors.add/route.tsx",
+    lineNumber: 15,
+    columnNumber: 5
+  }, this);
 }
 
 // src/app/routes/_authorized.orders.$client.add/route.tsx
@@ -7356,8 +10417,12 @@ __export(route_exports6, {
 });
 
 // src/app/routes/_authorized.orders.$client.add/components/loading.tsx
-import { Fragment as Fragment12, jsx as jsx43 } from "react/jsx-runtime";
-var Loading4 = () => /* @__PURE__ */ jsx43(Fragment12, { children: "Loading Skeletons here" });
+import { Fragment as Fragment12, jsxDEV as jsxDEV43 } from "react/jsx-dev-runtime";
+var Loading4 = () => /* @__PURE__ */ jsxDEV43(Fragment12, { children: "Loading Skeletons here" }, void 0, !1, {
+  fileName: "src/app/routes/_authorized.orders.$client.add/components/loading.tsx",
+  lineNumber: 2,
+  columnNumber: 10
+}, this);
 
 // src/app/routes/_authorized.orders.$client.add/components/success.tsx
 import { useState as useState12 } from "react";
@@ -7682,7 +10747,7 @@ var idArticulo = 1, fakeData = {
       { id: idArticulo++, codigo: "01 21 173", nombre: "ESM. VIOLETA 1 L.", precio: 6784.25 },
       { id: idArticulo++, codigo: "01 21 174", nombre: "ESM. VIOLETA 4 L.", precio: 26027.31 }
     ],
-    esmaltes_sinteticos_especiales: [
+    "esmaltes sinteticos especiales": [
       { id: idArticulo++, codigo: "01 28* 201 01", nombre: "ESM. PIZARRON 1/4 L. (NEGRO)", precio: 2030.18 },
       { id: idArticulo++, codigo: "01 28* 201 02", nombre: "ESM. PIZARRON 1/4 L. (VERDE)", precio: 2030.18 },
       { id: idArticulo++, codigo: "01 28* 202 01", nombre: "ESM. PIZARRON 1/2 L. (NEGRO)", precio: 3230.26 },
@@ -7915,36 +10980,64 @@ import {
   IconButton as IconButton4,
   useBreakpointValue as useBreakpointValue2
 } from "@chakra-ui/react";
-import { Fragment as Fragment13, jsx as jsx44 } from "react/jsx-runtime";
+import { Fragment as Fragment13, jsxDEV as jsxDEV44 } from "react/jsx-dev-runtime";
 var ResponsiveIconButton = (props) => {
   let { text, icon, iconProps, sharedProps, buttonProps, iconButtonProps } = props, buttonInjection = useBreakpointValue2({
-    base: /* @__PURE__ */ jsx44(
+    base: /* @__PURE__ */ jsxDEV44(
       IconButton4,
       {
         "aria-label": text,
         ...sharedProps,
         ...iconButtonProps,
-        icon: /* @__PURE__ */ jsx44(Icon6, { as: icon, ...iconProps })
-      }
+        icon: /* @__PURE__ */ jsxDEV44(Icon6, { as: icon, ...iconProps }, void 0, !1, {
+          fileName: "src/app/components/ResponsiveIconButton.tsx",
+          lineNumber: 32,
+          columnNumber: 15
+        }, this)
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/components/ResponsiveIconButton.tsx",
+        lineNumber: 28,
+        columnNumber: 7
+      },
+      this
     ),
-    md: /* @__PURE__ */ jsx44(
+    md: /* @__PURE__ */ jsxDEV44(
       Button8,
       {
         ...sharedProps,
         ...buttonProps,
-        ...icon && { leftIcon: /* @__PURE__ */ jsx44(Icon6, { as: icon, ...iconProps }) },
+        ...icon && { leftIcon: /* @__PURE__ */ jsxDEV44(Icon6, { as: icon, ...iconProps }, void 0, !1, {
+          fileName: "src/app/components/ResponsiveIconButton.tsx",
+          lineNumber: 39,
+          columnNumber: 34
+        }, this) },
         children: text
-      }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/components/ResponsiveIconButton.tsx",
+        lineNumber: 36,
+        columnNumber: 7
+      },
+      this
     )
   });
-  return /* @__PURE__ */ jsx44(Fragment13, { children: buttonInjection });
+  return /* @__PURE__ */ jsxDEV44(Fragment13, { children: buttonInjection }, void 0, !1, {
+    fileName: "src/app/components/ResponsiveIconButton.tsx",
+    lineNumber: 46,
+    columnNumber: 10
+  }, this);
 };
 
 // src/app/components/orders/OrdersAddNav.tsx
-import { Fragment as Fragment14, jsx as jsx45, jsxs as jsxs28 } from "react/jsx-runtime";
+import { Fragment as Fragment14, jsxDEV as jsxDEV45 } from "react/jsx-dev-runtime";
 var OrdersAddNav = (props) => {
   let navigate = useNavigate9(), { isDisabled, ...searchFieldProps } = props;
-  return /* @__PURE__ */ jsx45(Fragment14, { children: /* @__PURE__ */ jsx45(
+  return /* @__PURE__ */ jsxDEV45(Fragment14, { children: /* @__PURE__ */ jsxDEV45(
     Box13,
     {
       bg: useColorModeValue2("white", "blue.900"),
@@ -7954,9 +11047,9 @@ var OrdersAddNav = (props) => {
         zIndex: 1e3,
         top: 0
       },
-      children: /* @__PURE__ */ jsxs28(Flex4, { h: 16, alignItems: "center", justifyContent: "space-between", children: [
-        /* @__PURE__ */ jsxs28(HStack10, { spacing: { base: 2, sm: 3 }, alignItems: "center", children: [
-          /* @__PURE__ */ jsx45(
+      children: /* @__PURE__ */ jsxDEV45(Flex4, { h: 16, alignItems: "center", justifyContent: "space-between", children: [
+        /* @__PURE__ */ jsxDEV45(HStack10, { spacing: { base: 2, sm: 3 }, alignItems: "center", children: [
+          /* @__PURE__ */ jsxDEV45(
             ResponsiveIconButton,
             {
               icon: PlusIcon,
@@ -7974,9 +11067,17 @@ var OrdersAddNav = (props) => {
                   md: 4
                 }
               }
-            }
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/components/orders/OrdersAddNav.tsx",
+              lineNumber: 36,
+              columnNumber: 13
+            },
+            this
           ),
-          /* @__PURE__ */ jsx45(
+          /* @__PURE__ */ jsxDEV45(
             ResponsiveIconButton,
             {
               icon: CloseIcon2,
@@ -7996,9 +11097,17 @@ var OrdersAddNav = (props) => {
                   md: 4
                 }
               }
-            }
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/components/orders/OrdersAddNav.tsx",
+              lineNumber: 53,
+              columnNumber: 13
+            },
+            this
           ),
-          /* @__PURE__ */ jsx45(
+          /* @__PURE__ */ jsxDEV45(
             ResponsiveIconButton,
             {
               icon: FormatListCheckboxIcon,
@@ -8015,22 +11124,62 @@ var OrdersAddNav = (props) => {
                   md: 4
                 }
               }
-            }
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/components/orders/OrdersAddNav.tsx",
+              lineNumber: 72,
+              columnNumber: 13
+            },
+            this
           )
-        ] }),
-        /* @__PURE__ */ jsx45(
+        ] }, void 0, !0, {
+          fileName: "src/app/components/orders/OrdersAddNav.tsx",
+          lineNumber: 35,
+          columnNumber: 11
+        }, this),
+        /* @__PURE__ */ jsxDEV45(
           Flex4,
           {
             alignItems: "center",
             sx: {
               ms: { base: 2, sm: 3 }
             },
-            children: /* @__PURE__ */ jsx45(SearchField, { ...searchFieldProps })
-          }
+            children: /* @__PURE__ */ jsxDEV45(SearchField, { ...searchFieldProps }, void 0, !1, {
+              fileName: "src/app/components/orders/OrdersAddNav.tsx",
+              lineNumber: 95,
+              columnNumber: 13
+            }, this)
+          },
+          void 0,
+          !1,
+          {
+            fileName: "src/app/components/orders/OrdersAddNav.tsx",
+            lineNumber: 89,
+            columnNumber: 11
+          },
+          this
         )
-      ] })
-    }
-  ) });
+      ] }, void 0, !0, {
+        fileName: "src/app/components/orders/OrdersAddNav.tsx",
+        lineNumber: 34,
+        columnNumber: 9
+      }, this)
+    },
+    void 0,
+    !1,
+    {
+      fileName: "src/app/components/orders/OrdersAddNav.tsx",
+      lineNumber: 25,
+      columnNumber: 7
+    },
+    this
+  ) }, void 0, !1, {
+    fileName: "src/app/components/orders/OrdersAddNav.tsx",
+    lineNumber: 24,
+    columnNumber: 5
+  }, this);
 };
 
 // src/app/routes/_authorized.orders.$client.add/validation.ts
@@ -8068,7 +11217,7 @@ import {
   Textarea
 } from "@chakra-ui/react";
 import { useController as useController5 } from "react-hook-form";
-import { jsx as jsx46, jsxs as jsxs29 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV46 } from "react/jsx-dev-runtime";
 var ControlledTextarea = (props) => {
   let { fieldProps, formControlProps, formControlInnerProps, control } = props, { label, helperText, icon } = formControlInnerProps || {}, {
     field: { ref, onChange, value },
@@ -8078,43 +11227,71 @@ var ControlledTextarea = (props) => {
     name: fieldProps.name,
     control
   });
-  return /* @__PURE__ */ jsxs29(FormControl5, { ...formControlProps, isInvalid: invalid, children: [
-    label != null && /* @__PURE__ */ jsx46(
+  return /* @__PURE__ */ jsxDEV46(FormControl5, { ...formControlProps, isInvalid: invalid, children: [
+    label != null && /* @__PURE__ */ jsxDEV46(
       FormLabel4,
       {
         htmlFor: fieldProps.name,
         sx: fieldProps.variant === "flushed" ? { fontSize: "sm", mb: 0 } : {},
         children: label
-      }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/components/form_elements/ControlledTextarea.tsx",
+        lineNumber: 47,
+        columnNumber: 9
+      },
+      this
     ),
-    /* @__PURE__ */ jsx46(Textarea, { ...fieldProps, onChange, value, ref }),
-    helperText != null && /* @__PURE__ */ jsx46(FormHelperText4, { children: helperText })
-  ] });
+    /* @__PURE__ */ jsxDEV46(Textarea, { ...fieldProps, onChange, value, ref }, void 0, !1, {
+      fileName: "src/app/components/form_elements/ControlledTextarea.tsx",
+      lineNumber: 54,
+      columnNumber: 7
+    }, this),
+    helperText != null && /* @__PURE__ */ jsxDEV46(FormHelperText4, { children: helperText }, void 0, !1, {
+      fileName: "src/app/components/form_elements/ControlledTextarea.tsx",
+      lineNumber: 55,
+      columnNumber: 30
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/components/form_elements/ControlledTextarea.tsx",
+    lineNumber: 45,
+    columnNumber: 5
+  }, this);
 };
 
 // src/app/components/TextPrice.tsx
 import { Text as Text2 } from "@chakra-ui/react";
-import { Fragment as Fragment15, jsxs as jsxs30 } from "react/jsx-runtime";
+import { Fragment as Fragment15, jsxDEV as jsxDEV47 } from "react/jsx-dev-runtime";
 function formatNumber(num) {
   return num.toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   });
 }
-var TextPrice = ({ precio, moneda, textProps }) => /* @__PURE__ */ jsxs30(Text2, { textAlign: "right", ...textProps, children: [
+var TextPrice = ({ precio, moneda, textProps }) => /* @__PURE__ */ jsxDEV47(Text2, { textAlign: "right", ...textProps, children: [
   moneda != null && moneda + " ",
   formatNumber(precio)
-] }), TextPriceNative = ({
+] }, void 0, !0, {
+  fileName: "src/app/components/TextPrice.tsx",
+  lineNumber: 18,
+  columnNumber: 5
+}, this), TextPriceNative = ({
   precio,
   moneda,
   textProps
-}) => /* @__PURE__ */ jsxs30(Fragment15, { children: [
+}) => /* @__PURE__ */ jsxDEV47(Fragment15, { children: [
   moneda != null && moneda + " ",
   formatNumber(precio)
-] });
+] }, void 0, !0, {
+  fileName: "src/app/components/TextPrice.tsx",
+  lineNumber: 31,
+  columnNumber: 5
+}, this);
 
 // src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx
-import { Fragment as Fragment16, jsx as jsx47, jsxs as jsxs31 } from "react/jsx-runtime";
+import { Fragment as Fragment16, jsxDEV as jsxDEV48 } from "react/jsx-dev-runtime";
 var calculateTotals = (quantities, prices, discount) => {
   let total = 0;
   return _7.forOwn(quantities, (quantity, id) => {
@@ -8142,8 +11319,8 @@ var calculateTotals = (quantities, prices, discount) => {
   }), { isOpen, onToggle } = useDisclosure2({
     defaultIsOpen: !0
   });
-  return /* @__PURE__ */ jsx47(Fragment16, { children: /* @__PURE__ */ jsx47(Box14, { children: /* @__PURE__ */ jsxs31(CommonCard, { children: [
-    /* @__PURE__ */ jsxs31(
+  return /* @__PURE__ */ jsxDEV48(Fragment16, { children: /* @__PURE__ */ jsxDEV48(Box14, { children: /* @__PURE__ */ jsxDEV48(CommonCard, { children: [
+    /* @__PURE__ */ jsxDEV48(
       Grid9,
       {
         templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
@@ -8152,17 +11329,33 @@ var calculateTotals = (quantities, prices, discount) => {
         onClick: onToggle,
         cursor: "pointer",
         children: [
-          /* @__PURE__ */ jsxs31(GridItem9, { children: [
-            /* @__PURE__ */ jsx47(Heading6, { size: "xs", children: "Cliente:" }),
-            /* @__PURE__ */ jsx47(Heading6, { size: "md", textTransform: "uppercase", sx: { mt: 1 }, children: cabecera.cliente })
-          ] }),
-          /* @__PURE__ */ jsxs31(GridItem9, { textAlign: { md: "end" }, children: [
-            /* @__PURE__ */ jsxs31(Heading6, { textTransform: "uppercase", size: "xs", children: [
+          /* @__PURE__ */ jsxDEV48(GridItem9, { children: [
+            /* @__PURE__ */ jsxDEV48(Heading6, { size: "xs", children: "Cliente:" }, void 0, !1, {
+              fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+              lineNumber: 107,
+              columnNumber: 15
+            }, this),
+            /* @__PURE__ */ jsxDEV48(Heading6, { size: "md", textTransform: "uppercase", sx: { mt: 1 }, children: cabecera.cliente }, void 0, !1, {
+              fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+              lineNumber: 108,
+              columnNumber: 15
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+            lineNumber: 106,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV48(GridItem9, { textAlign: { md: "end" }, children: [
+            /* @__PURE__ */ jsxDEV48(Heading6, { textTransform: "uppercase", size: "xs", children: [
               "Total (Sin IVA) - Bonif. ",
               cabecera.bonificacion,
               "%"
-            ] }),
-            /* @__PURE__ */ jsx47(
+            ] }, void 0, !0, {
+              fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+              lineNumber: 113,
+              columnNumber: 15
+            }, this),
+            /* @__PURE__ */ jsxDEV48(
               TextPrice,
               {
                 precio: total ?? 0,
@@ -8173,13 +11366,33 @@ var calculateTotals = (quantities, prices, discount) => {
                   fontWeight: "bolder",
                   sx: { mt: 1 }
                 }
-              }
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+                lineNumber: 116,
+                columnNumber: 15
+              },
+              this
             )
-          ] })
+          ] }, void 0, !0, {
+            fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+            lineNumber: 112,
+            columnNumber: 13
+          }, this)
         ]
-      }
+      },
+      void 0,
+      !0,
+      {
+        fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+        lineNumber: 99,
+        columnNumber: 11
+      },
+      this
     ),
-    /* @__PURE__ */ jsx47(Collapse, { in: isOpen, animateOpacity: !0, style: { overflow: "inherit" }, children: /* @__PURE__ */ jsxs31(
+    /* @__PURE__ */ jsxDEV48(Collapse, { in: isOpen, animateOpacity: !0, style: { overflow: "inherit" }, children: /* @__PURE__ */ jsxDEV48(
       Grid9,
       {
         templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
@@ -8187,7 +11400,7 @@ var calculateTotals = (quantities, prices, discount) => {
         gap: 4,
         sx: { mt: 4 },
         children: [
-          /* @__PURE__ */ jsx47(GridItem9, { children: /* @__PURE__ */ jsx47(
+          /* @__PURE__ */ jsxDEV48(GridItem9, { children: /* @__PURE__ */ jsxDEV48(
             ControlledInput,
             {
               fieldProps: {
@@ -8202,9 +11415,21 @@ var calculateTotals = (quantities, prices, discount) => {
                 label: "Alta"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx47(GridItem9, { children: /* @__PURE__ */ jsx47(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+              lineNumber: 136,
+              columnNumber: 17
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+            lineNumber: 135,
+            columnNumber: 15
+          }, this),
+          /* @__PURE__ */ jsxDEV48(GridItem9, { children: /* @__PURE__ */ jsxDEV48(
             ControlledSelect,
             {
               fieldProps: {
@@ -8224,9 +11449,21 @@ var calculateTotals = (quantities, prices, discount) => {
                 label: "Condici\xF3n de venta"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx47(GridItem9, { children: /* @__PURE__ */ jsx47(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+              lineNumber: 152,
+              columnNumber: 17
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+            lineNumber: 151,
+            columnNumber: 15
+          }, this),
+          /* @__PURE__ */ jsxDEV48(GridItem9, { children: /* @__PURE__ */ jsxDEV48(
             ControlledInput,
             {
               fieldProps: {
@@ -8241,9 +11478,21 @@ var calculateTotals = (quantities, prices, discount) => {
                 label: "Entrega"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx47(GridItem9, { children: /* @__PURE__ */ jsx47(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+              lineNumber: 173,
+              columnNumber: 17
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+            lineNumber: 172,
+            columnNumber: 15
+          }, this),
+          /* @__PURE__ */ jsxDEV48(GridItem9, { children: /* @__PURE__ */ jsxDEV48(
             ControlledSelect,
             {
               fieldProps: {
@@ -8263,9 +11512,21 @@ var calculateTotals = (quantities, prices, discount) => {
                 label: "Tipo de asiento"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx47(GridItem9, { children: /* @__PURE__ */ jsx47(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+              lineNumber: 189,
+              columnNumber: 17
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+            lineNumber: 188,
+            columnNumber: 15
+          }, this),
+          /* @__PURE__ */ jsxDEV48(GridItem9, { children: /* @__PURE__ */ jsxDEV48(
             ControlledSelect,
             {
               fieldProps: {
@@ -8285,9 +11546,21 @@ var calculateTotals = (quantities, prices, discount) => {
                 label: "Transporte"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx47(GridItem9, { children: /* @__PURE__ */ jsx47(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+              lineNumber: 210,
+              columnNumber: 17
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+            lineNumber: 209,
+            columnNumber: 15
+          }, this),
+          /* @__PURE__ */ jsxDEV48(GridItem9, { children: /* @__PURE__ */ jsxDEV48(
             ControlledSelect,
             {
               fieldProps: {
@@ -8307,9 +11580,21 @@ var calculateTotals = (quantities, prices, discount) => {
                 label: "Talonario"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx47(GridItem9, { children: /* @__PURE__ */ jsx47(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+              lineNumber: 231,
+              columnNumber: 17
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+            lineNumber: 230,
+            columnNumber: 15
+          }, this),
+          /* @__PURE__ */ jsxDEV48(GridItem9, { children: /* @__PURE__ */ jsxDEV48(
             ControlledSelect,
             {
               fieldProps: {
@@ -8329,9 +11614,21 @@ var calculateTotals = (quantities, prices, discount) => {
                 label: "Dep\xF3sito"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx47(GridItem9, { children: /* @__PURE__ */ jsx47(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+              lineNumber: 252,
+              columnNumber: 17
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+            lineNumber: 251,
+            columnNumber: 15
+          }, this),
+          /* @__PURE__ */ jsxDEV48(GridItem9, { children: /* @__PURE__ */ jsxDEV48(
             ControlledInput,
             {
               fieldProps: {
@@ -8349,9 +11646,21 @@ var calculateTotals = (quantities, prices, discount) => {
                 label: "Bonificaci\xF3n"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx47(GridItem9, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx47(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+              lineNumber: 273,
+              columnNumber: 17
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+            lineNumber: 272,
+            columnNumber: 15
+          }, this),
+          /* @__PURE__ */ jsxDEV48(GridItem9, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV48(
             ControlledTextarea,
             {
               fieldProps: {
@@ -8365,12 +11674,48 @@ var calculateTotals = (quantities, prices, discount) => {
                 label: "Comentario"
               },
               control
-            }
-          ) })
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+              lineNumber: 292,
+              columnNumber: 17
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+            lineNumber: 291,
+            columnNumber: 15
+          }, this)
         ]
-      }
-    ) })
-  ] }) }) });
+      },
+      void 0,
+      !0,
+      {
+        fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+        lineNumber: 129,
+        columnNumber: 13
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+      lineNumber: 128,
+      columnNumber: 11
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+    lineNumber: 98,
+    columnNumber: 9
+  }, this) }, void 0, !1, {
+    fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+    lineNumber: 97,
+    columnNumber: 7
+  }, this) }, void 0, !1, {
+    fileName: "src/app/routes/_authorized.orders.$client.add/components/OrderInfo.tsx",
+    lineNumber: 96,
+    columnNumber: 5
+  }, this);
 };
 
 // src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx
@@ -8399,12 +11744,16 @@ import { useScroll } from "@use-gesture/react";
 import _8 from "lodash";
 import { useFormContext as useFormContext2, useWatch as useWatch2 } from "react-hook-form";
 import { FixedSizeList as FixedSizeList2 } from "react-window";
-import { Fragment as Fragment17, jsx as jsx48, jsxs as jsxs32 } from "react/jsx-runtime";
+import { Fragment as Fragment17, jsxDEV as jsxDEV49 } from "react/jsx-dev-runtime";
 var CategoryAccordionButton = (props) => {
   let { control } = useFormContext2(), { categoryName, articulos } = props, categoryTotal = articulos?.map(({ id, precio }) => useWatch2({ control, name: `quantities.${id}` }) * precio), categorySum = _8.sum(categoryTotal);
-  return /* @__PURE__ */ jsxs32(AccordionButton, { sx: { p: 0 }, children: [
-    /* @__PURE__ */ jsx48(AccordionIcon, { sx: { me: 2 } }),
-    /* @__PURE__ */ jsx48(Box15, { as: "span", flex: "1", textAlign: "left", children: /* @__PURE__ */ jsx48(
+  return /* @__PURE__ */ jsxDEV49(AccordionButton, { sx: { p: 0 }, children: [
+    /* @__PURE__ */ jsxDEV49(AccordionIcon, { sx: { me: 2 } }, void 0, !1, {
+      fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+      lineNumber: 58,
+      columnNumber: 7
+    }, this),
+    /* @__PURE__ */ jsxDEV49(Box15, { as: "span", flex: "1", textAlign: "left", children: /* @__PURE__ */ jsxDEV49(
       Heading7,
       {
         size: ["sm", "md"],
@@ -8412,10 +11761,38 @@ var CategoryAccordionButton = (props) => {
           textTransform: "uppercase"
         },
         children: categoryName
-      }
-    ) }),
-    categorySum != 0 && /* @__PURE__ */ jsx48(Box15, { children: /* @__PURE__ */ jsx48(Badge6, { variant: "subtle", colorScheme: "yellow", fontSize: "0.9em", children: /* @__PURE__ */ jsx48(TextPriceNative, { precio: categorySum, moneda: "$" }) }) })
-  ] });
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+        lineNumber: 60,
+        columnNumber: 9
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+      lineNumber: 59,
+      columnNumber: 7
+    }, this),
+    categorySum != 0 && /* @__PURE__ */ jsxDEV49(Box15, { children: /* @__PURE__ */ jsxDEV49(Badge6, { variant: "subtle", colorScheme: "yellow", fontSize: "0.9em", children: /* @__PURE__ */ jsxDEV49(TextPriceNative, { precio: categorySum, moneda: "$" }, void 0, !1, {
+      fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+      lineNumber: 72,
+      columnNumber: 13
+    }, this) }, void 0, !1, {
+      fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+      lineNumber: 71,
+      columnNumber: 11
+    }, this) }, void 0, !1, {
+      fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+      lineNumber: 70,
+      columnNumber: 9
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+    lineNumber: 57,
+    columnNumber: 5
+  }, this);
 }, ProductsRow = (props) => {
   let { id, codigo, nombre, precio } = props.product, index = props.index, style = props.style, rowColor = useColorModeValue3(
     "var(--chakra-colors-yellow-100)",
@@ -8445,22 +11822,58 @@ var CategoryAccordionButton = (props) => {
     },
     disabled: isSubmitted || isSubmitting
   };
-  return /* @__PURE__ */ jsxs32(
+  return /* @__PURE__ */ jsxDEV49(
     "div",
     {
       className: "grid",
       style: { ...style, ...productSum && { backgroundColor: rowColor } },
       children: [
-        /* @__PURE__ */ jsxs32("div", { className: "word-break-all", children: [
+        /* @__PURE__ */ jsxDEV49("div", { className: "word-break-all", children: [
           codigo,
           " - ",
           nombre
-        ] }),
-        /* @__PURE__ */ jsx48("div", { className: "text-right hidden-on-base", children: precio != null && /* @__PURE__ */ jsx48(TextPriceNative, { precio, moneda: "$" }) }),
-        /* @__PURE__ */ jsx48("div", { className: "text-center", children: /* @__PURE__ */ jsx48("input", { ...inputFieldProps, ...register(`quantities.${id}`) }) }),
-        /* @__PURE__ */ jsx48("div", { className: "text-right", children: productSum != null && /* @__PURE__ */ jsx48(TextPriceNative, { precio: productSum, moneda: "$" }) })
+        ] }, void 0, !0, {
+          fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+          lineNumber: 133,
+          columnNumber: 7
+        }, this),
+        /* @__PURE__ */ jsxDEV49("div", { className: "text-right hidden-on-base", children: precio != null && /* @__PURE__ */ jsxDEV49(TextPriceNative, { precio, moneda: "$" }, void 0, !1, {
+          fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+          lineNumber: 137,
+          columnNumber: 28
+        }, this) }, void 0, !1, {
+          fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+          lineNumber: 136,
+          columnNumber: 7
+        }, this),
+        /* @__PURE__ */ jsxDEV49("div", { className: "text-center", children: /* @__PURE__ */ jsxDEV49("input", { ...inputFieldProps, ...register(`quantities.${id}`) }, void 0, !1, {
+          fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+          lineNumber: 140,
+          columnNumber: 9
+        }, this) }, void 0, !1, {
+          fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+          lineNumber: 139,
+          columnNumber: 7
+        }, this),
+        /* @__PURE__ */ jsxDEV49("div", { className: "text-right", children: productSum != null && /* @__PURE__ */ jsxDEV49(TextPriceNative, { precio: productSum, moneda: "$" }, void 0, !1, {
+          fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+          lineNumber: 144,
+          columnNumber: 11
+        }, this) }, void 0, !1, {
+          fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+          lineNumber: 142,
+          columnNumber: 7
+        }, this)
       ]
-    }
+    },
+    void 0,
+    !0,
+    {
+      fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+      lineNumber: 129,
+      columnNumber: 5
+    },
+    this
   );
 }, emptyFunction = () => {
 }, OuterElement = forwardRef(
@@ -8493,7 +11906,11 @@ var CategoryAccordionButton = (props) => {
         });
       },
       { target: window }
-    ), forwardedRef != null && !(forwardedRef instanceof Function) && (forwardedRef.current = document.documentElement), /* @__PURE__ */ jsx48("div", { ref: containerRef, children });
+    ), forwardedRef != null && !(forwardedRef instanceof Function) && (forwardedRef.current = document.documentElement), /* @__PURE__ */ jsxDEV49("div", { ref: containerRef, children }, void 0, !1, {
+      fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+      lineNumber: 202,
+      columnNumber: 12
+    }, this);
   }
 ), InnerElement = ({
   children,
@@ -8503,36 +11920,95 @@ var CategoryAccordionButton = (props) => {
     "var(--chakra-colors-gray-200)",
     "var(--chakra-colors-black)"
   );
-  return /* @__PURE__ */ jsx48(Fragment17, { children: /* @__PURE__ */ jsxs32("div", { ...rest, children: [
-    /* @__PURE__ */ jsxs32(
+  return /* @__PURE__ */ jsxDEV49(Fragment17, { children: /* @__PURE__ */ jsxDEV49("div", { ...rest, children: [
+    /* @__PURE__ */ jsxDEV49(
       "div",
       {
         className: "grid heading",
         style: { backgroundColor: `${rowColor}` },
         children: [
-          /* @__PURE__ */ jsx48("div", { children: /* @__PURE__ */ jsx48("strong", { children: "Art\xEDculo" }) }),
-          /* @__PURE__ */ jsx48("div", { className: "text-center hidden-on-base", children: /* @__PURE__ */ jsx48("strong", { children: "Precio" }) }),
-          /* @__PURE__ */ jsx48("div", { className: "text-center", children: /* @__PURE__ */ jsx48("strong", { children: "Cantidad" }) }),
-          /* @__PURE__ */ jsx48("div", { className: "text-center", children: /* @__PURE__ */ jsx48("strong", { children: "Subtotal" }) })
+          /* @__PURE__ */ jsxDEV49("div", { children: /* @__PURE__ */ jsxDEV49("strong", { children: "Art\xEDculo" }, void 0, !1, {
+            fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+            lineNumber: 225,
+            columnNumber: 13
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+            lineNumber: 224,
+            columnNumber: 11
+          }, this),
+          /* @__PURE__ */ jsxDEV49("div", { className: "text-center hidden-on-base", children: /* @__PURE__ */ jsxDEV49("strong", { children: "Precio" }, void 0, !1, {
+            fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+            lineNumber: 228,
+            columnNumber: 13
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+            lineNumber: 227,
+            columnNumber: 11
+          }, this),
+          /* @__PURE__ */ jsxDEV49("div", { className: "text-center", children: /* @__PURE__ */ jsxDEV49("strong", { children: "Cantidad" }, void 0, !1, {
+            fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+            lineNumber: 231,
+            columnNumber: 13
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+            lineNumber: 230,
+            columnNumber: 11
+          }, this),
+          /* @__PURE__ */ jsxDEV49("div", { className: "text-center", children: /* @__PURE__ */ jsxDEV49("strong", { children: "Subtotal" }, void 0, !1, {
+            fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+            lineNumber: 234,
+            columnNumber: 13
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+            lineNumber: 233,
+            columnNumber: 11
+          }, this)
         ]
-      }
+      },
+      void 0,
+      !0,
+      {
+        fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+        lineNumber: 220,
+        columnNumber: 9
+      },
+      this
     ),
-    /* @__PURE__ */ jsx48("div", { style: { position: "relative" }, children })
-  ] }) });
+    /* @__PURE__ */ jsxDEV49("div", { style: { position: "relative" }, children }, void 0, !1, {
+      fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+      lineNumber: 237,
+      columnNumber: 9
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+    lineNumber: 219,
+    columnNumber: 7
+  }, this) }, void 0, !1, {
+    fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+    lineNumber: 218,
+    columnNumber: 5
+  }, this);
 }, Row = ({
   style,
   index,
   data
 }) => {
   let product = data?.[index];
-  return product && /* @__PURE__ */ jsx48(
+  return product && /* @__PURE__ */ jsxDEV49(
     ProductsRow,
     {
       index,
       product,
       style
     },
-    `product-row-${product.id}`
+    `product-row-${product.id}`,
+    !1,
+    {
+      fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+      lineNumber: 252,
+      columnNumber: 7
+    },
+    this
   );
 }, ProductsTable = (props) => {
   let { disableForm, unfilteredProducts, filteredProducts, isFiltering } = props, [index, setIndex] = useState11(null), ITEM_HEIGHT = useBreakpointValue3(
@@ -8551,7 +12027,7 @@ var CategoryAccordionButton = (props) => {
   );
   return useEffect10(() => {
     setIndex(isFiltering ? _8.range(totalCategories) : null);
-  }, [isFiltering]), filledUpCategories.length ? /* @__PURE__ */ jsx48(
+  }, [isFiltering]), filledUpCategories.length ? /* @__PURE__ */ jsxDEV49(
     Accordion,
     {
       allowMultiple: !0,
@@ -8561,21 +12037,29 @@ var CategoryAccordionButton = (props) => {
       onChange: setIndex,
       children: _8.map(filteredProducts, (articulos, categoria) => {
         let categoryName = categoria === "_" ? "Varios" : categoria.replace(/_/g, " ");
-        return articulos.length ? /* @__PURE__ */ jsx48(AccordionItem, { sx: { border: "none" }, children: /* @__PURE__ */ jsxs32(
+        return articulos.length ? /* @__PURE__ */ jsxDEV49(AccordionItem, { sx: { border: "none" }, children: /* @__PURE__ */ jsxDEV49(
           CommonCard,
           {
             cardProps: {
               borderWidth: "1px"
             },
             children: [
-              /* @__PURE__ */ jsx48(
+              /* @__PURE__ */ jsxDEV49(
                 CategoryAccordionButton,
                 {
                   categoryName,
                   articulos: unfilteredProducts[categoria]
-                }
+                },
+                void 0,
+                !1,
+                {
+                  fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+                  lineNumber: 320,
+                  columnNumber: 15
+                },
+                this
               ),
-              /* @__PURE__ */ jsx48(AccordionPanel, { sx: { p: 0, mt: 4 }, children: /* @__PURE__ */ jsx48(
+              /* @__PURE__ */ jsxDEV49(AccordionPanel, { sx: { p: 0, mt: 4 }, children: /* @__PURE__ */ jsxDEV49(
                 FixedSizeList2,
                 {
                   height: window.innerHeight,
@@ -8587,21 +12071,65 @@ var CategoryAccordionButton = (props) => {
                   itemData: articulos,
                   width: window.innerWidth,
                   children: Row
-                }
-              ) })
+                },
+                void 0,
+                !1,
+                {
+                  fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+                  lineNumber: 325,
+                  columnNumber: 17
+                },
+                this
+              ) }, void 0, !1, {
+                fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+                lineNumber: 324,
+                columnNumber: 15
+              }, this)
             ]
-          }
-        ) }, `accordion-${categoria}`) : /* @__PURE__ */ jsx48(React.Fragment, {}, `accordion-${categoria}`);
+          },
+          void 0,
+          !0,
+          {
+            fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+            lineNumber: 315,
+            columnNumber: 13
+          },
+          this
+        ) }, `accordion-${categoria}`, !1, {
+          fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+          lineNumber: 314,
+          columnNumber: 11
+        }, this) : /* @__PURE__ */ jsxDEV49(React.Fragment, {}, `accordion-${categoria}`, !1, {
+          fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+          lineNumber: 341,
+          columnNumber: 11
+        }, this);
       })
-    }
-  ) : /* @__PURE__ */ jsxs32(Alert4, { status: "info", children: [
-    /* @__PURE__ */ jsx48(AlertIcon3, {}),
+    },
+    void 0,
+    !1,
+    {
+      fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+      lineNumber: 302,
+      columnNumber: 5
+    },
+    this
+  ) : /* @__PURE__ */ jsxDEV49(Alert4, { status: "info", children: [
+    /* @__PURE__ */ jsxDEV49(AlertIcon3, {}, void 0, !1, {
+      fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+      lineNumber: 295,
+      columnNumber: 9
+    }, this),
     "La b\xFAsqueda no produjo resultados."
-  ] });
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_authorized.orders.$client.add/components/ProductsTable.tsx",
+    lineNumber: 294,
+    columnNumber: 7
+  }, this);
 };
 
 // src/app/routes/_authorized.orders.$client.add/components/success.tsx
-import { Fragment as Fragment18, jsx as jsx49, jsxs as jsxs33 } from "react/jsx-runtime";
+import { Fragment as Fragment18, jsxDEV as jsxDEV50 } from "react/jsx-dev-runtime";
 var Success6 = (props) => {
   let { auxData } = props, [filteredData, setFilteredData] = useState12(
     fakeData.articulos
@@ -8635,77 +12163,124 @@ var Success6 = (props) => {
     handleSearchInputChange,
     isFiltering
   } = useSearchField(fakeData.articulos, ["codigo", "nombre"]);
-  return /* @__PURE__ */ jsx49(Fragment18, { children: /* @__PURE__ */ jsx49(FormProvider, { ...formMethods, children: /* @__PURE__ */ jsxs33("form", { noValidate: !0, onSubmit: handleSubmit(onSubmit), children: [
-    /* @__PURE__ */ jsx49(
+  return /* @__PURE__ */ jsxDEV50(Fragment18, { children: /* @__PURE__ */ jsxDEV50(FormProvider, { ...formMethods, children: /* @__PURE__ */ jsxDEV50("form", { noValidate: !0, onSubmit: handleSubmit(onSubmit), children: [
+    /* @__PURE__ */ jsxDEV50(
       OrdersAddNav,
       {
         isDisabled: disableForm,
         handleSearchInputChange
-      }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_authorized.orders.$client.add/components/success.tsx",
+        lineNumber: 83,
+        columnNumber: 11
+      },
+      this
     ),
-    /* @__PURE__ */ jsxs33(Box16, { sx: { my: 4 }, children: [
-      /* @__PURE__ */ jsx49(FormErrors, { errors }),
-      /* @__PURE__ */ jsx49(
+    /* @__PURE__ */ jsxDEV50(Box16, { sx: { my: 4 }, children: [
+      /* @__PURE__ */ jsxDEV50(FormErrors, { errors }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders.$client.add/components/success.tsx",
+        lineNumber: 88,
+        columnNumber: 13
+      }, this),
+      /* @__PURE__ */ jsxDEV50(
         OrderInfo,
         {
           cabecera: fakeData.cabecera,
           auxData,
           disableForm,
           prices
-        }
+        },
+        void 0,
+        !1,
+        {
+          fileName: "src/app/routes/_authorized.orders.$client.add/components/success.tsx",
+          lineNumber: 89,
+          columnNumber: 13
+        },
+        this
       ),
-      /* @__PURE__ */ jsx49(
+      /* @__PURE__ */ jsxDEV50(
         ProductsTable,
         {
           disableForm,
           unfilteredProducts: fakeData.articulos,
           filteredProducts,
           isFiltering
-        }
+        },
+        void 0,
+        !1,
+        {
+          fileName: "src/app/routes/_authorized.orders.$client.add/components/success.tsx",
+          lineNumber: 95,
+          columnNumber: 13
+        },
+        this
       )
-    ] })
-  ] }) }) });
+    ] }, void 0, !0, {
+      fileName: "src/app/routes/_authorized.orders.$client.add/components/success.tsx",
+      lineNumber: 87,
+      columnNumber: 11
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_authorized.orders.$client.add/components/success.tsx",
+    lineNumber: 82,
+    columnNumber: 9
+  }, this) }, void 0, !1, {
+    fileName: "src/app/routes/_authorized.orders.$client.add/components/success.tsx",
+    lineNumber: 81,
+    columnNumber: 7
+  }, this) }, void 0, !1, {
+    fileName: "src/app/routes/_authorized.orders.$client.add/components/success.tsx",
+    lineNumber: 80,
+    columnNumber: 5
+  }, this);
 };
 
 // src/app/routes/_authorized.orders.$client.add/route.tsx
-import { jsx as jsx50 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV51 } from "react/jsx-dev-runtime";
 function OrdersAdd() {
   let { state, retry } = useDXTApiFetch({
     url: API_TANGO_AUXILIARES,
     silent: !0
   });
   return state.map({
-    loading: (_11) => /* @__PURE__ */ jsx50(Loading4, {}),
-    error: ({ error }) => /* @__PURE__ */ jsx50(
+    loading: (_11) => /* @__PURE__ */ jsxDEV51(Loading4, {}, void 0, !1, {
+      fileName: "src/app/routes/_authorized.orders.$client.add/route.tsx",
+      lineNumber: 18,
+      columnNumber: 21
+    }, this),
+    error: ({ error }) => /* @__PURE__ */ jsxDEV51(
       ApiErrors,
       {
         error,
         retry,
         cancelAndNavigateTo: URL_PEDIDOS_PATH
-      }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_authorized.orders.$client.add/route.tsx",
+        lineNumber: 21,
+        columnNumber: 7
+      },
+      this
     ),
-    success: (state2) => /* @__PURE__ */ jsx50(Success6, { auxData: state2.data })
+    success: (state2) => /* @__PURE__ */ jsxDEV51(Success6, { auxData: state2.data }, void 0, !1, {
+      fileName: "src/app/routes/_authorized.orders.$client.add/route.tsx",
+      lineNumber: 28,
+      columnNumber: 25
+    }, this)
   });
-}
-
-// src/app/routes/api.dxt.pedido.articulos.print.ts
-var api_dxt_pedido_articulos_print_exports = {};
-__export(api_dxt_pedido_articulos_print_exports, {
-  action: () => action2,
-  loader: () => loader3
-});
-async function loader3({ request, params }) {
-  return await dxtPedidoGetArticulosPrintEndpoint.get(request, params);
-}
-async function action2({ request, params }) {
-  return await dxtPedidoSetArticulosPrintEndpoint.post(request, params);
 }
 
 // src/app/routes/api.dictionary.active_company.ts
 var api_dictionary_active_company_exports = {};
 __export(api_dictionary_active_company_exports, {
-  action: () => action3,
-  loader: () => loader4
+  action: () => action4,
+  loader: () => loader5
 });
 
 // src/code.server/api/dictionary/endpoints/setActiveCompany.ts
@@ -8748,8 +12323,8 @@ var setActiveCompanyEndpoint = createApiEndpoint(
 );
 
 // src/app/routes/api.dictionary.active_company.ts
-var loader4 = unimplementedApiResponse;
-async function action3({ request, params }) {
+var loader5 = unimplementedApiResponse;
+async function action4({ request, params }) {
   return await setActiveCompanyEndpoint.post(request, params);
 }
 
@@ -8761,7 +12336,7 @@ __export(route_exports7, {
 import { useNavigate as useNavigate10, useParams as useParams4 } from "@remix-run/react";
 
 // src/api-client/dxt/pedido/paths.ts
-var API_DXT_PEDIDO_PRODUCT_PRINT = apiPath("/dxt/pedido/articulos/print"), API_DXT_PEDIDO_PRODUCT_SCREEN = apiPath("/dxt/pedido/articulos/screen");
+var API_DXT_PEDIDO_PRODUCT_PRINT = apiPath("/dxt/pedido/articulos/print_list"), API_DXT_PEDIDO_PRODUCT_SCREEN = apiPath("/dxt/pedido/articulos/screen_list"), API_DXT_PEDIDO_PRODUCT_PRINT_IDS = apiPath("/dxt/pedido/articulos/print_ids");
 
 // src/api-client/dxt/pedido/requests.ts
 var dxtPedidoArticulosPrintUpdateRequest = async (input, app) => await dxtApiRequest(
@@ -8783,7 +12358,7 @@ var dxtPedidoArticulosPrintUpdateRequest = async (input, app) => await dxtApiReq
 );
 
 // src/code.client/crud_configs/lists.tsx
-import { Fragment as Fragment19, jsx as jsx51, jsxs as jsxs34 } from "react/jsx-runtime";
+import { Fragment as Fragment19, jsxDEV as jsxDEV52 } from "react/jsx-dev-runtime";
 var settings2 = {
   screen: {
     api: {
@@ -8794,12 +12369,24 @@ var settings2 = {
       post: async (input, app) => dxtPedidoArticulosScreenUpdateRequest(input, app)
     },
     title: "Lista de Art\xEDculos para Visualizaci\xF3n",
-    description: /* @__PURE__ */ jsxs34(Fragment19, { children: [
+    description: /* @__PURE__ */ jsxDEV52(Fragment19, { children: [
       "Ingrese en la lista los c\xF3digos de art\xEDculo en el \xF3rden en quedesea que aparezcan durante la creaci\xF3n o edici\xF3n de un pedido.",
-      /* @__PURE__ */ jsx51("br", {}),
-      /* @__PURE__ */ jsx51("br", {}),
+      /* @__PURE__ */ jsxDEV52("br", {}, void 0, !1, {
+        fileName: "src/code.client/crud_configs/lists.tsx",
+        lineNumber: 56,
+        columnNumber: 9
+      }, this),
+      /* @__PURE__ */ jsxDEV52("br", {}, void 0, !1, {
+        fileName: "src/code.client/crud_configs/lists.tsx",
+        lineNumber: 57,
+        columnNumber: 9
+      }, this),
       "Cualquier l\xEDnea que ingrese, que no contenga ning\xFAn c\xF3digo de art\xEDculo, ser\xE1 considerada como t\xEDtulo de grupo."
-    ] })
+    ] }, void 0, !0, {
+      fileName: "src/code.client/crud_configs/lists.tsx",
+      lineNumber: 53,
+      columnNumber: 7
+    }, this)
   },
   print: {
     api: {
@@ -8810,21 +12397,33 @@ var settings2 = {
       post: async (input, app) => dxtPedidoArticulosPrintUpdateRequest(input, app)
     },
     title: "Lista de Art\xEDculos para Impresi\xF3n",
-    description: /* @__PURE__ */ jsxs34(Fragment19, { children: [
+    description: /* @__PURE__ */ jsxDEV52(Fragment19, { children: [
       "Ingrese en la lista los c\xF3digos de art\xEDculo en el \xF3rden en que desea que aparezcan durante la impresi\xF3n de un pedido.",
-      /* @__PURE__ */ jsx51("br", {}),
-      /* @__PURE__ */ jsx51("br", {}),
+      /* @__PURE__ */ jsxDEV52("br", {}, void 0, !1, {
+        fileName: "src/code.client/crud_configs/lists.tsx",
+        lineNumber: 81,
+        columnNumber: 9
+      }, this),
+      /* @__PURE__ */ jsxDEV52("br", {}, void 0, !1, {
+        fileName: "src/code.client/crud_configs/lists.tsx",
+        lineNumber: 82,
+        columnNumber: 9
+      }, this),
       "Cualquier l\xEDnea que ingrese, que no contenga ning\xFAn c\xF3digo de art\xEDculo, ser\xE1 considerada como t\xEDtulo de grupo."
-    ] })
+    ] }, void 0, !0, {
+      fileName: "src/code.client/crud_configs/lists.tsx",
+      lineNumber: 78,
+      columnNumber: 7
+    }, this)
   }
 };
 
 // src/app/routes/_admin.settings.lists.$type/components/loading.tsx
 import { Box as Box17, Grid as Grid10, GridItem as GridItem10, Text as Text3 } from "@chakra-ui/react";
-import { jsx as jsx52, jsxs as jsxs35 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV53 } from "react/jsx-dev-runtime";
 var Loading5 = (props) => {
   let { typeSettings } = props;
-  return /* @__PURE__ */ jsx52(
+  return /* @__PURE__ */ jsxDEV53(
     Box17,
     {
       width: "full",
@@ -8832,21 +12431,69 @@ var Loading5 = (props) => {
         mt: 8,
         mb: 4
       },
-      children: /* @__PURE__ */ jsxs35(
+      children: /* @__PURE__ */ jsxDEV53(
         Grid10,
         {
           templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
           alignItems: "start",
           gap: 4,
           children: [
-            /* @__PURE__ */ jsx52(GridItem10, { children: /* @__PURE__ */ jsx52(FormTextareaSkeleton, { height: "380px" }) }),
-            /* @__PURE__ */ jsx52(GridItem10, { children: /* @__PURE__ */ jsx52(Text3, { fontSize: "sm", children: typeSettings.description }) }),
-            /* @__PURE__ */ jsx52(GridItem10, { children: /* @__PURE__ */ jsx52(FormInputSkeleton, {}) }),
-            /* @__PURE__ */ jsx52(GridItem10, { children: /* @__PURE__ */ jsx52(FormInputSkeleton, {}) })
+            /* @__PURE__ */ jsxDEV53(GridItem10, { children: /* @__PURE__ */ jsxDEV53(FormTextareaSkeleton, { height: "380px" }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.lists.$type/components/loading.tsx",
+              lineNumber: 27,
+              columnNumber: 11
+            }, this) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.lists.$type/components/loading.tsx",
+              lineNumber: 26,
+              columnNumber: 9
+            }, this),
+            /* @__PURE__ */ jsxDEV53(GridItem10, { children: /* @__PURE__ */ jsxDEV53(Text3, { fontSize: "sm", children: typeSettings.description }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.lists.$type/components/loading.tsx",
+              lineNumber: 30,
+              columnNumber: 11
+            }, this) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.lists.$type/components/loading.tsx",
+              lineNumber: 29,
+              columnNumber: 9
+            }, this),
+            /* @__PURE__ */ jsxDEV53(GridItem10, { children: /* @__PURE__ */ jsxDEV53(FormInputSkeleton, {}, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.lists.$type/components/loading.tsx",
+              lineNumber: 33,
+              columnNumber: 11
+            }, this) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.lists.$type/components/loading.tsx",
+              lineNumber: 32,
+              columnNumber: 9
+            }, this),
+            /* @__PURE__ */ jsxDEV53(GridItem10, { children: /* @__PURE__ */ jsxDEV53(FormInputSkeleton, {}, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.lists.$type/components/loading.tsx",
+              lineNumber: 36,
+              columnNumber: 11
+            }, this) }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.lists.$type/components/loading.tsx",
+              lineNumber: 35,
+              columnNumber: 9
+            }, this)
           ]
-        }
+        },
+        void 0,
+        !0,
+        {
+          fileName: "src/app/routes/_admin.settings.lists.$type/components/loading.tsx",
+          lineNumber: 21,
+          columnNumber: 7
+        },
+        this
       )
-    }
+    },
+    void 0,
+    !1,
+    {
+      fileName: "src/app/routes/_admin.settings.lists.$type/components/loading.tsx",
+      lineNumber: 14,
+      columnNumber: 5
+    },
+    this
   );
 };
 
@@ -8862,7 +12509,7 @@ var yupValidationSchema2 = yup7.object({
 }).required();
 
 // src/app/routes/_admin.settings.lists.$type/components/success.tsx
-import { jsx as jsx53, jsxs as jsxs36 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV54 } from "react/jsx-dev-runtime";
 var Success7 = (props) => {
   let { stateData, typeSettings } = props, app = useAppResources(), toast = useToast6(), {
     handleSubmit,
@@ -8877,7 +12524,7 @@ var Success7 = (props) => {
     },
     resolver: yupResolver6(yupValidationSchema2)
   }), disableForm = isSubmitSuccessful || isSubmitting;
-  return /* @__PURE__ */ jsx53("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
+  return /* @__PURE__ */ jsxDEV54("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
     let input = { data: dataUnsafe.list.split(`
 `) }, result = await typeSettings.api.post(input, app);
     await promiseBasedToast({
@@ -8893,16 +12540,20 @@ var Success7 = (props) => {
     }).catch((e) => {
       setError("root", { message: e });
     });
-  }), children: /* @__PURE__ */ jsxs36(Box18, { children: [
-    /* @__PURE__ */ jsx53(FormErrors, { errors }),
-    /* @__PURE__ */ jsx53(CommonCard, { children: /* @__PURE__ */ jsxs36(
+  }), children: /* @__PURE__ */ jsxDEV54(Box18, { children: [
+    /* @__PURE__ */ jsxDEV54(FormErrors, { errors }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.lists.$type/components/success.tsx",
+      lineNumber: 76,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV54(CommonCard, { children: /* @__PURE__ */ jsxDEV54(
       Grid11,
       {
         templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
         alignItems: "start",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx53(GridItem11, { children: /* @__PURE__ */ jsx53(
+          /* @__PURE__ */ jsxDEV54(GridItem11, { children: /* @__PURE__ */ jsxDEV54(
             ControlledTextarea,
             {
               fieldProps: {
@@ -8915,40 +12566,104 @@ var Success7 = (props) => {
                 isDisabled: disableForm
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx53(GridItem11, { children: /* @__PURE__ */ jsx53(Text4, { fontSize: "sm", children: typeSettings.description }) })
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.lists.$type/components/success.tsx",
+              lineNumber: 84,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.lists.$type/components/success.tsx",
+            lineNumber: 83,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV54(GridItem11, { children: /* @__PURE__ */ jsxDEV54(Text4, { fontSize: "sm", children: typeSettings.description }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.lists.$type/components/success.tsx",
+            lineNumber: 98,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.lists.$type/components/success.tsx",
+            lineNumber: 97,
+            columnNumber: 13
+          }, this)
         ]
-      }
-    ) }),
-    /* @__PURE__ */ jsx53(CommonCard, { children: /* @__PURE__ */ jsx53(SettingsFormsButtons, { isLoading: disableForm }) })
-  ] }) });
+      },
+      void 0,
+      !0,
+      {
+        fileName: "src/app/routes/_admin.settings.lists.$type/components/success.tsx",
+        lineNumber: 78,
+        columnNumber: 11
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.lists.$type/components/success.tsx",
+      lineNumber: 77,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV54(CommonCard, { children: /* @__PURE__ */ jsxDEV54(SettingsFormsButtons, { isLoading: disableForm }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.lists.$type/components/success.tsx",
+      lineNumber: 103,
+      columnNumber: 11
+    }, this) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.lists.$type/components/success.tsx",
+      lineNumber: 102,
+      columnNumber: 9
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_admin.settings.lists.$type/components/success.tsx",
+    lineNumber: 75,
+    columnNumber: 7
+  }, this) }, void 0, !1, {
+    fileName: "src/app/routes/_admin.settings.lists.$type/components/success.tsx",
+    lineNumber: 74,
+    columnNumber: 5
+  }, this);
 };
 
 // src/app/routes/_admin.settings.lists.$type/components/index.tsx
-import { jsx as jsx54 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV55 } from "react/jsx-dev-runtime";
 var FormLists = (props) => {
   let { typeSettings } = props, { state, retry } = typeSettings.api.getAll();
   return state.map({
-    loading: (_11) => /* @__PURE__ */ jsx54(Loading5, { typeSettings }),
-    error: ({ error }) => /* @__PURE__ */ jsx54(
+    loading: (_11) => /* @__PURE__ */ jsxDEV55(Loading5, { typeSettings }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.lists.$type/components/index.tsx",
+      lineNumber: 19,
+      columnNumber: 21
+    }, this),
+    error: ({ error }) => /* @__PURE__ */ jsxDEV55(
       ApiErrors,
       {
         error,
         retry,
         cancelAndNavigateTo: URL_SETTINGS_PATH
-      }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings.lists.$type/components/index.tsx",
+        lineNumber: 22,
+        columnNumber: 7
+      },
+      this
     ),
-    success: (state2) => /* @__PURE__ */ jsx54(Success7, { stateData: state2.data, typeSettings })
+    success: (state2) => /* @__PURE__ */ jsxDEV55(Success7, { stateData: state2.data, typeSettings }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.lists.$type/components/index.tsx",
+      lineNumber: 30,
+      columnNumber: 7
+    }, this)
   });
 };
 
 // src/app/routes/_admin.settings.lists.$type/route.tsx
-import { Fragment as Fragment20, jsx as jsx55, jsxs as jsxs37 } from "react/jsx-runtime";
+import { Fragment as Fragment20, jsxDEV as jsxDEV56 } from "react/jsx-dev-runtime";
 function Lists2() {
   let navigate = useNavigate10(), { type } = useParams4(), typeSettings = settings2[type];
-  return type != null && typeSettings != null ? /* @__PURE__ */ jsxs37(Fragment20, { children: [
-    /* @__PURE__ */ jsx55(
+  return type != null && typeSettings != null ? /* @__PURE__ */ jsxDEV56(Fragment20, { children: [
+    /* @__PURE__ */ jsxDEV56(
       SettingsFormHeading,
       {
         title: typeSettings.title,
@@ -8961,10 +12676,26 @@ function Lists2() {
             }
           }
         }
-      }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings.lists.$type/route.tsx",
+        lineNumber: 20,
+        columnNumber: 9
+      },
+      this
     ),
-    /* @__PURE__ */ jsx55(FormLists, { typeSettings })
-  ] }) : /* @__PURE__ */ jsx55(
+    /* @__PURE__ */ jsxDEV56(FormLists, { typeSettings }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.lists.$type/route.tsx",
+      lineNumber: 32,
+      columnNumber: 9
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_admin.settings.lists.$type/route.tsx",
+    lineNumber: 19,
+    columnNumber: 7
+  }, this) : /* @__PURE__ */ jsxDEV56(
     CommonErrors,
     {
       error: "Tipo de lista no v\xE1lida",
@@ -8975,7 +12706,15 @@ function Lists2() {
           navigate(URL_SETTINGS_PATH);
         }
       }
-    }
+    },
+    void 0,
+    !1,
+    {
+      fileName: "src/app/routes/_admin.settings.lists.$type/route.tsx",
+      lineNumber: 38,
+      columnNumber: 5
+    },
+    this
   );
 }
 
@@ -8984,9 +12723,13 @@ var route_exports8 = {};
 __export(route_exports8, {
   default: () => ChangePassword
 });
-import { Fragment as Fragment21, jsx as jsx56 } from "react/jsx-runtime";
+import { Fragment as Fragment21, jsxDEV as jsxDEV57 } from "react/jsx-dev-runtime";
 function ChangePassword() {
-  return /* @__PURE__ */ jsx56(Fragment21, { children: "Change password" });
+  return /* @__PURE__ */ jsxDEV57(Fragment21, { children: "Change password" }, void 0, !1, {
+    fileName: "src/app/routes/_authorized.change_password/route.tsx",
+    lineNumber: 2,
+    columnNumber: 10
+  }, this);
 }
 
 // src/app/routes/_authorized.orders._index/route.tsx
@@ -9000,8 +12743,8 @@ var API_PEDIDO_GET_ALL = apiPath("/pedido"), API_PEDIDO_GET_ONE = apiPath("/pedi
 
 // src/app/routes/_authorized.orders._index/components/loading.tsx
 import { Box as Box19, Grid as Grid12, GridItem as GridItem12 } from "@chakra-ui/react";
-import { jsx as jsx57, jsxs as jsxs38 } from "react/jsx-runtime";
-var Loading6 = () => /* @__PURE__ */ jsx57(
+import { jsxDEV as jsxDEV58 } from "react/jsx-dev-runtime";
+var Loading6 = () => /* @__PURE__ */ jsxDEV58(
   Box19,
   {
     width: "full",
@@ -9009,16 +12752,84 @@ var Loading6 = () => /* @__PURE__ */ jsx57(
       mt: 8,
       mb: 4
     },
-    children: /* @__PURE__ */ jsxs38(Grid12, { templateColumns: "1fr", alignItems: "center", gap: 4, children: [
-      /* @__PURE__ */ jsx57(GridItem12, { children: /* @__PURE__ */ jsx57(FormInputSkeleton, {}) }),
-      /* @__PURE__ */ jsx57(GridItem12, { children: /* @__PURE__ */ jsx57(FormTextareaSkeleton, { height: "120px" }) }),
-      /* @__PURE__ */ jsx57(GridItem12, { children: /* @__PURE__ */ jsx57(FormTextareaSkeleton, { height: "120px" }) }),
-      /* @__PURE__ */ jsx57(GridItem12, { children: /* @__PURE__ */ jsx57(FormTextareaSkeleton, { height: "120px" }) }),
-      /* @__PURE__ */ jsx57(GridItem12, { children: /* @__PURE__ */ jsx57(FormTextareaSkeleton, { height: "120px" }) }),
-      /* @__PURE__ */ jsx57(GridItem12, { children: /* @__PURE__ */ jsx57(FormTextareaSkeleton, { height: "120px" }) }),
-      /* @__PURE__ */ jsx57(GridItem12, { children: /* @__PURE__ */ jsx57(FormTextareaSkeleton, { height: "120px" }) })
-    ] })
-  }
+    children: /* @__PURE__ */ jsxDEV58(Grid12, { templateColumns: "1fr", alignItems: "center", gap: 4, children: [
+      /* @__PURE__ */ jsxDEV58(GridItem12, { children: /* @__PURE__ */ jsxDEV58(FormInputSkeleton, {}, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/loading.tsx",
+        lineNumber: 18,
+        columnNumber: 9
+      }, this) }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/loading.tsx",
+        lineNumber: 17,
+        columnNumber: 7
+      }, this),
+      /* @__PURE__ */ jsxDEV58(GridItem12, { children: /* @__PURE__ */ jsxDEV58(FormTextareaSkeleton, { height: "120px" }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/loading.tsx",
+        lineNumber: 21,
+        columnNumber: 9
+      }, this) }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/loading.tsx",
+        lineNumber: 20,
+        columnNumber: 7
+      }, this),
+      /* @__PURE__ */ jsxDEV58(GridItem12, { children: /* @__PURE__ */ jsxDEV58(FormTextareaSkeleton, { height: "120px" }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/loading.tsx",
+        lineNumber: 24,
+        columnNumber: 9
+      }, this) }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/loading.tsx",
+        lineNumber: 23,
+        columnNumber: 7
+      }, this),
+      /* @__PURE__ */ jsxDEV58(GridItem12, { children: /* @__PURE__ */ jsxDEV58(FormTextareaSkeleton, { height: "120px" }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/loading.tsx",
+        lineNumber: 27,
+        columnNumber: 9
+      }, this) }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/loading.tsx",
+        lineNumber: 26,
+        columnNumber: 7
+      }, this),
+      /* @__PURE__ */ jsxDEV58(GridItem12, { children: /* @__PURE__ */ jsxDEV58(FormTextareaSkeleton, { height: "120px" }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/loading.tsx",
+        lineNumber: 30,
+        columnNumber: 9
+      }, this) }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/loading.tsx",
+        lineNumber: 29,
+        columnNumber: 7
+      }, this),
+      /* @__PURE__ */ jsxDEV58(GridItem12, { children: /* @__PURE__ */ jsxDEV58(FormTextareaSkeleton, { height: "120px" }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/loading.tsx",
+        lineNumber: 33,
+        columnNumber: 9
+      }, this) }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/loading.tsx",
+        lineNumber: 32,
+        columnNumber: 7
+      }, this),
+      /* @__PURE__ */ jsxDEV58(GridItem12, { children: /* @__PURE__ */ jsxDEV58(FormTextareaSkeleton, { height: "120px" }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/loading.tsx",
+        lineNumber: 36,
+        columnNumber: 9
+      }, this) }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/loading.tsx",
+        lineNumber: 35,
+        columnNumber: 7
+      }, this)
+    ] }, void 0, !0, {
+      fileName: "src/app/routes/_authorized.orders._index/components/loading.tsx",
+      lineNumber: 16,
+      columnNumber: 5
+    }, this)
+  },
+  void 0,
+  !1,
+  {
+    fileName: "src/app/routes/_authorized.orders._index/components/loading.tsx",
+    lineNumber: 9,
+    columnNumber: 3
+  },
+  this
 );
 
 // src/app/routes/_authorized.orders._index/components/success.tsx
@@ -9066,7 +12877,7 @@ import AccountCancelIcon3 from "mdi-react/AccountCancelIcon.js";
 import AccountCheckIcon2 from "mdi-react/AccountCheckIcon.js";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeList as FixedSizeList3 } from "react-window";
-import { Fragment as Fragment22, jsx as jsx58, jsxs as jsxs39 } from "react/jsx-runtime";
+import { Fragment as Fragment22, jsxDEV as jsxDEV59 } from "react/jsx-dev-runtime";
 var ClientsListModal = (props) => {
   let { isOpen, onClose } = props, stateData = useRef9(), { state, retry } = useDXTApiFetch({
     url: API_DXT_VENDOR_CUSTOMERS,
@@ -9074,25 +12885,69 @@ var ClientsListModal = (props) => {
   }), SearchableList = () => {
     let { filteredData, handleSearchInputChange } = useSearchField(stateData.current ?? [], ["screen_name"]), itemHeight = 30, Row2 = ({ style, index, data }) => {
       let client = data?.[index];
-      return client != null ? /* @__PURE__ */ jsx58(Fragment22, { children: /* @__PURE__ */ jsx58(ListItem2, { style, children: client.habilitado ? /* @__PURE__ */ jsx58(
+      return client != null ? /* @__PURE__ */ jsxDEV59(Fragment22, { children: /* @__PURE__ */ jsxDEV59(ListItem2, { style, children: client.habilitado ? /* @__PURE__ */ jsxDEV59(
         Link,
         {
           href: pathParamsToUrl(URL_PEDIDOS_ADD_PATH, {
             client: client.id
           }),
-          children: /* @__PURE__ */ jsxs39(Box20, { children: [
-            /* @__PURE__ */ jsx58(ListIcon, { as: AccountCheckIcon2, color: "green.400" }),
+          children: /* @__PURE__ */ jsxDEV59(Box20, { children: [
+            /* @__PURE__ */ jsxDEV59(ListIcon, { as: AccountCheckIcon2, color: "green.400" }, void 0, !1, {
+              fileName: "src/app/components/orders/ClientsListModal.tsx",
+              lineNumber: 78,
+              columnNumber: 19
+            }, this),
             client.screen_name
-          ] })
-        }
-      ) : /* @__PURE__ */ jsxs39(Box20, { color: "gray.400", children: [
-        /* @__PURE__ */ jsx58(ListIcon, { as: AccountCancelIcon3, color: "red.400" }),
+          ] }, void 0, !0, {
+            fileName: "src/app/components/orders/ClientsListModal.tsx",
+            lineNumber: 77,
+            columnNumber: 17
+          }, this)
+        },
+        void 0,
+        !1,
+        {
+          fileName: "src/app/components/orders/ClientsListModal.tsx",
+          lineNumber: 72,
+          columnNumber: 15
+        },
+        this
+      ) : /* @__PURE__ */ jsxDEV59(Box20, { color: "gray.400", children: [
+        /* @__PURE__ */ jsxDEV59(ListIcon, { as: AccountCancelIcon3, color: "red.400" }, void 0, !1, {
+          fileName: "src/app/components/orders/ClientsListModal.tsx",
+          lineNumber: 84,
+          columnNumber: 17
+        }, this),
         client.screen_name
-      ] }) }, client.id) }) : /* @__PURE__ */ jsx58(Fragment22, {});
+      ] }, void 0, !0, {
+        fileName: "src/app/components/orders/ClientsListModal.tsx",
+        lineNumber: 83,
+        columnNumber: 15
+      }, this) }, client.id, !1, {
+        fileName: "src/app/components/orders/ClientsListModal.tsx",
+        lineNumber: 70,
+        columnNumber: 11
+      }, this) }, void 0, !1, {
+        fileName: "src/app/components/orders/ClientsListModal.tsx",
+        lineNumber: 69,
+        columnNumber: 9
+      }, this) : /* @__PURE__ */ jsxDEV59(Fragment22, {}, void 0, !1, {
+        fileName: "src/app/components/orders/ClientsListModal.tsx",
+        lineNumber: 91,
+        columnNumber: 9
+      }, this);
     };
-    return /* @__PURE__ */ jsxs39(Fragment22, { children: [
-      /* @__PURE__ */ jsx58(Box20, { sx: { pb: 4 }, children: /* @__PURE__ */ jsx58(SearchField, { handleSearchInputChange }) }),
-      /* @__PURE__ */ jsx58(AutoSizer, { children: ({ height, width }) => /* @__PURE__ */ jsx58(
+    return /* @__PURE__ */ jsxDEV59(Fragment22, { children: [
+      /* @__PURE__ */ jsxDEV59(Box20, { sx: { pb: 4 }, children: /* @__PURE__ */ jsxDEV59(SearchField, { handleSearchInputChange }, void 0, !1, {
+        fileName: "src/app/components/orders/ClientsListModal.tsx",
+        lineNumber: 98,
+        columnNumber: 11
+      }, this) }, void 0, !1, {
+        fileName: "src/app/components/orders/ClientsListModal.tsx",
+        lineNumber: 97,
+        columnNumber: 9
+      }, this),
+      /* @__PURE__ */ jsxDEV59(AutoSizer, { children: ({ height, width }) => /* @__PURE__ */ jsxDEV59(
         FixedSizeList3,
         {
           height: height - 60,
@@ -9102,11 +12957,27 @@ var ClientsListModal = (props) => {
           width,
           itemData: filteredData,
           children: Row2
-        }
-      ) })
-    ] });
+        },
+        void 0,
+        !1,
+        {
+          fileName: "src/app/components/orders/ClientsListModal.tsx",
+          lineNumber: 102,
+          columnNumber: 13
+        },
+        this
+      ) }, void 0, !1, {
+        fileName: "src/app/components/orders/ClientsListModal.tsx",
+        lineNumber: 100,
+        columnNumber: 9
+      }, this)
+    ] }, void 0, !0, {
+      fileName: "src/app/components/orders/ClientsListModal.tsx",
+      lineNumber: 96,
+      columnNumber: 7
+    }, this);
   };
-  return /* @__PURE__ */ jsxs39(
+  return /* @__PURE__ */ jsxDEV59(
     Modal,
     {
       isCentered: !0,
@@ -9115,49 +12986,105 @@ var ClientsListModal = (props) => {
       scrollBehavior: "inside",
       size: { base: "full", sm: "md", md: "lg" },
       children: [
-        /* @__PURE__ */ jsx58(ModalOverlay, {}),
-        /* @__PURE__ */ jsxs39(
+        /* @__PURE__ */ jsxDEV59(ModalOverlay, {}, void 0, !1, {
+          fileName: "src/app/components/orders/ClientsListModal.tsx",
+          lineNumber: 126,
+          columnNumber: 7
+        }, this),
+        /* @__PURE__ */ jsxDEV59(
           ModalContent,
           {
             sx: {
               maxHeight: "auto"
             },
             children: [
-              /* @__PURE__ */ jsx58(ModalHeader, { children: "Seleccione el cliente" }),
-              /* @__PURE__ */ jsx58(ModalCloseButton, {}),
-              /* @__PURE__ */ jsx58(ModalBody, { minHeight: { base: "auto", sm: "420px !important" }, children: state.map({
-                loading: (_11) => /* @__PURE__ */ jsxs39(VStack2, { spacing: 4, children: [
-                  /* @__PURE__ */ jsx58(Skeleton2, { width: "full", height: "36px", borderRadius: "md" }),
-                  /* @__PURE__ */ jsx58(Skeleton2, { width: "full", height: "250px", borderRadius: "md" })
-                ] }),
-                error: ({ error }) => /* @__PURE__ */ jsx58(
+              /* @__PURE__ */ jsxDEV59(ModalHeader, { children: "Seleccione el cliente" }, void 0, !1, {
+                fileName: "src/app/components/orders/ClientsListModal.tsx",
+                lineNumber: 132,
+                columnNumber: 9
+              }, this),
+              /* @__PURE__ */ jsxDEV59(ModalCloseButton, {}, void 0, !1, {
+                fileName: "src/app/components/orders/ClientsListModal.tsx",
+                lineNumber: 133,
+                columnNumber: 9
+              }, this),
+              /* @__PURE__ */ jsxDEV59(ModalBody, { minHeight: { base: "auto", sm: "420px !important" }, children: state.map({
+                loading: (_11) => /* @__PURE__ */ jsxDEV59(VStack2, { spacing: 4, children: [
+                  /* @__PURE__ */ jsxDEV59(Skeleton2, { width: "full", height: "36px", borderRadius: "md" }, void 0, !1, {
+                    fileName: "src/app/components/orders/ClientsListModal.tsx",
+                    lineNumber: 138,
+                    columnNumber: 17
+                  }, this),
+                  /* @__PURE__ */ jsxDEV59(Skeleton2, { width: "full", height: "250px", borderRadius: "md" }, void 0, !1, {
+                    fileName: "src/app/components/orders/ClientsListModal.tsx",
+                    lineNumber: 139,
+                    columnNumber: 17
+                  }, this)
+                ] }, void 0, !0, {
+                  fileName: "src/app/components/orders/ClientsListModal.tsx",
+                  lineNumber: 137,
+                  columnNumber: 15
+                }, this),
+                error: ({ error }) => /* @__PURE__ */ jsxDEV59(
                   ApiErrors,
                   {
                     error,
                     retry,
                     cancelAndNavigateTo: URL_SETTINGS_PATH
-                  }
+                  },
+                  void 0,
+                  !1,
+                  {
+                    fileName: "src/app/components/orders/ClientsListModal.tsx",
+                    lineNumber: 144,
+                    columnNumber: 15
+                  },
+                  this
                 ),
-                success: (state2) => (stateData.current = state2.data, /* @__PURE__ */ jsx58(SearchableList, {}))
-              }) })
+                success: (state2) => (stateData.current = state2.data, /* @__PURE__ */ jsxDEV59(SearchableList, {}, void 0, !1, {
+                  fileName: "src/app/components/orders/ClientsListModal.tsx",
+                  lineNumber: 154,
+                  columnNumber: 22
+                }, this))
+              }) }, void 0, !1, {
+                fileName: "src/app/components/orders/ClientsListModal.tsx",
+                lineNumber: 134,
+                columnNumber: 9
+              }, this)
             ]
-          }
+          },
+          void 0,
+          !0,
+          {
+            fileName: "src/app/components/orders/ClientsListModal.tsx",
+            lineNumber: 127,
+            columnNumber: 7
+          },
+          this
         )
       ]
-    }
+    },
+    void 0,
+    !0,
+    {
+      fileName: "src/app/components/orders/ClientsListModal.tsx",
+      lineNumber: 119,
+      columnNumber: 5
+    },
+    this
   );
 };
 
 // src/app/components/orders/OrdersNav.tsx
-import { Fragment as Fragment23, jsx as jsx59, jsxs as jsxs40 } from "react/jsx-runtime";
+import { Fragment as Fragment23, jsxDEV as jsxDEV60 } from "react/jsx-dev-runtime";
 var OrdersNav = ({ selected }) => {
   let navigate = useNavigate11(), { isOpen, onOpen, onClose } = useDisclosure3(), [create, setCreate] = useState13(!1), handleCreate = () => {
     setCreate(!0), onOpen();
   }, handleOnClose = () => {
     onClose(), setCreate(!1);
   }, selectedInfo = selected == null || selected <= 0 ? void 0 : selected == 1 ? "1 seleccionado" : `${selected} seleccionados`;
-  return /* @__PURE__ */ jsxs40(Fragment23, { children: [
-    /* @__PURE__ */ jsx59(
+  return /* @__PURE__ */ jsxDEV60(Fragment23, { children: [
+    /* @__PURE__ */ jsxDEV60(
       Box21,
       {
         bg: useColorModeValue4("white", "blue.900"),
@@ -9167,9 +13094,9 @@ var OrdersNav = ({ selected }) => {
           zIndex: 1e3,
           top: 0
         },
-        children: /* @__PURE__ */ jsxs40(Flex5, { h: 16, alignItems: "center", justifyContent: "space-between", children: [
-          /* @__PURE__ */ jsxs40(HStack11, { spacing: { base: 2, sm: 3 }, alignItems: "center", children: [
-            /* @__PURE__ */ jsx59(
+        children: /* @__PURE__ */ jsxDEV60(Flex5, { h: 16, alignItems: "center", justifyContent: "space-between", children: [
+          /* @__PURE__ */ jsxDEV60(HStack11, { spacing: { base: 2, sm: 3 }, alignItems: "center", children: [
+            /* @__PURE__ */ jsxDEV60(
               ResponsiveIconButton,
               {
                 icon: TrashIcon2,
@@ -9185,9 +13112,17 @@ var OrdersNav = ({ selected }) => {
                     md: 4
                   }
                 }
-              }
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/components/orders/OrdersNav.tsx",
+                lineNumber: 78,
+                columnNumber: 13
+              },
+              this
             ),
-            /* @__PURE__ */ jsx59(
+            /* @__PURE__ */ jsxDEV60(
               ResponsiveIconButton,
               {
                 icon: PrinterIcon,
@@ -9203,9 +13138,17 @@ var OrdersNav = ({ selected }) => {
                     md: 4
                   }
                 }
-              }
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/components/orders/OrdersNav.tsx",
+                lineNumber: 93,
+                columnNumber: 13
+              },
+              this
             ),
-            /* @__PURE__ */ jsx59(
+            /* @__PURE__ */ jsxDEV60(
               ResponsiveIconButton,
               {
                 icon: PlusIcon2,
@@ -9224,10 +13167,18 @@ var OrdersNav = ({ selected }) => {
                     md: 4
                   }
                 }
-              }
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/components/orders/OrdersNav.tsx",
+                lineNumber: 108,
+                columnNumber: 13
+              },
+              this
             ),
-            selectedInfo != null && /* @__PURE__ */ jsxs40(Fragment23, { children: [
-              /* @__PURE__ */ jsx59(
+            selectedInfo != null && /* @__PURE__ */ jsxDEV60(Fragment23, { children: [
+              /* @__PURE__ */ jsxDEV60(
                 Tag,
                 {
                   display: { base: "none", sm: "inherited" },
@@ -9236,10 +13187,22 @@ var OrdersNav = ({ selected }) => {
                   size: "md",
                   variant: "solid",
                   colorScheme: "blue",
-                  children: /* @__PURE__ */ jsx59(TagLabel, { marginX: 1, children: selectedInfo })
-                }
+                  children: /* @__PURE__ */ jsxDEV60(TagLabel, { marginX: 1, children: selectedInfo }, void 0, !1, {
+                    fileName: "src/app/components/orders/OrdersNav.tsx",
+                    lineNumber: 136,
+                    columnNumber: 19
+                  }, this)
+                },
+                void 0,
+                !1,
+                {
+                  fileName: "src/app/components/orders/OrdersNav.tsx",
+                  lineNumber: 128,
+                  columnNumber: 17
+                },
+                this
               ),
-              /* @__PURE__ */ jsx59(
+              /* @__PURE__ */ jsxDEV60(
                 Tag,
                 {
                   display: { base: "inherited", sm: "none" },
@@ -9248,20 +13211,88 @@ var OrdersNav = ({ selected }) => {
                   size: "md",
                   variant: "solid",
                   colorScheme: "blue",
-                  children: /* @__PURE__ */ jsx59(TagLabel, { marginX: 1, children: selected })
-                }
+                  children: /* @__PURE__ */ jsxDEV60(TagLabel, { marginX: 1, children: selected }, void 0, !1, {
+                    fileName: "src/app/components/orders/OrdersNav.tsx",
+                    lineNumber: 146,
+                    columnNumber: 19
+                  }, this)
+                },
+                void 0,
+                !1,
+                {
+                  fileName: "src/app/components/orders/OrdersNav.tsx",
+                  lineNumber: 138,
+                  columnNumber: 17
+                },
+                this
               )
-            ] })
-          ] }),
-          /* @__PURE__ */ jsx59(Flex5, { alignItems: "center", marginLeft: 4, children: /* @__PURE__ */ jsx59(HStack11, { spacing: { base: 2, md: 4 }, children: /* @__PURE__ */ jsx59(Box21, { children: /* @__PURE__ */ jsxs40(InputGroup5, { children: [
-            /* @__PURE__ */ jsx59(InputLeftElement4, { pointerEvents: "none", children: /* @__PURE__ */ jsx59(Icon8, { as: MagnifyIcon2 }) }),
-            /* @__PURE__ */ jsx59(Input5, { type: "text", placeholder: "Filtrar..." })
-          ] }) }) }) })
-        ] })
-      }
+            ] }, void 0, !0, {
+              fileName: "src/app/components/orders/OrdersNav.tsx",
+              lineNumber: 127,
+              columnNumber: 15
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/components/orders/OrdersNav.tsx",
+            lineNumber: 77,
+            columnNumber: 11
+          }, this),
+          /* @__PURE__ */ jsxDEV60(Flex5, { alignItems: "center", marginLeft: 4, children: /* @__PURE__ */ jsxDEV60(HStack11, { spacing: { base: 2, md: 4 }, children: /* @__PURE__ */ jsxDEV60(Box21, { children: /* @__PURE__ */ jsxDEV60(InputGroup5, { children: [
+            /* @__PURE__ */ jsxDEV60(InputLeftElement4, { pointerEvents: "none", children: /* @__PURE__ */ jsxDEV60(Icon8, { as: MagnifyIcon2 }, void 0, !1, {
+              fileName: "src/app/components/orders/OrdersNav.tsx",
+              lineNumber: 156,
+              columnNumber: 21
+            }, this) }, void 0, !1, {
+              fileName: "src/app/components/orders/OrdersNav.tsx",
+              lineNumber: 155,
+              columnNumber: 19
+            }, this),
+            /* @__PURE__ */ jsxDEV60(Input5, { type: "text", placeholder: "Filtrar..." }, void 0, !1, {
+              fileName: "src/app/components/orders/OrdersNav.tsx",
+              lineNumber: 158,
+              columnNumber: 19
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/components/orders/OrdersNav.tsx",
+            lineNumber: 154,
+            columnNumber: 17
+          }, this) }, void 0, !1, {
+            fileName: "src/app/components/orders/OrdersNav.tsx",
+            lineNumber: 153,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/components/orders/OrdersNav.tsx",
+            lineNumber: 152,
+            columnNumber: 13
+          }, this) }, void 0, !1, {
+            fileName: "src/app/components/orders/OrdersNav.tsx",
+            lineNumber: 151,
+            columnNumber: 11
+          }, this)
+        ] }, void 0, !0, {
+          fileName: "src/app/components/orders/OrdersNav.tsx",
+          lineNumber: 76,
+          columnNumber: 9
+        }, this)
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/components/orders/OrdersNav.tsx",
+        lineNumber: 67,
+        columnNumber: 7
+      },
+      this
     ),
-    create && /* @__PURE__ */ jsx59(ClientsListModal, { isOpen, onClose: handleOnClose })
-  ] });
+    create && /* @__PURE__ */ jsxDEV60(ClientsListModal, { isOpen, onClose: handleOnClose }, void 0, !1, {
+      fileName: "src/app/components/orders/OrdersNav.tsx",
+      lineNumber: 165,
+      columnNumber: 18
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/components/orders/OrdersNav.tsx",
+    lineNumber: 66,
+    columnNumber: 5
+  }, this);
 };
 
 // src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx
@@ -9352,10 +13383,14 @@ function getEstadoPedidoColor(estado, suffix) {
 }
 
 // src/app/components/BadgePedidosEstado.tsx
-import { jsx as jsx60 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV61 } from "react/jsx-dev-runtime";
 var BadgePedidosEstado = ({ estado }) => {
   let name = getEstadoPedidoText(estado), colorScheme = getEstadoPedidoColor(estado);
-  return /* @__PURE__ */ jsx60(Badge7, { fontSize: "1em", variant: "solid", colorScheme, lineHeight: "1.5em", children: name });
+  return /* @__PURE__ */ jsxDEV61(Badge7, { fontSize: "1em", variant: "solid", colorScheme, lineHeight: "1.5em", children: name }, void 0, !1, {
+    fileName: "src/app/components/BadgePedidosEstado.tsx",
+    lineNumber: 18,
+    columnNumber: 5
+  }, this);
 };
 
 // src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesEmpty.tsx
@@ -9364,24 +13399,48 @@ import {
   AlertDescription as AlertDescription3,
   AlertIcon as AlertIcon4
 } from "@chakra-ui/react";
-import { jsx as jsx61, jsxs as jsxs41 } from "react/jsx-runtime";
-var RenglonesEmpty = () => /* @__PURE__ */ jsxs41(Alert5, { status: "warning", children: [
-  /* @__PURE__ */ jsx61(AlertIcon4, {}),
-  /* @__PURE__ */ jsx61(AlertDescription3, { children: "El pedido no cuenta con productos." })
-] });
+import { jsxDEV as jsxDEV62 } from "react/jsx-dev-runtime";
+var RenglonesEmpty = () => /* @__PURE__ */ jsxDEV62(Alert5, { status: "warning", children: [
+  /* @__PURE__ */ jsxDEV62(AlertIcon4, {}, void 0, !1, {
+    fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesEmpty.tsx",
+    lineNumber: 10,
+    columnNumber: 5
+  }, this),
+  /* @__PURE__ */ jsxDEV62(AlertDescription3, { children: "El pedido no cuenta con productos." }, void 0, !1, {
+    fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesEmpty.tsx",
+    lineNumber: 11,
+    columnNumber: 5
+  }, this)
+] }, void 0, !0, {
+  fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesEmpty.tsx",
+  lineNumber: 9,
+  columnNumber: 3
+}, this);
 
 // src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesError.tsx
 import { Alert as Alert6, AlertDescription as AlertDescription4, AlertIcon as AlertIcon5 } from "@chakra-ui/react";
-import { jsx as jsx62, jsxs as jsxs42 } from "react/jsx-runtime";
-var RenglonesError = () => /* @__PURE__ */ jsxs42(Alert6, { status: "error", children: [
-  /* @__PURE__ */ jsx62(AlertIcon5, {}),
-  /* @__PURE__ */ jsx62(AlertDescription4, { children: "Ocurri\xF3 un error al cargar los detalles del pedido." })
-] });
+import { jsxDEV as jsxDEV63 } from "react/jsx-dev-runtime";
+var RenglonesError = () => /* @__PURE__ */ jsxDEV63(Alert6, { status: "error", children: [
+  /* @__PURE__ */ jsxDEV63(AlertIcon5, {}, void 0, !1, {
+    fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesError.tsx",
+    lineNumber: 5,
+    columnNumber: 5
+  }, this),
+  /* @__PURE__ */ jsxDEV63(AlertDescription4, { children: "Ocurri\xF3 un error al cargar los detalles del pedido." }, void 0, !1, {
+    fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesError.tsx",
+    lineNumber: 6,
+    columnNumber: 5
+  }, this)
+] }, void 0, !0, {
+  fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesError.tsx",
+  lineNumber: 4,
+  columnNumber: 3
+}, this);
 
 // src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesLoading.tsx
 import { Box as Box22, Grid as Grid13, GridItem as GridItem13 } from "@chakra-ui/react";
-import { jsx as jsx63, jsxs as jsxs43 } from "react/jsx-runtime";
-var RenglonesLoading = () => /* @__PURE__ */ jsx63(
+import { jsxDEV as jsxDEV64 } from "react/jsx-dev-runtime";
+var RenglonesLoading = () => /* @__PURE__ */ jsxDEV64(
   Box22,
   {
     width: "full",
@@ -9389,13 +13448,57 @@ var RenglonesLoading = () => /* @__PURE__ */ jsx63(
       mt: 8,
       mb: 4
     },
-    children: /* @__PURE__ */ jsxs43(Grid13, { templateColumns: "1fr", alignItems: "center", gap: 2, children: [
-      /* @__PURE__ */ jsx63(GridItem13, { children: /* @__PURE__ */ jsx63(FormInputSkeleton, { height: "20px" }) }),
-      /* @__PURE__ */ jsx63(GridItem13, { children: /* @__PURE__ */ jsx63(FormInputSkeleton, { height: "20px" }) }),
-      /* @__PURE__ */ jsx63(GridItem13, { children: /* @__PURE__ */ jsx63(FormInputSkeleton, { height: "20px" }) }),
-      /* @__PURE__ */ jsx63(GridItem13, { children: /* @__PURE__ */ jsx63(FormInputSkeleton, { height: "20px" }) })
-    ] })
-  }
+    children: /* @__PURE__ */ jsxDEV64(Grid13, { templateColumns: "1fr", alignItems: "center", gap: 2, children: [
+      /* @__PURE__ */ jsxDEV64(GridItem13, { children: /* @__PURE__ */ jsxDEV64(FormInputSkeleton, { height: "20px" }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesLoading.tsx",
+        lineNumber: 15,
+        columnNumber: 9
+      }, this) }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesLoading.tsx",
+        lineNumber: 14,
+        columnNumber: 7
+      }, this),
+      /* @__PURE__ */ jsxDEV64(GridItem13, { children: /* @__PURE__ */ jsxDEV64(FormInputSkeleton, { height: "20px" }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesLoading.tsx",
+        lineNumber: 18,
+        columnNumber: 9
+      }, this) }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesLoading.tsx",
+        lineNumber: 17,
+        columnNumber: 7
+      }, this),
+      /* @__PURE__ */ jsxDEV64(GridItem13, { children: /* @__PURE__ */ jsxDEV64(FormInputSkeleton, { height: "20px" }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesLoading.tsx",
+        lineNumber: 21,
+        columnNumber: 9
+      }, this) }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesLoading.tsx",
+        lineNumber: 20,
+        columnNumber: 7
+      }, this),
+      /* @__PURE__ */ jsxDEV64(GridItem13, { children: /* @__PURE__ */ jsxDEV64(FormInputSkeleton, { height: "20px" }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesLoading.tsx",
+        lineNumber: 24,
+        columnNumber: 9
+      }, this) }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesLoading.tsx",
+        lineNumber: 23,
+        columnNumber: 7
+      }, this)
+    ] }, void 0, !0, {
+      fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesLoading.tsx",
+      lineNumber: 13,
+      columnNumber: 5
+    }, this)
+  },
+  void 0,
+  !1,
+  {
+    fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesLoading.tsx",
+    lineNumber: 6,
+    columnNumber: 3
+  },
+  this
 );
 
 // src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx
@@ -9412,11 +13515,19 @@ import {
   Thead as Thead2,
   Tr as Tr2
 } from "@chakra-ui/react";
-import { jsx as jsx64, jsxs as jsxs44 } from "react/jsx-runtime";
+
+// src/domain/articulo/utils/index.ts
+function formatNombreArticulo(nombre, descriptionAdicional) {
+  let adicional = (descriptionAdicional ?? "").trim(), result = nombre.trim();
+  return adicional.length > 0 && (result = `${result} (${adicional})`.trim()), result;
+}
+
+// src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx
+import { jsxDEV as jsxDEV65 } from "react/jsx-dev-runtime";
 var RenglonesPedido = ({
   nro_pedido,
   renglones
-}) => /* @__PURE__ */ jsx64(TableContainer, { sx: { p: 0, m: 0 }, children: /* @__PURE__ */ jsxs44(
+}) => /* @__PURE__ */ jsxDEV65(TableContainer, { sx: { p: 0, m: 0 }, children: /* @__PURE__ */ jsxDEV65(
   Table2,
   {
     variant: "stripedHoverOverCard",
@@ -9424,50 +13535,118 @@ var RenglonesPedido = ({
     size: "sm",
     borderWidth: "1px",
     children: [
-      /* @__PURE__ */ jsx64(Thead2, { children: /* @__PURE__ */ jsx64(Tr2, { children: /* @__PURE__ */ jsx64(Th2, { sx: { py: 2 }, children: /* @__PURE__ */ jsxs44(
+      /* @__PURE__ */ jsxDEV65(Thead2, { children: /* @__PURE__ */ jsxDEV65(Tr2, { children: /* @__PURE__ */ jsxDEV65(Th2, { sx: { py: 2 }, children: /* @__PURE__ */ jsxDEV65(
         Grid14,
         {
           templateColumns: { base: "1fr 1fr 1fr", md: "4fr 1fr 1fr 1fr" },
           gap: 6,
           children: [
-            /* @__PURE__ */ jsx64(GridItem14, { children: /* @__PURE__ */ jsx64(Heading8, { fontSize: { base: "xs", md: "sm" }, children: "Art\xEDculo" }) }),
-            /* @__PURE__ */ jsx64(
+            /* @__PURE__ */ jsxDEV65(GridItem14, { children: /* @__PURE__ */ jsxDEV65(Heading8, { fontSize: { base: "xs", md: "sm" }, children: "Art\xEDculo" }, void 0, !1, {
+              fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+              lineNumber: 45,
+              columnNumber: 19
+            }, this) }, void 0, !1, {
+              fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+              lineNumber: 44,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV65(
               GridItem14,
               {
                 sx: {
                   display: { base: "none", md: "block" }
                 },
-                children: /* @__PURE__ */ jsx64(
+                children: /* @__PURE__ */ jsxDEV65(
                   Heading8,
                   {
                     fontSize: { base: "xs", md: "sm" },
                     textAlign: "center",
                     children: "Precio"
-                  }
+                  },
+                  void 0,
+                  !1,
+                  {
+                    fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+                    lineNumber: 54,
+                    columnNumber: 19
+                  },
+                  this
                 )
-              }
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+                lineNumber: 49,
+                columnNumber: 17
+              },
+              this
             ),
-            /* @__PURE__ */ jsx64(GridItem14, { children: /* @__PURE__ */ jsx64(
+            /* @__PURE__ */ jsxDEV65(GridItem14, { children: /* @__PURE__ */ jsxDEV65(
               Heading8,
               {
                 fontSize: { base: "xs", md: "sm" },
                 textAlign: "center",
                 children: "Cantidad"
-              }
-            ) }),
-            /* @__PURE__ */ jsx64(GridItem14, { children: /* @__PURE__ */ jsx64(
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+                lineNumber: 62,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+              lineNumber: 61,
+              columnNumber: 17
+            }, this),
+            /* @__PURE__ */ jsxDEV65(GridItem14, { children: /* @__PURE__ */ jsxDEV65(
               Heading8,
               {
                 fontSize: { base: "xs", md: "sm" },
                 textAlign: "center",
                 children: "Subtotal"
-              }
-            ) })
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+                lineNumber: 70,
+                columnNumber: 19
+              },
+              this
+            ) }, void 0, !1, {
+              fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+              lineNumber: 69,
+              columnNumber: 17
+            }, this)
           ]
-        }
-      ) }) }) }),
-      /* @__PURE__ */ jsx64(Tbody2, { children: renglones.map(
-        ({ id_articulo, nombre_articulo, precio, cantidad, subtotal }) => /* @__PURE__ */ jsx64(Tr2, { children: /* @__PURE__ */ jsx64(Td2, { children: /* @__PURE__ */ jsxs44(
+        },
+        void 0,
+        !0,
+        {
+          fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+          lineNumber: 40,
+          columnNumber: 15
+        },
+        this
+      ) }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+        lineNumber: 39,
+        columnNumber: 13
+      }, this) }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+        lineNumber: 38,
+        columnNumber: 11
+      }, this) }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+        lineNumber: 37,
+        columnNumber: 9
+      }, this),
+      /* @__PURE__ */ jsxDEV65(Tbody2, { children: renglones.map(
+        ({ id_articulo, nombre_articulo, descripcion_adicional, precio, cantidad, subtotal }) => /* @__PURE__ */ jsxDEV65(Tr2, { children: /* @__PURE__ */ jsxDEV65(Td2, { children: /* @__PURE__ */ jsxDEV65(
           Grid14,
           {
             templateColumns: {
@@ -9476,39 +13655,112 @@ var RenglonesPedido = ({
             },
             gap: 6,
             children: [
-              /* @__PURE__ */ jsx64(GridItem14, { children: /* @__PURE__ */ jsx64(TextWordBreak, { children: nombre_articulo }) }),
-              /* @__PURE__ */ jsx64(
+              /* @__PURE__ */ jsxDEV65(GridItem14, { children: /* @__PURE__ */ jsxDEV65(TextWordBreak, { children: formatNombreArticulo(nombre_articulo, descripcion_adicional) }, void 0, !1, {
+                fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+                lineNumber: 94,
+                columnNumber: 23
+              }, this) }, void 0, !1, {
+                fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+                lineNumber: 93,
+                columnNumber: 21
+              }, this),
+              /* @__PURE__ */ jsxDEV65(
                 GridItem14,
                 {
                   sx: {
                     display: { base: "none", md: "block" }
                   },
-                  children: /* @__PURE__ */ jsx64(TextPrice, { precio })
-                }
+                  children: /* @__PURE__ */ jsxDEV65(TextPrice, { precio }, void 0, !1, {
+                    fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+                    lineNumber: 101,
+                    columnNumber: 23
+                  }, this)
+                },
+                void 0,
+                !1,
+                {
+                  fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+                  lineNumber: 96,
+                  columnNumber: 21
+                },
+                this
               ),
-              /* @__PURE__ */ jsx64(GridItem14, { children: /* @__PURE__ */ jsx64(Text5, { textAlign: "center", children: cantidad }) }),
-              /* @__PURE__ */ jsx64(GridItem14, { children: /* @__PURE__ */ jsx64(TextPrice, { precio: subtotal, moneda: "$" }) })
+              /* @__PURE__ */ jsxDEV65(GridItem14, { children: /* @__PURE__ */ jsxDEV65(Text5, { textAlign: "center", children: cantidad }, void 0, !1, {
+                fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+                lineNumber: 104,
+                columnNumber: 23
+              }, this) }, void 0, !1, {
+                fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+                lineNumber: 103,
+                columnNumber: 21
+              }, this),
+              /* @__PURE__ */ jsxDEV65(GridItem14, { children: /* @__PURE__ */ jsxDEV65(TextPrice, { precio: subtotal, moneda: "$" }, void 0, !1, {
+                fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+                lineNumber: 107,
+                columnNumber: 23
+              }, this) }, void 0, !1, {
+                fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+                lineNumber: 106,
+                columnNumber: 21
+              }, this)
             ]
-          }
-        ) }) }, `details-${nro_pedido}-${id_articulo}`)
-      ) })
+          },
+          void 0,
+          !0,
+          {
+            fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+            lineNumber: 86,
+            columnNumber: 19
+          },
+          this
+        ) }, void 0, !1, {
+          fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+          lineNumber: 85,
+          columnNumber: 17
+        }, this) }, `details-${nro_pedido}-${id_articulo}`, !1, {
+          fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+          lineNumber: 84,
+          columnNumber: 15
+        }, this)
+      ) }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+        lineNumber: 81,
+        columnNumber: 9
+      }, this)
     ]
-  }
-) });
+  },
+  void 0,
+  !0,
+  {
+    fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+    lineNumber: 31,
+    columnNumber: 7
+  },
+  this
+) }, void 0, !1, {
+  fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/RenglonesPedido.tsx",
+  lineNumber: 30,
+  columnNumber: 5
+}, this);
 
 // src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx
-import { Fragment as Fragment24, jsx as jsx65, jsxs as jsxs45 } from "react/jsx-runtime";
+import { Fragment as Fragment24, jsxDEV as jsxDEV66 } from "react/jsx-dev-runtime";
 function PedidoList({ pedidos, handleSelect }) {
   let { state: stateRenglones } = useDXTApiFetch({
     url: API_PEDIDO_GET_ALL_ROWS,
-    silent: !0
+    silent: !0,
+    transformResponse: (data) => (Object.values(data).forEach(
+      (rows) => {
+        Array.isArray(rows) && rows.sort((a, b) => a.renglon - b.renglon);
+      }
+    ), data)
   }), [isOpen, setIsOpen] = useState14({}), handleToggleDetails = useCallback2(
     (id) => {
       setIsOpen((prev_state) => ({ [id]: !prev_state[id] }));
     },
     [isOpen]
   );
-  return /* @__PURE__ */ jsx65(TableContainer2, { sx: { p: 0, m: 0 }, children: /* @__PURE__ */ jsx65(
+  return /* @__PURE__ */ jsxDEV66(TableContainer2, { sx: { p: 0, m: 0 }, children: /* @__PURE__ */ jsxDEV66(
     Table3,
     {
       variant: "stripedOverCard",
@@ -9518,7 +13770,7 @@ function PedidoList({ pedidos, handleSelect }) {
         borderCollapse: "separate",
         borderSpacing: "0 1rem"
       },
-      children: /* @__PURE__ */ jsx65(Tbody3, { children: pedidos.map(
+      children: /* @__PURE__ */ jsxDEV66(Tbody3, { children: pedidos.map(
         ({
           id,
           numero_pedido,
@@ -9534,7 +13786,7 @@ function PedidoList({ pedidos, handleSelect }) {
           total,
           descuento,
           comentarios
-        }) => /* @__PURE__ */ jsx65(Tr3, { children: /* @__PURE__ */ jsxs45(
+        }) => /* @__PURE__ */ jsxDEV66(Tr3, { children: /* @__PURE__ */ jsxDEV66(
           Td3,
           {
             sx: {
@@ -9545,7 +13797,7 @@ function PedidoList({ pedidos, handleSelect }) {
               borderTopColor: `${getEstadoPedidoColor(estado, ".500 !important")}`
             },
             children: [
-              /* @__PURE__ */ jsx65(
+              /* @__PURE__ */ jsxDEV66(
                 Box23,
                 {
                   sx: {
@@ -9553,7 +13805,7 @@ function PedidoList({ pedidos, handleSelect }) {
                     right: 5,
                     top: 5
                   },
-                  children: /* @__PURE__ */ jsx65(
+                  children: /* @__PURE__ */ jsxDEV66(
                     Checkbox,
                     {
                       size: "lg",
@@ -9564,11 +13816,27 @@ function PedidoList({ pedidos, handleSelect }) {
                       onChange: (e) => {
                         handleSelect(e.target.checked ? 1 : -1);
                       }
-                    }
+                    },
+                    void 0,
+                    !1,
+                    {
+                      fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                      lineNumber: 125,
+                      columnNumber: 23
+                    },
+                    this
                   )
-                }
+                },
+                void 0,
+                !1,
+                {
+                  fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                  lineNumber: 118,
+                  columnNumber: 21
+                },
+                this
               ),
-              /* @__PURE__ */ jsxs45(
+              /* @__PURE__ */ jsxDEV66(
                 Grid15,
                 {
                   templateColumns: {
@@ -9583,36 +13851,120 @@ function PedidoList({ pedidos, handleSelect }) {
                     handleToggleDetails(id);
                   },
                   children: [
-                    /* @__PURE__ */ jsxs45(GridItem15, { children: [
-                      /* @__PURE__ */ jsx65(Heading9, { size: "sm", children: "Pedido" }),
-                      /* @__PURE__ */ jsx65(Text6, { children: numero_pedido })
-                    ] }),
-                    /* @__PURE__ */ jsxs45(GridItem15, { children: [
-                      /* @__PURE__ */ jsx65(Heading9, { size: "sm", children: "Estado" }),
-                      /* @__PURE__ */ jsx65(BadgePedidosEstado, { estado })
-                    ] }),
-                    /* @__PURE__ */ jsxs45(GridItem15, { children: [
-                      /* @__PURE__ */ jsx65(Heading9, { size: "sm", children: "Emisi\xF3n" }),
-                      /* @__PURE__ */ jsx65(Text6, { children: dateToLocale(fecha_emision) })
-                    ] }),
-                    /* @__PURE__ */ jsxs45(GridItem15, { children: [
-                      /* @__PURE__ */ jsx65(Heading9, { size: "sm", children: "Entrega" }),
-                      /* @__PURE__ */ jsx65(Text6, { children: dateToLocale(fecha_entrega) })
-                    ] }),
-                    /* @__PURE__ */ jsxs45(GridItem15, { children: [
-                      /* @__PURE__ */ jsx65(Heading9, { size: "sm", children: "Cliente" }),
-                      /* @__PURE__ */ jsx65(TextWordBreak, { children: `${codigo_cliente} - ${nombre_cliente}` })
-                    ] }),
-                    /* @__PURE__ */ jsxs45(GridItem15, { children: [
-                      /* @__PURE__ */ jsx65(Heading9, { size: "sm", children: "Vendedor" }),
-                      /* @__PURE__ */ jsx65(TextWordBreak, { children: codigo_vendedor != null && nombre_vendedor != null ? `${codigo_vendedor} - ${nombre_vendedor}` : NONE_M })
-                    ] }),
-                    /* @__PURE__ */ jsxs45(GridItem15, { children: [
-                      /* @__PURE__ */ jsx65(Heading9, { size: "sm", children: "Transporte" }),
-                      /* @__PURE__ */ jsx65(TextWordBreak, { children: codigo_transporte != null && nombre_transporte != null ? `${codigo_transporte} - ${nombre_transporte}` : NONE_M })
-                    ] }),
-                    /* @__PURE__ */ jsxs45(GridItem15, { children: [
-                      /* @__PURE__ */ jsxs45(
+                    /* @__PURE__ */ jsxDEV66(GridItem15, { children: [
+                      /* @__PURE__ */ jsxDEV66(Heading9, { size: "sm", children: "Pedido" }, void 0, !1, {
+                        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                        lineNumber: 150,
+                        columnNumber: 25
+                      }, this),
+                      /* @__PURE__ */ jsxDEV66(Text6, { children: numero_pedido }, void 0, !1, {
+                        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                        lineNumber: 151,
+                        columnNumber: 25
+                      }, this)
+                    ] }, void 0, !0, {
+                      fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                      lineNumber: 149,
+                      columnNumber: 23
+                    }, this),
+                    /* @__PURE__ */ jsxDEV66(GridItem15, { children: [
+                      /* @__PURE__ */ jsxDEV66(Heading9, { size: "sm", children: "Estado" }, void 0, !1, {
+                        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                        lineNumber: 154,
+                        columnNumber: 25
+                      }, this),
+                      /* @__PURE__ */ jsxDEV66(BadgePedidosEstado, { estado }, void 0, !1, {
+                        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                        lineNumber: 155,
+                        columnNumber: 25
+                      }, this)
+                    ] }, void 0, !0, {
+                      fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                      lineNumber: 153,
+                      columnNumber: 23
+                    }, this),
+                    /* @__PURE__ */ jsxDEV66(GridItem15, { children: [
+                      /* @__PURE__ */ jsxDEV66(Heading9, { size: "sm", children: "Emisi\xF3n" }, void 0, !1, {
+                        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                        lineNumber: 158,
+                        columnNumber: 25
+                      }, this),
+                      /* @__PURE__ */ jsxDEV66(Text6, { children: dateToLocale(fecha_emision) }, void 0, !1, {
+                        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                        lineNumber: 159,
+                        columnNumber: 25
+                      }, this)
+                    ] }, void 0, !0, {
+                      fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                      lineNumber: 157,
+                      columnNumber: 23
+                    }, this),
+                    /* @__PURE__ */ jsxDEV66(GridItem15, { children: [
+                      /* @__PURE__ */ jsxDEV66(Heading9, { size: "sm", children: "Entrega" }, void 0, !1, {
+                        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                        lineNumber: 162,
+                        columnNumber: 25
+                      }, this),
+                      /* @__PURE__ */ jsxDEV66(Text6, { children: dateToLocale(fecha_entrega) }, void 0, !1, {
+                        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                        lineNumber: 163,
+                        columnNumber: 25
+                      }, this)
+                    ] }, void 0, !0, {
+                      fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                      lineNumber: 161,
+                      columnNumber: 23
+                    }, this),
+                    /* @__PURE__ */ jsxDEV66(GridItem15, { children: [
+                      /* @__PURE__ */ jsxDEV66(Heading9, { size: "sm", children: "Cliente" }, void 0, !1, {
+                        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                        lineNumber: 166,
+                        columnNumber: 25
+                      }, this),
+                      /* @__PURE__ */ jsxDEV66(TextWordBreak, { children: `${codigo_cliente} - ${nombre_cliente}` }, void 0, !1, {
+                        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                        lineNumber: 167,
+                        columnNumber: 25
+                      }, this)
+                    ] }, void 0, !0, {
+                      fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                      lineNumber: 165,
+                      columnNumber: 23
+                    }, this),
+                    /* @__PURE__ */ jsxDEV66(GridItem15, { children: [
+                      /* @__PURE__ */ jsxDEV66(Heading9, { size: "sm", children: "Vendedor" }, void 0, !1, {
+                        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                        lineNumber: 170,
+                        columnNumber: 25
+                      }, this),
+                      /* @__PURE__ */ jsxDEV66(TextWordBreak, { children: codigo_vendedor != null && nombre_vendedor != null ? `${codigo_vendedor} - ${nombre_vendedor}` : NONE_M }, void 0, !1, {
+                        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                        lineNumber: 171,
+                        columnNumber: 25
+                      }, this)
+                    ] }, void 0, !0, {
+                      fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                      lineNumber: 169,
+                      columnNumber: 23
+                    }, this),
+                    /* @__PURE__ */ jsxDEV66(GridItem15, { children: [
+                      /* @__PURE__ */ jsxDEV66(Heading9, { size: "sm", children: "Transporte" }, void 0, !1, {
+                        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                        lineNumber: 176,
+                        columnNumber: 25
+                      }, this),
+                      /* @__PURE__ */ jsxDEV66(TextWordBreak, { children: codigo_transporte != null && nombre_transporte != null ? `${codigo_transporte} - ${nombre_transporte}` : NONE_M }, void 0, !1, {
+                        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                        lineNumber: 177,
+                        columnNumber: 25
+                      }, this)
+                    ] }, void 0, !0, {
+                      fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                      lineNumber: 175,
+                      columnNumber: 23
+                    }, this),
+                    /* @__PURE__ */ jsxDEV66(GridItem15, { children: [
+                      /* @__PURE__ */ jsxDEV66(
                         Heading9,
                         {
                           size: "md",
@@ -9622,14 +13974,26 @@ function PedidoList({ pedidos, handleSelect }) {
                           },
                           children: [
                             "Total",
-                            descuento != null && /* @__PURE__ */ jsxs45(Fragment24, { children: [
+                            descuento != null && /* @__PURE__ */ jsxDEV66(Fragment24, { children: [
                               " ",
                               `-${descuento}%`
-                            ] })
+                            ] }, void 0, !0, {
+                              fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                              lineNumber: 191,
+                              columnNumber: 49
+                            }, this)
                           ]
-                        }
+                        },
+                        void 0,
+                        !0,
+                        {
+                          fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                          lineNumber: 182,
+                          columnNumber: 25
+                        },
+                        this
                       ),
-                      /* @__PURE__ */ jsx65(
+                      /* @__PURE__ */ jsxDEV66(
                         Heading9,
                         {
                           size: "md",
@@ -9637,83 +14001,215 @@ function PedidoList({ pedidos, handleSelect }) {
                             fontWeight: "bolder",
                             color: estado === 2 /* APROBADO */ && "green.400"
                           },
-                          children: /* @__PURE__ */ jsx65(TextPriceNative, { precio: total, moneda: "$" })
-                        }
+                          children: /* @__PURE__ */ jsxDEV66(TextPriceNative, { precio: total, moneda: "$" }, void 0, !1, {
+                            fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                            lineNumber: 201,
+                            columnNumber: 27
+                          }, this)
+                        },
+                        void 0,
+                        !1,
+                        {
+                          fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                          lineNumber: 193,
+                          columnNumber: 25
+                        },
+                        this
                       )
-                    ] }),
-                    comentarios != null && comentarios.length > 0 && /* @__PURE__ */ jsx65(
+                    ] }, void 0, !0, {
+                      fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                      lineNumber: 181,
+                      columnNumber: 23
+                    }, this),
+                    comentarios != null && comentarios.length > 0 && /* @__PURE__ */ jsxDEV66(
                       GridItem15,
                       {
                         colSpan: {
                           base: 2,
                           md: 4
                         },
-                        children: /* @__PURE__ */ jsxs45(Alert7, { status: "info", children: [
-                          /* @__PURE__ */ jsx65(AlertIcon6, {}),
-                          /* @__PURE__ */ jsx65(AlertDescription5, { children: comentarios })
-                        ] })
-                      }
+                        children: /* @__PURE__ */ jsxDEV66(Alert7, { status: "info", children: [
+                          /* @__PURE__ */ jsxDEV66(AlertIcon6, {}, void 0, !1, {
+                            fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                            lineNumber: 212,
+                            columnNumber: 29
+                          }, this),
+                          /* @__PURE__ */ jsxDEV66(AlertDescription5, { children: comentarios }, void 0, !1, {
+                            fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                            lineNumber: 213,
+                            columnNumber: 29
+                          }, this)
+                        ] }, void 0, !0, {
+                          fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                          lineNumber: 211,
+                          columnNumber: 27
+                        }, this)
+                      },
+                      void 0,
+                      !1,
+                      {
+                        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                        lineNumber: 205,
+                        columnNumber: 25
+                      },
+                      this
                     )
                   ]
-                }
+                },
+                void 0,
+                !0,
+                {
+                  fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                  lineNumber: 136,
+                  columnNumber: 21
+                },
+                this
               ),
-              /* @__PURE__ */ jsx65(Box23, { children: /* @__PURE__ */ jsx65(Collapse2, { in: isOpen[id], animateOpacity: !0, children: /* @__PURE__ */ jsxs45(Box23, { sx: { mt: 6 }, children: [
-                stateRenglones.isLoading() && /* @__PURE__ */ jsx65(RenglonesLoading, {}),
-                stateRenglones.isError() && /* @__PURE__ */ jsx65(RenglonesError, {}),
-                stateRenglones.isSuccess() && Array.isArray(stateRenglones.data?.[id]) ? /* @__PURE__ */ jsx65(
+              /* @__PURE__ */ jsxDEV66(Box23, { children: /* @__PURE__ */ jsxDEV66(Collapse2, { in: isOpen[id], animateOpacity: !0, children: /* @__PURE__ */ jsxDEV66(Box23, { sx: { mt: 6 }, children: [
+                stateRenglones.isLoading() && /* @__PURE__ */ jsxDEV66(RenglonesLoading, {}, void 0, !1, {
+                  fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                  lineNumber: 221,
+                  columnNumber: 58
+                }, this),
+                stateRenglones.isError() && /* @__PURE__ */ jsxDEV66(RenglonesError, {}, void 0, !1, {
+                  fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                  lineNumber: 222,
+                  columnNumber: 56
+                }, this),
+                stateRenglones.isSuccess() && Array.isArray(stateRenglones.data?.[id]) ? /* @__PURE__ */ jsxDEV66(
                   RenglonesPedido,
                   {
                     nro_pedido: numero_pedido,
                     renglones: stateRenglones.data[id]
-                  }
-                ) : /* @__PURE__ */ jsx65(RenglonesEmpty, {})
-              ] }) }) }, `pedido-details-${numero_pedido}`)
+                  },
+                  void 0,
+                  !1,
+                  {
+                    fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                    lineNumber: 226,
+                    columnNumber: 29
+                  },
+                  this
+                ) : /* @__PURE__ */ jsxDEV66(RenglonesEmpty, {}, void 0, !1, {
+                  fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                  lineNumber: 231,
+                  columnNumber: 29
+                }, this)
+              ] }, void 0, !0, {
+                fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                lineNumber: 220,
+                columnNumber: 25
+              }, this) }, void 0, !1, {
+                fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                lineNumber: 219,
+                columnNumber: 23
+              }, this) }, `pedido-details-${numero_pedido}`, !1, {
+                fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+                lineNumber: 218,
+                columnNumber: 21
+              }, this)
             ]
-          }
-        ) }, `pedido-${numero_pedido}`)
-      ) })
-    }
-  ) });
+          },
+          void 0,
+          !0,
+          {
+            fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+            lineNumber: 109,
+            columnNumber: 19
+          },
+          this
+        ) }, `pedido-${numero_pedido}`, !1, {
+          fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+          lineNumber: 108,
+          columnNumber: 17
+        }, this)
+      ) }, void 0, !1, {
+        fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+        lineNumber: 89,
+        columnNumber: 9
+      }, this)
+    },
+    void 0,
+    !1,
+    {
+      fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+      lineNumber: 80,
+      columnNumber: 7
+    },
+    this
+  ) }, void 0, !1, {
+    fileName: "src/app/routes/_authorized.orders._index/components/PedidoList/index.tsx",
+    lineNumber: 79,
+    columnNumber: 5
+  }, this);
 }
 
 // src/app/routes/_authorized.orders._index/components/success.tsx
-import { Fragment as Fragment25, jsx as jsx66, jsxs as jsxs46 } from "react/jsx-runtime";
+import { Fragment as Fragment25, jsxDEV as jsxDEV67 } from "react/jsx-dev-runtime";
 var Success8 = (props) => {
   let { pedidos } = props, [selected, setSelected] = useState15(0);
-  return /* @__PURE__ */ jsxs46(Fragment25, { children: [
-    /* @__PURE__ */ jsx66(OrdersNav, { selected }),
-    /* @__PURE__ */ jsx66(PedidoList, { pedidos, handleSelect: (operation) => {
+  return /* @__PURE__ */ jsxDEV67(Fragment25, { children: [
+    /* @__PURE__ */ jsxDEV67(OrdersNav, { selected }, void 0, !1, {
+      fileName: "src/app/routes/_authorized.orders._index/components/success.tsx",
+      lineNumber: 24,
+      columnNumber: 7
+    }, this),
+    /* @__PURE__ */ jsxDEV67(PedidoList, { pedidos, handleSelect: (operation) => {
       setSelected(selected + operation);
-    } })
-  ] });
+    } }, void 0, !1, {
+      fileName: "src/app/routes/_authorized.orders._index/components/success.tsx",
+      lineNumber: 25,
+      columnNumber: 7
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_authorized.orders._index/components/success.tsx",
+    lineNumber: 23,
+    columnNumber: 5
+  }, this);
 };
 
 // src/app/routes/_authorized.orders._index/route.tsx
-import { jsx as jsx67 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV68 } from "react/jsx-dev-runtime";
 function OrdersList() {
   let { state, retry } = useDXTApiFetch({
     url: API_PEDIDO_GET_ALL,
     silent: !0
   });
   return state.map({
-    loading: (_11) => /* @__PURE__ */ jsx67(Loading6, {}),
-    error: ({ error }) => /* @__PURE__ */ jsx67(
+    loading: (_11) => /* @__PURE__ */ jsxDEV68(Loading6, {}, void 0, !1, {
+      fileName: "src/app/routes/_authorized.orders._index/route.tsx",
+      lineNumber: 18,
+      columnNumber: 21
+    }, this),
+    error: ({ error }) => /* @__PURE__ */ jsxDEV68(
       ApiErrors,
       {
         error,
         retry,
         cancelAndNavigateTo: URL_PEDIDOS_PATH
-      }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_authorized.orders._index/route.tsx",
+        lineNumber: 21,
+        columnNumber: 7
+      },
+      this
     ),
-    success: (state2) => /* @__PURE__ */ jsx67(Success8, { pedidos: state2.data })
+    success: (state2) => /* @__PURE__ */ jsxDEV68(Success8, { pedidos: state2.data }, void 0, !1, {
+      fileName: "src/app/routes/_authorized.orders._index/route.tsx",
+      lineNumber: 28,
+      columnNumber: 25
+    }, this)
   });
 }
 
 // src/app/routes/api.dxt.vendedor.cliente.ts
 var api_dxt_vendedor_cliente_exports = {};
 __export(api_dxt_vendedor_cliente_exports, {
-  action: () => action4,
-  loader: () => loader5
+  action: () => action5,
+  loader: () => loader6
 });
 
 // src/code.server/api/validation/validators.ts
@@ -9924,10 +14420,10 @@ var dxtClienteGetAllEndpoint = createDXTUserGetAllEndpoint(dxtClienteRepository)
 );
 
 // src/app/routes/api.dxt.vendedor.cliente.ts
-async function loader5({ request, params }) {
+async function loader6({ request, params }) {
   return await dxtVendedorGetCustomersEndpoint.get(request, params);
 }
-var action4 = unimplementedApiResponse;
+var action5 = unimplementedApiResponse;
 
 // src/app/routes/_admin.settings.company/route.tsx
 var route_exports10 = {};
@@ -9963,7 +14459,7 @@ var yupValidationSchema3 = yup8.object({
 }).required();
 
 // src/app/routes/_admin.settings.company/components/success.tsx
-import { jsx as jsx68, jsxs as jsxs47 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV69 } from "react/jsx-dev-runtime";
 var Success9 = () => {
   let app = useAppResources(), toast = useToast7(), { state: stateDictionary, result: resultDictionary } = useTangoList({
     url: API_DICTIONARY,
@@ -9993,7 +14489,7 @@ var Success9 = () => {
         company: resultDictionary[selectedIndex].value
       });
     }
-  }, [stateDictionary]), /* @__PURE__ */ jsx68("form", { noValidate: !0, onSubmit: handleSubmit(async (data) => {
+  }, [stateDictionary]), /* @__PURE__ */ jsxDEV69("form", { noValidate: !0, onSubmit: handleSubmit(async (data) => {
     let input = {
       company: data.company
     }, result = await companyUpdateRequest(input, app);
@@ -10010,17 +14506,21 @@ var Success9 = () => {
     }).catch((e) => {
       setError("root", { message: e });
     });
-  }), children: /* @__PURE__ */ jsxs47(Box24, { children: [
-    /* @__PURE__ */ jsx68(FormErrors, { errors }),
-    /* @__PURE__ */ jsx68(CommonCard, { children: /* @__PURE__ */ jsxs47(
+  }), children: /* @__PURE__ */ jsxDEV69(Box24, { children: [
+    /* @__PURE__ */ jsxDEV69(FormErrors, { errors }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.company/components/success.tsx",
+      lineNumber: 106,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV69(CommonCard, { children: /* @__PURE__ */ jsxDEV69(
       Grid16,
       {
         templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
         alignItems: "center",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsxs47(GridItem16, { children: [
-            /* @__PURE__ */ jsx68(
+          /* @__PURE__ */ jsxDEV69(GridItem16, { children: [
+            /* @__PURE__ */ jsxDEV69(
               ControlledSelect,
               {
                 fieldProps: {
@@ -10040,28 +14540,80 @@ var Success9 = () => {
                   label: "Empresa activa"
                 },
                 control
-              }
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/routes/_admin.settings.company/components/success.tsx",
+                lineNumber: 114,
+                columnNumber: 15
+              },
+              this
             ),
-            stateDictionary instanceof FetchStateError && /* @__PURE__ */ jsx68(InlineError, { error: stateDictionary.errorOrNull().error })
-          ] }),
-          /* @__PURE__ */ jsx68(GridItem16, {})
+            stateDictionary instanceof FetchStateError && /* @__PURE__ */ jsxDEV69(InlineError, { error: stateDictionary.errorOrNull().error }, void 0, !1, {
+              fileName: "src/app/routes/_admin.settings.company/components/success.tsx",
+              lineNumber: 136,
+              columnNumber: 17
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/routes/_admin.settings.company/components/success.tsx",
+            lineNumber: 113,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV69(GridItem16, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.company/components/success.tsx",
+            lineNumber: 139,
+            columnNumber: 13
+          }, this)
         ]
-      }
-    ) }),
-    /* @__PURE__ */ jsx68(CommonCard, { children: /* @__PURE__ */ jsx68(SettingsFormsButtons, { isLoading: disableForm }) })
-  ] }) });
+      },
+      void 0,
+      !0,
+      {
+        fileName: "src/app/routes/_admin.settings.company/components/success.tsx",
+        lineNumber: 108,
+        columnNumber: 11
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.company/components/success.tsx",
+      lineNumber: 107,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV69(CommonCard, { children: /* @__PURE__ */ jsxDEV69(SettingsFormsButtons, { isLoading: disableForm }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.company/components/success.tsx",
+      lineNumber: 143,
+      columnNumber: 11
+    }, this) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.company/components/success.tsx",
+      lineNumber: 142,
+      columnNumber: 9
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_admin.settings.company/components/success.tsx",
+    lineNumber: 105,
+    columnNumber: 7
+  }, this) }, void 0, !1, {
+    fileName: "src/app/routes/_admin.settings.company/components/success.tsx",
+    lineNumber: 104,
+    columnNumber: 5
+  }, this);
 };
 
 // src/app/routes/_admin.settings.company/components/index.tsx
-import { jsx as jsx69 } from "react/jsx-runtime";
-var FormCompany = () => /* @__PURE__ */ jsx69(Success9, {});
+import { jsxDEV as jsxDEV70 } from "react/jsx-dev-runtime";
+var FormCompany = () => /* @__PURE__ */ jsxDEV70(Success9, {}, void 0, !1, {
+  fileName: "src/app/routes/_admin.settings.company/components/index.tsx",
+  lineNumber: 4,
+  columnNumber: 10
+}, this);
 
 // src/app/routes/_admin.settings.company/route.tsx
-import { Fragment as Fragment26, jsx as jsx70, jsxs as jsxs48 } from "react/jsx-runtime";
+import { Fragment as Fragment26, jsxDEV as jsxDEV71 } from "react/jsx-dev-runtime";
 function Company() {
   let navigate = useNavigate12();
-  return /* @__PURE__ */ jsxs48(Fragment26, { children: [
-    /* @__PURE__ */ jsx70(
+  return /* @__PURE__ */ jsxDEV71(Fragment26, { children: [
+    /* @__PURE__ */ jsxDEV71(
       SettingsFormHeading,
       {
         title: "Empresa",
@@ -10074,10 +14626,26 @@ function Company() {
             }
           }
         }
-      }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings.company/route.tsx",
+        lineNumber: 13,
+        columnNumber: 7
+      },
+      this
     ),
-    /* @__PURE__ */ jsx70(FormCompany, {})
-  ] });
+    /* @__PURE__ */ jsxDEV71(FormCompany, {}, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.company/route.tsx",
+      lineNumber: 25,
+      columnNumber: 7
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_admin.settings.company/route.tsx",
+    lineNumber: 12,
+    columnNumber: 5
+  }, this);
 }
 
 // src/app/routes/_admin.settings._index/route.tsx
@@ -10091,13 +14659,37 @@ var API_ADMIN_STATUS = apiPath("/admin/status");
 
 // src/app/routes/_admin.settings._index/components/loading.tsx
 import { Skeleton as Skeleton3, VStack as VStack3 } from "@chakra-ui/react";
-import { Fragment as Fragment27, jsx as jsx71, jsxs as jsxs49 } from "react/jsx-runtime";
-var Loading7 = () => /* @__PURE__ */ jsx71(Fragment27, { children: /* @__PURE__ */ jsxs49(VStack3, { spacing: 4, width: "full", children: [
-  /* @__PURE__ */ jsx71(Skeleton3, { width: "full", height: "70px", borderRadius: "md" }),
-  /* @__PURE__ */ jsx71(Skeleton3, { width: "full", height: "70px", borderRadius: "md" }),
-  /* @__PURE__ */ jsx71(Skeleton3, { width: "full", height: "120px", borderRadius: "md" }),
-  /* @__PURE__ */ jsx71(Skeleton3, { width: "full", height: "70px", borderRadius: "md" })
-] }) });
+import { Fragment as Fragment27, jsxDEV as jsxDEV72 } from "react/jsx-dev-runtime";
+var Loading7 = () => /* @__PURE__ */ jsxDEV72(Fragment27, { children: /* @__PURE__ */ jsxDEV72(VStack3, { spacing: 4, width: "full", children: [
+  /* @__PURE__ */ jsxDEV72(Skeleton3, { width: "full", height: "70px", borderRadius: "md" }, void 0, !1, {
+    fileName: "src/app/routes/_admin.settings._index/components/loading.tsx",
+    lineNumber: 6,
+    columnNumber: 7
+  }, this),
+  /* @__PURE__ */ jsxDEV72(Skeleton3, { width: "full", height: "70px", borderRadius: "md" }, void 0, !1, {
+    fileName: "src/app/routes/_admin.settings._index/components/loading.tsx",
+    lineNumber: 7,
+    columnNumber: 7
+  }, this),
+  /* @__PURE__ */ jsxDEV72(Skeleton3, { width: "full", height: "120px", borderRadius: "md" }, void 0, !1, {
+    fileName: "src/app/routes/_admin.settings._index/components/loading.tsx",
+    lineNumber: 8,
+    columnNumber: 7
+  }, this),
+  /* @__PURE__ */ jsxDEV72(Skeleton3, { width: "full", height: "70px", borderRadius: "md" }, void 0, !1, {
+    fileName: "src/app/routes/_admin.settings._index/components/loading.tsx",
+    lineNumber: 9,
+    columnNumber: 7
+  }, this)
+] }, void 0, !0, {
+  fileName: "src/app/routes/_admin.settings._index/components/loading.tsx",
+  lineNumber: 5,
+  columnNumber: 5
+}, this) }, void 0, !1, {
+  fileName: "src/app/routes/_admin.settings._index/components/loading.tsx",
+  lineNumber: 4,
+  columnNumber: 3
+}, this);
 
 // src/app/routes/_admin.settings._index/components/success.tsx
 import { useNavigate as useNavigate13 } from "@remix-run/react";
@@ -10119,41 +14711,97 @@ import {
 } from "@chakra-ui/react";
 import CheckCircleIcon from "mdi-react/CheckCircleIcon.js";
 import CloseCircleIcon from "mdi-react/CloseCircleIcon.js";
-import { jsx as jsx72, jsxs as jsxs50 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV73 } from "react/jsx-dev-runtime";
 var SettingsListItem = (props) => {
   let { status, title, subtitle, actionButtonState, actionButtonOnClick } = props;
-  return /* @__PURE__ */ jsx72(Card2, { children: /* @__PURE__ */ jsx72(CardBody2, { children: /* @__PURE__ */ jsxs50(
+  return /* @__PURE__ */ jsxDEV73(Card2, { children: /* @__PURE__ */ jsxDEV73(CardBody2, { children: /* @__PURE__ */ jsxDEV73(
     Grid17,
     {
       templateColumns: { base: "1fr", md: "6fr 1fr" },
       alignItems: "center",
       gap: 4,
       children: [
-        /* @__PURE__ */ jsx72(GridItem17, { children: /* @__PURE__ */ jsxs50(HStack12, { justifyContent: { base: "center", md: "start" }, children: [
-          status != null && (status === 1 /* success */ ? /* @__PURE__ */ jsx72(Icon9, { as: CheckCircleIcon, color: "green.500", boxSize: 8 }) : /* @__PURE__ */ jsx72(Icon9, { as: CloseCircleIcon, color: "red.500", boxSize: 8 })),
-          /* @__PURE__ */ jsxs50("div", { children: [
-            /* @__PURE__ */ jsx72(Heading10, { size: "md", textTransform: "uppercase", children: title }),
-            subtitle != null && /* @__PURE__ */ jsx72(Badge8, { colorScheme: "red", children: subtitle })
-          ] })
-        ] }) }),
-        /* @__PURE__ */ jsx72(GridItem17, { textAlign: { base: "center", md: "start" }, children: /* @__PURE__ */ jsx72(
+        /* @__PURE__ */ jsxDEV73(GridItem17, { children: /* @__PURE__ */ jsxDEV73(HStack12, { justifyContent: { base: "center", md: "start" }, children: [
+          status != null && (status === 1 /* success */ ? /* @__PURE__ */ jsxDEV73(Icon9, { as: CheckCircleIcon, color: "green.500", boxSize: 8 }, void 0, !1, {
+            fileName: "src/app/components/SettingsListItem.tsx",
+            lineNumber: 52,
+            columnNumber: 19
+          }, this) : /* @__PURE__ */ jsxDEV73(Icon9, { as: CloseCircleIcon, color: "red.500", boxSize: 8 }, void 0, !1, {
+            fileName: "src/app/components/SettingsListItem.tsx",
+            lineNumber: 54,
+            columnNumber: 19
+          }, this)),
+          /* @__PURE__ */ jsxDEV73("div", { children: [
+            /* @__PURE__ */ jsxDEV73(Heading10, { size: "md", textTransform: "uppercase", children: title }, void 0, !1, {
+              fileName: "src/app/components/SettingsListItem.tsx",
+              lineNumber: 57,
+              columnNumber: 17
+            }, this),
+            subtitle != null && /* @__PURE__ */ jsxDEV73(Badge8, { colorScheme: "red", children: subtitle }, void 0, !1, {
+              fileName: "src/app/components/SettingsListItem.tsx",
+              lineNumber: 61,
+              columnNumber: 19
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/components/SettingsListItem.tsx",
+            lineNumber: 56,
+            columnNumber: 15
+          }, this)
+        ] }, void 0, !0, {
+          fileName: "src/app/components/SettingsListItem.tsx",
+          lineNumber: 49,
+          columnNumber: 13
+        }, this) }, void 0, !1, {
+          fileName: "src/app/components/SettingsListItem.tsx",
+          lineNumber: 48,
+          columnNumber: 11
+        }, this),
+        /* @__PURE__ */ jsxDEV73(GridItem17, { textAlign: { base: "center", md: "start" }, children: /* @__PURE__ */ jsxDEV73(
           SettingsListButton,
           {
             buttonState: actionButtonState,
             onClick: actionButtonOnClick,
             children: "Configurar"
-          }
-        ) })
+          },
+          void 0,
+          !1,
+          {
+            fileName: "src/app/components/SettingsListItem.tsx",
+            lineNumber: 68,
+            columnNumber: 13
+          },
+          this
+        ) }, void 0, !1, {
+          fileName: "src/app/components/SettingsListItem.tsx",
+          lineNumber: 67,
+          columnNumber: 11
+        }, this)
       ]
-    }
-  ) }) });
+    },
+    void 0,
+    !0,
+    {
+      fileName: "src/app/components/SettingsListItem.tsx",
+      lineNumber: 43,
+      columnNumber: 9
+    },
+    this
+  ) }, void 0, !1, {
+    fileName: "src/app/components/SettingsListItem.tsx",
+    lineNumber: 42,
+    columnNumber: 7
+  }, this) }, void 0, !1, {
+    fileName: "src/app/components/SettingsListItem.tsx",
+    lineNumber: 41,
+    columnNumber: 5
+  }, this);
 };
 
 // src/app/components/SettingsListButton.tsx
-import { jsx as jsx73 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV74 } from "react/jsx-dev-runtime";
 var SettingsListButton = (props) => {
   let { buttonState, onClick, children } = props;
-  return /* @__PURE__ */ jsx73(
+  return /* @__PURE__ */ jsxDEV74(
     Button9,
     {
       onClick,
@@ -10164,16 +14812,24 @@ var SettingsListButton = (props) => {
       },
       width: "full",
       children
-    }
+    },
+    void 0,
+    !1,
+    {
+      fileName: "src/app/components/SettingsListButton.tsx",
+      lineNumber: 15,
+      columnNumber: 5
+    },
+    this
   );
 };
 
 // src/app/routes/_admin.settings._index/components/success.tsx
-import { Fragment as Fragment28, jsx as jsx74, jsxs as jsxs51 } from "react/jsx-runtime";
+import { Fragment as Fragment28, jsxDEV as jsxDEV75 } from "react/jsx-dev-runtime";
 var Success10 = (props) => {
   let { stateData } = props, navigate = useNavigate13(), configSuccessful = stateData.dictionary_ok && stateData.company_ok;
-  return /* @__PURE__ */ jsx74(Fragment28, { children: /* @__PURE__ */ jsxs51(VStack4, { spacing: 4, width: "full", children: [
-    /* @__PURE__ */ jsx74(Box25, { width: "full", children: /* @__PURE__ */ jsx74(
+  return /* @__PURE__ */ jsxDEV75(Fragment28, { children: /* @__PURE__ */ jsxDEV75(VStack4, { spacing: 4, width: "full", children: [
+    /* @__PURE__ */ jsxDEV75(Box25, { width: "full", children: /* @__PURE__ */ jsxDEV75(
       SettingsListItem,
       {
         title: "Conexi\xF3n a Tango",
@@ -10183,9 +14839,21 @@ var Success10 = (props) => {
         actionButtonOnClick: () => {
           navigate(URL_SETTINGS_TANGO_PATH);
         }
-      }
-    ) }),
-    /* @__PURE__ */ jsx74(Box25, { width: "full", children: /* @__PURE__ */ jsx74(
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings._index/components/success.tsx",
+        lineNumber: 37,
+        columnNumber: 11
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings._index/components/success.tsx",
+      lineNumber: 36,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV75(Box25, { width: "full", children: /* @__PURE__ */ jsxDEV75(
       SettingsListItem,
       {
         title: "Empresa",
@@ -10195,15 +14863,27 @@ var Success10 = (props) => {
         actionButtonOnClick: () => {
           navigate(URL_SETTINGS_COMPANY_PATH);
         }
-      }
-    ) }),
-    /* @__PURE__ */ jsx74(Box25, { width: "full", children: /* @__PURE__ */ jsx74(Card3, { children: /* @__PURE__ */ jsx74(CardBody3, { children: /* @__PURE__ */ jsxs51(
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings._index/components/success.tsx",
+        lineNumber: 52,
+        columnNumber: 11
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings._index/components/success.tsx",
+      lineNumber: 51,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV75(Box25, { width: "full", children: /* @__PURE__ */ jsxDEV75(Card3, { children: /* @__PURE__ */ jsxDEV75(CardBody3, { children: /* @__PURE__ */ jsxDEV75(
       Grid18,
       {
         templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx74(GridItem18, { textAlign: "center", children: /* @__PURE__ */ jsx74(
+          /* @__PURE__ */ jsxDEV75(GridItem18, { textAlign: "center", children: /* @__PURE__ */ jsxDEV75(
             SettingsListButton,
             {
               buttonState: configSuccessful ? 0 /* enabled */ : 1 /* disabled */,
@@ -10211,9 +14891,21 @@ var Success10 = (props) => {
                 navigate(URL_SETTINGS_CUSTOMERS_PATH);
               },
               children: "Gesti\xF3n de Clientes"
-            }
-          ) }),
-          /* @__PURE__ */ jsx74(GridItem18, { textAlign: "center", children: /* @__PURE__ */ jsx74(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings._index/components/success.tsx",
+              lineNumber: 79,
+              columnNumber: 19
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings._index/components/success.tsx",
+            lineNumber: 78,
+            columnNumber: 17
+          }, this),
+          /* @__PURE__ */ jsxDEV75(GridItem18, { textAlign: "center", children: /* @__PURE__ */ jsxDEV75(
             SettingsListButton,
             {
               buttonState: configSuccessful ? 0 /* enabled */ : 1 /* disabled */,
@@ -10221,9 +14913,21 @@ var Success10 = (props) => {
                 navigate(URL_SETTINGS_VENDORS_PATH);
               },
               children: "Gesti\xF3n de Vendedores"
-            }
-          ) }),
-          /* @__PURE__ */ jsx74(GridItem18, { textAlign: "center", children: /* @__PURE__ */ jsx74(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings._index/components/success.tsx",
+              lineNumber: 93,
+              columnNumber: 19
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings._index/components/success.tsx",
+            lineNumber: 92,
+            columnNumber: 17
+          }, this),
+          /* @__PURE__ */ jsxDEV75(GridItem18, { textAlign: "center", children: /* @__PURE__ */ jsxDEV75(
             SettingsListButton,
             {
               buttonState: configSuccessful ? 0 /* enabled */ : 1 /* disabled */,
@@ -10231,9 +14935,21 @@ var Success10 = (props) => {
                 navigate(URL_SETTINGS_ARTICULOS_SCREEN);
               },
               children: "Tablas para Visualizaci\xF3n"
-            }
-          ) }),
-          /* @__PURE__ */ jsx74(GridItem18, { textAlign: "center", children: /* @__PURE__ */ jsx74(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings._index/components/success.tsx",
+              lineNumber: 107,
+              columnNumber: 19
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings._index/components/success.tsx",
+            lineNumber: 106,
+            columnNumber: 17
+          }, this),
+          /* @__PURE__ */ jsxDEV75(GridItem18, { textAlign: "center", children: /* @__PURE__ */ jsxDEV75(
             SettingsListButton,
             {
               buttonState: configSuccessful ? 0 /* enabled */ : 1 /* disabled */,
@@ -10241,12 +14957,44 @@ var Success10 = (props) => {
                 navigate(URL_SETTINGS_ARTICULOS_PRINT);
               },
               children: "Tablas para Impresi\xF3n"
-            }
-          ) })
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings._index/components/success.tsx",
+              lineNumber: 121,
+              columnNumber: 19
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings._index/components/success.tsx",
+            lineNumber: 120,
+            columnNumber: 17
+          }, this)
         ]
-      }
-    ) }) }) }),
-    /* @__PURE__ */ jsx74(Box25, { width: "full", children: /* @__PURE__ */ jsx74(
+      },
+      void 0,
+      !0,
+      {
+        fileName: "src/app/routes/_admin.settings._index/components/success.tsx",
+        lineNumber: 74,
+        columnNumber: 15
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings._index/components/success.tsx",
+      lineNumber: 73,
+      columnNumber: 13
+    }, this) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings._index/components/success.tsx",
+      lineNumber: 72,
+      columnNumber: 11
+    }, this) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings._index/components/success.tsx",
+      lineNumber: 71,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV75(Box25, { width: "full", children: /* @__PURE__ */ jsxDEV75(
       SettingsListItem,
       {
         title: "Correo Saliente y Sesiones",
@@ -10254,29 +15002,69 @@ var Success10 = (props) => {
         actionButtonOnClick: () => {
           navigate(URL_SETTINGS_MISC_PATH);
         }
-      }
-    ) })
-  ] }) });
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings._index/components/success.tsx",
+        lineNumber: 139,
+        columnNumber: 11
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings._index/components/success.tsx",
+      lineNumber: 138,
+      columnNumber: 9
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_admin.settings._index/components/success.tsx",
+    lineNumber: 35,
+    columnNumber: 7
+  }, this) }, void 0, !1, {
+    fileName: "src/app/routes/_admin.settings._index/components/success.tsx",
+    lineNumber: 34,
+    columnNumber: 5
+  }, this);
 };
 
 // src/app/routes/_admin.settings._index/components/index.tsx
-import { Fragment as Fragment29, jsx as jsx75 } from "react/jsx-runtime";
+import { Fragment as Fragment29, jsxDEV as jsxDEV76 } from "react/jsx-dev-runtime";
 var SettingsHome = () => {
   let { state, retry } = useDXTApiFetch({
     url: API_ADMIN_STATUS,
     silent: !0
   });
-  return /* @__PURE__ */ jsx75(Fragment29, { children: state.map({
-    loading: (_11) => /* @__PURE__ */ jsx75(Loading7, {}),
-    error: ({ error }) => /* @__PURE__ */ jsx75(ApiErrors, { error, retry }),
-    success: (state2) => /* @__PURE__ */ jsx75(Success10, { stateData: state2.data })
-  }) });
+  return /* @__PURE__ */ jsxDEV76(Fragment29, { children: state.map({
+    loading: (_11) => /* @__PURE__ */ jsxDEV76(Loading7, {}, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings._index/components/index.tsx",
+      lineNumber: 19,
+      columnNumber: 25
+    }, this),
+    error: ({ error }) => /* @__PURE__ */ jsxDEV76(ApiErrors, { error, retry }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings._index/components/index.tsx",
+      lineNumber: 21,
+      columnNumber: 31
+    }, this),
+    success: (state2) => /* @__PURE__ */ jsxDEV76(Success10, { stateData: state2.data }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings._index/components/index.tsx",
+      lineNumber: 23,
+      columnNumber: 29
+    }, this)
+  }) }, void 0, !1, {
+    fileName: "src/app/routes/_admin.settings._index/components/index.tsx",
+    lineNumber: 17,
+    columnNumber: 5
+  }, this);
 };
 
 // src/app/routes/_admin.settings._index/route.tsx
-import { jsx as jsx76 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV77 } from "react/jsx-dev-runtime";
 function Settings() {
-  return /* @__PURE__ */ jsx76(SettingsHome, {});
+  return /* @__PURE__ */ jsxDEV77(SettingsHome, {}, void 0, !1, {
+    fileName: "src/app/routes/_admin.settings._index/route.tsx",
+    lineNumber: 4,
+    columnNumber: 10
+  }, this);
 }
 
 // src/app/routes/_admin.settings.tango/route.tsx
@@ -10291,8 +15079,8 @@ var API_SETTINGS_DB = apiPath("/settings/db"), API_SETTINGS_MISC = apiPath("/set
 
 // src/app/routes/_admin.settings.tango/components/loading.tsx
 import { Box as Box26, Grid as Grid19, GridItem as GridItem19 } from "@chakra-ui/react";
-import { jsx as jsx77, jsxs as jsxs52 } from "react/jsx-runtime";
-var Loading8 = () => /* @__PURE__ */ jsx77(
+import { jsxDEV as jsxDEV78 } from "react/jsx-dev-runtime";
+var Loading8 = () => /* @__PURE__ */ jsxDEV78(
   Box26,
   {
     width: "full",
@@ -10300,25 +15088,105 @@ var Loading8 = () => /* @__PURE__ */ jsx77(
       mt: 8,
       mb: 4
     },
-    children: /* @__PURE__ */ jsxs52(
+    children: /* @__PURE__ */ jsxDEV78(
       Grid19,
       {
         templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
         alignItems: "center",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx77(GridItem19, { children: /* @__PURE__ */ jsx77(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx77(GridItem19, { children: /* @__PURE__ */ jsx77(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx77(GridItem19, { children: /* @__PURE__ */ jsx77(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx77(GridItem19, { children: /* @__PURE__ */ jsx77(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx77(GridItem19, { children: /* @__PURE__ */ jsx77(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx77(GridItem19, { children: /* @__PURE__ */ jsx77(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx77(GridItem19, { children: /* @__PURE__ */ jsx77(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx77(GridItem19, { children: /* @__PURE__ */ jsx77(FormInputSkeleton, {}) })
+          /* @__PURE__ */ jsxDEV78(GridItem19, { children: /* @__PURE__ */ jsxDEV78(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.tango/components/loading.tsx",
+            lineNumber: 19,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.tango/components/loading.tsx",
+            lineNumber: 18,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV78(GridItem19, { children: /* @__PURE__ */ jsxDEV78(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.tango/components/loading.tsx",
+            lineNumber: 22,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.tango/components/loading.tsx",
+            lineNumber: 21,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV78(GridItem19, { children: /* @__PURE__ */ jsxDEV78(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.tango/components/loading.tsx",
+            lineNumber: 25,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.tango/components/loading.tsx",
+            lineNumber: 24,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV78(GridItem19, { children: /* @__PURE__ */ jsxDEV78(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.tango/components/loading.tsx",
+            lineNumber: 28,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.tango/components/loading.tsx",
+            lineNumber: 27,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV78(GridItem19, { children: /* @__PURE__ */ jsxDEV78(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.tango/components/loading.tsx",
+            lineNumber: 31,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.tango/components/loading.tsx",
+            lineNumber: 30,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV78(GridItem19, { children: /* @__PURE__ */ jsxDEV78(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.tango/components/loading.tsx",
+            lineNumber: 34,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.tango/components/loading.tsx",
+            lineNumber: 33,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV78(GridItem19, { children: /* @__PURE__ */ jsxDEV78(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.tango/components/loading.tsx",
+            lineNumber: 37,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.tango/components/loading.tsx",
+            lineNumber: 36,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV78(GridItem19, { children: /* @__PURE__ */ jsxDEV78(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.tango/components/loading.tsx",
+            lineNumber: 40,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.tango/components/loading.tsx",
+            lineNumber: 39,
+            columnNumber: 7
+          }, this)
         ]
-      }
+      },
+      void 0,
+      !0,
+      {
+        fileName: "src/app/routes/_admin.settings.tango/components/loading.tsx",
+        lineNumber: 13,
+        columnNumber: 5
+      },
+      this
     )
-  }
+  },
+  void 0,
+  !1,
+  {
+    fileName: "src/app/routes/_admin.settings.tango/components/loading.tsx",
+    lineNumber: 6,
+    columnNumber: 3
+  },
+  this
 );
 
 // src/app/routes/_admin.settings.tango/components/success.tsx
@@ -10373,7 +15241,7 @@ var yupValidationSchema4 = yup9.object({
 }).required();
 
 // src/app/routes/_admin.settings.tango/components/success.tsx
-import { jsx as jsx78, jsxs as jsxs53 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV79 } from "react/jsx-dev-runtime";
 var Success11 = (props) => {
   let { stateData } = props, app = useAppResources(), toast = useToast8(), {
     handleSubmit,
@@ -10385,7 +15253,7 @@ var Success11 = (props) => {
     defaultValues: stateData,
     resolver: yupResolver8(yupValidationSchema4)
   }), disableForm = isSubmitSuccessful || isSubmitting;
-  return /* @__PURE__ */ jsx78("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
+  return /* @__PURE__ */ jsxDEV79("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
     let result = await settingsDBUpdateRequest(dataUnsafe, app);
     await promiseBasedToast({
       toast,
@@ -10400,16 +15268,20 @@ var Success11 = (props) => {
     }).catch((e) => {
       setError("root", { message: e });
     });
-  }), children: /* @__PURE__ */ jsxs53(Box27, { children: [
-    /* @__PURE__ */ jsx78(FormErrors, { errors }),
-    /* @__PURE__ */ jsx78(CommonCard, { children: /* @__PURE__ */ jsxs53(
+  }), children: /* @__PURE__ */ jsxDEV79(Box27, { children: [
+    /* @__PURE__ */ jsxDEV79(FormErrors, { errors }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.tango/components/success.tsx",
+      lineNumber: 72,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV79(CommonCard, { children: /* @__PURE__ */ jsxDEV79(
       Grid20,
       {
         templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
         alignItems: "center",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx78(GridItem20, { children: /* @__PURE__ */ jsx78(
+          /* @__PURE__ */ jsxDEV79(GridItem20, { children: /* @__PURE__ */ jsxDEV79(
             ControlledInput,
             {
               fieldProps: {
@@ -10424,9 +15296,21 @@ var Success11 = (props) => {
                 label: "Host"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx78(GridItem20, { children: /* @__PURE__ */ jsx78(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.tango/components/success.tsx",
+              lineNumber: 80,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.tango/components/success.tsx",
+            lineNumber: 79,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV79(GridItem20, { children: /* @__PURE__ */ jsxDEV79(
             ControlledInput,
             {
               fieldProps: {
@@ -10444,9 +15328,21 @@ var Success11 = (props) => {
                 label: "Puerto"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx78(GridItem20, { children: /* @__PURE__ */ jsx78(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.tango/components/success.tsx",
+              lineNumber: 96,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.tango/components/success.tsx",
+            lineNumber: 95,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV79(GridItem20, { children: /* @__PURE__ */ jsxDEV79(
             ControlledInput,
             {
               fieldProps: {
@@ -10461,9 +15357,21 @@ var Success11 = (props) => {
                 label: "Usuario SQL"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx78(GridItem20, { children: /* @__PURE__ */ jsx78(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.tango/components/success.tsx",
+              lineNumber: 115,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.tango/components/success.tsx",
+            lineNumber: 114,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV79(GridItem20, { children: /* @__PURE__ */ jsxDEV79(
             ControlledInput,
             {
               fieldProps: {
@@ -10478,9 +15386,21 @@ var Success11 = (props) => {
                 label: "Contrase\xF1a SQL"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx78(GridItem20, { children: /* @__PURE__ */ jsx78(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.tango/components/success.tsx",
+              lineNumber: 131,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.tango/components/success.tsx",
+            lineNumber: 130,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV79(GridItem20, { children: /* @__PURE__ */ jsxDEV79(
             ControlledInput,
             {
               fieldProps: {
@@ -10495,9 +15415,21 @@ var Success11 = (props) => {
                 label: "Diccionario base"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx78(GridItem20, { children: /* @__PURE__ */ jsx78(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.tango/components/success.tsx",
+              lineNumber: 147,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.tango/components/success.tsx",
+            lineNumber: 146,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV79(GridItem20, { children: /* @__PURE__ */ jsxDEV79(
             ControlledInput,
             {
               fieldProps: {
@@ -10516,42 +15448,98 @@ var Success11 = (props) => {
                 label: "Tiempo de espera (segundos)"
               },
               control
-            }
-          ) })
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.tango/components/success.tsx",
+              lineNumber: 163,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.tango/components/success.tsx",
+            lineNumber: 162,
+            columnNumber: 13
+          }, this)
         ]
-      }
-    ) }),
-    /* @__PURE__ */ jsx78(CommonCard, { children: /* @__PURE__ */ jsx78(SettingsFormsButtons, { isLoading: disableForm }) })
-  ] }) });
+      },
+      void 0,
+      !0,
+      {
+        fileName: "src/app/routes/_admin.settings.tango/components/success.tsx",
+        lineNumber: 74,
+        columnNumber: 11
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.tango/components/success.tsx",
+      lineNumber: 73,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV79(CommonCard, { children: /* @__PURE__ */ jsxDEV79(SettingsFormsButtons, { isLoading: disableForm }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.tango/components/success.tsx",
+      lineNumber: 185,
+      columnNumber: 11
+    }, this) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.tango/components/success.tsx",
+      lineNumber: 184,
+      columnNumber: 9
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_admin.settings.tango/components/success.tsx",
+    lineNumber: 71,
+    columnNumber: 7
+  }, this) }, void 0, !1, {
+    fileName: "src/app/routes/_admin.settings.tango/components/success.tsx",
+    lineNumber: 70,
+    columnNumber: 5
+  }, this);
 };
 
 // src/app/routes/_admin.settings.tango/components/index.tsx
-import { jsx as jsx79 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV80 } from "react/jsx-dev-runtime";
 var FormTango = () => {
   let { state, retry } = useDXTApiFetch({
     url: API_SETTINGS_DB,
     silent: !0
   });
   return state.map({
-    loading: (_11) => /* @__PURE__ */ jsx79(Loading8, {}),
-    error: ({ error }) => /* @__PURE__ */ jsx79(
+    loading: (_11) => /* @__PURE__ */ jsxDEV80(Loading8, {}, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.tango/components/index.tsx",
+      lineNumber: 18,
+      columnNumber: 21
+    }, this),
+    error: ({ error }) => /* @__PURE__ */ jsxDEV80(
       ApiErrors,
       {
         error,
         retry,
         cancelAndNavigateTo: URL_SETTINGS_PATH
-      }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings.tango/components/index.tsx",
+        lineNumber: 21,
+        columnNumber: 7
+      },
+      this
     ),
-    success: (state2) => /* @__PURE__ */ jsx79(Success11, { stateData: state2.data })
+    success: (state2) => /* @__PURE__ */ jsxDEV80(Success11, { stateData: state2.data }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.tango/components/index.tsx",
+      lineNumber: 28,
+      columnNumber: 25
+    }, this)
   });
 };
 
 // src/app/routes/_admin.settings.tango/route.tsx
-import { Fragment as Fragment30, jsx as jsx80, jsxs as jsxs54 } from "react/jsx-runtime";
+import { Fragment as Fragment30, jsxDEV as jsxDEV81 } from "react/jsx-dev-runtime";
 function Tango() {
   let navigate = useNavigate14();
-  return /* @__PURE__ */ jsxs54(Fragment30, { children: [
-    /* @__PURE__ */ jsx80(
+  return /* @__PURE__ */ jsxDEV81(Fragment30, { children: [
+    /* @__PURE__ */ jsxDEV81(
       SettingsFormHeading,
       {
         title: "Conexi\xF3n a Tango",
@@ -10564,10 +15552,26 @@ function Tango() {
             }
           }
         }
-      }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings.tango/route.tsx",
+        lineNumber: 13,
+        columnNumber: 7
+      },
+      this
     ),
-    /* @__PURE__ */ jsx80(FormTango, {})
-  ] });
+    /* @__PURE__ */ jsxDEV81(FormTango, {}, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.tango/route.tsx",
+      lineNumber: 25,
+      columnNumber: 7
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_admin.settings.tango/route.tsx",
+    lineNumber: 12,
+    columnNumber: 5
+  }, this);
 }
 
 // src/app/routes/_admin.settings.misc/route.tsx
@@ -10579,8 +15583,8 @@ import { useNavigate as useNavigate15 } from "@remix-run/react";
 
 // src/app/routes/_admin.settings.misc/components/loading.tsx
 import { Box as Box28, Divider as Divider7, Grid as Grid21, GridItem as GridItem21 } from "@chakra-ui/react";
-import { jsx as jsx81, jsxs as jsxs55 } from "react/jsx-runtime";
-var Loading9 = () => /* @__PURE__ */ jsx81(
+import { jsxDEV as jsxDEV82 } from "react/jsx-dev-runtime";
+var Loading9 = () => /* @__PURE__ */ jsxDEV82(
   Box28,
   {
     width: "full",
@@ -10588,32 +15592,168 @@ var Loading9 = () => /* @__PURE__ */ jsx81(
       mt: 8,
       mb: 4
     },
-    children: /* @__PURE__ */ jsxs55(
+    children: /* @__PURE__ */ jsxDEV82(
       Grid21,
       {
         templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
         alignItems: "center",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx81(GridItem21, { children: /* @__PURE__ */ jsx81(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx81(GridItem21, { children: /* @__PURE__ */ jsx81(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx81(GridItem21, { children: /* @__PURE__ */ jsx81(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx81(GridItem21, { children: /* @__PURE__ */ jsx81(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx81(GridItem21, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx81(Divider7, {}) }),
-          /* @__PURE__ */ jsx81(GridItem21, { children: /* @__PURE__ */ jsx81(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx81(GridItem21, { children: /* @__PURE__ */ jsx81(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx81(GridItem21, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx81(Divider7, {}) }),
-          /* @__PURE__ */ jsx81(GridItem21, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx81(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx81(GridItem21, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx81(FormTextareaSkeleton, {}) }),
-          /* @__PURE__ */ jsx81(GridItem21, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx81(Divider7, {}) }),
-          /* @__PURE__ */ jsx81(GridItem21, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx81(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx81(GridItem21, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx81(FormTextareaSkeleton, {}) }),
-          /* @__PURE__ */ jsx81(GridItem21, { children: /* @__PURE__ */ jsx81(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx81(GridItem21, { children: /* @__PURE__ */ jsx81(FormInputSkeleton, {}) })
+          /* @__PURE__ */ jsxDEV82(GridItem21, { children: /* @__PURE__ */ jsxDEV82(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 22,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 21,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV82(GridItem21, { children: /* @__PURE__ */ jsxDEV82(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 25,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 24,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV82(GridItem21, { children: /* @__PURE__ */ jsxDEV82(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 28,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 27,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV82(GridItem21, { children: /* @__PURE__ */ jsxDEV82(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 31,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 30,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV82(GridItem21, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV82(Divider7, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 34,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 33,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV82(GridItem21, { children: /* @__PURE__ */ jsxDEV82(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 37,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 36,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV82(GridItem21, { children: /* @__PURE__ */ jsxDEV82(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 40,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 39,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV82(GridItem21, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV82(Divider7, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 43,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 42,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV82(GridItem21, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV82(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 46,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 45,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV82(GridItem21, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV82(FormTextareaSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 49,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 48,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV82(GridItem21, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV82(Divider7, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 52,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 51,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV82(GridItem21, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV82(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 55,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 54,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV82(GridItem21, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV82(FormTextareaSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 58,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 57,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV82(GridItem21, { children: /* @__PURE__ */ jsxDEV82(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 61,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 60,
+            columnNumber: 7
+          }, this),
+          /* @__PURE__ */ jsxDEV82(GridItem21, { children: /* @__PURE__ */ jsxDEV82(FormInputSkeleton, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 64,
+            columnNumber: 9
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+            lineNumber: 63,
+            columnNumber: 7
+          }, this)
         ]
-      }
+      },
+      void 0,
+      !0,
+      {
+        fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+        lineNumber: 16,
+        columnNumber: 5
+      },
+      this
     )
-  }
+  },
+  void 0,
+  !1,
+  {
+    fileName: "src/app/routes/_admin.settings.misc/components/loading.tsx",
+    lineNumber: 9,
+    columnNumber: 3
+  },
+  this
 );
 
 // src/app/routes/_admin.settings.misc/components/success.tsx
@@ -10636,7 +15776,7 @@ import {
   FormHelperText as FormHelperText5
 } from "@chakra-ui/react";
 import { useController as useController6 } from "react-hook-form";
-import { jsx as jsx82, jsxs as jsxs56 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV83 } from "react/jsx-dev-runtime";
 var ControlledCheckbox = (props) => {
   let { fieldProps, formControlProps, formControlInnerProps, control } = props, { name } = fieldProps, { text, helperText, helperAction } = formControlInnerProps || {}, {
     field: { ref, onChange, value },
@@ -10646,13 +15786,29 @@ var ControlledCheckbox = (props) => {
     name: fieldProps.name,
     control
   });
-  return /* @__PURE__ */ jsxs56(FormControl6, { ...formControlProps, isInvalid: invalid, ref, children: [
-    /* @__PURE__ */ jsxs56(Flex6, { alignItems: "center", children: [
-      /* @__PURE__ */ jsx82(Checkbox2, { ...fieldProps, onChange, isChecked: value, children: text }),
+  return /* @__PURE__ */ jsxDEV83(FormControl6, { ...formControlProps, isInvalid: invalid, ref, children: [
+    /* @__PURE__ */ jsxDEV83(Flex6, { alignItems: "center", children: [
+      /* @__PURE__ */ jsxDEV83(Checkbox2, { ...fieldProps, onChange, isChecked: value, children: text }, void 0, !1, {
+        fileName: "src/app/components/form_elements/ControlledCheckbox.tsx",
+        lineNumber: 49,
+        columnNumber: 9
+      }, this),
       helperAction
-    ] }),
-    helperText != null && /* @__PURE__ */ jsx82(FormHelperText5, { children: helperText })
-  ] });
+    ] }, void 0, !0, {
+      fileName: "src/app/components/form_elements/ControlledCheckbox.tsx",
+      lineNumber: 48,
+      columnNumber: 7
+    }, this),
+    helperText != null && /* @__PURE__ */ jsxDEV83(FormHelperText5, { children: helperText }, void 0, !1, {
+      fileName: "src/app/components/form_elements/ControlledCheckbox.tsx",
+      lineNumber: 54,
+      columnNumber: 30
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/components/form_elements/ControlledCheckbox.tsx",
+    lineNumber: 47,
+    columnNumber: 5
+  }, this);
 };
 
 // src/app/routes/_admin.settings.misc/validation.ts
@@ -10686,7 +15842,7 @@ var yupValidationSchema5 = yup10.object({
 }).required();
 
 // src/app/routes/_admin.settings.misc/components/success.tsx
-import { jsx as jsx83, jsxs as jsxs57 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV84 } from "react/jsx-dev-runtime";
 var Success12 = (props) => {
   let { stateData } = props, app = useAppResources(), toast = useToast9(), {
     handleSubmit,
@@ -10698,7 +15854,7 @@ var Success12 = (props) => {
     defaultValues: stateData,
     resolver: yupResolver9(yupValidationSchema5)
   }), disableForm = isSubmitSuccessful || isSubmitting;
-  return /* @__PURE__ */ jsx83("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
+  return /* @__PURE__ */ jsxDEV84("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
     let result = await settingsMiscUpdateRequest(dataUnsafe, app);
     await promiseBasedToast({
       toast,
@@ -10713,16 +15869,20 @@ var Success12 = (props) => {
     }).catch((e) => {
       setError("root", { message: e });
     });
-  }), children: /* @__PURE__ */ jsxs57(Box29, { children: [
-    /* @__PURE__ */ jsx83(FormErrors, { errors }),
-    /* @__PURE__ */ jsx83(CommonCard, { children: /* @__PURE__ */ jsxs57(
+  }), children: /* @__PURE__ */ jsxDEV84(Box29, { children: [
+    /* @__PURE__ */ jsxDEV84(FormErrors, { errors }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+      lineNumber: 81,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV84(CommonCard, { children: /* @__PURE__ */ jsxDEV84(
       Grid22,
       {
         templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
         alignItems: "center",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx83(GridItem22, { children: /* @__PURE__ */ jsx83(
+          /* @__PURE__ */ jsxDEV84(GridItem22, { children: /* @__PURE__ */ jsxDEV84(
             ControlledInput,
             {
               fieldProps: {
@@ -10738,9 +15898,21 @@ var Success12 = (props) => {
                 label: "Hostname SMTP"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx83(GridItem22, { children: /* @__PURE__ */ jsx83(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+              lineNumber: 89,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+            lineNumber: 88,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV84(GridItem22, { children: /* @__PURE__ */ jsxDEV84(
             ControlledInput,
             {
               fieldProps: {
@@ -10756,9 +15928,21 @@ var Success12 = (props) => {
                 label: "Usuario SMTP"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx83(GridItem22, { children: /* @__PURE__ */ jsx83(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+              lineNumber: 106,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+            lineNumber: 105,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV84(GridItem22, { children: /* @__PURE__ */ jsxDEV84(
             ControlledInput,
             {
               fieldProps: {
@@ -10774,9 +15958,21 @@ var Success12 = (props) => {
                 label: "Contrase\xF1a SMTP"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx83(GridItem22, { children: /* @__PURE__ */ jsx83(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+              lineNumber: 123,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+            lineNumber: 122,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV84(GridItem22, { children: /* @__PURE__ */ jsxDEV84(
             ControlledInput,
             {
               fieldProps: {
@@ -10796,9 +15992,21 @@ var Success12 = (props) => {
                 label: "Puerto SMTP"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx83(GridItem22, { children: /* @__PURE__ */ jsx83(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+              lineNumber: 140,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+            lineNumber: 139,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV84(GridItem22, { children: /* @__PURE__ */ jsxDEV84(
             ControlledCheckbox,
             {
               control,
@@ -10809,10 +16017,30 @@ var Success12 = (props) => {
               formControlInnerProps: {
                 text: "Usar TLS"
               }
-            }
-          ) }),
-          /* @__PURE__ */ jsx83(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx83(Divider8, {}) }),
-          /* @__PURE__ */ jsx83(GridItem22, { children: /* @__PURE__ */ jsx83(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+              lineNumber: 161,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+            lineNumber: 160,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV84(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV84(Divider8, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+            lineNumber: 173,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+            lineNumber: 172,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV84(GridItem22, { children: /* @__PURE__ */ jsxDEV84(
             ControlledInput,
             {
               fieldProps: {
@@ -10833,9 +16061,21 @@ var Success12 = (props) => {
                 helperText: "Expresado en d\xEDas"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx83(GridItem22, { children: /* @__PURE__ */ jsx83(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+              lineNumber: 176,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+            lineNumber: 175,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV84(GridItem22, { children: /* @__PURE__ */ jsxDEV84(
             ControlledInput,
             {
               fieldProps: {
@@ -10854,20 +16094,52 @@ var Success12 = (props) => {
                 label: "Correo electr\xF3nico Administrador"
               },
               control
-            }
-          ) })
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+              lineNumber: 198,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+            lineNumber: 197,
+            columnNumber: 13
+          }, this)
         ]
-      }
-    ) }),
-    /* @__PURE__ */ jsx83(CommonCard, { children: /* @__PURE__ */ jsxs57(
+      },
+      void 0,
+      !0,
+      {
+        fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+        lineNumber: 83,
+        columnNumber: 11
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+      lineNumber: 82,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV84(CommonCard, { children: /* @__PURE__ */ jsxDEV84(
       Grid22,
       {
         templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
         alignItems: "center",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx83(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx83(Heading11, { size: "sm", textTransform: "uppercase", children: "Comunicaci\xF3n" }) }),
-          /* @__PURE__ */ jsx83(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx83(
+          /* @__PURE__ */ jsxDEV84(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV84(Heading11, { size: "sm", textTransform: "uppercase", children: "Comunicaci\xF3n" }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+            lineNumber: 226,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+            lineNumber: 225,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV84(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV84(
             ControlledInput,
             {
               fieldProps: {
@@ -10883,10 +16155,26 @@ var Success12 = (props) => {
                 label: "T\xEDtulo del mensaje de advertencia"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx83(GridItem22, { colSpan: { md: 2 }, children: "Contenido del mensaje de advertencia" }),
-          /* @__PURE__ */ jsx83(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx83(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+              lineNumber: 231,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+            lineNumber: 230,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV84(GridItem22, { colSpan: { md: 2 }, children: "Contenido del mensaje de advertencia" }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+            lineNumber: 247,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV84(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV84(
             ControlledTextarea,
             {
               fieldProps: {
@@ -10898,10 +16186,30 @@ var Success12 = (props) => {
                 isDisabled: disableForm
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx83(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx83(Divider8, {}) }),
-          /* @__PURE__ */ jsx83(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx83(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+              lineNumber: 251,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+            lineNumber: 250,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV84(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV84(Divider8, {}, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+            lineNumber: 264,
+            columnNumber: 15
+          }, this) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+            lineNumber: 263,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV84(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV84(
             ControlledInput,
             {
               fieldProps: {
@@ -10917,10 +16225,26 @@ var Success12 = (props) => {
                 label: "T\xEDtulo del mensaje de inhabilitaci\xF3n"
               },
               control
-            }
-          ) }),
-          /* @__PURE__ */ jsx83(GridItem22, { colSpan: { md: 2 }, children: "Contenido del mensaje de inhabilitaci\xF3n" }),
-          /* @__PURE__ */ jsx83(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx83(
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+              lineNumber: 267,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+            lineNumber: 266,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV84(GridItem22, { colSpan: { md: 2 }, children: "Contenido del mensaje de inhabilitaci\xF3n" }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+            lineNumber: 283,
+            columnNumber: 13
+          }, this),
+          /* @__PURE__ */ jsxDEV84(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxDEV84(
             ControlledTextarea,
             {
               fieldProps: {
@@ -10932,42 +16256,98 @@ var Success12 = (props) => {
                 isDisabled: disableForm
               },
               control
-            }
-          ) })
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+              lineNumber: 287,
+              columnNumber: 15
+            },
+            this
+          ) }, void 0, !1, {
+            fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+            lineNumber: 286,
+            columnNumber: 13
+          }, this)
         ]
-      }
-    ) }),
-    /* @__PURE__ */ jsx83(CommonCard, { children: /* @__PURE__ */ jsx83(SettingsFormsButtons, { isLoading: disableForm }) })
-  ] }) });
+      },
+      void 0,
+      !0,
+      {
+        fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+        lineNumber: 220,
+        columnNumber: 11
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+      lineNumber: 219,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV84(CommonCard, { children: /* @__PURE__ */ jsxDEV84(SettingsFormsButtons, { isLoading: disableForm }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+      lineNumber: 302,
+      columnNumber: 11
+    }, this) }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+      lineNumber: 301,
+      columnNumber: 9
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+    lineNumber: 80,
+    columnNumber: 7
+  }, this) }, void 0, !1, {
+    fileName: "src/app/routes/_admin.settings.misc/components/success.tsx",
+    lineNumber: 79,
+    columnNumber: 5
+  }, this);
 };
 
 // src/app/routes/_admin.settings.misc/components/index.tsx
-import { jsx as jsx84 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV85 } from "react/jsx-dev-runtime";
 var FormMisc = () => {
   let { state, retry } = useDXTApiFetch({
     url: API_SETTINGS_MISC,
     silent: !0
   });
   return state.map({
-    loading: (_11) => /* @__PURE__ */ jsx84(Loading9, {}),
-    error: ({ error }) => /* @__PURE__ */ jsx84(
+    loading: (_11) => /* @__PURE__ */ jsxDEV85(Loading9, {}, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.misc/components/index.tsx",
+      lineNumber: 18,
+      columnNumber: 21
+    }, this),
+    error: ({ error }) => /* @__PURE__ */ jsxDEV85(
       ApiErrors,
       {
         error,
         retry,
         cancelAndNavigateTo: URL_SETTINGS_PATH
-      }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings.misc/components/index.tsx",
+        lineNumber: 21,
+        columnNumber: 7
+      },
+      this
     ),
-    success: (state2) => /* @__PURE__ */ jsx84(Success12, { stateData: state2.data })
+    success: (state2) => /* @__PURE__ */ jsxDEV85(Success12, { stateData: state2.data }, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.misc/components/index.tsx",
+      lineNumber: 28,
+      columnNumber: 25
+    }, this)
   });
 };
 
 // src/app/routes/_admin.settings.misc/route.tsx
-import { Fragment as Fragment31, jsx as jsx85, jsxs as jsxs58 } from "react/jsx-runtime";
+import { Fragment as Fragment31, jsxDEV as jsxDEV86 } from "react/jsx-dev-runtime";
 function Misc() {
   let navigate = useNavigate15();
-  return /* @__PURE__ */ jsxs58(Fragment31, { children: [
-    /* @__PURE__ */ jsx85(
+  return /* @__PURE__ */ jsxDEV86(Fragment31, { children: [
+    /* @__PURE__ */ jsxDEV86(
       SettingsFormHeading,
       {
         title: "Correo saliente y sesiones",
@@ -10980,34 +16360,47 @@ function Misc() {
             }
           }
         }
-      }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_admin.settings.misc/route.tsx",
+        lineNumber: 13,
+        columnNumber: 7
+      },
+      this
     ),
-    /* @__PURE__ */ jsx85(FormMisc, {})
-  ] });
+    /* @__PURE__ */ jsxDEV86(FormMisc, {}, void 0, !1, {
+      fileName: "src/app/routes/_admin.settings.misc/route.tsx",
+      lineNumber: 25,
+      columnNumber: 7
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_admin.settings.misc/route.tsx",
+    lineNumber: 12,
+    columnNumber: 5
+  }, this);
 }
 
 // src/app/routes/api.dxt.vendedor.$id.ts
 var api_dxt_vendedor_id_exports = {};
 __export(api_dxt_vendedor_id_exports, {
-  action: () => action5,
-  loader: () => loader6
+  action: () => action6,
+  loader: () => loader7
 });
-async function loader6({ request, params }) {
+async function loader7({ request, params }) {
   return await dxtVendedorGetOneEndpoint.get(request, params);
 }
-async function action5({ request, params }) {
+async function action6({ request, params }) {
   return request.method === "DELETE" ? await dxtVendedorDeleteEndpoint.delete(request, params) : await dxtVendedorUpdateEndpoint.patch(request, params);
 }
 
 // src/app/routes/api.pedido.renglones.ts
 var api_pedido_renglones_exports = {};
 __export(api_pedido_renglones_exports, {
-  action: () => action6,
-  loader: () => loader7
+  action: () => action7,
+  loader: () => loader8
 });
-
-// src/code.server/infrastucture/articulo/models/articulo.model.ts
-var ARTICULO_ID_FIELD = "ID_STA11", ARTICULO_CODE_FIELD = "COD_ARTICU";
 
 // src/code.server/infrastucture/pedido/models/renglon_pedido.model.ts
 var RENGLON_PEDIDO_TABLE = "GVA03", RENGLON_PEDIDO_ID_FIELD = "ID_GVA03";
@@ -11091,6 +16484,13 @@ var renglonPedidoModelMapper = (m) => {
     cantidad,
     subtotal
   };
+}, renglonPedidoAndRelationsModelMapper = (m) => {
+  let r = renglonPedidoModelMapper(m), { [ARTICULO_CODE_FIELD]: codigoArticulo, DESCRIPCIO, DESC_ADIC: descripcion_adicional } = m, nombre_articulo = DESCRIPCIO ?? (codigoArticulo == null ? NONEXISTENT_PRODUCT : NO_NAME);
+  return {
+    ...r,
+    nombre_articulo,
+    descripcion_adicional
+  };
 };
 
 // src/code.server/infrastucture/pedido/renglon_pedido.repository.ts
@@ -11099,31 +16499,57 @@ var RenglonPedidoRepository = class extends CompanyProvider {
     super({
       mainTable: RENGLON_PEDIDO_TABLE,
       mainIdField: RENGLON_PEDIDO_ID_FIELD,
-      columns: renglonPedidoModelColumns
+      columns: renglonPedidoModelColumns,
+      tableDependencies: [
+        ARTICULO_TABLE
+      ]
     });
+    let filteredColumns = renglonPedidoModelColumns.filter((c) => c != PEDIDO_ID_FIELD && c != ARTICULO_CODE_FIELD);
+    this.mainColumns = filteredColumns.map((c) => `${RENGLON_PEDIDO_TABLE}.${c}`), this.pedidoColumns = [`${PEDIDO_TABLE}.${PEDIDO_ID_FIELD}`], this.articuloColumns = [...ARTICULO_NAME_COLUMNS, ARTICULO_CODE_FIELD].map((c) => `${ARTICULO_TABLE}.${c}`);
   }
-  async _getByPedido(columnName, value) {
-    let q = await this.getCompany(), cacheKey = `byPedido_${columnName}_${value}`, resultFromCache = await this.cache.getMetadata(cacheKey);
+  async _getByWhere(whereColumn, whereValue) {
+    let cacheKey = `byWhere_${whereColumn ?? "x"}_${whereValue ?? "x"}`, resultFromCache = await this.cache.getMetadata(cacheKey);
     if (resultFromCache != null)
       return resultFromCache;
-    let { mainTable, columns } = this.config, data = await q(mainTable).select(...columns ?? "*").where(columnName, value).orderBy("N_RENGLON");
-    if (data == null)
+    let { mainTable, columns } = this.config, query = (await this.getCompany())(mainTable);
+    whereColumn != null && (query = query.where(whereColumn, whereValue));
+    let rawData = await query.select(...this.mainColumns, ...this.articuloColumns, ...this.pedidoColumns).leftOuterJoin(ARTICULO_TABLE, `${mainTable}.${ARTICULO_ID_FIELD}`, `${ARTICULO_TABLE}.${ARTICULO_ID_FIELD}`).innerJoin(PEDIDO_TABLE, `${mainTable}.${PEDIDO_CODE_FIELD}`, `${PEDIDO_TABLE}.${PEDIDO_CODE_FIELD}`).orderBy(PEDIDO_ID_FIELD);
+    if (rawData == null)
       throw new DXTException(11e3 /* NOT_FOUND */);
-    let result = data.map((renglonPedido) => this.toResult(renglonPedido));
-    return await this.cache.setMetadata(cacheKey, result), result;
+    let data = rawData.map((renglonPedido) => this.toRenglonWithIdPedido(renglonPedido)), result = {}, sliceBegin = 0, idPedidoPrev;
+    return data.forEach((renglon, index) => {
+      if (idPedidoPrev != null && idPedidoPrev != renglon.id_pedido) {
+        let sliceEnd = index;
+        result[idPedidoPrev] = data.slice(sliceBegin, sliceEnd), sliceBegin = sliceEnd;
+      }
+      idPedidoPrev = renglon.id_pedido;
+    }), idPedidoPrev != null && (result[idPedidoPrev] = data.slice(sliceBegin, data.length)), await this.cache.setMetadata(cacheKey, result), result;
   }
   async getByIdPedido(idPedido) {
-    return await this._getByPedido(PEDIDO_ID_FIELD, idPedido);
+    return (await this._getByWhere(PEDIDO_ID_FIELD, idPedido))[idPedido] ?? [];
   }
   async getByNumeroPedido(numeroPedido) {
-    return await this._getByPedido(PEDIDO_CODE_FIELD, numeroPedido);
+    let data = await this._getByWhere(PEDIDO_CODE_FIELD, numeroPedido);
+    return Object.values(data)[0] ?? [];
   }
   async getAllByUser(role, tangoUserId, options) {
     let where = getUserRoleWhere(role, tangoUserId);
-    return {};
+    return await this._getByWhere(where?.field, where?.value);
   }
   toResult(m) {
     return renglonPedidoModelMapper(m);
+  }
+  toResultAndRelations(m) {
+    return renglonPedidoAndRelationsModelMapper(m);
+  }
+  toRenglonWithIdPedido(m) {
+    let id_pedido = m[PEDIDO_ID_FIELD];
+    if (id_pedido == null)
+      throw new DXTException(200002 /* TANGO_DB_INVALID_DATA */, "RenglonPedidoRepository.toRenglonWithIdPedido");
+    return {
+      ...renglonPedidoAndRelationsModelMapper(m),
+      id_pedido
+    };
   }
 }, renglonPedidoRepository = new RenglonPedidoRepository();
 
@@ -11136,24 +16562,34 @@ async function getAllRowsPedidos(user) {
   );
 }
 
-// src/code.server/api/pedido/endpoints/getAllRows.ts
-var pedidoGetAllRowsEndpoint = createApiEndpoint(
+// src/code.server/api/pedido/endpoints/getRows.ts
+var pedidoGetRowsEndpoint = createApiEndpoint(
   authenticatedRootController,
   void 0,
-  async (req) => await getAllRowsPedidos(req.auth.user)
+  // {
+  //   validation: {
+  //     params: {
+  //       id: optionalIntegersValidator,
+  //       print: optionalBooleanValidator
+  //     }
+  //   }
+  // },
+  async (req) => await getAllRowsPedidos(
+    req.auth.user
+  )
 );
 
 // src/app/routes/api.pedido.renglones.ts
-async function loader7({ request, params }) {
-  return await pedidoGetAllRowsEndpoint.run(request, params);
+async function loader8({ request, params }) {
+  return await pedidoGetRowsEndpoint.run(request, params);
 }
-var action6 = unimplementedApiResponse;
+var action7 = unimplementedApiResponse;
 
 // src/app/routes/api.tango.auxiliares.ts
 var api_tango_auxiliares_exports = {};
 __export(api_tango_auxiliares_exports, {
-  action: () => action7,
-  loader: () => loader8
+  action: () => action8,
+  loader: () => loader9
 });
 
 // src/code.server/api/company/utils.ts
@@ -11224,39 +16660,23 @@ var tangoClienteGetAllEndpoint = createCompanyGetAllEndpoint(
 );
 
 // src/app/routes/api.tango.auxiliares.ts
-var loader8 = async (o) => await auxiliaresGetAllEndpoint.get(o.request, o.params), action7 = unimplementedApiResponse;
+var loader9 = async (o) => await auxiliaresGetAllEndpoint.get(o.request, o.params), action8 = unimplementedApiResponse;
 
 // src/app/routes/api.dxt.cliente.$id.ts
 var api_dxt_cliente_id_exports = {};
 __export(api_dxt_cliente_id_exports, {
-  action: () => action8,
-  loader: () => loader9
+  action: () => action9,
+  loader: () => loader10
 });
-async function loader9({ request, params }) {
+async function loader10({ request, params }) {
   return await dxtClienteGetOneEndpoint.get(request, params);
 }
-async function action8({ request, params }) {
+async function action9({ request, params }) {
   return request.method === "DELETE" ? await dxtClienteDeleteEndpoint.delete(request, params) : await dxtClienteUpdateEndpoint.patch(request, params);
 }
 
 // src/app/routes/api.pedido.$id.edit.ts
 var api_pedido_id_edit_exports = {};
-
-// src/app/routes/api.pedido.$id.pdf.ts
-var api_pedido_id_pdf_exports = {};
-__export(api_pedido_id_pdf_exports, {
-  action: () => action9,
-  loader: () => loader10
-});
-async function loader10({ params }) {
-  return new Response("hola", {
-    status: 200,
-    headers: {
-      "Content-Type": "application/txt"
-    }
-  });
-}
-var action9 = unimplementedApiResponse;
 
 // src/app/routes/api.tango.vendedor.ts
 var api_tango_vendedor_exports = {};
@@ -11685,7 +17105,7 @@ import { Outlet as Outlet2 } from "@remix-run/react";
 // src/code.client/auth/AuthGuard.tsx
 import { useEffect as useEffect14 } from "react";
 import { useLocation as useLocation2, useNavigate as useNavigate16 } from "@remix-run/react";
-import { Fragment as Fragment32, jsx as jsx86 } from "react/jsx-runtime";
+import { Fragment as Fragment32, jsxDEV as jsxDEV87 } from "react/jsx-dev-runtime";
 var AuthGuard = (props) => {
   let { children } = props, { state: authState, dispatch: authDispatch } = useAuth(), navigate = useNavigate16(), location = useLocation2();
   if (useEffect14(() => {
@@ -11694,7 +17114,11 @@ var AuthGuard = (props) => {
     })().catch((_11) => {
     }) : authState.isDisconnectedAndNotRedirecting() && redirectLoginWithReturnUrl(navigate);
   }, [location, authState.constructor.name]), authState.isLoggedIn())
-    return /* @__PURE__ */ jsx86(Fragment32, { children });
+    return /* @__PURE__ */ jsxDEV87(Fragment32, { children }, void 0, !1, {
+      fileName: "src/code.client/auth/AuthGuard.tsx",
+      lineNumber: 36,
+      columnNumber: 12
+    }, this);
 };
 
 // src/app/routes/_authorized/route.tsx
@@ -11715,9 +17139,17 @@ function useHydrated() {
 }
 
 // src/app/components/ClientOnly.tsx
-import { Fragment as Fragment33, jsx as jsx87 } from "react/jsx-runtime";
+import { Fragment as Fragment33, jsxDEV as jsxDEV88 } from "react/jsx-dev-runtime";
 function ClientOnly({ children, fallback = null }) {
-  return useHydrated() ? /* @__PURE__ */ jsx87(Fragment33, { children }) : /* @__PURE__ */ jsx87(Fragment33, { children: fallback });
+  return useHydrated() ? /* @__PURE__ */ jsxDEV88(Fragment33, { children }, void 0, !1, {
+    fileName: "src/app/components/ClientOnly.tsx",
+    lineNumber: 29,
+    columnNumber: 26
+  }, this) : /* @__PURE__ */ jsxDEV88(Fragment33, { children: fallback }, void 0, !1, {
+    fileName: "src/app/components/ClientOnly.tsx",
+    lineNumber: 29,
+    columnNumber: 44
+  }, this);
 }
 
 // src/app/components/Navbar.tsx
@@ -11742,31 +17174,51 @@ import MenuIcon from "mdi-react/MenuIcon.js";
 import { Icon as Icon10, IconButton as IconButton5, useColorMode } from "@chakra-ui/react";
 import MoonWaningCrescentIcon from "mdi-react/MoonWaningCrescentIcon.js";
 import WeatherSunnyIcon from "mdi-react/WeatherSunnyIcon.js";
-import { jsx as jsx88 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV89 } from "react/jsx-dev-runtime";
 var ColorModeSelector = () => {
   let { colorMode, toggleColorMode } = useColorMode();
-  return /* @__PURE__ */ jsx88(
+  return /* @__PURE__ */ jsxDEV89(
     IconButton5,
     {
       "aria-label": "Cambiar modo de color",
       onClick: toggleColorMode,
       isRound: !0,
-      icon: /* @__PURE__ */ jsx88(
+      icon: /* @__PURE__ */ jsxDEV89(
         Icon10,
         {
           as: colorMode === "light" ? MoonWaningCrescentIcon : WeatherSunnyIcon
-        }
+        },
+        void 0,
+        !1,
+        {
+          fileName: "src/app/components/ColorModeSelector.tsx",
+          lineNumber: 15,
+          columnNumber: 9
+        },
+        this
       )
-    }
+    },
+    void 0,
+    !1,
+    {
+      fileName: "src/app/components/ColorModeSelector.tsx",
+      lineNumber: 10,
+      columnNumber: 5
+    },
+    this
   );
 };
 
 // src/app/components/LogoImage.tsx
 import { Image, useColorModeValue as useColorModeValue6 } from "@chakra-ui/react";
-import { jsx as jsx89 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV90 } from "react/jsx-dev-runtime";
 var LogoImage = (props) => {
   let logo = useColorModeValue6("/logo-light.svg", "/logo-dark.svg");
-  return /* @__PURE__ */ jsx89(Image, { src: logo, ...props });
+  return /* @__PURE__ */ jsxDEV90(Image, { src: logo, ...props }, void 0, !1, {
+    fileName: "src/app/components/LogoImage.tsx",
+    lineNumber: 6,
+    columnNumber: 10
+  }, this);
 };
 
 // src/texts/users.ts
@@ -11785,63 +17237,123 @@ function getUserRoleText(role) {
 }
 
 // src/app/components/Navbar.tsx
-import { jsx as jsx90, jsxs as jsxs59 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV91 } from "react/jsx-dev-runtime";
 var Navbar = () => {
   let { state: authState, dispatch: authDispatch } = useAuth(), navigate = useNavigate17(), user = authState.userOrNull(), userRoleText = user?.role != null ? getUserRoleText(user?.role) : "", _username = user?.screen_name.trim() ?? "", userLabel = user?.role === 2 /* admin */ ? _username : `${userRoleText} ${_username}`;
-  return /* @__PURE__ */ jsx90(
+  return /* @__PURE__ */ jsxDEV91(
     Box30,
     {
       bg: useColorModeValue7("gray.100", "gray.900"),
       sx: {
         px: 4
       },
-      children: /* @__PURE__ */ jsxs59(Flex7, { h: 16, alignItems: "center", justifyContent: "space-between", children: [
-        /* @__PURE__ */ jsxs59(HStack13, { spacing: 4, alignItems: "center", children: [
-          /* @__PURE__ */ jsxs59(Menu, { isLazy: !0, id: "menu", children: [
-            /* @__PURE__ */ jsx90(
+      children: /* @__PURE__ */ jsxDEV91(Flex7, { h: 16, alignItems: "center", justifyContent: "space-between", children: [
+        /* @__PURE__ */ jsxDEV91(HStack13, { spacing: 4, alignItems: "center", children: [
+          /* @__PURE__ */ jsxDEV91(Menu, { isLazy: !0, id: "menu", children: [
+            /* @__PURE__ */ jsxDEV91(
               MenuButton,
               {
                 as: IconButton6,
                 "aria-label": "Options",
-                icon: /* @__PURE__ */ jsx90(MenuIcon, {}),
+                icon: /* @__PURE__ */ jsxDEV91(MenuIcon, {}, void 0, !1, {
+                  fileName: "src/app/components/Navbar.tsx",
+                  lineNumber: 56,
+                  columnNumber: 21
+                }, this),
                 variant: "outline"
-              }
+              },
+              void 0,
+              !1,
+              {
+                fileName: "src/app/components/Navbar.tsx",
+                lineNumber: 53,
+                columnNumber: 13
+              },
+              this
             ),
-            /* @__PURE__ */ jsxs59(MenuList, { rootProps: { zIndex: 2e3 }, children: [
-              /* @__PURE__ */ jsx90(
+            /* @__PURE__ */ jsxDEV91(MenuList, { rootProps: { zIndex: 2e3 }, children: [
+              /* @__PURE__ */ jsxDEV91(
                 MenuItem,
                 {
                   onClick: () => {
                     navigate(URL_PEDIDOS_PATH);
                   },
                   children: "Pedidos"
-                }
+                },
+                void 0,
+                !1,
+                {
+                  fileName: "src/app/components/Navbar.tsx",
+                  lineNumber: 60,
+                  columnNumber: 15
+                },
+                this
               ),
-              /* @__PURE__ */ jsx90(
+              /* @__PURE__ */ jsxDEV91(
                 MenuItem,
                 {
                   onClick: () => {
                     navigate(URL_SETTINGS_PATH);
                   },
                   children: "Configuraciones"
-                }
+                },
+                void 0,
+                !1,
+                {
+                  fileName: "src/app/components/Navbar.tsx",
+                  lineNumber: 67,
+                  columnNumber: 15
+                },
+                this
               )
-            ] })
-          ] }),
-          /* @__PURE__ */ jsx90(Box30, { children: /* @__PURE__ */ jsx90(LogoImage, { width: "80px", alt: "" }) })
-        ] }),
-        /* @__PURE__ */ jsx90(Flex7, { alignItems: "center", children: /* @__PURE__ */ jsxs59(HStack13, { spacing: 4, children: [
-          /* @__PURE__ */ jsx90(
+            ] }, void 0, !0, {
+              fileName: "src/app/components/Navbar.tsx",
+              lineNumber: 59,
+              columnNumber: 13
+            }, this)
+          ] }, void 0, !0, {
+            fileName: "src/app/components/Navbar.tsx",
+            lineNumber: 52,
+            columnNumber: 11
+          }, this),
+          /* @__PURE__ */ jsxDEV91(Box30, { children: /* @__PURE__ */ jsxDEV91(LogoImage, { width: "80px", alt: "" }, void 0, !1, {
+            fileName: "src/app/components/Navbar.tsx",
+            lineNumber: 77,
+            columnNumber: 13
+          }, this) }, void 0, !1, {
+            fileName: "src/app/components/Navbar.tsx",
+            lineNumber: 76,
+            columnNumber: 11
+          }, this)
+        ] }, void 0, !0, {
+          fileName: "src/app/components/Navbar.tsx",
+          lineNumber: 51,
+          columnNumber: 9
+        }, this),
+        /* @__PURE__ */ jsxDEV91(Flex7, { alignItems: "center", children: /* @__PURE__ */ jsxDEV91(HStack13, { spacing: 4, children: [
+          /* @__PURE__ */ jsxDEV91(
             Box30,
             {
               display: {
                 base: "none",
                 md: "block"
               },
-              children: /* @__PURE__ */ jsx90(Text8, { children: userLabel })
-            }
+              children: /* @__PURE__ */ jsxDEV91(Text8, { children: userLabel }, void 0, !1, {
+                fileName: "src/app/components/Navbar.tsx",
+                lineNumber: 88,
+                columnNumber: 15
+              }, this)
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/components/Navbar.tsx",
+              lineNumber: 82,
+              columnNumber: 13
+            },
+            this
           ),
-          /* @__PURE__ */ jsx90(
+          /* @__PURE__ */ jsxDEV91(
             IconButton6,
             {
               "aria-label": "Desconectarse",
@@ -11849,23 +17361,79 @@ var Navbar = () => {
                 await authDispatch(new AuthActionLogout());
               },
               isRound: !0,
-              icon: /* @__PURE__ */ jsx90(Icon11, { as: LogoutIcon })
-            }
+              icon: /* @__PURE__ */ jsxDEV91(Icon11, { as: LogoutIcon }, void 0, !1, {
+                fileName: "src/app/components/Navbar.tsx",
+                lineNumber: 96,
+                columnNumber: 21
+              }, this)
+            },
+            void 0,
+            !1,
+            {
+              fileName: "src/app/components/Navbar.tsx",
+              lineNumber: 90,
+              columnNumber: 13
+            },
+            this
           ),
-          /* @__PURE__ */ jsx90(ColorModeSelector, {})
-        ] }) })
-      ] })
-    }
+          /* @__PURE__ */ jsxDEV91(ColorModeSelector, {}, void 0, !1, {
+            fileName: "src/app/components/Navbar.tsx",
+            lineNumber: 98,
+            columnNumber: 13
+          }, this)
+        ] }, void 0, !0, {
+          fileName: "src/app/components/Navbar.tsx",
+          lineNumber: 81,
+          columnNumber: 11
+        }, this) }, void 0, !1, {
+          fileName: "src/app/components/Navbar.tsx",
+          lineNumber: 80,
+          columnNumber: 9
+        }, this)
+      ] }, void 0, !0, {
+        fileName: "src/app/components/Navbar.tsx",
+        lineNumber: 50,
+        columnNumber: 7
+      }, this)
+    },
+    void 0,
+    !1,
+    {
+      fileName: "src/app/components/Navbar.tsx",
+      lineNumber: 44,
+      columnNumber: 5
+    },
+    this
   );
 };
 
 // src/app/routes/_authorized/route.tsx
-import { jsx as jsx91, jsxs as jsxs60 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV92 } from "react/jsx-dev-runtime";
 function AuthorizedLayout() {
-  return /* @__PURE__ */ jsx91(ClientOnly, { children: /* @__PURE__ */ jsxs60(AuthGuard, { children: [
-    /* @__PURE__ */ jsx91(Navbar, {}),
-    /* @__PURE__ */ jsx91(Container2, { maxW: "6xl", sx: { my: 4 }, children: /* @__PURE__ */ jsx91(Outlet2, {}) })
-  ] }) });
+  return /* @__PURE__ */ jsxDEV92(ClientOnly, { children: /* @__PURE__ */ jsxDEV92(AuthGuard, { children: [
+    /* @__PURE__ */ jsxDEV92(Navbar, {}, void 0, !1, {
+      fileName: "src/app/routes/_authorized/route.tsx",
+      lineNumber: 14,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV92(Container2, { maxW: "6xl", sx: { my: 4 }, children: /* @__PURE__ */ jsxDEV92(Outlet2, {}, void 0, !1, {
+      fileName: "src/app/routes/_authorized/route.tsx",
+      lineNumber: 16,
+      columnNumber: 11
+    }, this) }, void 0, !1, {
+      fileName: "src/app/routes/_authorized/route.tsx",
+      lineNumber: 15,
+      columnNumber: 9
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_authorized/route.tsx",
+    lineNumber: 13,
+    columnNumber: 7
+  }, this) }, void 0, !1, {
+    fileName: "src/app/routes/_authorized/route.tsx",
+    lineNumber: 12,
+    columnNumber: 5
+  }, this);
 }
 
 // src/app/routes/api.pedido.tsx
@@ -11926,7 +17494,12 @@ var PedidoRepository = class extends CompanyProvider {
     super({
       mainTable: PEDIDO_TABLE,
       mainIdField: PEDIDO_ID_FIELD,
-      columns: pedidoModelColumns
+      columns: pedidoModelColumns,
+      tableDependencies: [
+        CLIENTE_TABLE,
+        VENDEDOR_TABLE,
+        TRANSPORTE_TABLE
+      ]
     });
   }
   async getAllByUser(role, tangoUserId, options) {
@@ -11941,7 +17514,7 @@ var PedidoRepository = class extends CompanyProvider {
       `${mainTable}.${where.field}`,
       where.value
     ));
-    let mainColumns = (columns ?? ["*"]).map((c) => `${PEDIDO_TABLE}.${c}`), clienteNombreColumns = CLIENTE_NAME_COLUMNS.map((c) => `${CLIENTE_TABLE}.${c}`), vendedorNombreColumns = VENDEDOR_NAME_COLUMNS.map((c) => `${VENDEDOR_TABLE}.${c}`), transporteNombreColumns = TRANSPORTE_NAME_COLUMNS.map((c) => `${TRANSPORTE_TABLE}.${c}`), data = await query.select(...mainColumns, ...clienteNombreColumns, ...vendedorNombreColumns, ...transporteNombreColumns).leftOuterJoin(CLIENTE_TABLE, `${mainTable}.${CLIENTE_ID_FIELD}`, `${CLIENTE_TABLE}.${CLIENTE_ID_FIELD}`).leftOuterJoin(VENDEDOR_TABLE, `${mainTable}.${VENDEDOR_ID_FIELD}`, `${VENDEDOR_TABLE}.${VENDEDOR_ID_FIELD}`).leftOuterJoin(TRANSPORTE_TABLE, `${mainTable}.${TRANSPORTE_ID_FIELD}`, `${TRANSPORTE_TABLE}.${TRANSPORTE_ID_FIELD}`);
+    let mainColumns = (columns ?? ["*"]).map((c) => `${mainTable}.${c}`), clienteNombreColumns = CLIENTE_NAME_COLUMNS.map((c) => `${CLIENTE_TABLE}.${c}`), vendedorNombreColumns = VENDEDOR_NAME_COLUMNS.map((c) => `${VENDEDOR_TABLE}.${c}`), transporteNombreColumns = TRANSPORTE_NAME_COLUMNS.map((c) => `${TRANSPORTE_TABLE}.${c}`), data = await query.select(...mainColumns, ...clienteNombreColumns, ...vendedorNombreColumns, ...transporteNombreColumns).leftOuterJoin(CLIENTE_TABLE, `${mainTable}.${CLIENTE_ID_FIELD}`, `${CLIENTE_TABLE}.${CLIENTE_ID_FIELD}`).leftOuterJoin(VENDEDOR_TABLE, `${mainTable}.${VENDEDOR_ID_FIELD}`, `${VENDEDOR_TABLE}.${VENDEDOR_ID_FIELD}`).leftOuterJoin(TRANSPORTE_TABLE, `${mainTable}.${TRANSPORTE_ID_FIELD}`, `${TRANSPORTE_TABLE}.${TRANSPORTE_ID_FIELD}`);
     if (data == null)
       throw new DXTException(11e3 /* NOT_FOUND */);
     let result = data.map((p) => this.toResultWithRelations(p));
@@ -11987,12 +17560,32 @@ __export(route_exports15, {
 });
 import { Outlet as Outlet3 } from "@remix-run/react";
 import { Container as Container3 } from "@chakra-ui/react";
-import { jsx as jsx92, jsxs as jsxs61 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV93 } from "react/jsx-dev-runtime";
 function AdminLayout() {
-  return /* @__PURE__ */ jsx92(ClientOnly, { children: /* @__PURE__ */ jsxs61(AuthGuard, { children: [
-    /* @__PURE__ */ jsx92(Navbar, {}),
-    /* @__PURE__ */ jsx92(Container3, { maxW: "2xl", sx: { my: 4 }, children: /* @__PURE__ */ jsx92(Outlet3, {}) })
-  ] }) });
+  return /* @__PURE__ */ jsxDEV93(ClientOnly, { children: /* @__PURE__ */ jsxDEV93(AuthGuard, { children: [
+    /* @__PURE__ */ jsxDEV93(Navbar, {}, void 0, !1, {
+      fileName: "src/app/routes/_admin/route.tsx",
+      lineNumber: 14,
+      columnNumber: 9
+    }, this),
+    /* @__PURE__ */ jsxDEV93(Container3, { maxW: "2xl", sx: { my: 4 }, children: /* @__PURE__ */ jsxDEV93(Outlet3, {}, void 0, !1, {
+      fileName: "src/app/routes/_admin/route.tsx",
+      lineNumber: 16,
+      columnNumber: 11
+    }, this) }, void 0, !1, {
+      fileName: "src/app/routes/_admin/route.tsx",
+      lineNumber: 15,
+      columnNumber: 9
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_admin/route.tsx",
+    lineNumber: 13,
+    columnNumber: 7
+  }, this) }, void 0, !1, {
+    fileName: "src/app/routes/_admin/route.tsx",
+    lineNumber: 12,
+    columnNumber: 5
+  }, this);
 }
 
 // src/app/routes/_index/route.tsx
@@ -12028,7 +17621,7 @@ var appTexts = {
 };
 
 // src/app/routes/_index/route.tsx
-import { Fragment as Fragment34, jsx as jsx93, jsxs as jsxs62 } from "react/jsx-runtime";
+import { Fragment as Fragment34, jsxDEV as jsxDEV94 } from "react/jsx-dev-runtime";
 var validationSchema = yup11.object({
   username: yup11.string().required("Ingrese su nombre de usuario").test("test", "Usuario no valido", (v) => yupVOValidation(VOUserName, v)),
   password: yup11.string().required("Ingrese su contrase\xF1a")
@@ -12045,8 +17638,8 @@ function Index() {
     },
     resolver: yupResolver10(validationSchema)
   });
-  return /* @__PURE__ */ jsxs62(Fragment34, { children: [
-    /* @__PURE__ */ jsx93(
+  return /* @__PURE__ */ jsxDEV94(Fragment34, { children: [
+    /* @__PURE__ */ jsxDEV94(
       Box31,
       {
         sx: {
@@ -12054,10 +17647,22 @@ function Index() {
           top: 3,
           right: 4
         },
-        children: /* @__PURE__ */ jsx93(ColorModeSelector, {})
-      }
+        children: /* @__PURE__ */ jsxDEV94(ColorModeSelector, {}, void 0, !1, {
+          fileName: "src/app/routes/_index/route.tsx",
+          lineNumber: 81,
+          columnNumber: 9
+        }, this)
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_index/route.tsx",
+        lineNumber: 74,
+        columnNumber: 7
+      },
+      this
     ),
-    /* @__PURE__ */ jsx93(
+    /* @__PURE__ */ jsxDEV94(
       Box31,
       {
         sx: {
@@ -12067,23 +17672,35 @@ function Index() {
           alignItems: "center",
           justifyContent: "center"
         },
-        children: /* @__PURE__ */ jsx93(
+        children: /* @__PURE__ */ jsxDEV94(
           Container4,
           {
             maxWidth: "sm",
             sx: {
               alignSelf: "center"
             },
-            children: /* @__PURE__ */ jsxs62(Card4, { children: [
-              /* @__PURE__ */ jsx93(CardHeader, { children: /* @__PURE__ */ jsx93(Center, { children: /* @__PURE__ */ jsx93(LogoImage, { width: "160px", alt: "" }) }) }),
-              /* @__PURE__ */ jsx93(CardBody4, { children: /* @__PURE__ */ jsx93("form", { noValidate: !0, onSubmit: handleSubmit(async (data) => {
+            children: /* @__PURE__ */ jsxDEV94(Card4, { children: [
+              /* @__PURE__ */ jsxDEV94(CardHeader, { children: /* @__PURE__ */ jsxDEV94(Center, { children: /* @__PURE__ */ jsxDEV94(LogoImage, { width: "160px", alt: "" }, void 0, !1, {
+                fileName: "src/app/routes/_index/route.tsx",
+                lineNumber: 101,
+                columnNumber: 17
+              }, this) }, void 0, !1, {
+                fileName: "src/app/routes/_index/route.tsx",
+                lineNumber: 100,
+                columnNumber: 15
+              }, this) }, void 0, !1, {
+                fileName: "src/app/routes/_index/route.tsx",
+                lineNumber: 99,
+                columnNumber: 13
+              }, this),
+              /* @__PURE__ */ jsxDEV94(CardBody4, { children: /* @__PURE__ */ jsxDEV94("form", { noValidate: !0, onSubmit: handleSubmit(async (data) => {
                 let dataToSubmit = {
                   username: data.username,
                   password: data.password
                 };
                 await authDispatch(new AuthActionLogin(dataToSubmit));
-              }), children: /* @__PURE__ */ jsxs62(VStack5, { spacing: 4, children: [
-                /* @__PURE__ */ jsx93(
+              }), children: /* @__PURE__ */ jsxDEV94(VStack5, { spacing: 4, children: [
+                /* @__PURE__ */ jsxDEV94(
                   Heading12,
                   {
                     size: "sm",
@@ -12092,25 +17709,65 @@ function Index() {
                       pb: 2
                     },
                     children: appTexts.welcome
-                  }
+                  },
+                  void 0,
+                  !1,
+                  {
+                    fileName: "src/app/routes/_index/route.tsx",
+                    lineNumber: 107,
+                    columnNumber: 19
+                  },
+                  this
                 ),
-                (Object.keys(errors).length || authState.errorOrNull()) && /* @__PURE__ */ jsx93(Box31, { width: "full", children: /* @__PURE__ */ jsx93(Alert8, { status: "error", variant: "top-accent", children: /* @__PURE__ */ jsxs62(
+                (Object.keys(errors).length || authState.errorOrNull()) && /* @__PURE__ */ jsxDEV94(Box31, { width: "full", children: /* @__PURE__ */ jsxDEV94(Alert8, { status: "error", variant: "top-accent", children: /* @__PURE__ */ jsxDEV94(
                   UnorderedList2,
                   {
                     fontSize: "sm",
                     styleType: "none",
                     sx: { m: 0 },
                     children: [
-                      Object.keys(errors).length && Object.values(errors).map((error, key) => /* @__PURE__ */ jsx93(ListItem3, { children: error.message }, key)),
-                      authState.errorOrNull() && /* @__PURE__ */ jsx93(ListItem3, { children: authState.errorOrNull()?.error }, "api_error")
+                      Object.keys(errors).length && Object.values(errors).map((error, key) => /* @__PURE__ */ jsxDEV94(ListItem3, { children: error.message }, key, !1, {
+                        fileName: "src/app/routes/_index/route.tsx",
+                        lineNumber: 126,
+                        columnNumber: 31
+                      }, this)),
+                      authState.errorOrNull() && /* @__PURE__ */ jsxDEV94(ListItem3, { children: authState.errorOrNull()?.error }, "api_error", !1, {
+                        fileName: "src/app/routes/_index/route.tsx",
+                        lineNumber: 129,
+                        columnNumber: 29
+                      }, this)
                     ]
-                  }
-                ) }) }),
-                /* @__PURE__ */ jsx93(
+                  },
+                  void 0,
+                  !0,
+                  {
+                    fileName: "src/app/routes/_index/route.tsx",
+                    lineNumber: 119,
+                    columnNumber: 25
+                  },
+                  this
+                ) }, void 0, !1, {
+                  fileName: "src/app/routes/_index/route.tsx",
+                  lineNumber: 118,
+                  columnNumber: 23
+                }, this) }, void 0, !1, {
+                  fileName: "src/app/routes/_index/route.tsx",
+                  lineNumber: 117,
+                  columnNumber: 21
+                }, this),
+                /* @__PURE__ */ jsxDEV94(
                   ControlledInput,
                   {
                     formControlInnerProps: {
-                      icon: /* @__PURE__ */ jsx93(InputLeftElement5, { pointerEvents: "none", children: /* @__PURE__ */ jsx93(Icon12, { as: AccountIcon }) })
+                      icon: /* @__PURE__ */ jsxDEV94(InputLeftElement5, { pointerEvents: "none", children: /* @__PURE__ */ jsxDEV94(Icon12, { as: AccountIcon }, void 0, !1, {
+                        fileName: "src/app/routes/_index/route.tsx",
+                        lineNumber: 141,
+                        columnNumber: 27
+                      }, this) }, void 0, !1, {
+                        fileName: "src/app/routes/_index/route.tsx",
+                        lineNumber: 140,
+                        columnNumber: 25
+                      }, this)
                     },
                     fieldProps: {
                       name: "username",
@@ -12122,13 +17779,29 @@ function Index() {
                       isDisabled: isSubmitting
                     },
                     control
-                  }
+                  },
+                  void 0,
+                  !1,
+                  {
+                    fileName: "src/app/routes/_index/route.tsx",
+                    lineNumber: 137,
+                    columnNumber: 19
+                  },
+                  this
                 ),
-                /* @__PURE__ */ jsx93(
+                /* @__PURE__ */ jsxDEV94(
                   ControlledInput,
                   {
                     formControlInnerProps: {
-                      icon: /* @__PURE__ */ jsx93(InputLeftElement5, { pointerEvents: "none", children: /* @__PURE__ */ jsx93(Icon12, { as: LockIcon }) })
+                      icon: /* @__PURE__ */ jsxDEV94(InputLeftElement5, { pointerEvents: "none", children: /* @__PURE__ */ jsxDEV94(Icon12, { as: LockIcon }, void 0, !1, {
+                        fileName: "src/app/routes/_index/route.tsx",
+                        lineNumber: 160,
+                        columnNumber: 27
+                      }, this) }, void 0, !1, {
+                        fileName: "src/app/routes/_index/route.tsx",
+                        lineNumber: 159,
+                        columnNumber: 25
+                      }, this)
                     },
                     fieldProps: {
                       name: "password",
@@ -12140,16 +17813,64 @@ function Index() {
                       isDisabled: isSubmitting
                     },
                     control
-                  }
+                  },
+                  void 0,
+                  !1,
+                  {
+                    fileName: "src/app/routes/_index/route.tsx",
+                    lineNumber: 156,
+                    columnNumber: 19
+                  },
+                  this
                 ),
-                /* @__PURE__ */ jsx93(Button10, { type: "submit", width: "full", isLoading: isSubmitting, children: "Ingresar" })
-              ] }) }) })
-            ] })
-          }
+                /* @__PURE__ */ jsxDEV94(Button10, { type: "submit", width: "full", isLoading: isSubmitting, children: "Ingresar" }, void 0, !1, {
+                  fileName: "src/app/routes/_index/route.tsx",
+                  lineNumber: 175,
+                  columnNumber: 19
+                }, this)
+              ] }, void 0, !0, {
+                fileName: "src/app/routes/_index/route.tsx",
+                lineNumber: 106,
+                columnNumber: 17
+              }, this) }, void 0, !1, {
+                fileName: "src/app/routes/_index/route.tsx",
+                lineNumber: 105,
+                columnNumber: 15
+              }, this) }, void 0, !1, {
+                fileName: "src/app/routes/_index/route.tsx",
+                lineNumber: 104,
+                columnNumber: 13
+              }, this)
+            ] }, void 0, !0, {
+              fileName: "src/app/routes/_index/route.tsx",
+              lineNumber: 98,
+              columnNumber: 11
+            }, this)
+          },
+          void 0,
+          !1,
+          {
+            fileName: "src/app/routes/_index/route.tsx",
+            lineNumber: 92,
+            columnNumber: 9
+          },
+          this
         )
-      }
+      },
+      void 0,
+      !1,
+      {
+        fileName: "src/app/routes/_index/route.tsx",
+        lineNumber: 83,
+        columnNumber: 7
+      },
+      this
     )
-  ] });
+  ] }, void 0, !0, {
+    fileName: "src/app/routes/_index/route.tsx",
+    lineNumber: 73,
+    columnNumber: 5
+  }, this);
 }
 
 // src/app/routes/pdf/route.tsx
@@ -12158,17 +17879,33 @@ __export(route_exports17, {
   default: () => Index2
 });
 import { lazy as lazy2, Suspense as Suspense2 } from "react";
-import { jsx as jsx94 } from "react/jsx-runtime";
+import { jsxDEV as jsxDEV95 } from "react/jsx-dev-runtime";
 var PDFRenderer = lazy2(() => Promise.resolve().then(() => __toESM(require_PDFRenderer(), 1)));
 function Index2() {
-  return /* @__PURE__ */ jsx94(ClientOnly, { children: /* @__PURE__ */ jsx94(Suspense2, { fallback: /* @__PURE__ */ jsx94("div", { children: "Loading..." }), children: /* @__PURE__ */ jsx94(PDFRenderer, {}) }) });
+  return /* @__PURE__ */ jsxDEV95(ClientOnly, { children: /* @__PURE__ */ jsxDEV95(Suspense2, { fallback: /* @__PURE__ */ jsxDEV95("div", { children: "Loading..." }, void 0, !1, {
+    fileName: "src/app/routes/pdf/route.tsx",
+    lineNumber: 11,
+    columnNumber: 27
+  }, this), children: /* @__PURE__ */ jsxDEV95(PDFRenderer, {}, void 0, !1, {
+    fileName: "src/app/routes/pdf/route.tsx",
+    lineNumber: 12,
+    columnNumber: 9
+  }, this) }, void 0, !1, {
+    fileName: "src/app/routes/pdf/route.tsx",
+    lineNumber: 11,
+    columnNumber: 7
+  }, this) }, void 0, !1, {
+    fileName: "src/app/routes/pdf/route.tsx",
+    lineNumber: 10,
+    columnNumber: 5
+  }, this);
 }
 
 // server-assets-manifest:@remix-run/dev/assets-manifest
-var assets_manifest_default = { entry: { module: "/build/entry.client-HIWV3NCU.js", imports: ["/build/_shared/chunk-OHSBC2MA.js", "/build/_shared/chunk-E43VAFT6.js", "/build/_shared/chunk-J7TISYNY.js", "/build/_shared/chunk-AXWLPIOK.js"] }, routes: { root: { id: "root", parentId: void 0, path: "", index: void 0, caseSensitive: void 0, module: "/build/root-DVPWOKEN.js", imports: ["/build/_shared/chunk-AN2JWTYU.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin": { id: "routes/_admin", parentId: "root", path: void 0, index: void 0, caseSensitive: void 0, module: "/build/routes/_admin-YPBBKLMC.js", imports: ["/build/_shared/chunk-TWNMKJEO.js", "/build/_shared/chunk-AQODTW4H.js", "/build/_shared/chunk-INOJYLBZ.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings._index": { id: "routes/_admin.settings._index", parentId: "routes/_admin", path: "settings", index: !0, caseSensitive: void 0, module: "/build/routes/_admin.settings._index-422WQ75E.js", imports: ["/build/_shared/chunk-WYX374NE.js", "/build/_shared/chunk-6WQ4ASNM.js", "/build/_shared/chunk-AN2JWTYU.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.company": { id: "routes/_admin.settings.company", parentId: "routes/_admin", path: "settings/company", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.company-PP24LARG.js", imports: ["/build/_shared/chunk-EIG6C5RC.js", "/build/_shared/chunk-PNRYVTA3.js", "/build/_shared/chunk-QR3HCVRD.js", "/build/_shared/chunk-IUKXLSLM.js", "/build/_shared/chunk-QS5NQQHD.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-COC53NOQ.js", "/build/_shared/chunk-NHHPDOFU.js", "/build/_shared/chunk-MZVBQ25Z.js", "/build/_shared/chunk-DYPZFGEQ.js", "/build/_shared/chunk-6IXGFIFA.js", "/build/_shared/chunk-6WQ4ASNM.js", "/build/_shared/chunk-AN2JWTYU.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.lists.$type": { id: "routes/_admin.settings.lists.$type", parentId: "routes/_admin", path: "settings/lists/:type", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.lists.$type-PNLBAXA7.js", imports: ["/build/_shared/chunk-TMKF3IF7.js", "/build/_shared/chunk-VQNFCJCF.js", "/build/_shared/chunk-RGOFBEZH.js", "/build/_shared/chunk-WYX374NE.js", "/build/_shared/chunk-IUKXLSLM.js", "/build/_shared/chunk-QS5NQQHD.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-DYPZFGEQ.js", "/build/_shared/chunk-6IXGFIFA.js", "/build/_shared/chunk-6WQ4ASNM.js", "/build/_shared/chunk-AN2JWTYU.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.misc": { id: "routes/_admin.settings.misc", parentId: "routes/_admin", path: "settings/misc", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.misc-UIKEUTZW.js", imports: ["/build/_shared/chunk-SGNIJMQJ.js", "/build/_shared/chunk-TMKF3IF7.js", "/build/_shared/chunk-RGOFBEZH.js", "/build/_shared/chunk-WYX374NE.js", "/build/_shared/chunk-EZL2WUID.js", "/build/_shared/chunk-Z6JROXKP.js", "/build/_shared/chunk-IUKXLSLM.js", "/build/_shared/chunk-QS5NQQHD.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-DYPZFGEQ.js", "/build/_shared/chunk-6IXGFIFA.js", "/build/_shared/chunk-6WQ4ASNM.js", "/build/_shared/chunk-AN2JWTYU.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.tango": { id: "routes/_admin.settings.tango", parentId: "routes/_admin", path: "settings/tango", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.tango-EXTLCVXO.js", imports: ["/build/_shared/chunk-SGNIJMQJ.js", "/build/_shared/chunk-RGOFBEZH.js", "/build/_shared/chunk-WYX374NE.js", "/build/_shared/chunk-EZL2WUID.js", "/build/_shared/chunk-Z6JROXKP.js", "/build/_shared/chunk-IUKXLSLM.js", "/build/_shared/chunk-QS5NQQHD.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-DYPZFGEQ.js", "/build/_shared/chunk-6IXGFIFA.js", "/build/_shared/chunk-6WQ4ASNM.js", "/build/_shared/chunk-AN2JWTYU.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.$type._index": { id: "routes/_admin.settings.users.$type._index", parentId: "routes/_admin", path: "settings/users/:type", index: !0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.$type._index-T5YZ46OW.js", imports: ["/build/_shared/chunk-7FTLZ6LK.js", "/build/_shared/chunk-QTDAJLTP.js", "/build/_shared/chunk-VQNFCJCF.js", "/build/_shared/chunk-RGOFBEZH.js", "/build/_shared/chunk-WYX374NE.js", "/build/_shared/chunk-VVBDQOP2.js", "/build/_shared/chunk-VTM6CZ5G.js", "/build/_shared/chunk-POZXAGTH.js", "/build/_shared/chunk-MZVBQ25Z.js", "/build/_shared/chunk-DYPZFGEQ.js", "/build/_shared/chunk-6IXGFIFA.js", "/build/_shared/chunk-6WQ4ASNM.js", "/build/_shared/chunk-AN2JWTYU.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.customers.$id.edit": { id: "routes/_admin.settings.users.customers.$id.edit", parentId: "routes/_admin", path: "settings/users/customers/:id/edit", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.customers.$id.edit-P7FG7UYH.js", imports: ["/build/_shared/chunk-3RPZ4ONY.js", "/build/_shared/chunk-VQNFCJCF.js", "/build/_shared/chunk-RGOFBEZH.js", "/build/_shared/chunk-WYX374NE.js", "/build/_shared/chunk-3HJNNOBM.js", "/build/_shared/chunk-EZL2WUID.js", "/build/_shared/chunk-Z6JROXKP.js", "/build/_shared/chunk-EIG6C5RC.js", "/build/_shared/chunk-PNRYVTA3.js", "/build/_shared/chunk-QR3HCVRD.js", "/build/_shared/chunk-IUKXLSLM.js", "/build/_shared/chunk-QS5NQQHD.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-COC53NOQ.js", "/build/_shared/chunk-NHHPDOFU.js", "/build/_shared/chunk-VVBDQOP2.js", "/build/_shared/chunk-VTM6CZ5G.js", "/build/_shared/chunk-POZXAGTH.js", "/build/_shared/chunk-MZVBQ25Z.js", "/build/_shared/chunk-DYPZFGEQ.js", "/build/_shared/chunk-6IXGFIFA.js", "/build/_shared/chunk-6WQ4ASNM.js", "/build/_shared/chunk-AN2JWTYU.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.customers.add": { id: "routes/_admin.settings.users.customers.add", parentId: "routes/_admin", path: "settings/users/customers/add", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.customers.add-7PSBYONN.js", imports: ["/build/_shared/chunk-3HJNNOBM.js", "/build/_shared/chunk-EZL2WUID.js", "/build/_shared/chunk-Z6JROXKP.js", "/build/_shared/chunk-EIG6C5RC.js", "/build/_shared/chunk-PNRYVTA3.js", "/build/_shared/chunk-QR3HCVRD.js", "/build/_shared/chunk-IUKXLSLM.js", "/build/_shared/chunk-QS5NQQHD.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-COC53NOQ.js", "/build/_shared/chunk-NHHPDOFU.js", "/build/_shared/chunk-VVBDQOP2.js", "/build/_shared/chunk-VTM6CZ5G.js", "/build/_shared/chunk-POZXAGTH.js", "/build/_shared/chunk-MZVBQ25Z.js", "/build/_shared/chunk-DYPZFGEQ.js", "/build/_shared/chunk-6IXGFIFA.js", "/build/_shared/chunk-6WQ4ASNM.js", "/build/_shared/chunk-AN2JWTYU.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.vendors.$id.edit": { id: "routes/_admin.settings.users.vendors.$id.edit", parentId: "routes/_admin", path: "settings/users/vendors/:id/edit", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.vendors.$id.edit-XZLL266O.js", imports: ["/build/_shared/chunk-3RPZ4ONY.js", "/build/_shared/chunk-VQNFCJCF.js", "/build/_shared/chunk-RGOFBEZH.js", "/build/_shared/chunk-WYX374NE.js", "/build/_shared/chunk-3HJNNOBM.js", "/build/_shared/chunk-EZL2WUID.js", "/build/_shared/chunk-Z6JROXKP.js", "/build/_shared/chunk-EIG6C5RC.js", "/build/_shared/chunk-PNRYVTA3.js", "/build/_shared/chunk-QR3HCVRD.js", "/build/_shared/chunk-IUKXLSLM.js", "/build/_shared/chunk-QS5NQQHD.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-COC53NOQ.js", "/build/_shared/chunk-NHHPDOFU.js", "/build/_shared/chunk-VVBDQOP2.js", "/build/_shared/chunk-VTM6CZ5G.js", "/build/_shared/chunk-POZXAGTH.js", "/build/_shared/chunk-MZVBQ25Z.js", "/build/_shared/chunk-DYPZFGEQ.js", "/build/_shared/chunk-6IXGFIFA.js", "/build/_shared/chunk-6WQ4ASNM.js", "/build/_shared/chunk-AN2JWTYU.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.vendors.add": { id: "routes/_admin.settings.users.vendors.add", parentId: "routes/_admin", path: "settings/users/vendors/add", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.vendors.add-3AG6HZ6T.js", imports: ["/build/_shared/chunk-3HJNNOBM.js", "/build/_shared/chunk-EZL2WUID.js", "/build/_shared/chunk-Z6JROXKP.js", "/build/_shared/chunk-EIG6C5RC.js", "/build/_shared/chunk-PNRYVTA3.js", "/build/_shared/chunk-QR3HCVRD.js", "/build/_shared/chunk-IUKXLSLM.js", "/build/_shared/chunk-QS5NQQHD.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-COC53NOQ.js", "/build/_shared/chunk-NHHPDOFU.js", "/build/_shared/chunk-VVBDQOP2.js", "/build/_shared/chunk-VTM6CZ5G.js", "/build/_shared/chunk-POZXAGTH.js", "/build/_shared/chunk-MZVBQ25Z.js", "/build/_shared/chunk-DYPZFGEQ.js", "/build/_shared/chunk-6IXGFIFA.js", "/build/_shared/chunk-6WQ4ASNM.js", "/build/_shared/chunk-AN2JWTYU.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized": { id: "routes/_authorized", parentId: "root", path: void 0, index: void 0, caseSensitive: void 0, module: "/build/routes/_authorized-5TPSWAHB.js", imports: ["/build/_shared/chunk-TWNMKJEO.js", "/build/_shared/chunk-AQODTW4H.js", "/build/_shared/chunk-INOJYLBZ.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.change_password": { id: "routes/_authorized.change_password", parentId: "routes/_authorized", path: "change_password", index: void 0, caseSensitive: void 0, module: "/build/routes/_authorized.change_password-4IRT4NE7.js", imports: void 0, hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.orders.$client.add": { id: "routes/_authorized.orders.$client.add", parentId: "routes/_authorized", path: "orders/:client/add", index: void 0, caseSensitive: void 0, module: "/build/routes/_authorized.orders.$client.add-F4ONRLNL.js", imports: ["/build/_shared/chunk-TMKF3IF7.js", "/build/_shared/chunk-PJZKMQWS.js", "/build/_shared/chunk-QTDAJLTP.js", "/build/_shared/chunk-WYX374NE.js", "/build/_shared/chunk-Z6JROXKP.js", "/build/_shared/chunk-PNRYVTA3.js", "/build/_shared/chunk-QR3HCVRD.js", "/build/_shared/chunk-QS5NQQHD.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-COC53NOQ.js", "/build/_shared/chunk-NHHPDOFU.js", "/build/_shared/chunk-VTM6CZ5G.js", "/build/_shared/chunk-MZVBQ25Z.js", "/build/_shared/chunk-6IXGFIFA.js", "/build/_shared/chunk-6WQ4ASNM.js", "/build/_shared/chunk-AN2JWTYU.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.orders._index": { id: "routes/_authorized.orders._index", parentId: "routes/_authorized", path: "orders", index: !0, caseSensitive: void 0, module: "/build/routes/_authorized.orders._index-RY53B6CD.js", imports: ["/build/_shared/chunk-PJZKMQWS.js", "/build/_shared/chunk-7FTLZ6LK.js", "/build/_shared/chunk-QTDAJLTP.js", "/build/_shared/chunk-RGOFBEZH.js", "/build/_shared/chunk-WYX374NE.js", "/build/_shared/chunk-COC53NOQ.js", "/build/_shared/chunk-NHHPDOFU.js", "/build/_shared/chunk-POZXAGTH.js", "/build/_shared/chunk-6WQ4ASNM.js", "/build/_shared/chunk-AN2JWTYU.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_index": { id: "routes/_index", parentId: "root", path: void 0, index: !0, caseSensitive: void 0, module: "/build/routes/_index-DBPLMTSB.js", imports: ["/build/_shared/chunk-AQODTW4H.js", "/build/_shared/chunk-EZL2WUID.js", "/build/_shared/chunk-Z6JROXKP.js", "/build/_shared/chunk-SD3IP6KZ.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.admin.status": { id: "routes/api.admin.status", parentId: "root", path: "api/admin/status", index: void 0, caseSensitive: void 0, module: "/build/routes/api.admin.status-CCN3NEQQ.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.connect": { id: "routes/api.auth.connect", parentId: "root", path: "api/auth/connect", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.connect-SVPWINZZ.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.login": { id: "routes/api.auth.login", parentId: "root", path: "api/auth/login", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.login-3AZOWS4T.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.logout": { id: "routes/api.auth.logout", parentId: "root", path: "api/auth/logout", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.logout-UDESGTPA.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.password": { id: "routes/api.auth.password", parentId: "root", path: "api/auth/password", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.password-QRM7UL6D.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dictionary": { id: "routes/api.dictionary", parentId: "root", path: "api/dictionary", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dictionary-TAUNT5F4.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dictionary.active_company": { id: "routes/api.dictionary.active_company", parentId: "routes/api.dictionary", path: "active_company", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dictionary.active_company-73LF4H7F.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.cliente": { id: "routes/api.dxt.cliente", parentId: "root", path: "api/dxt/cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.cliente-DSEUCYC3.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.cliente.$id": { id: "routes/api.dxt.cliente.$id", parentId: "routes/api.dxt.cliente", path: ":id", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.cliente.$id-ZTGH5R4W.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.pedido.articulos.print": { id: "routes/api.dxt.pedido.articulos.print", parentId: "root", path: "api/dxt/pedido/articulos/print", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.pedido.articulos.print-6PHXPPH4.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.pedido.articulos.screen": { id: "routes/api.dxt.pedido.articulos.screen", parentId: "root", path: "api/dxt/pedido/articulos/screen", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.pedido.articulos.screen-UACWY2HL.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.vendedor": { id: "routes/api.dxt.vendedor", parentId: "root", path: "api/dxt/vendedor", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.vendedor-ECRHX6EP.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.vendedor.$id": { id: "routes/api.dxt.vendedor.$id", parentId: "routes/api.dxt.vendedor", path: ":id", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.vendedor.$id-SA2Y634F.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.vendedor.cliente": { id: "routes/api.dxt.vendedor.cliente", parentId: "routes/api.dxt.vendedor", path: "cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.vendedor.cliente-IVWYBE65.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido": { id: "routes/api.pedido", parentId: "root", path: "api/pedido", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido-UJ5V3F6P.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.$id.edit": { id: "routes/api.pedido.$id.edit", parentId: "routes/api.pedido", path: ":id/edit", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.$id.edit-HXRVCL76.js", imports: void 0, hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.$id.pdf": { id: "routes/api.pedido.$id.pdf", parentId: "routes/api.pedido", path: ":id/pdf", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.$id.pdf-A2VPWHRN.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.create": { id: "routes/api.pedido.create", parentId: "routes/api.pedido", path: "create", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.create-DKEKATWN.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.renglones": { id: "routes/api.pedido.renglones", parentId: "routes/api.pedido", path: "renglones", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.renglones-ISI4QT6Q.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.settings.db": { id: "routes/api.settings.db", parentId: "root", path: "api/settings/db", index: void 0, caseSensitive: void 0, module: "/build/routes/api.settings.db-62WCAYJO.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.settings.misc": { id: "routes/api.settings.misc", parentId: "root", path: "api/settings/misc", index: void 0, caseSensitive: void 0, module: "/build/routes/api.settings.misc-ILHISSIZ.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.auxiliares": { id: "routes/api.tango.auxiliares", parentId: "root", path: "api/tango/auxiliares", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.auxiliares-HQ4NIVVL.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.cliente": { id: "routes/api.tango.cliente", parentId: "root", path: "api/tango/cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.cliente-KSUQHV66.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.perfil": { id: "routes/api.tango.perfil", parentId: "root", path: "api/tango/perfil", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.perfil-IMCA3YCV.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.vendedor": { id: "routes/api.tango.vendedor", parentId: "root", path: "api/tango/vendedor", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.vendedor-IYUMAEPM.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/pdf": { id: "routes/pdf", parentId: "root", path: "pdf", index: void 0, caseSensitive: void 0, module: "/build/routes/pdf-Y7GLSEAM.js", imports: ["/build/_shared/chunk-INOJYLBZ.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 } }, version: "87a7190d", hmr: void 0, url: "/build/manifest-87A7190D.js" };
+var assets_manifest_default = { entry: { module: "/build/entry.client-WEEGUKN7.js", imports: ["/build/_shared/chunk-7VTVVVU3.js", "/build/_shared/chunk-KYMAS5G7.js", "/build/_shared/chunk-W7WA2KNM.js", "/build/_shared/chunk-QF44Z2NU.js", "/build/_shared/chunk-IZBLBPV4.js", "/build/_shared/chunk-C6PYO3SA.js", "/build/_shared/chunk-Z5QATG7W.js", "/build/_shared/chunk-NPWDTVBI.js", "/build/_shared/chunk-MIDFM7PG.js", "/build/_shared/chunk-6OOH3HNM.js"] }, routes: { root: { id: "root", parentId: void 0, path: "", index: void 0, caseSensitive: void 0, module: "/build/root-MWH5XJAZ.js", imports: ["/build/_shared/chunk-47TYDRZU.js", "/build/_shared/chunk-5GPU2JBT.js", "/build/_shared/chunk-X3JSFDBC.js"], hasAction: !1, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin": { id: "routes/_admin", parentId: "root", path: void 0, index: void 0, caseSensitive: void 0, module: "/build/routes/_admin-RN2A2IMC.js", imports: ["/build/_shared/chunk-NHVMKIAG.js", "/build/_shared/chunk-LZIBTVFB.js", "/build/_shared/chunk-RPM5OM45.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings._index": { id: "routes/_admin.settings._index", parentId: "routes/_admin", path: "settings", index: !0, caseSensitive: void 0, module: "/build/routes/_admin.settings._index-C2FWEYTX.js", imports: ["/build/_shared/chunk-CI32EJ2Q.js", "/build/_shared/chunk-MQDBQWEI.js", "/build/_shared/chunk-47TYDRZU.js", "/build/_shared/chunk-5GPU2JBT.js", "/build/_shared/chunk-X3JSFDBC.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.company": { id: "routes/_admin.settings.company", parentId: "routes/_admin", path: "settings/company", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.company-LPM6QMJT.js", imports: ["/build/_shared/chunk-Y2FO4O2S.js", "/build/_shared/chunk-32KCEIU6.js", "/build/_shared/chunk-5RUXSYXT.js", "/build/_shared/chunk-WPYMKATS.js", "/build/_shared/chunk-G3GG5NMP.js", "/build/_shared/chunk-FAFMUYJN.js", "/build/_shared/chunk-GMH2WCGQ.js", "/build/_shared/chunk-X2BW3OCG.js", "/build/_shared/chunk-LKDVMBGW.js", "/build/_shared/chunk-KG6KY45K.js", "/build/_shared/chunk-5N5J5Z6Z.js", "/build/_shared/chunk-MQDBQWEI.js", "/build/_shared/chunk-47TYDRZU.js", "/build/_shared/chunk-5GPU2JBT.js", "/build/_shared/chunk-X3JSFDBC.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.lists.$type": { id: "routes/_admin.settings.lists.$type", parentId: "routes/_admin", path: "settings/lists/:type", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.lists.$type-5F7746VE.js", imports: ["/build/_shared/chunk-22PGUOAG.js", "/build/_shared/chunk-WPYMKATS.js", "/build/_shared/chunk-G3GG5NMP.js", "/build/_shared/chunk-FAFMUYJN.js", "/build/_shared/chunk-7ABW2NQY.js", "/build/_shared/chunk-SS7UHKN2.js", "/build/_shared/chunk-CI32EJ2Q.js", "/build/_shared/chunk-KG6KY45K.js", "/build/_shared/chunk-5N5J5Z6Z.js", "/build/_shared/chunk-MQDBQWEI.js", "/build/_shared/chunk-47TYDRZU.js", "/build/_shared/chunk-5GPU2JBT.js", "/build/_shared/chunk-X3JSFDBC.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.misc": { id: "routes/_admin.settings.misc", parentId: "routes/_admin", path: "settings/misc", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.misc-UTCNM3SV.js", imports: ["/build/_shared/chunk-UAH53UTH.js", "/build/_shared/chunk-22PGUOAG.js", "/build/_shared/chunk-WNBLH7AI.js", "/build/_shared/chunk-SGTX3IAW.js", "/build/_shared/chunk-WPYMKATS.js", "/build/_shared/chunk-G3GG5NMP.js", "/build/_shared/chunk-FAFMUYJN.js", "/build/_shared/chunk-SS7UHKN2.js", "/build/_shared/chunk-CI32EJ2Q.js", "/build/_shared/chunk-KG6KY45K.js", "/build/_shared/chunk-5N5J5Z6Z.js", "/build/_shared/chunk-MQDBQWEI.js", "/build/_shared/chunk-47TYDRZU.js", "/build/_shared/chunk-5GPU2JBT.js", "/build/_shared/chunk-X3JSFDBC.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.tango": { id: "routes/_admin.settings.tango", parentId: "routes/_admin", path: "settings/tango", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.tango-YZ3ESYJ4.js", imports: ["/build/_shared/chunk-UAH53UTH.js", "/build/_shared/chunk-WNBLH7AI.js", "/build/_shared/chunk-SGTX3IAW.js", "/build/_shared/chunk-WPYMKATS.js", "/build/_shared/chunk-G3GG5NMP.js", "/build/_shared/chunk-FAFMUYJN.js", "/build/_shared/chunk-SS7UHKN2.js", "/build/_shared/chunk-CI32EJ2Q.js", "/build/_shared/chunk-KG6KY45K.js", "/build/_shared/chunk-5N5J5Z6Z.js", "/build/_shared/chunk-MQDBQWEI.js", "/build/_shared/chunk-47TYDRZU.js", "/build/_shared/chunk-5GPU2JBT.js", "/build/_shared/chunk-X3JSFDBC.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.$type._index": { id: "routes/_admin.settings.users.$type._index", parentId: "routes/_admin", path: "settings/users/:type", index: !0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.$type._index-YW7WBIXG.js", imports: ["/build/_shared/chunk-6PIMX75I.js", "/build/_shared/chunk-55WOQGXG.js", "/build/_shared/chunk-7ABW2NQY.js", "/build/_shared/chunk-SS7UHKN2.js", "/build/_shared/chunk-CI32EJ2Q.js", "/build/_shared/chunk-YMMPBFHU.js", "/build/_shared/chunk-JJ4SMVFI.js", "/build/_shared/chunk-LKDVMBGW.js", "/build/_shared/chunk-KG6KY45K.js", "/build/_shared/chunk-5N5J5Z6Z.js", "/build/_shared/chunk-FO6D3CQX.js", "/build/_shared/chunk-MQDBQWEI.js", "/build/_shared/chunk-47TYDRZU.js", "/build/_shared/chunk-5GPU2JBT.js", "/build/_shared/chunk-X3JSFDBC.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.customers.$id.edit": { id: "routes/_admin.settings.users.customers.$id.edit", parentId: "routes/_admin", path: "settings/users/customers/:id/edit", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.customers.$id.edit-OELDJ633.js", imports: ["/build/_shared/chunk-LX3JTX4F.js", "/build/_shared/chunk-PWUAF5MN.js", "/build/_shared/chunk-Y2FO4O2S.js", "/build/_shared/chunk-WNBLH7AI.js", "/build/_shared/chunk-32KCEIU6.js", "/build/_shared/chunk-5RUXSYXT.js", "/build/_shared/chunk-SGTX3IAW.js", "/build/_shared/chunk-WPYMKATS.js", "/build/_shared/chunk-G3GG5NMP.js", "/build/_shared/chunk-FAFMUYJN.js", "/build/_shared/chunk-GMH2WCGQ.js", "/build/_shared/chunk-X2BW3OCG.js", "/build/_shared/chunk-7ABW2NQY.js", "/build/_shared/chunk-SS7UHKN2.js", "/build/_shared/chunk-CI32EJ2Q.js", "/build/_shared/chunk-YMMPBFHU.js", "/build/_shared/chunk-JJ4SMVFI.js", "/build/_shared/chunk-LKDVMBGW.js", "/build/_shared/chunk-KG6KY45K.js", "/build/_shared/chunk-5N5J5Z6Z.js", "/build/_shared/chunk-FO6D3CQX.js", "/build/_shared/chunk-MQDBQWEI.js", "/build/_shared/chunk-47TYDRZU.js", "/build/_shared/chunk-5GPU2JBT.js", "/build/_shared/chunk-X3JSFDBC.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.customers.add": { id: "routes/_admin.settings.users.customers.add", parentId: "routes/_admin", path: "settings/users/customers/add", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.customers.add-27WEM3HI.js", imports: ["/build/_shared/chunk-PWUAF5MN.js", "/build/_shared/chunk-Y2FO4O2S.js", "/build/_shared/chunk-WNBLH7AI.js", "/build/_shared/chunk-32KCEIU6.js", "/build/_shared/chunk-5RUXSYXT.js", "/build/_shared/chunk-SGTX3IAW.js", "/build/_shared/chunk-WPYMKATS.js", "/build/_shared/chunk-G3GG5NMP.js", "/build/_shared/chunk-FAFMUYJN.js", "/build/_shared/chunk-GMH2WCGQ.js", "/build/_shared/chunk-X2BW3OCG.js", "/build/_shared/chunk-YMMPBFHU.js", "/build/_shared/chunk-JJ4SMVFI.js", "/build/_shared/chunk-LKDVMBGW.js", "/build/_shared/chunk-KG6KY45K.js", "/build/_shared/chunk-5N5J5Z6Z.js", "/build/_shared/chunk-FO6D3CQX.js", "/build/_shared/chunk-MQDBQWEI.js", "/build/_shared/chunk-47TYDRZU.js", "/build/_shared/chunk-5GPU2JBT.js", "/build/_shared/chunk-X3JSFDBC.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.vendors.$id.edit": { id: "routes/_admin.settings.users.vendors.$id.edit", parentId: "routes/_admin", path: "settings/users/vendors/:id/edit", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.vendors.$id.edit-VFGFO3M6.js", imports: ["/build/_shared/chunk-LX3JTX4F.js", "/build/_shared/chunk-PWUAF5MN.js", "/build/_shared/chunk-Y2FO4O2S.js", "/build/_shared/chunk-WNBLH7AI.js", "/build/_shared/chunk-32KCEIU6.js", "/build/_shared/chunk-5RUXSYXT.js", "/build/_shared/chunk-SGTX3IAW.js", "/build/_shared/chunk-WPYMKATS.js", "/build/_shared/chunk-G3GG5NMP.js", "/build/_shared/chunk-FAFMUYJN.js", "/build/_shared/chunk-GMH2WCGQ.js", "/build/_shared/chunk-X2BW3OCG.js", "/build/_shared/chunk-7ABW2NQY.js", "/build/_shared/chunk-SS7UHKN2.js", "/build/_shared/chunk-CI32EJ2Q.js", "/build/_shared/chunk-YMMPBFHU.js", "/build/_shared/chunk-JJ4SMVFI.js", "/build/_shared/chunk-LKDVMBGW.js", "/build/_shared/chunk-KG6KY45K.js", "/build/_shared/chunk-5N5J5Z6Z.js", "/build/_shared/chunk-FO6D3CQX.js", "/build/_shared/chunk-MQDBQWEI.js", "/build/_shared/chunk-47TYDRZU.js", "/build/_shared/chunk-5GPU2JBT.js", "/build/_shared/chunk-X3JSFDBC.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.vendors.add": { id: "routes/_admin.settings.users.vendors.add", parentId: "routes/_admin", path: "settings/users/vendors/add", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.vendors.add-J7PU5G7N.js", imports: ["/build/_shared/chunk-PWUAF5MN.js", "/build/_shared/chunk-Y2FO4O2S.js", "/build/_shared/chunk-WNBLH7AI.js", "/build/_shared/chunk-32KCEIU6.js", "/build/_shared/chunk-5RUXSYXT.js", "/build/_shared/chunk-SGTX3IAW.js", "/build/_shared/chunk-WPYMKATS.js", "/build/_shared/chunk-G3GG5NMP.js", "/build/_shared/chunk-FAFMUYJN.js", "/build/_shared/chunk-GMH2WCGQ.js", "/build/_shared/chunk-X2BW3OCG.js", "/build/_shared/chunk-YMMPBFHU.js", "/build/_shared/chunk-JJ4SMVFI.js", "/build/_shared/chunk-LKDVMBGW.js", "/build/_shared/chunk-KG6KY45K.js", "/build/_shared/chunk-5N5J5Z6Z.js", "/build/_shared/chunk-FO6D3CQX.js", "/build/_shared/chunk-MQDBQWEI.js", "/build/_shared/chunk-47TYDRZU.js", "/build/_shared/chunk-5GPU2JBT.js", "/build/_shared/chunk-X3JSFDBC.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized": { id: "routes/_authorized", parentId: "root", path: void 0, index: void 0, caseSensitive: void 0, module: "/build/routes/_authorized-Q4MZSW2W.js", imports: ["/build/_shared/chunk-NHVMKIAG.js", "/build/_shared/chunk-LZIBTVFB.js", "/build/_shared/chunk-RPM5OM45.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.change_password": { id: "routes/_authorized.change_password", parentId: "routes/_authorized", path: "change_password", index: void 0, caseSensitive: void 0, module: "/build/routes/_authorized.change_password-NPP3NRNO.js", imports: void 0, hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.orders.$client.add": { id: "routes/_authorized.orders.$client.add", parentId: "routes/_authorized", path: "orders/:client/add", index: void 0, caseSensitive: void 0, module: "/build/routes/_authorized.orders.$client.add-X5MCXCZY.js", imports: ["/build/_shared/chunk-22PGUOAG.js", "/build/_shared/chunk-LZHR6XN2.js", "/build/_shared/chunk-32KCEIU6.js", "/build/_shared/chunk-5RUXSYXT.js", "/build/_shared/chunk-SGTX3IAW.js", "/build/_shared/chunk-G3GG5NMP.js", "/build/_shared/chunk-FAFMUYJN.js", "/build/_shared/chunk-GMH2WCGQ.js", "/build/_shared/chunk-X2BW3OCG.js", "/build/_shared/chunk-55WOQGXG.js", "/build/_shared/chunk-CI32EJ2Q.js", "/build/_shared/chunk-JJ4SMVFI.js", "/build/_shared/chunk-LKDVMBGW.js", "/build/_shared/chunk-5N5J5Z6Z.js", "/build/_shared/chunk-MQDBQWEI.js", "/build/_shared/chunk-47TYDRZU.js", "/build/_shared/chunk-5GPU2JBT.js", "/build/_shared/chunk-X3JSFDBC.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.orders._index": { id: "routes/_authorized.orders._index", parentId: "routes/_authorized", path: "orders", index: !0, caseSensitive: void 0, module: "/build/routes/_authorized.orders._index-7ITCZVSY.js", imports: ["/build/_shared/chunk-LZHR6XN2.js", "/build/_shared/chunk-GMH2WCGQ.js", "/build/_shared/chunk-X2BW3OCG.js", "/build/_shared/chunk-6PIMX75I.js", "/build/_shared/chunk-55WOQGXG.js", "/build/_shared/chunk-SS7UHKN2.js", "/build/_shared/chunk-CI32EJ2Q.js", "/build/_shared/chunk-FO6D3CQX.js", "/build/_shared/chunk-MQDBQWEI.js", "/build/_shared/chunk-47TYDRZU.js", "/build/_shared/chunk-5GPU2JBT.js", "/build/_shared/chunk-X3JSFDBC.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_index": { id: "routes/_index", parentId: "root", path: void 0, index: !0, caseSensitive: void 0, module: "/build/routes/_index-55655B7U.js", imports: ["/build/_shared/chunk-LZIBTVFB.js", "/build/_shared/chunk-WNBLH7AI.js", "/build/_shared/chunk-SGTX3IAW.js", "/build/_shared/chunk-FAFMUYJN.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.admin.status": { id: "routes/api.admin.status", parentId: "root", path: "api/admin/status", index: void 0, caseSensitive: void 0, module: "/build/routes/api.admin.status-3C2MXNXW.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.connect": { id: "routes/api.auth.connect", parentId: "root", path: "api/auth/connect", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.connect-JDZPQZTM.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.login": { id: "routes/api.auth.login", parentId: "root", path: "api/auth/login", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.login-UN6TEREM.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.logout": { id: "routes/api.auth.logout", parentId: "root", path: "api/auth/logout", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.logout-WHSRVSUH.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.password": { id: "routes/api.auth.password", parentId: "root", path: "api/auth/password", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.password-2XSZEBMT.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dictionary": { id: "routes/api.dictionary", parentId: "root", path: "api/dictionary", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dictionary-A7CIGY74.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dictionary.active_company": { id: "routes/api.dictionary.active_company", parentId: "routes/api.dictionary", path: "active_company", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dictionary.active_company-RVQGL77T.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.cliente": { id: "routes/api.dxt.cliente", parentId: "root", path: "api/dxt/cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.cliente-IKGIFIBM.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.cliente.$id": { id: "routes/api.dxt.cliente.$id", parentId: "routes/api.dxt.cliente", path: ":id", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.cliente.$id-ERTX7XAA.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.pedido.articulos.print_ids": { id: "routes/api.dxt.pedido.articulos.print_ids", parentId: "root", path: "api/dxt/pedido/articulos/print_ids", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.pedido.articulos.print_ids-B33WUFM5.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.pedido.articulos.print_list": { id: "routes/api.dxt.pedido.articulos.print_list", parentId: "root", path: "api/dxt/pedido/articulos/print_list", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.pedido.articulos.print_list-AMTTNVN2.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.pedido.articulos.screen_list": { id: "routes/api.dxt.pedido.articulos.screen_list", parentId: "root", path: "api/dxt/pedido/articulos/screen_list", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.pedido.articulos.screen_list-G3S2Y65J.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.vendedor": { id: "routes/api.dxt.vendedor", parentId: "root", path: "api/dxt/vendedor", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.vendedor-MDFNEY7D.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.vendedor.$id": { id: "routes/api.dxt.vendedor.$id", parentId: "routes/api.dxt.vendedor", path: ":id", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.vendedor.$id-ZSOYWYLB.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.vendedor.cliente": { id: "routes/api.dxt.vendedor.cliente", parentId: "routes/api.dxt.vendedor", path: "cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.vendedor.cliente-CKRWQLVA.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido": { id: "routes/api.pedido", parentId: "root", path: "api/pedido", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido-43TUG6KA.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.$id.edit": { id: "routes/api.pedido.$id.edit", parentId: "routes/api.pedido", path: ":id/edit", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.$id.edit-RUOFFYET.js", imports: void 0, hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.create": { id: "routes/api.pedido.create", parentId: "routes/api.pedido", path: "create", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.create-5OPZZKEO.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.renglones": { id: "routes/api.pedido.renglones", parentId: "routes/api.pedido", path: "renglones", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.renglones-RCKYMHBG.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.settings.db": { id: "routes/api.settings.db", parentId: "root", path: "api/settings/db", index: void 0, caseSensitive: void 0, module: "/build/routes/api.settings.db-TLOVPYFP.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.settings.misc": { id: "routes/api.settings.misc", parentId: "root", path: "api/settings/misc", index: void 0, caseSensitive: void 0, module: "/build/routes/api.settings.misc-3ZKOBW4H.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.auxiliares": { id: "routes/api.tango.auxiliares", parentId: "root", path: "api/tango/auxiliares", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.auxiliares-WJHYSHLQ.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.cliente": { id: "routes/api.tango.cliente", parentId: "root", path: "api/tango/cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.cliente-6PROXWGU.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.perfil": { id: "routes/api.tango.perfil", parentId: "root", path: "api/tango/perfil", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.perfil-EZZDO7ME.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.vendedor": { id: "routes/api.tango.vendedor", parentId: "root", path: "api/tango/vendedor", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.vendedor-DRWPH35Y.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/pdf": { id: "routes/pdf", parentId: "root", path: "pdf", index: void 0, caseSensitive: void 0, module: "/build/routes/pdf-7I3CQJH2.js", imports: ["/build/_shared/chunk-RPM5OM45.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 } }, version: "a1f11908", hmr: { runtime: "/build/_shared/chunk-Z5QATG7W.js", timestamp: 1712110404549 }, url: "/build/manifest-A1F11908.js" };
 
 // server-entry-module:@remix-run/dev/server-build
-var mode2 = "production", assetsBuildDirectory = "public/build", future = { v3_fetcherPersist: !1, v3_relativeSplatPath: !1, v3_throwAbortReason: !1 }, publicPath = "/build/", entry = { module: entry_server_exports }, routes = {
+var mode2 = "development", assetsBuildDirectory = "public/build", future = { v3_fetcherPersist: !1, v3_relativeSplatPath: !1, v3_throwAbortReason: !1 }, publicPath = "/build/", entry = { module: entry_server_exports }, routes = {
   root: {
     id: "root",
     parentId: void 0,
@@ -12193,6 +17930,14 @@ var mode2 = "production", assetsBuildDirectory = "public/build", future = { v3_f
     caseSensitive: void 0,
     module: route_exports2
   },
+  "routes/api.dxt.pedido.articulos.screen_list": {
+    id: "routes/api.dxt.pedido.articulos.screen_list",
+    parentId: "root",
+    path: "api/dxt/pedido/articulos/screen_list",
+    index: void 0,
+    caseSensitive: void 0,
+    module: api_dxt_pedido_articulos_screen_list_exports
+  },
   "routes/_admin.settings.users.customers.add": {
     id: "routes/_admin.settings.users.customers.add",
     parentId: "routes/_admin",
@@ -12200,6 +17945,14 @@ var mode2 = "production", assetsBuildDirectory = "public/build", future = { v3_f
     index: void 0,
     caseSensitive: void 0,
     module: route_exports3
+  },
+  "routes/api.dxt.pedido.articulos.print_list": {
+    id: "routes/api.dxt.pedido.articulos.print_list",
+    parentId: "root",
+    path: "api/dxt/pedido/articulos/print_list",
+    index: void 0,
+    caseSensitive: void 0,
+    module: api_dxt_pedido_articulos_print_list_exports
   },
   "routes/_admin.settings.users.$type._index": {
     id: "routes/_admin.settings.users.$type._index",
@@ -12209,6 +17962,14 @@ var mode2 = "production", assetsBuildDirectory = "public/build", future = { v3_f
     caseSensitive: void 0,
     module: route_exports4
   },
+  "routes/api.dxt.pedido.articulos.print_ids": {
+    id: "routes/api.dxt.pedido.articulos.print_ids",
+    parentId: "root",
+    path: "api/dxt/pedido/articulos/print_ids",
+    index: void 0,
+    caseSensitive: void 0,
+    module: api_dxt_pedido_articulos_print_ids_exports
+  },
   "routes/_admin.settings.users.vendors.add": {
     id: "routes/_admin.settings.users.vendors.add",
     parentId: "routes/_admin",
@@ -12217,14 +17978,6 @@ var mode2 = "production", assetsBuildDirectory = "public/build", future = { v3_f
     caseSensitive: void 0,
     module: route_exports5
   },
-  "routes/api.dxt.pedido.articulos.screen": {
-    id: "routes/api.dxt.pedido.articulos.screen",
-    parentId: "root",
-    path: "api/dxt/pedido/articulos/screen",
-    index: void 0,
-    caseSensitive: void 0,
-    module: api_dxt_pedido_articulos_screen_exports
-  },
   "routes/_authorized.orders.$client.add": {
     id: "routes/_authorized.orders.$client.add",
     parentId: "routes/_authorized",
@@ -12232,14 +17985,6 @@ var mode2 = "production", assetsBuildDirectory = "public/build", future = { v3_f
     index: void 0,
     caseSensitive: void 0,
     module: route_exports6
-  },
-  "routes/api.dxt.pedido.articulos.print": {
-    id: "routes/api.dxt.pedido.articulos.print",
-    parentId: "root",
-    path: "api/dxt/pedido/articulos/print",
-    index: void 0,
-    caseSensitive: void 0,
-    module: api_dxt_pedido_articulos_print_exports
   },
   "routes/api.dictionary.active_company": {
     id: "routes/api.dictionary.active_company",
@@ -12352,14 +18097,6 @@ var mode2 = "production", assetsBuildDirectory = "public/build", future = { v3_f
     index: void 0,
     caseSensitive: void 0,
     module: api_pedido_id_edit_exports
-  },
-  "routes/api.pedido.$id.pdf": {
-    id: "routes/api.pedido.$id.pdf",
-    parentId: "routes/api.pedido",
-    path: ":id/pdf",
-    index: void 0,
-    caseSensitive: void 0,
-    module: api_pedido_id_pdf_exports
   },
   "routes/api.tango.vendedor": {
     id: "routes/api.tango.vendedor",
@@ -12523,3 +18260,4 @@ export {
   publicPath,
   routes
 };
+//# sourceMappingURL=index.js.map

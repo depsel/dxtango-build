@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/yup/utils.ts"],
+  "sourcesContent": ["import { type ValueObjectBase } from '@/value_objects';\nimport { ObjectSchema } from 'yup';\n\n\nexport function yupVOValidation<T, R = T | string>(VO: new (input: R) => ValueObjectBase<T, R>, value: R): boolean {\n  try {\n    new VO(value);\n    return true;\n  } catch (_) {\n    return false;\n  }\n}\n\nexport type ExtractSchemaFromYup<Y> = Y extends ObjectSchema<infer S> ? S : never;"],
+  "mappings": ";;;;;AAAA;AAIO,SAAS,gBAAmC,IAA6C,OAAmB;AACjH,MAAI;AACF,QAAI,GAAG,KAAK;AACZ,WAAO;AAAA,EACT,SAAS,GAAP;AACA,WAAO;AAAA,EACT;AACF;",
+  "names": []
+}

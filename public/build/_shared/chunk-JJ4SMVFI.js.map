@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/api-client/tango/paths.ts"],
+  "sourcesContent": ["import { apiPath } from \"../shared\";\n\nexport const API_TANGO_PERFIL = apiPath( '/tango/perfil' );\nexport const API_TANGO_CLIENTE = apiPath( '/tango/cliente' );\nexport const API_TANGO_VENDEDOR = apiPath( '/tango/vendedor' );\nexport const API_TANGO_AUXILIARES = apiPath( '/tango/auxiliares' );"],
+  "mappings": ";;;;;;;;AAAA;AAEO,IAAM,mBAAmB,QAAS,eAAgB;AAClD,IAAM,oBAAoB,QAAS,gBAAiB;AACpD,IAAM,qBAAqB,QAAS,iBAAkB;AACtD,IAAM,uBAAuB,QAAS,mBAAoB;",
+  "names": []
+}
