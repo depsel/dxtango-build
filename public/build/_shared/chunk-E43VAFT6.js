@@ -1,0 +1,1 @@
+import{h as s}from"/build/_shared/chunk-AXWLPIOK.js";s();function a(){return a=Object.assign?Object.assign.bind():function(e){for(var n=1;n<arguments.length;n++){var t=arguments[n];for(var r in t)Object.prototype.hasOwnProperty.call(t,r)&&(e[r]=t[r])}return e},a.apply(this,arguments)}export{a};

@@ -1,0 +1,1 @@
+import{b as r}from"/build/_shared/chunk-J7TISYNY.js";import{e,h as o}from"/build/_shared/chunk-AXWLPIOK.js";o();o();var a=e(r(),1);function d(){return(0,a.jsx)(a.Fragment,{children:"Change password"})}export{d as default};
