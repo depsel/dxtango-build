@@ -593,7 +593,6 @@ function isNode() {
 }
 
 // src/@core/transformation/index.ts
-import { toBigIntBE, toBigIntLE, toBufferBE, toBufferLE } from "bigint-buffer";
 import validator2 from "validator";
 
 // src/@core/validation/base.ts
@@ -1401,7 +1400,7 @@ import { join as join2 } from "path";
 
 // src/texts/common.ts
 var RETRY = "Reintentar", CANCEL = "Cancelar";
-var DELETE = "Eliminar", NO_NAME = "Sin nombre", NO_DATE = "Sin fecha";
+var UPDATE = "Actualizar", DELETE = "Eliminar", PRINT = "Imprimir", CREATE = "Crear", PREVIOUS = "Anterior", NEXT = "Siguiente", FILTER_PLACEHOLDER = "Filtrar...", SUMMARY = "Ver resumen", NO_NAME = "Sin nombre", NO_DATE = "Sin fecha";
 var NONE_M = "Ninguno", NONEXISTENT_PRODUCT = "Art\xEDculo inexistente";
 
 // src/code.client/utils/index.ts
@@ -2325,6 +2324,9 @@ function validateSchema(schema, input, options) {
   return Object.fromEntries(validatedResult);
 }
 
+// src/texts/app.ts
+var WELCOME = "Bienvenido al sistema de pedidos de Sorbalok Pinturas.", OPTIONS = "Opciones", LOGOUT = "Desconectarse", CHANGE_COLOR_MODE = "Cambiar modo de color", CONFIGURE = "Configurar", INVALID_LIST_TYPE = "Tipo de lista no v\xE1lida", BACK_TO_SETTINGS = "Volver a Configuraci\xF3n", USER_NOT_FOUND = "Usuario no encontrado", PEDIDOS = "Pedidos", ADMINISTRACION = "Administraci\xF3n", SELECTED_S = " seleccionado", SELECTED_P = " seleccionados";
+
 // src/app/components/CommonErrors.tsx
 import {
   Alert,
@@ -2467,7 +2469,7 @@ var ApiErrors = ({
                 },
                 spacing: 4,
                 children: [
-                  retry && /* @__PURE__ */ jsx11(Button4, { onClick: retry, colorScheme: "green", children: "Reintentar" }),
+                  retry && /* @__PURE__ */ jsx11(Button4, { onClick: retry, colorScheme: "green", children: RETRY }),
                   cancelAndNavigateTo != null && /* @__PURE__ */ jsx11(
                     Button4,
                     {
@@ -2475,7 +2477,7 @@ var ApiErrors = ({
                         navigate(cancelAndNavigateTo);
                       },
                       colorScheme: "red",
-                      children: "Cancelar"
+                      children: CANCEL
                     }
                   )
                 ]
@@ -2966,7 +2968,7 @@ var SettingsFormsButtons = (props) => {
         colorScheme: "blue",
         width: "full",
         isLoading,
-        children: buttonActionText ?? "Actualizar"
+        children: buttonActionText ?? UPDATE
       }
     ),
     /* @__PURE__ */ jsx21(
@@ -2977,7 +2979,7 @@ var SettingsFormsButtons = (props) => {
         width: "full",
         isLoading,
         onClick: () => navigate(buttonCancelUrl ?? URL_SETTINGS_PATH),
-        children: "Cancelar"
+        children: CANCEL
       }
     )
   ] }) });
@@ -3593,7 +3595,7 @@ function Edit() {
           {
             title: typeSettings.titles.edit,
             actionButton: {
-              label: "Cancelar",
+              label: CANCEL,
               buttonProps: {
                 colorScheme: "gray",
                 onClick: () => {
@@ -3609,9 +3611,9 @@ function Edit() {
     return /* @__PURE__ */ jsx24(
       CommonErrors,
       {
-        error: "Usuario no encontrado",
+        error: USER_NOT_FOUND,
         buttonProps: {
-          label: "Volver a Configuraci\xF3n",
+          label: BACK_TO_SETTINGS,
           colorScheme: "green",
           onClick: () => {
             navigate(URL_SETTINGS_PATH);
@@ -4181,7 +4183,7 @@ function Edit2() {
           {
             title: typeSettings.titles.edit,
             actionButton: {
-              label: "Cancelar",
+              label: CANCEL,
               buttonProps: {
                 colorScheme: "gray",
                 onClick: () => {
@@ -4197,9 +4199,9 @@ function Edit2() {
     return /* @__PURE__ */ jsx28(
       CommonErrors,
       {
-        error: "Usuario no encontrado",
+        error: USER_NOT_FOUND,
         buttonProps: {
-          label: "Volver a Configuraci\xF3n",
+          label: BACK_TO_SETTINGS,
           colorScheme: "green",
           onClick: () => {
             navigate(URL_SETTINGS_PATH);
@@ -5249,7 +5251,7 @@ var CompanyInitProvider = class extends TDBProvider {
       let count = await knex2.count().from(tableName);
       tableExists = Array.isArray(count) && count.length > 0;
     } catch (e) {
-      console.error(e);
+      isDevelopment() && console.error(e);
     }
     if (tableExists)
       try {
@@ -5257,7 +5259,7 @@ var CompanyInitProvider = class extends TDBProvider {
         await knex2.select(...requiredFields).from(tableName).first();
         return;
       } catch (e) {
-        console.error(e), tableWithUnknownColumns = !0;
+        isDevelopment() && console.error(e), tableWithUnknownColumns = !0;
       }
     if (tableWithUnknownColumns)
       throw new DXTException(200008 /* TANGO_COMPANY_INITIALIZATION_ERROR */, `Tabla con formato no v\xE1lido: ${tableName}`);
@@ -6471,7 +6473,7 @@ function Add() {
       {
         title: typeSettings.titles.create,
         actionButton: {
-          label: "Cancelar",
+          label: CANCEL,
           buttonProps: {
             colorScheme: "gray",
             onClick: () => {
@@ -6555,7 +6557,7 @@ function useSearchField(data, fieldsToFilter) {
 // src/app/routes/_admin.settings.users.$type._index/components/success.tsx
 import {
   Box as Box11,
-  Flex as Flex3,
+  Flex as Flex2,
   Grid as Grid7,
   GridItem as GridItem7,
   HStack as HStack8,
@@ -6686,7 +6688,7 @@ var Pagination = (props) => {
       /* @__PURE__ */ jsx34(
         IconButton,
         {
-          "aria-label": "Anterior",
+          "aria-label": PREVIOUS,
           size: { base: "sm", md: "md" },
           onClick: onPrevious,
           isDisabled: currentPage === 1,
@@ -6696,7 +6698,7 @@ var Pagination = (props) => {
       /* @__PURE__ */ jsx34(
         IconButton,
         {
-          "aria-label": "Siguiente",
+          "aria-label": NEXT,
           size: { base: "sm", md: "md" },
           onClick: onNext,
           isDisabled: currentPage === lastPage,
@@ -6734,7 +6736,7 @@ var SearchField = ({
         ref: inputRef,
         type: "text",
         name: "filter",
-        placeholder: "Filtrar...",
+        placeholder: FILTER_PLACEHOLDER,
         value: searchValue ?? "",
         onChange: (e) => {
           setSearchValue(e.target.value), inputChangeRef.current && clearTimeout(inputChangeRef.current), inputChangeRef.current = setTimeout(() => {
@@ -6905,7 +6907,7 @@ var Success4 = (props) => {
           }
         ) }, `row_${user.id}`)) })
       ] }) }),
-      /* @__PURE__ */ jsx37(Flex3, { sx: { pt: 4, justifyContent: "center" }, children: /* @__PURE__ */ jsx37(
+      /* @__PURE__ */ jsx37(Flex2, { sx: { pt: 4, justifyContent: "center" }, children: /* @__PURE__ */ jsx37(
         Pagination,
         {
           currentPage,
@@ -6967,9 +6969,9 @@ function Lists() {
   ] }) : /* @__PURE__ */ jsx39(
     CommonErrors,
     {
-      error: "Tipo de lista no v\xE1lida",
+      error: INVALID_LIST_TYPE,
       buttonProps: {
-        label: "Volver a Configuraci\xF3n",
+        label: BACK_TO_SETTINGS,
         colorScheme: "green",
         onClick: () => {
           navigate(URL_SETTINGS_PATH);
@@ -7460,7 +7462,7 @@ function Add2() {
       {
         title: typeSettings.titles.create,
         actionButton: {
-          label: "Cancelar",
+          label: CANCEL,
           buttonProps: {
             colorScheme: "gray",
             onClick: () => {
@@ -8028,7 +8030,7 @@ var idArticulo = 1, fakeData = {
 
 // src/app/components/orders/OrdersAddNav.tsx
 import { useNavigate as useNavigate9 } from "@remix-run/react";
-import { Box as Box13, Flex as Flex4, HStack as HStack10, useColorModeValue as useColorModeValue2 } from "@chakra-ui/react";
+import { Box as Box13, Flex as Flex3, HStack as HStack10, useColorModeValue as useColorModeValue2 } from "@chakra-ui/react";
 import CloseIcon2 from "mdi-react/CloseIcon.js";
 import FormatListCheckboxIcon from "mdi-react/FormatListCheckboxIcon.js";
 import PlusIcon from "mdi-react/PlusIcon.js";
@@ -8079,13 +8081,13 @@ var OrdersAddNav = (props) => {
         zIndex: 1e3,
         top: 0
       },
-      children: /* @__PURE__ */ jsxs28(Flex4, { h: 16, alignItems: "center", justifyContent: "space-between", children: [
+      children: /* @__PURE__ */ jsxs28(Flex3, { h: 16, alignItems: "center", justifyContent: "space-between", children: [
         /* @__PURE__ */ jsxs28(HStack10, { spacing: { base: 2, sm: 3 }, alignItems: "center", children: [
           /* @__PURE__ */ jsx45(
             ResponsiveIconButton,
             {
               icon: PlusIcon,
-              text: "Crear",
+              text: CREATE,
               sharedProps: {
                 size: "sm",
                 fontWeight: "400",
@@ -8105,7 +8107,7 @@ var OrdersAddNav = (props) => {
             ResponsiveIconButton,
             {
               icon: CloseIcon2,
-              text: "Cancelar",
+              text: CANCEL,
               sharedProps: {
                 size: "sm",
                 fontWeight: "400",
@@ -8127,7 +8129,7 @@ var OrdersAddNav = (props) => {
             ResponsiveIconButton,
             {
               icon: FormatListCheckboxIcon,
-              text: "Ver resumen",
+              text: SUMMARY,
               sharedProps: {
                 size: "sm",
                 fontWeight: "400",
@@ -8144,7 +8146,7 @@ var OrdersAddNav = (props) => {
           )
         ] }),
         /* @__PURE__ */ jsx45(
-          Flex4,
+          Flex3,
           {
             alignItems: "center",
             sx: {
@@ -9065,7 +9067,7 @@ function Lists2() {
       {
         title: typeSettings.title,
         actionButton: {
-          label: "Cancelar",
+          label: CANCEL,
           buttonProps: {
             colorScheme: "gray",
             onClick: () => {
@@ -9079,9 +9081,9 @@ function Lists2() {
   ] }) : /* @__PURE__ */ jsx55(
     CommonErrors,
     {
-      error: "Tipo de lista no v\xE1lida",
+      error: INVALID_LIST_TYPE,
       buttonProps: {
-        label: "Volver a Configuraci\xF3n",
+        label: BACK_TO_SETTINGS,
         colorScheme: "green",
         onClick: () => {
           navigate(URL_SETTINGS_PATH);
@@ -9141,18 +9143,13 @@ import { useState as useState13 } from "react";
 import { useNavigate as useNavigate11 } from "@remix-run/react";
 import {
   Box as Box21,
-  Flex as Flex5,
+  Flex as Flex4,
   HStack as HStack11,
-  Icon as Icon8,
-  Input as Input5,
-  InputGroup as InputGroup5,
-  InputLeftElement as InputLeftElement4,
   Tag,
   TagLabel,
   useColorModeValue as useColorModeValue4,
   useDisclosure as useDisclosure3
 } from "@chakra-ui/react";
-import MagnifyIcon2 from "mdi-react/MagnifyIcon.js";
 import PlusIcon2 from "mdi-react/PlusIcon.js";
 import PrinterIcon from "mdi-react/PrinterIcon.js";
 import TrashIcon2 from "mdi-react/TrashIcon.js";
@@ -9267,7 +9264,7 @@ var OrdersNav = ({ selected }) => {
     setCreate(!0), onOpen();
   }, handleOnClose = () => {
     onClose(), setCreate(!1);
-  }, selectedInfo = selected == null || selected <= 0 ? void 0 : selected == 1 ? "1 seleccionado" : `${selected} seleccionados`;
+  }, selectedInfo = selected == null || selected <= 0 ? void 0 : selected == 1 ? `1 ${SELECTED_S}` : `${selected} ${SELECTED_P}`;
   return /* @__PURE__ */ jsxs40(Fragment23, { children: [
     /* @__PURE__ */ jsx59(
       Box21,
@@ -9279,13 +9276,13 @@ var OrdersNav = ({ selected }) => {
           zIndex: 1e3,
           top: 0
         },
-        children: /* @__PURE__ */ jsxs40(Flex5, { h: 16, alignItems: "center", justifyContent: "space-between", children: [
+        children: /* @__PURE__ */ jsxs40(Flex4, { h: 16, alignItems: "center", justifyContent: "space-between", children: [
           /* @__PURE__ */ jsxs40(HStack11, { spacing: { base: 2, sm: 3 }, alignItems: "center", children: [
             /* @__PURE__ */ jsx59(
               ResponsiveIconButton,
               {
                 icon: TrashIcon2,
-                text: "Eliminar",
+                text: DELETE,
                 sharedProps: {
                   size: "sm",
                   fontWeight: "400",
@@ -9303,7 +9300,7 @@ var OrdersNav = ({ selected }) => {
               ResponsiveIconButton,
               {
                 icon: PrinterIcon,
-                text: "Imprimir",
+                text: PRINT,
                 sharedProps: {
                   size: "sm",
                   fontWeight: "400",
@@ -9321,7 +9318,7 @@ var OrdersNav = ({ selected }) => {
               ResponsiveIconButton,
               {
                 icon: PlusIcon2,
-                text: "Crear",
+                text: CREATE,
                 sharedProps: {
                   size: "sm",
                   fontWeight: "400",
@@ -9365,10 +9362,13 @@ var OrdersNav = ({ selected }) => {
               )
             ] })
           ] }),
-          /* @__PURE__ */ jsx59(Flex5, { alignItems: "center", marginLeft: 4, children: /* @__PURE__ */ jsx59(HStack11, { spacing: { base: 2, md: 4 }, children: /* @__PURE__ */ jsx59(Box21, { children: /* @__PURE__ */ jsxs40(InputGroup5, { children: [
-            /* @__PURE__ */ jsx59(InputLeftElement4, { pointerEvents: "none", children: /* @__PURE__ */ jsx59(Icon8, { as: MagnifyIcon2 }) }),
-            /* @__PURE__ */ jsx59(Input5, { type: "text", placeholder: "Filtrar..." })
-          ] }) }) }) })
+          /* @__PURE__ */ jsx59(Flex4, { alignItems: "center", marginLeft: 4, children: /* @__PURE__ */ jsx59(HStack11, { spacing: { base: 2, md: 4 }, children: /* @__PURE__ */ jsx59(Box21, { children: /* @__PURE__ */ jsx59(
+            SearchField,
+            {
+              handleSearchInputChange: () => {
+              }
+            }
+          ) }) }) })
         ] })
       }
     ),
@@ -9622,11 +9622,9 @@ function PedidoList({ pedidos, handleSelect }) {
   let { state: stateRenglones } = useDXTApiFetch({
     url: API_PEDIDO_GET_ALL_ROWS,
     silent: !0,
-    transformResponse: (data) => (Object.values(data).forEach(
-      (rows) => {
-        Array.isArray(rows) && rows.sort((a, b) => a.renglon - b.renglon);
-      }
-    ), data)
+    transformResponse: (data) => (Object.values(data).forEach((rows) => {
+      Array.isArray(rows) && rows.sort((a, b) => a.renglon - b.renglon);
+    }), data)
   }), [isOpen, setIsOpen] = useState14({}), handleToggleDetails = useCallback2(
     (id) => {
       setIsOpen((prev_state) => ({ [id]: !prev_state[id] }));
@@ -9782,7 +9780,7 @@ function PedidoList({ pedidos, handleSelect }) {
                   ]
                 }
               ),
-              /* @__PURE__ */ jsx65(Box23, { children: /* @__PURE__ */ jsx65(Collapse2, { in: isOpen[id], animateOpacity: !0, children: /* @__PURE__ */ jsxs45(Box23, { sx: { mt: 6 }, children: [
+              /* @__PURE__ */ jsx65(Box23, { children: /* @__PURE__ */ jsx65(Collapse2, { in: isOpen[id], animateOpacity: !0, children: isOpen[id] && /* @__PURE__ */ jsxs45(Box23, { sx: { mt: 6 }, children: [
                 stateRenglones.isLoading() && /* @__PURE__ */ jsx65(RenglonesLoading, {}),
                 stateRenglones.isError() && /* @__PURE__ */ jsx65(RenglonesError, {}),
                 stateRenglones.isSuccess() && Array.isArray(stateRenglones.data?.[id]) ? /* @__PURE__ */ jsx65(
@@ -10062,7 +10060,7 @@ __export(route_exports10, {
 import { useNavigate as useNavigate12 } from "@remix-run/react";
 
 // src/app/routes/_admin.settings.company/components/success.tsx
-import { useEffect as useEffect13 } from "react";
+import { useEffect as useEffect12 } from "react";
 import { Box as Box24, Grid as Grid16, GridItem as GridItem16, useToast as useToast7 } from "@chakra-ui/react";
 import { yupResolver as yupResolver7 } from "@hookform/resolvers/yup";
 import { useForm as useForm7 } from "react-hook-form";
@@ -10109,7 +10107,7 @@ var Success9 = () => {
     },
     resolver: yupResolver7(yupValidationSchema3)
   }), disableForm = isSubmitSuccessful || isSubmitting;
-  return useEffect13(() => {
+  return useEffect12(() => {
     if (stateDictionary instanceof FetchStateSuccess) {
       let selectedIndex = resultDictionary.findIndex(
         (x) => x.isActive === !0
@@ -10191,7 +10189,7 @@ function Company() {
       {
         title: "Empresa",
         actionButton: {
-          label: "Cancelar",
+          label: CANCEL,
           buttonProps: {
             colorScheme: "gray",
             onClick: () => {
@@ -10240,7 +10238,7 @@ import {
   GridItem as GridItem17,
   Heading as Heading10,
   HStack as HStack12,
-  Icon as Icon9
+  Icon as Icon8
 } from "@chakra-ui/react";
 import CheckCircleIcon from "mdi-react/CheckCircleIcon.js";
 import CloseCircleIcon from "mdi-react/CloseCircleIcon.js";
@@ -10255,7 +10253,7 @@ var SettingsListItem = (props) => {
       gap: 4,
       children: [
         /* @__PURE__ */ jsx72(GridItem17, { children: /* @__PURE__ */ jsxs50(HStack12, { justifyContent: { base: "center", md: "start" }, children: [
-          status != null && (status === 1 /* success */ ? /* @__PURE__ */ jsx72(Icon9, { as: CheckCircleIcon, color: "green.500", boxSize: 8 }) : /* @__PURE__ */ jsx72(Icon9, { as: CloseCircleIcon, color: "red.500", boxSize: 8 })),
+          status != null && (status === 1 /* success */ ? /* @__PURE__ */ jsx72(Icon8, { as: CheckCircleIcon, color: "green.500", boxSize: 8 }) : /* @__PURE__ */ jsx72(Icon8, { as: CloseCircleIcon, color: "red.500", boxSize: 8 })),
           /* @__PURE__ */ jsxs50("div", { children: [
             /* @__PURE__ */ jsx72(Heading10, { size: "md", textTransform: "uppercase", children: title }),
             subtitle != null && /* @__PURE__ */ jsx72(Badge8, { colorScheme: "red", children: subtitle })
@@ -10266,7 +10264,7 @@ var SettingsListItem = (props) => {
           {
             buttonState: actionButtonState,
             onClick: actionButtonOnClick,
-            children: "Configurar"
+            children: CONFIGURE
           }
         ) })
       ]
@@ -10681,7 +10679,7 @@ function Tango() {
       {
         title: "Conexi\xF3n a Tango",
         actionButton: {
-          label: "Cancelar",
+          label: CANCEL,
           buttonProps: {
             colorScheme: "gray",
             onClick: () => {
@@ -10756,7 +10754,7 @@ import { useForm as useForm9 } from "react-hook-form";
 // src/app/components/form_elements/ControlledCheckbox.tsx
 import {
   Checkbox as Checkbox2,
-  Flex as Flex6,
+  Flex as Flex5,
   FormControl as FormControl6,
   FormHelperText as FormHelperText5
 } from "@chakra-ui/react";
@@ -10772,7 +10770,7 @@ var ControlledCheckbox = (props) => {
     control
   });
   return /* @__PURE__ */ jsxs56(FormControl6, { ...formControlProps, isInvalid: invalid, ref, children: [
-    /* @__PURE__ */ jsxs56(Flex6, { alignItems: "center", children: [
+    /* @__PURE__ */ jsxs56(Flex5, { alignItems: "center", children: [
       /* @__PURE__ */ jsx82(Checkbox2, { ...fieldProps, onChange, isChecked: value, children: text }),
       helperAction
     ] }),
@@ -11097,7 +11095,7 @@ function Misc() {
       {
         title: "Correo saliente y sesiones",
         actionButton: {
-          label: "Cancelar",
+          label: CANCEL,
           buttonProps: {
             colorScheme: "gray",
             onClick: () => {
@@ -11200,14 +11198,15 @@ function getUserRoleWhere(role, tangoUserId) {
 // src/code.server/infrastucture/pedido/model_mappers/renglon_pedido.model_mapper.ts
 var renglonPedidoModelMapper = (m) => {
   let {
-    [RENGLON_PEDIDO_ID_FIELD]: id,
-    [ARTICULO_CODE_FIELD]: codigoArticulo,
+    [ARTICULO_ID_FIELD]: id_articulo,
+    [ARTICULO_CODE_FIELD]: codigo_articulo,
     PRECIO,
     CANT_PEDID,
     N_RENGLON
   } = m, precio = PRECIO ?? 0, cantidad = CANT_PEDID ?? 0, subtotal = precio * cantidad;
   return {
-    id_articulo: id,
+    id_articulo,
+    codigo_articulo,
     renglon: N_RENGLON ?? 0,
     precio,
     cantidad,
@@ -11233,8 +11232,8 @@ var RenglonPedidoRepository = class extends CompanyProvider {
         ARTICULO_TABLE
       ]
     });
-    let filteredColumns = renglonPedidoModelColumns.filter((c) => c != PEDIDO_ID_FIELD && c != ARTICULO_CODE_FIELD);
-    this.mainColumns = filteredColumns.map((c) => `${RENGLON_PEDIDO_TABLE}.${c}`), this.pedidoColumns = [`${PEDIDO_TABLE}.${PEDIDO_ID_FIELD}`], this.articuloColumns = [...ARTICULO_NAME_COLUMNS, ARTICULO_CODE_FIELD].map((c) => `${ARTICULO_TABLE}.${c}`);
+    let filteredColumns = renglonPedidoModelColumns.filter((c) => c != PEDIDO_ID_FIELD);
+    this.mainColumns = filteredColumns.map((c) => `${RENGLON_PEDIDO_TABLE}.${c}`), this.pedidoColumns = [`${PEDIDO_TABLE}.${PEDIDO_ID_FIELD}`], this.articuloColumns = ARTICULO_NAME_COLUMNS.map((c) => `${ARTICULO_TABLE}.${c}`);
   }
   async _getByWhere(whereColumn, whereValue) {
     let cacheKey = `byWhere_${whereColumn ?? "x"}_${whereValue ?? "x"}`, resultFromCache = await this.cache.getMetadata(cacheKey);
@@ -11242,7 +11241,11 @@ var RenglonPedidoRepository = class extends CompanyProvider {
       return resultFromCache;
     let { mainTable, columns } = this.config, query = (await this.getCompany())(mainTable);
     whereColumn != null && (query = query.where(whereColumn, whereValue));
-    let rawData = await query.select(...this.mainColumns, ...this.articuloColumns, ...this.pedidoColumns).leftOuterJoin(ARTICULO_TABLE, `${mainTable}.${ARTICULO_ID_FIELD}`, `${ARTICULO_TABLE}.${ARTICULO_ID_FIELD}`).innerJoin(PEDIDO_TABLE, `${mainTable}.${PEDIDO_CODE_FIELD}`, `${PEDIDO_TABLE}.${PEDIDO_CODE_FIELD}`).orderBy(PEDIDO_ID_FIELD);
+    let allColumns = [
+      ...this.mainColumns,
+      ...this.articuloColumns,
+      ...this.pedidoColumns
+    ], rawData = await query.select(allColumns).leftOuterJoin(ARTICULO_TABLE, `${mainTable}.${ARTICULO_ID_FIELD}`, `${ARTICULO_TABLE}.${ARTICULO_ID_FIELD}`).innerJoin(PEDIDO_TABLE, `${mainTable}.${PEDIDO_CODE_FIELD}`, `${PEDIDO_TABLE}.${PEDIDO_CODE_FIELD}`).orderBy(PEDIDO_ID_FIELD);
     if (rawData == null)
       throw new DXTException(11e3 /* NOT_FOUND */);
     let data = rawData.map((renglonPedido) => this.toRenglonWithIdPedido(renglonPedido)), result = {}, sliceBegin = 0, idPedidoPrev;
@@ -11832,12 +11835,12 @@ __export(route_exports14, {
 import { Outlet as Outlet2 } from "@remix-run/react";
 
 // src/code.client/auth/AuthGuard.tsx
-import { useEffect as useEffect14 } from "react";
+import { useEffect as useEffect13 } from "react";
 import { useLocation as useLocation2, useNavigate as useNavigate16 } from "@remix-run/react";
 import { Fragment as Fragment32, jsx as jsx86 } from "react/jsx-runtime";
 var AuthGuard = (props) => {
   let { children } = props, { state: authState, dispatch: authDispatch } = useAuth(), navigate = useNavigate16(), location = useLocation2();
-  if (useEffect14(() => {
+  if (useEffect13(() => {
     authState instanceof AuthStateLoggedIn ? (async () => {
       await authDispatch(new AuthActionRefreshAll(authState.userInfo));
     })().catch((_11) => {
@@ -11873,9 +11876,9 @@ function ClientOnly({ children, fallback = null }) {
 import { useNavigate as useNavigate17 } from "@remix-run/react";
 import {
   Box as Box30,
-  Flex as Flex7,
+  Flex as Flex6,
   HStack as HStack13,
-  Icon as Icon11,
+  Icon as Icon10,
   IconButton as IconButton6,
   Menu,
   MenuButton,
@@ -11886,37 +11889,6 @@ import {
 } from "@chakra-ui/react";
 import LogoutIcon from "mdi-react/LogoutIcon.js";
 import MenuIcon from "mdi-react/MenuIcon.js";
-
-// src/app/components/ColorModeSelector.tsx
-import { Icon as Icon10, IconButton as IconButton5, useColorMode } from "@chakra-ui/react";
-import MoonWaningCrescentIcon from "mdi-react/MoonWaningCrescentIcon.js";
-import WeatherSunnyIcon from "mdi-react/WeatherSunnyIcon.js";
-import { jsx as jsx88 } from "react/jsx-runtime";
-var ColorModeSelector = () => {
-  let { colorMode, toggleColorMode } = useColorMode();
-  return /* @__PURE__ */ jsx88(
-    IconButton5,
-    {
-      "aria-label": "Cambiar modo de color",
-      onClick: toggleColorMode,
-      isRound: !0,
-      icon: /* @__PURE__ */ jsx88(
-        Icon10,
-        {
-          as: colorMode === "light" ? MoonWaningCrescentIcon : WeatherSunnyIcon
-        }
-      )
-    }
-  );
-};
-
-// src/app/components/LogoImage.tsx
-import { Image, useColorModeValue as useColorModeValue6 } from "@chakra-ui/react";
-import { jsx as jsx89 } from "react/jsx-runtime";
-var LogoImage = (props) => {
-  let logo = useColorModeValue6("/logo-light.svg", "/logo-dark.svg");
-  return /* @__PURE__ */ jsx89(Image, { src: logo, ...props });
-};
 
 // src/texts/users.ts
 var USER_ROLE_CUSTOMER = "Cliente", USER_ROLE_VENDOR = "Vendedor", USER_ROLE_ADMIN = "Administrador";
@@ -11933,6 +11905,37 @@ function getUserRoleText(role) {
   }
 }
 
+// src/app/components/ColorModeSelector.tsx
+import { Icon as Icon9, IconButton as IconButton5, useColorMode } from "@chakra-ui/react";
+import MoonWaningCrescentIcon from "mdi-react/MoonWaningCrescentIcon.js";
+import WeatherSunnyIcon from "mdi-react/WeatherSunnyIcon.js";
+import { jsx as jsx88 } from "react/jsx-runtime";
+var ColorModeSelector = () => {
+  let { colorMode, toggleColorMode } = useColorMode();
+  return /* @__PURE__ */ jsx88(
+    IconButton5,
+    {
+      "aria-label": CHANGE_COLOR_MODE,
+      onClick: toggleColorMode,
+      isRound: !0,
+      icon: /* @__PURE__ */ jsx88(
+        Icon9,
+        {
+          as: colorMode === "light" ? MoonWaningCrescentIcon : WeatherSunnyIcon
+        }
+      )
+    }
+  );
+};
+
+// src/app/components/LogoImage.tsx
+import { Image, useColorModeValue as useColorModeValue6 } from "@chakra-ui/react";
+import { jsx as jsx89 } from "react/jsx-runtime";
+var LogoImage = (props) => {
+  let logo = useColorModeValue6("/logo-light.svg", "/logo-dark.svg");
+  return /* @__PURE__ */ jsx89(Image, { src: logo, ...props });
+};
+
 // src/app/components/Navbar.tsx
 import { jsx as jsx90, jsxs as jsxs59 } from "react/jsx-runtime";
 var Navbar = () => {
@@ -11944,14 +11947,14 @@ var Navbar = () => {
       sx: {
         px: 4
       },
-      children: /* @__PURE__ */ jsxs59(Flex7, { h: 16, alignItems: "center", justifyContent: "space-between", children: [
+      children: /* @__PURE__ */ jsxs59(Flex6, { h: 16, alignItems: "center", justifyContent: "space-between", children: [
         /* @__PURE__ */ jsxs59(HStack13, { spacing: 4, alignItems: "center", children: [
           /* @__PURE__ */ jsxs59(Menu, { isLazy: !0, id: "menu", children: [
             /* @__PURE__ */ jsx90(
               MenuButton,
               {
                 as: IconButton6,
-                "aria-label": "Options",
+                "aria-label": OPTIONS,
                 icon: /* @__PURE__ */ jsx90(MenuIcon, {}),
                 variant: "outline"
               }
@@ -11963,7 +11966,7 @@ var Navbar = () => {
                   onClick: () => {
                     navigate(URL_PEDIDOS_PATH);
                   },
-                  children: "Pedidos"
+                  children: PEDIDOS
                 }
               ),
               /* @__PURE__ */ jsx90(
@@ -11972,14 +11975,14 @@ var Navbar = () => {
                   onClick: () => {
                     navigate(URL_SETTINGS_PATH);
                   },
-                  children: "Configuraciones"
+                  children: ADMINISTRACION
                 }
               )
             ] })
           ] }),
           /* @__PURE__ */ jsx90(Box30, { children: /* @__PURE__ */ jsx90(LogoImage, { width: "80px", alt: "" }) })
         ] }),
-        /* @__PURE__ */ jsx90(Flex7, { alignItems: "center", children: /* @__PURE__ */ jsxs59(HStack13, { spacing: 4, children: [
+        /* @__PURE__ */ jsx90(Flex6, { alignItems: "center", children: /* @__PURE__ */ jsxs59(HStack13, { spacing: 4, children: [
           /* @__PURE__ */ jsx90(
             Box30,
             {
@@ -11993,12 +11996,12 @@ var Navbar = () => {
           /* @__PURE__ */ jsx90(
             IconButton6,
             {
-              "aria-label": "Desconectarse",
+              "aria-label": LOGOUT,
               onClick: async () => {
                 await authDispatch(new AuthActionLogout());
               },
               isRound: !0,
-              icon: /* @__PURE__ */ jsx90(Icon11, { as: LogoutIcon })
+              icon: /* @__PURE__ */ jsx90(Icon10, { as: LogoutIcon })
             }
           ),
           /* @__PURE__ */ jsx90(ColorModeSelector, {})
@@ -12164,8 +12167,8 @@ import {
   Center,
   Container as Container4,
   Heading as Heading12,
-  Icon as Icon12,
-  InputLeftElement as InputLeftElement5,
+  Icon as Icon11,
+  InputLeftElement as InputLeftElement4,
   ListItem as ListItem3,
   UnorderedList as UnorderedList2,
   VStack as VStack5
@@ -12175,13 +12178,6 @@ import * as yup11 from "yup";
 import AccountIcon from "mdi-react/AccountIcon.js";
 import LockIcon from "mdi-react/LockIcon.js";
 import { useForm as useForm10 } from "react-hook-form";
-
-// src/texts/app.ts
-var appTexts = {
-  welcome: "Bienvenido al sistema de pedidos de Sorbalok Pinturas."
-};
-
-// src/app/routes/_index/route.tsx
 import { Fragment as Fragment34, jsx as jsx93, jsxs as jsxs62 } from "react/jsx-runtime";
 var validationSchema = yup11.object({
   username: yup11.string().required("Ingrese su nombre de usuario").test("test", "Usuario no valido", (v) => yupVOValidation(VOUserName, v)),
@@ -12245,7 +12241,7 @@ function Index() {
                       textAlign: "center",
                       pb: 2
                     },
-                    children: appTexts.welcome
+                    children: WELCOME
                   }
                 ),
                 (Object.keys(errors).length || authState.errorOrNull()) && /* @__PURE__ */ jsx93(Box31, { width: "full", children: /* @__PURE__ */ jsx93(Alert8, { status: "error", variant: "top-accent", children: /* @__PURE__ */ jsxs62(
@@ -12264,7 +12260,7 @@ function Index() {
                   ControlledInput,
                   {
                     formControlInnerProps: {
-                      icon: /* @__PURE__ */ jsx93(InputLeftElement5, { pointerEvents: "none", children: /* @__PURE__ */ jsx93(Icon12, { as: AccountIcon }) })
+                      icon: /* @__PURE__ */ jsx93(InputLeftElement4, { pointerEvents: "none", children: /* @__PURE__ */ jsx93(Icon11, { as: AccountIcon }) })
                     },
                     fieldProps: {
                       name: "username",
@@ -12282,7 +12278,7 @@ function Index() {
                   ControlledInput,
                   {
                     formControlInnerProps: {
-                      icon: /* @__PURE__ */ jsx93(InputLeftElement5, { pointerEvents: "none", children: /* @__PURE__ */ jsx93(Icon12, { as: LockIcon }) })
+                      icon: /* @__PURE__ */ jsx93(InputLeftElement4, { pointerEvents: "none", children: /* @__PURE__ */ jsx93(Icon11, { as: LockIcon }) })
                     },
                     fieldProps: {
                       name: "password",
@@ -12311,15 +12307,15 @@ var route_exports17 = {};
 __export(route_exports17, {
   default: () => Index2
 });
-import { lazy as lazy2, Suspense as Suspense2 } from "react";
+import { lazy, Suspense } from "react";
 import { jsx as jsx94 } from "react/jsx-runtime";
-var PDFRenderer = lazy2(() => Promise.resolve().then(() => __toESM(require_PDFRenderer(), 1)));
+var PDFRenderer = lazy(() => Promise.resolve().then(() => __toESM(require_PDFRenderer(), 1)));
 function Index2() {
-  return /* @__PURE__ */ jsx94(ClientOnly, { children: /* @__PURE__ */ jsx94(Suspense2, { fallback: /* @__PURE__ */ jsx94("div", { children: "Loading..." }), children: /* @__PURE__ */ jsx94(PDFRenderer, {}) }) });
+  return /* @__PURE__ */ jsx94(ClientOnly, { children: /* @__PURE__ */ jsx94(Suspense, { fallback: /* @__PURE__ */ jsx94("div", { children: "Loading..." }), children: /* @__PURE__ */ jsx94(PDFRenderer, {}) }) });
 }
 
 // server-assets-manifest:@remix-run/dev/assets-manifest
-var assets_manifest_default = { entry: { module: "/build/entry.client-HIWV3NCU.js", imports: ["/build/_shared/chunk-OHSBC2MA.js", "/build/_shared/chunk-E43VAFT6.js", "/build/_shared/chunk-J7TISYNY.js", "/build/_shared/chunk-AXWLPIOK.js"] }, routes: { root: { id: "root", parentId: void 0, path: "", index: void 0, caseSensitive: void 0, module: "/build/root-VOLKNGUZ.js", imports: ["/build/_shared/chunk-GMXXJD7U.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin": { id: "routes/_admin", parentId: "root", path: void 0, index: void 0, caseSensitive: void 0, module: "/build/routes/_admin-RIQKX334.js", imports: ["/build/_shared/chunk-OXD53MKU.js", "/build/_shared/chunk-I7NA2BKF.js", "/build/_shared/chunk-INOJYLBZ.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings._index": { id: "routes/_admin.settings._index", parentId: "routes/_admin", path: "settings", index: !0, caseSensitive: void 0, module: "/build/routes/_admin.settings._index-QLLK2SAZ.js", imports: ["/build/_shared/chunk-Y6HZBLWM.js", "/build/_shared/chunk-SWYAOCMN.js", "/build/_shared/chunk-GMXXJD7U.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.company": { id: "routes/_admin.settings.company", parentId: "routes/_admin", path: "settings/company", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.company-5AJDV63N.js", imports: ["/build/_shared/chunk-GIECF5JH.js", "/build/_shared/chunk-QYNV6ZXS.js", "/build/_shared/chunk-QR3HCVRD.js", "/build/_shared/chunk-DFN4Z3JB.js", "/build/_shared/chunk-TWC63WIN.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-COC53NOQ.js", "/build/_shared/chunk-NHHPDOFU.js", "/build/_shared/chunk-OFDOSXRQ.js", "/build/_shared/chunk-MZS6CHAS.js", "/build/_shared/chunk-VTMMMSTK.js", "/build/_shared/chunk-SWYAOCMN.js", "/build/_shared/chunk-GMXXJD7U.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.lists.$type": { id: "routes/_admin.settings.lists.$type", parentId: "routes/_admin", path: "settings/lists/:type", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.lists.$type-EMZOR4AS.js", imports: ["/build/_shared/chunk-BR2XK6R6.js", "/build/_shared/chunk-DFN4Z3JB.js", "/build/_shared/chunk-TWC63WIN.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-N7LHE6QJ.js", "/build/_shared/chunk-CLUXRPU5.js", "/build/_shared/chunk-Y6HZBLWM.js", "/build/_shared/chunk-MZS6CHAS.js", "/build/_shared/chunk-VTMMMSTK.js", "/build/_shared/chunk-SWYAOCMN.js", "/build/_shared/chunk-GMXXJD7U.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.misc": { id: "routes/_admin.settings.misc", parentId: "routes/_admin", path: "settings/misc", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.misc-SRFOTT4V.js", imports: ["/build/_shared/chunk-7SVGYDSH.js", "/build/_shared/chunk-BR2XK6R6.js", "/build/_shared/chunk-EZL2WUID.js", "/build/_shared/chunk-6I6UQKKH.js", "/build/_shared/chunk-DFN4Z3JB.js", "/build/_shared/chunk-TWC63WIN.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-CLUXRPU5.js", "/build/_shared/chunk-Y6HZBLWM.js", "/build/_shared/chunk-MZS6CHAS.js", "/build/_shared/chunk-VTMMMSTK.js", "/build/_shared/chunk-SWYAOCMN.js", "/build/_shared/chunk-GMXXJD7U.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.tango": { id: "routes/_admin.settings.tango", parentId: "routes/_admin", path: "settings/tango", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.tango-VW3FGIUZ.js", imports: ["/build/_shared/chunk-7SVGYDSH.js", "/build/_shared/chunk-EZL2WUID.js", "/build/_shared/chunk-6I6UQKKH.js", "/build/_shared/chunk-DFN4Z3JB.js", "/build/_shared/chunk-TWC63WIN.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-CLUXRPU5.js", "/build/_shared/chunk-Y6HZBLWM.js", "/build/_shared/chunk-MZS6CHAS.js", "/build/_shared/chunk-VTMMMSTK.js", "/build/_shared/chunk-SWYAOCMN.js", "/build/_shared/chunk-GMXXJD7U.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.$type._index": { id: "routes/_admin.settings.users.$type._index", parentId: "routes/_admin", path: "settings/users/:type", index: !0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.$type._index-WGKRMG2H.js", imports: ["/build/_shared/chunk-GYVXVRJN.js", "/build/_shared/chunk-4W7VMVIZ.js", "/build/_shared/chunk-N7LHE6QJ.js", "/build/_shared/chunk-CLUXRPU5.js", "/build/_shared/chunk-Y6HZBLWM.js", "/build/_shared/chunk-PV3Q4SPS.js", "/build/_shared/chunk-VP5EY3GX.js", "/build/_shared/chunk-OFDOSXRQ.js", "/build/_shared/chunk-MZS6CHAS.js", "/build/_shared/chunk-VTMMMSTK.js", "/build/_shared/chunk-I5EGJ5XA.js", "/build/_shared/chunk-SWYAOCMN.js", "/build/_shared/chunk-GMXXJD7U.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.customers.$id.edit": { id: "routes/_admin.settings.users.customers.$id.edit", parentId: "routes/_admin", path: "settings/users/customers/:id/edit", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.customers.$id.edit-UBKHCRH6.js", imports: ["/build/_shared/chunk-KIK5IFRE.js", "/build/_shared/chunk-YUPDQZ23.js", "/build/_shared/chunk-GIECF5JH.js", "/build/_shared/chunk-EZL2WUID.js", "/build/_shared/chunk-QYNV6ZXS.js", "/build/_shared/chunk-QR3HCVRD.js", "/build/_shared/chunk-6I6UQKKH.js", "/build/_shared/chunk-DFN4Z3JB.js", "/build/_shared/chunk-TWC63WIN.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-COC53NOQ.js", "/build/_shared/chunk-NHHPDOFU.js", "/build/_shared/chunk-N7LHE6QJ.js", "/build/_shared/chunk-CLUXRPU5.js", "/build/_shared/chunk-Y6HZBLWM.js", "/build/_shared/chunk-PV3Q4SPS.js", "/build/_shared/chunk-VP5EY3GX.js", "/build/_shared/chunk-OFDOSXRQ.js", "/build/_shared/chunk-MZS6CHAS.js", "/build/_shared/chunk-VTMMMSTK.js", "/build/_shared/chunk-I5EGJ5XA.js", "/build/_shared/chunk-SWYAOCMN.js", "/build/_shared/chunk-GMXXJD7U.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.customers.add": { id: "routes/_admin.settings.users.customers.add", parentId: "routes/_admin", path: "settings/users/customers/add", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.customers.add-KZBSSFR4.js", imports: ["/build/_shared/chunk-YUPDQZ23.js", "/build/_shared/chunk-GIECF5JH.js", "/build/_shared/chunk-EZL2WUID.js", "/build/_shared/chunk-QYNV6ZXS.js", "/build/_shared/chunk-QR3HCVRD.js", "/build/_shared/chunk-6I6UQKKH.js", "/build/_shared/chunk-DFN4Z3JB.js", "/build/_shared/chunk-TWC63WIN.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-COC53NOQ.js", "/build/_shared/chunk-NHHPDOFU.js", "/build/_shared/chunk-PV3Q4SPS.js", "/build/_shared/chunk-VP5EY3GX.js", "/build/_shared/chunk-OFDOSXRQ.js", "/build/_shared/chunk-MZS6CHAS.js", "/build/_shared/chunk-VTMMMSTK.js", "/build/_shared/chunk-I5EGJ5XA.js", "/build/_shared/chunk-SWYAOCMN.js", "/build/_shared/chunk-GMXXJD7U.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.vendors.$id.edit": { id: "routes/_admin.settings.users.vendors.$id.edit", parentId: "routes/_admin", path: "settings/users/vendors/:id/edit", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.vendors.$id.edit-UHVT3ULB.js", imports: ["/build/_shared/chunk-KIK5IFRE.js", "/build/_shared/chunk-YUPDQZ23.js", "/build/_shared/chunk-GIECF5JH.js", "/build/_shared/chunk-EZL2WUID.js", "/build/_shared/chunk-QYNV6ZXS.js", "/build/_shared/chunk-QR3HCVRD.js", "/build/_shared/chunk-6I6UQKKH.js", "/build/_shared/chunk-DFN4Z3JB.js", "/build/_shared/chunk-TWC63WIN.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-COC53NOQ.js", "/build/_shared/chunk-NHHPDOFU.js", "/build/_shared/chunk-N7LHE6QJ.js", "/build/_shared/chunk-CLUXRPU5.js", "/build/_shared/chunk-Y6HZBLWM.js", "/build/_shared/chunk-PV3Q4SPS.js", "/build/_shared/chunk-VP5EY3GX.js", "/build/_shared/chunk-OFDOSXRQ.js", "/build/_shared/chunk-MZS6CHAS.js", "/build/_shared/chunk-VTMMMSTK.js", "/build/_shared/chunk-I5EGJ5XA.js", "/build/_shared/chunk-SWYAOCMN.js", "/build/_shared/chunk-GMXXJD7U.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.vendors.add": { id: "routes/_admin.settings.users.vendors.add", parentId: "routes/_admin", path: "settings/users/vendors/add", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.vendors.add-4YWO5WOS.js", imports: ["/build/_shared/chunk-YUPDQZ23.js", "/build/_shared/chunk-GIECF5JH.js", "/build/_shared/chunk-EZL2WUID.js", "/build/_shared/chunk-QYNV6ZXS.js", "/build/_shared/chunk-QR3HCVRD.js", "/build/_shared/chunk-6I6UQKKH.js", "/build/_shared/chunk-DFN4Z3JB.js", "/build/_shared/chunk-TWC63WIN.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-COC53NOQ.js", "/build/_shared/chunk-NHHPDOFU.js", "/build/_shared/chunk-PV3Q4SPS.js", "/build/_shared/chunk-VP5EY3GX.js", "/build/_shared/chunk-OFDOSXRQ.js", "/build/_shared/chunk-MZS6CHAS.js", "/build/_shared/chunk-VTMMMSTK.js", "/build/_shared/chunk-I5EGJ5XA.js", "/build/_shared/chunk-SWYAOCMN.js", "/build/_shared/chunk-GMXXJD7U.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized": { id: "routes/_authorized", parentId: "root", path: void 0, index: void 0, caseSensitive: void 0, module: "/build/routes/_authorized-HTSRVLY3.js", imports: ["/build/_shared/chunk-OXD53MKU.js", "/build/_shared/chunk-I7NA2BKF.js", "/build/_shared/chunk-INOJYLBZ.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.change_password": { id: "routes/_authorized.change_password", parentId: "routes/_authorized", path: "change_password", index: void 0, caseSensitive: void 0, module: "/build/routes/_authorized.change_password-4IRT4NE7.js", imports: void 0, hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.orders.$client.add": { id: "routes/_authorized.orders.$client.add", parentId: "routes/_authorized", path: "orders/:client/add", index: void 0, caseSensitive: void 0, module: "/build/routes/_authorized.orders.$client.add-XL5WWNI6.js", imports: ["/build/_shared/chunk-BR2XK6R6.js", "/build/_shared/chunk-DKRRW7RQ.js", "/build/_shared/chunk-QYNV6ZXS.js", "/build/_shared/chunk-QR3HCVRD.js", "/build/_shared/chunk-6I6UQKKH.js", "/build/_shared/chunk-TWC63WIN.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-COC53NOQ.js", "/build/_shared/chunk-NHHPDOFU.js", "/build/_shared/chunk-4W7VMVIZ.js", "/build/_shared/chunk-Y6HZBLWM.js", "/build/_shared/chunk-VP5EY3GX.js", "/build/_shared/chunk-OFDOSXRQ.js", "/build/_shared/chunk-VTMMMSTK.js", "/build/_shared/chunk-SWYAOCMN.js", "/build/_shared/chunk-GMXXJD7U.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.orders._index": { id: "routes/_authorized.orders._index", parentId: "routes/_authorized", path: "orders", index: !0, caseSensitive: void 0, module: "/build/routes/_authorized.orders._index-7ZC7ZKWS.js", imports: ["/build/_shared/chunk-DKRRW7RQ.js", "/build/_shared/chunk-COC53NOQ.js", "/build/_shared/chunk-NHHPDOFU.js", "/build/_shared/chunk-GYVXVRJN.js", "/build/_shared/chunk-4W7VMVIZ.js", "/build/_shared/chunk-CLUXRPU5.js", "/build/_shared/chunk-Y6HZBLWM.js", "/build/_shared/chunk-I5EGJ5XA.js", "/build/_shared/chunk-SWYAOCMN.js", "/build/_shared/chunk-GMXXJD7U.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_index": { id: "routes/_index", parentId: "root", path: void 0, index: !0, caseSensitive: void 0, module: "/build/routes/_index-PQYEZ7HG.js", imports: ["/build/_shared/chunk-I7NA2BKF.js", "/build/_shared/chunk-EZL2WUID.js", "/build/_shared/chunk-6I6UQKKH.js", "/build/_shared/chunk-SD3IP6KZ.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.admin.status": { id: "routes/api.admin.status", parentId: "root", path: "api/admin/status", index: void 0, caseSensitive: void 0, module: "/build/routes/api.admin.status-CCN3NEQQ.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.connect": { id: "routes/api.auth.connect", parentId: "root", path: "api/auth/connect", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.connect-SVPWINZZ.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.login": { id: "routes/api.auth.login", parentId: "root", path: "api/auth/login", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.login-3AZOWS4T.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.logout": { id: "routes/api.auth.logout", parentId: "root", path: "api/auth/logout", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.logout-UDESGTPA.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.password": { id: "routes/api.auth.password", parentId: "root", path: "api/auth/password", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.password-QRM7UL6D.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dictionary": { id: "routes/api.dictionary", parentId: "root", path: "api/dictionary", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dictionary-TAUNT5F4.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dictionary.active_company": { id: "routes/api.dictionary.active_company", parentId: "routes/api.dictionary", path: "active_company", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dictionary.active_company-73LF4H7F.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.cliente": { id: "routes/api.dxt.cliente", parentId: "root", path: "api/dxt/cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.cliente-DSEUCYC3.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.cliente.$id": { id: "routes/api.dxt.cliente.$id", parentId: "routes/api.dxt.cliente", path: ":id", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.cliente.$id-ZTGH5R4W.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.pedido.articulos.print_ids": { id: "routes/api.dxt.pedido.articulos.print_ids", parentId: "root", path: "api/dxt/pedido/articulos/print_ids", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.pedido.articulos.print_ids-YOGOXLUQ.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.pedido.articulos.print_list": { id: "routes/api.dxt.pedido.articulos.print_list", parentId: "root", path: "api/dxt/pedido/articulos/print_list", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.pedido.articulos.print_list-GU7KLJQE.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.pedido.articulos.screen_list": { id: "routes/api.dxt.pedido.articulos.screen_list", parentId: "root", path: "api/dxt/pedido/articulos/screen_list", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.pedido.articulos.screen_list-K2BAX63P.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.vendedor": { id: "routes/api.dxt.vendedor", parentId: "root", path: "api/dxt/vendedor", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.vendedor-ECRHX6EP.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.vendedor.$id": { id: "routes/api.dxt.vendedor.$id", parentId: "routes/api.dxt.vendedor", path: ":id", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.vendedor.$id-SA2Y634F.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.vendedor.cliente": { id: "routes/api.dxt.vendedor.cliente", parentId: "routes/api.dxt.vendedor", path: "cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.vendedor.cliente-IVWYBE65.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido": { id: "routes/api.pedido", parentId: "root", path: "api/pedido", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido-UJ5V3F6P.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.$id.edit": { id: "routes/api.pedido.$id.edit", parentId: "routes/api.pedido", path: ":id/edit", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.$id.edit-HXRVCL76.js", imports: void 0, hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.create": { id: "routes/api.pedido.create", parentId: "routes/api.pedido", path: "create", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.create-DKEKATWN.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.renglones": { id: "routes/api.pedido.renglones", parentId: "routes/api.pedido", path: "renglones", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.renglones-ISI4QT6Q.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.settings.db": { id: "routes/api.settings.db", parentId: "root", path: "api/settings/db", index: void 0, caseSensitive: void 0, module: "/build/routes/api.settings.db-62WCAYJO.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.settings.misc": { id: "routes/api.settings.misc", parentId: "root", path: "api/settings/misc", index: void 0, caseSensitive: void 0, module: "/build/routes/api.settings.misc-ILHISSIZ.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.auxiliares": { id: "routes/api.tango.auxiliares", parentId: "root", path: "api/tango/auxiliares", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.auxiliares-HQ4NIVVL.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.cliente": { id: "routes/api.tango.cliente", parentId: "root", path: "api/tango/cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.cliente-KSUQHV66.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.perfil": { id: "routes/api.tango.perfil", parentId: "root", path: "api/tango/perfil", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.perfil-IMCA3YCV.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.vendedor": { id: "routes/api.tango.vendedor", parentId: "root", path: "api/tango/vendedor", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.vendedor-IYUMAEPM.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/pdf": { id: "routes/pdf", parentId: "root", path: "pdf", index: void 0, caseSensitive: void 0, module: "/build/routes/pdf-Y7GLSEAM.js", imports: ["/build/_shared/chunk-INOJYLBZ.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 } }, version: "87e32ae5", hmr: void 0, url: "/build/manifest-87E32AE5.js" };
+var assets_manifest_default = { entry: { module: "/build/entry.client-HIWV3NCU.js", imports: ["/build/_shared/chunk-OHSBC2MA.js", "/build/_shared/chunk-E43VAFT6.js", "/build/_shared/chunk-J7TISYNY.js", "/build/_shared/chunk-AXWLPIOK.js"] }, routes: { root: { id: "root", parentId: void 0, path: "", index: void 0, caseSensitive: void 0, module: "/build/root-VHLLNQ2T.js", imports: ["/build/_shared/chunk-DDQFO3X3.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin": { id: "routes/_admin", parentId: "root", path: void 0, index: void 0, caseSensitive: void 0, module: "/build/routes/_admin-MCVSM4GX.js", imports: ["/build/_shared/chunk-KDSN6NTV.js", "/build/_shared/chunk-4GAVUOOY.js", "/build/_shared/chunk-INOJYLBZ.js", "/build/_shared/chunk-FITHNK55.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings._index": { id: "routes/_admin.settings._index", parentId: "routes/_admin", path: "settings", index: !0, caseSensitive: void 0, module: "/build/routes/_admin.settings._index-NMIOWZMI.js", imports: ["/build/_shared/chunk-P32U26JX.js", "/build/_shared/chunk-EFBMV3GD.js", "/build/_shared/chunk-DDQFO3X3.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.company": { id: "routes/_admin.settings.company", parentId: "routes/_admin", path: "settings/company", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.company-JK7CQRNN.js", imports: ["/build/_shared/chunk-F2PUKCFV.js", "/build/_shared/chunk-IF35UXSI.js", "/build/_shared/chunk-QR3HCVRD.js", "/build/_shared/chunk-YS7PZJ5S.js", "/build/_shared/chunk-YPEM6OVU.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-COC53NOQ.js", "/build/_shared/chunk-NHHPDOFU.js", "/build/_shared/chunk-N2W4SHIU.js", "/build/_shared/chunk-QHPH3CD4.js", "/build/_shared/chunk-ZX3ORQWN.js", "/build/_shared/chunk-EFBMV3GD.js", "/build/_shared/chunk-DDQFO3X3.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.lists.$type": { id: "routes/_admin.settings.lists.$type", parentId: "routes/_admin", path: "settings/lists/:type", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.lists.$type-OT3IPLY5.js", imports: ["/build/_shared/chunk-KXX7QXCG.js", "/build/_shared/chunk-YS7PZJ5S.js", "/build/_shared/chunk-YPEM6OVU.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-O7NNQHXC.js", "/build/_shared/chunk-NDYVTXFO.js", "/build/_shared/chunk-P32U26JX.js", "/build/_shared/chunk-QHPH3CD4.js", "/build/_shared/chunk-ZX3ORQWN.js", "/build/_shared/chunk-EFBMV3GD.js", "/build/_shared/chunk-DDQFO3X3.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.misc": { id: "routes/_admin.settings.misc", parentId: "routes/_admin", path: "settings/misc", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.misc-UI22Y3JS.js", imports: ["/build/_shared/chunk-JF66O3F7.js", "/build/_shared/chunk-KXX7QXCG.js", "/build/_shared/chunk-EZL2WUID.js", "/build/_shared/chunk-AYUUBJTB.js", "/build/_shared/chunk-YS7PZJ5S.js", "/build/_shared/chunk-YPEM6OVU.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-NDYVTXFO.js", "/build/_shared/chunk-P32U26JX.js", "/build/_shared/chunk-QHPH3CD4.js", "/build/_shared/chunk-ZX3ORQWN.js", "/build/_shared/chunk-EFBMV3GD.js", "/build/_shared/chunk-DDQFO3X3.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.tango": { id: "routes/_admin.settings.tango", parentId: "routes/_admin", path: "settings/tango", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.tango-FCB27WIG.js", imports: ["/build/_shared/chunk-JF66O3F7.js", "/build/_shared/chunk-EZL2WUID.js", "/build/_shared/chunk-AYUUBJTB.js", "/build/_shared/chunk-YS7PZJ5S.js", "/build/_shared/chunk-YPEM6OVU.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-NDYVTXFO.js", "/build/_shared/chunk-P32U26JX.js", "/build/_shared/chunk-QHPH3CD4.js", "/build/_shared/chunk-ZX3ORQWN.js", "/build/_shared/chunk-EFBMV3GD.js", "/build/_shared/chunk-DDQFO3X3.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.$type._index": { id: "routes/_admin.settings.users.$type._index", parentId: "routes/_admin", path: "settings/users/:type", index: !0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.$type._index-35YPFVXN.js", imports: ["/build/_shared/chunk-RIMNGT2J.js", "/build/_shared/chunk-UEGMDVXK.js", "/build/_shared/chunk-O7NNQHXC.js", "/build/_shared/chunk-NDYVTXFO.js", "/build/_shared/chunk-P32U26JX.js", "/build/_shared/chunk-UE4IQPKJ.js", "/build/_shared/chunk-BXRQWNMF.js", "/build/_shared/chunk-N2W4SHIU.js", "/build/_shared/chunk-QHPH3CD4.js", "/build/_shared/chunk-ZX3ORQWN.js", "/build/_shared/chunk-L46VJDLW.js", "/build/_shared/chunk-EFBMV3GD.js", "/build/_shared/chunk-DDQFO3X3.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.customers.$id.edit": { id: "routes/_admin.settings.users.customers.$id.edit", parentId: "routes/_admin", path: "settings/users/customers/:id/edit", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.customers.$id.edit-7QLGTCP2.js", imports: ["/build/_shared/chunk-RGVPPMYJ.js", "/build/_shared/chunk-GKNEJFXF.js", "/build/_shared/chunk-F2PUKCFV.js", "/build/_shared/chunk-EZL2WUID.js", "/build/_shared/chunk-IF35UXSI.js", "/build/_shared/chunk-QR3HCVRD.js", "/build/_shared/chunk-AYUUBJTB.js", "/build/_shared/chunk-YS7PZJ5S.js", "/build/_shared/chunk-YPEM6OVU.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-COC53NOQ.js", "/build/_shared/chunk-NHHPDOFU.js", "/build/_shared/chunk-O7NNQHXC.js", "/build/_shared/chunk-NDYVTXFO.js", "/build/_shared/chunk-P32U26JX.js", "/build/_shared/chunk-UE4IQPKJ.js", "/build/_shared/chunk-BXRQWNMF.js", "/build/_shared/chunk-N2W4SHIU.js", "/build/_shared/chunk-QHPH3CD4.js", "/build/_shared/chunk-ZX3ORQWN.js", "/build/_shared/chunk-L46VJDLW.js", "/build/_shared/chunk-EFBMV3GD.js", "/build/_shared/chunk-DDQFO3X3.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.customers.add": { id: "routes/_admin.settings.users.customers.add", parentId: "routes/_admin", path: "settings/users/customers/add", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.customers.add-SR6S423T.js", imports: ["/build/_shared/chunk-GKNEJFXF.js", "/build/_shared/chunk-F2PUKCFV.js", "/build/_shared/chunk-EZL2WUID.js", "/build/_shared/chunk-IF35UXSI.js", "/build/_shared/chunk-QR3HCVRD.js", "/build/_shared/chunk-AYUUBJTB.js", "/build/_shared/chunk-YS7PZJ5S.js", "/build/_shared/chunk-YPEM6OVU.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-COC53NOQ.js", "/build/_shared/chunk-NHHPDOFU.js", "/build/_shared/chunk-UE4IQPKJ.js", "/build/_shared/chunk-BXRQWNMF.js", "/build/_shared/chunk-N2W4SHIU.js", "/build/_shared/chunk-QHPH3CD4.js", "/build/_shared/chunk-ZX3ORQWN.js", "/build/_shared/chunk-L46VJDLW.js", "/build/_shared/chunk-EFBMV3GD.js", "/build/_shared/chunk-DDQFO3X3.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.vendors.$id.edit": { id: "routes/_admin.settings.users.vendors.$id.edit", parentId: "routes/_admin", path: "settings/users/vendors/:id/edit", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.vendors.$id.edit-S3EYCBUF.js", imports: ["/build/_shared/chunk-RGVPPMYJ.js", "/build/_shared/chunk-GKNEJFXF.js", "/build/_shared/chunk-F2PUKCFV.js", "/build/_shared/chunk-EZL2WUID.js", "/build/_shared/chunk-IF35UXSI.js", "/build/_shared/chunk-QR3HCVRD.js", "/build/_shared/chunk-AYUUBJTB.js", "/build/_shared/chunk-YS7PZJ5S.js", "/build/_shared/chunk-YPEM6OVU.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-COC53NOQ.js", "/build/_shared/chunk-NHHPDOFU.js", "/build/_shared/chunk-O7NNQHXC.js", "/build/_shared/chunk-NDYVTXFO.js", "/build/_shared/chunk-P32U26JX.js", "/build/_shared/chunk-UE4IQPKJ.js", "/build/_shared/chunk-BXRQWNMF.js", "/build/_shared/chunk-N2W4SHIU.js", "/build/_shared/chunk-QHPH3CD4.js", "/build/_shared/chunk-ZX3ORQWN.js", "/build/_shared/chunk-L46VJDLW.js", "/build/_shared/chunk-EFBMV3GD.js", "/build/_shared/chunk-DDQFO3X3.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.vendors.add": { id: "routes/_admin.settings.users.vendors.add", parentId: "routes/_admin", path: "settings/users/vendors/add", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.vendors.add-MZ4HWWKS.js", imports: ["/build/_shared/chunk-GKNEJFXF.js", "/build/_shared/chunk-F2PUKCFV.js", "/build/_shared/chunk-EZL2WUID.js", "/build/_shared/chunk-IF35UXSI.js", "/build/_shared/chunk-QR3HCVRD.js", "/build/_shared/chunk-AYUUBJTB.js", "/build/_shared/chunk-YS7PZJ5S.js", "/build/_shared/chunk-YPEM6OVU.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-COC53NOQ.js", "/build/_shared/chunk-NHHPDOFU.js", "/build/_shared/chunk-UE4IQPKJ.js", "/build/_shared/chunk-BXRQWNMF.js", "/build/_shared/chunk-N2W4SHIU.js", "/build/_shared/chunk-QHPH3CD4.js", "/build/_shared/chunk-ZX3ORQWN.js", "/build/_shared/chunk-L46VJDLW.js", "/build/_shared/chunk-EFBMV3GD.js", "/build/_shared/chunk-DDQFO3X3.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized": { id: "routes/_authorized", parentId: "root", path: void 0, index: void 0, caseSensitive: void 0, module: "/build/routes/_authorized-ZZEUIJLY.js", imports: ["/build/_shared/chunk-KDSN6NTV.js", "/build/_shared/chunk-4GAVUOOY.js", "/build/_shared/chunk-INOJYLBZ.js", "/build/_shared/chunk-FITHNK55.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.change_password": { id: "routes/_authorized.change_password", parentId: "routes/_authorized", path: "change_password", index: void 0, caseSensitive: void 0, module: "/build/routes/_authorized.change_password-4IRT4NE7.js", imports: void 0, hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.orders.$client.add": { id: "routes/_authorized.orders.$client.add", parentId: "routes/_authorized", path: "orders/:client/add", index: void 0, caseSensitive: void 0, module: "/build/routes/_authorized.orders.$client.add-654PLO5M.js", imports: ["/build/_shared/chunk-KXX7QXCG.js", "/build/_shared/chunk-2WG7UMXX.js", "/build/_shared/chunk-IF35UXSI.js", "/build/_shared/chunk-QR3HCVRD.js", "/build/_shared/chunk-AYUUBJTB.js", "/build/_shared/chunk-YPEM6OVU.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-COC53NOQ.js", "/build/_shared/chunk-NHHPDOFU.js", "/build/_shared/chunk-UEGMDVXK.js", "/build/_shared/chunk-P32U26JX.js", "/build/_shared/chunk-BXRQWNMF.js", "/build/_shared/chunk-N2W4SHIU.js", "/build/_shared/chunk-ZX3ORQWN.js", "/build/_shared/chunk-EFBMV3GD.js", "/build/_shared/chunk-DDQFO3X3.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.orders._index": { id: "routes/_authorized.orders._index", parentId: "routes/_authorized", path: "orders", index: !0, caseSensitive: void 0, module: "/build/routes/_authorized.orders._index-XFJYP3QD.js", imports: ["/build/_shared/chunk-2WG7UMXX.js", "/build/_shared/chunk-COC53NOQ.js", "/build/_shared/chunk-NHHPDOFU.js", "/build/_shared/chunk-RIMNGT2J.js", "/build/_shared/chunk-UEGMDVXK.js", "/build/_shared/chunk-NDYVTXFO.js", "/build/_shared/chunk-P32U26JX.js", "/build/_shared/chunk-L46VJDLW.js", "/build/_shared/chunk-EFBMV3GD.js", "/build/_shared/chunk-DDQFO3X3.js", "/build/_shared/chunk-MUTVBZ6W.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_index": { id: "routes/_index", parentId: "root", path: void 0, index: !0, caseSensitive: void 0, module: "/build/routes/_index-ZIP4MAMP.js", imports: ["/build/_shared/chunk-4GAVUOOY.js", "/build/_shared/chunk-EZL2WUID.js", "/build/_shared/chunk-AYUUBJTB.js", "/build/_shared/chunk-SD3IP6KZ.js", "/build/_shared/chunk-FITHNK55.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.admin.status": { id: "routes/api.admin.status", parentId: "root", path: "api/admin/status", index: void 0, caseSensitive: void 0, module: "/build/routes/api.admin.status-CCN3NEQQ.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.connect": { id: "routes/api.auth.connect", parentId: "root", path: "api/auth/connect", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.connect-SVPWINZZ.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.login": { id: "routes/api.auth.login", parentId: "root", path: "api/auth/login", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.login-3AZOWS4T.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.logout": { id: "routes/api.auth.logout", parentId: "root", path: "api/auth/logout", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.logout-UDESGTPA.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.password": { id: "routes/api.auth.password", parentId: "root", path: "api/auth/password", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.password-QRM7UL6D.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dictionary": { id: "routes/api.dictionary", parentId: "root", path: "api/dictionary", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dictionary-TAUNT5F4.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dictionary.active_company": { id: "routes/api.dictionary.active_company", parentId: "routes/api.dictionary", path: "active_company", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dictionary.active_company-73LF4H7F.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.cliente": { id: "routes/api.dxt.cliente", parentId: "root", path: "api/dxt/cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.cliente-DSEUCYC3.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.cliente.$id": { id: "routes/api.dxt.cliente.$id", parentId: "routes/api.dxt.cliente", path: ":id", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.cliente.$id-ZTGH5R4W.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.pedido.articulos.print_ids": { id: "routes/api.dxt.pedido.articulos.print_ids", parentId: "root", path: "api/dxt/pedido/articulos/print_ids", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.pedido.articulos.print_ids-YOGOXLUQ.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.pedido.articulos.print_list": { id: "routes/api.dxt.pedido.articulos.print_list", parentId: "root", path: "api/dxt/pedido/articulos/print_list", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.pedido.articulos.print_list-GU7KLJQE.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.pedido.articulos.screen_list": { id: "routes/api.dxt.pedido.articulos.screen_list", parentId: "root", path: "api/dxt/pedido/articulos/screen_list", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.pedido.articulos.screen_list-K2BAX63P.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.vendedor": { id: "routes/api.dxt.vendedor", parentId: "root", path: "api/dxt/vendedor", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.vendedor-ECRHX6EP.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.vendedor.$id": { id: "routes/api.dxt.vendedor.$id", parentId: "routes/api.dxt.vendedor", path: ":id", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.vendedor.$id-SA2Y634F.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.vendedor.cliente": { id: "routes/api.dxt.vendedor.cliente", parentId: "routes/api.dxt.vendedor", path: "cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.vendedor.cliente-IVWYBE65.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido": { id: "routes/api.pedido", parentId: "root", path: "api/pedido", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido-UJ5V3F6P.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.$id.edit": { id: "routes/api.pedido.$id.edit", parentId: "routes/api.pedido", path: ":id/edit", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.$id.edit-HXRVCL76.js", imports: void 0, hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.create": { id: "routes/api.pedido.create", parentId: "routes/api.pedido", path: "create", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.create-DKEKATWN.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.renglones": { id: "routes/api.pedido.renglones", parentId: "routes/api.pedido", path: "renglones", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.renglones-ISI4QT6Q.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.settings.db": { id: "routes/api.settings.db", parentId: "root", path: "api/settings/db", index: void 0, caseSensitive: void 0, module: "/build/routes/api.settings.db-62WCAYJO.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.settings.misc": { id: "routes/api.settings.misc", parentId: "root", path: "api/settings/misc", index: void 0, caseSensitive: void 0, module: "/build/routes/api.settings.misc-ILHISSIZ.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.auxiliares": { id: "routes/api.tango.auxiliares", parentId: "root", path: "api/tango/auxiliares", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.auxiliares-HQ4NIVVL.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.cliente": { id: "routes/api.tango.cliente", parentId: "root", path: "api/tango/cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.cliente-KSUQHV66.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.perfil": { id: "routes/api.tango.perfil", parentId: "root", path: "api/tango/perfil", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.perfil-IMCA3YCV.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.vendedor": { id: "routes/api.tango.vendedor", parentId: "root", path: "api/tango/vendedor", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.vendedor-IYUMAEPM.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/pdf": { id: "routes/pdf", parentId: "root", path: "pdf", index: void 0, caseSensitive: void 0, module: "/build/routes/pdf-Y7GLSEAM.js", imports: ["/build/_shared/chunk-INOJYLBZ.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 } }, version: "ce6aa3b5", hmr: void 0, url: "/build/manifest-CE6AA3B5.js" };
 
 // server-entry-module:@remix-run/dev/server-build
 var mode2 = "production", assetsBuildDirectory = "public/build", future = { v3_fetcherPersist: !1, v3_relativeSplatPath: !1, v3_throwAbortReason: !1 }, publicPath = "/build/", entry = { module: entry_server_exports }, routes = {

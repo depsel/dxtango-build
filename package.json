@@ -1,6 +1,6 @@
 {
   "name": "dxtango",
-  "version": "0.1.0+1",
+  "version": "0.1.0+2",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -40,7 +40,6 @@
     "@remix-run/serve": "^2.6.0",
     "@use-gesture/react": "^10.3.1",
     "axios": "^1.6.7",
-    "bigint-buffer": "^1.1.5",
     "chakra-react-select": "^4.7.6",
     "compression": "^1.7.4",
     "dotenv": "^16.4.4",
