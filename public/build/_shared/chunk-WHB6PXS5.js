@@ -1,1 +1,0 @@
-import{y as t}from"/build/_shared/chunk-AKWCNMIR.js";import{h as _}from"/build/_shared/chunk-AXWLPIOK.js";_();var D=t("/dxt/pedido/articulos/print_list"),P=t("/dxt/pedido/articulos/screen_list"),r=t("/dxt/pedido/articulos/print_ids");export{D as a,P as b,r as c};
