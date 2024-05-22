@@ -42,14 +42,12 @@ async function main() {
     express.static("public/build", { immutable: true, maxAge: "1y" })
   );
   app.use(express.static("public", { maxAge: "1h" }));
-  app.all(
-    "*",
-    createRequestHandler({
-      build,
-      mode: process.env.NODE_ENV
-    })
-  );
-  app.listen(port, async () => {
+  const ra = createRequestHandler({
+    build,
+    mode: process.env.NODE_ENV
+  });
+  app.all("*", [ra]);
+  app.listen(port, () => {
     console.log(`Express server listening on port ${port}`);
   });
   async function reimportServer() {

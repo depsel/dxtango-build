@@ -1,0 +1,1 @@
+import{y as t}from"/build/_shared/chunk-X7PKD636.js";import{h as _}from"/build/_shared/chunk-P3O6KQPX.js";_();var T=t("/dxt/articulo/print_list"),o=t("/dxt/articulo/edit_list"),r=t("/dxt/articulo/print_list/ids");export{T as a,o as b,r as c};

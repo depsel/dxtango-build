@@ -1,1 +1,0 @@
-import{Wb as e}from"/build/_shared/chunk-JQLUC77E.js";import{b as n}from"/build/_shared/chunk-IS2TAHEU.js";import{e as r,h as l}from"/build/_shared/chunk-P3O6KQPX.js";l();var t=r(n(),1),p=({height:o})=>(0,t.jsx)(e,{width:"full",height:o??"36px",borderRadius:"md"}),d=({height:o})=>(0,t.jsx)(e,{width:"full",height:o??"80px",borderRadius:"md"});export{p as a,d as b};
