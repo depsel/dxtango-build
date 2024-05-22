@@ -1,3 +1,4 @@
 node_modules
-pnpm-lock.yaml
 .env
+dxtango.cfg
+pnpm-lock.yaml
