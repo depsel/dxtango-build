@@ -81,7 +81,7 @@ function parseJSON(text, reviver) {
 // src/@core/strings/index.ts
 var isStr = (value) => typeof value == "string", isNotEmptyStr = (value) => typeof value == "string" && value.length > 0;
 function valueToString(value, includeStringQuotes) {
-  return Array.isArray(value) || isObj(value) ? stringifyJSON(value) : typeof value == "string" && (includeStringQuotes ?? !1) ? `'${value}'` : value === null ? "[null]" : value?.toString?.() ?? "[undefined]";
+  return Array.isArray(value) || isObj(value) ? stringifyJSON(value) : typeof value == "symbol" ? value.toString() : typeof value == "string" && (includeStringQuotes ?? !1) ? `'${value}'` : value === null ? "[null]" : value?.toString?.() ?? "[undefined]";
 }
 
 // src/@core/validation/errors.ts
@@ -197,16 +197,40 @@ var _API_ERROR_MESSAGES = /* @__PURE__ */ new Map([
   [10001 /* INVALID_PARAMETER */, "Par\xE1metro inv\xE1lido"],
   [10002 /* INSUFFICIENT_PARAMS */, "Par\xE1metros insuficientes"],
   [10003 /* RESERVED_ARTICLE_GROUP_NAME */, "Nombre de grupo reservado"],
+  [10004 /* INVALID_OLD_PASSWORD */, "La contrase\xF1a actual no es correcta"],
+  [10005 /* INVALID_TRANSPORTE */, "Transporte inv\xE1lido o no permitido"],
+  [10006 /* INVALID_DEPOSITO */, "Deposito inv\xE1lido o no permitido"],
+  [10007 /* INVALID_CONDICION */, "Condicion de venta inv\xE1lida o no permitida"],
+  [10008 /* INVALID_ASIENTO */, "Asiento inv\xE1lido o no permitido"],
+  [10009 /* INVALID_TALONARIO */, "Talonario inv\xE1lido o no permitido"],
+  [10010 /* INVALID_DIRECCION */, "Direcci\xF3n de entrega inv\xE1lida o no permitida"],
+  [10011 /* DELIVERY_DATE_IS_EARLIER */, "La fecha de entrega debe ser posterior a la fecha de alta"],
+  [10012 /* INVALID_CONSUMIDOR_FINAL_TALONARIO */, "No existe un talonario de facturaci\xF3n B o C para asignar al pedido"],
+  [10013 /* INACCESIBLE_ORDER_ROW_ARTICLE */, "Uno de los art\xEDculos ya no existe o es inaccesible para el cliente"],
   [11e3 /* NOT_FOUND */, "No encontrado"],
   [11001 /* DXT_CUSTOMER_NOT_FOUND */, "Cliente DXTango ya no existe"],
   [11002 /* DXT_VENDOR_NOT_FOUND */, "Vendedor DXTango ya no existe"],
-  [11003 /* PEDIDO_NOT_FOUND */, "Pedid no encontrado"],
+  [11003 /* ORDER_NOT_FOUND */, "Pedido no encontrado"],
+  [11004 /* DRAFT_NOT_FOUND */, "Borrador no encontrado"],
   [12e3 /* NOT_IMPLEMENTED */, "Acci\xF3n no implementada"],
   [13e3 /* TOO_MANY_REQUESTS */, "Demasiadas peticiones"],
   [14e3 /* CONFLICT */, "Conflicto"],
   [14001 /* DUPLICATED_TABLE_RECORD */, "Ya existe un registro con los datos que intenta ingresar"],
+  [14002 /* DUPLICATED_DRAFT_DESCRIPTION */, "Ya existe un borrador con el mismo nombre"],
   [15e3 /* PAYLOAD_TOO_LARGE */, "Paquete de datos demasiado grande"],
   [16e3 /* UNPROCESSABLE_ENTITY */, "Entidad no procesable"],
+  [16001 /* UNKNOWN_TRANSPORTE */, "El transporte no existe"],
+  [16002 /* UNKNOWN_DEPOSITO */, "El dep\xF3sito no existe"],
+  [16003 /* UNKNOWN_CONDICION */, "La condici\xF3n de venta no existe"],
+  [16004 /* UNKNOWN_ASIENTO */, "El tipo de asiento no existe"],
+  [16005 /* UNKNOWN_TALONARIO */, "El talonario no existe"],
+  [16006 /* UNKNOWN_DIRECCION */, "La direcci\xF3n de entrega no existe"],
+  [16007 /* EMPTY_TRANSPORTE_LIST */, "No hay transportes disponibles"],
+  [16008 /* EMPTY_DEPOSITO_LIST */, "No hay depositos disponibles"],
+  [16009 /* EMPTY_CONDICION_LIST */, "No hay condiciones de venta disponibles"],
+  [16010 /* EMPTY_ASIENTO_LIST */, "No hay tipos de asiento disponibles"],
+  [16011 /* EMPTY_TALONARIO_LIST */, "No hay talonarios disponibles"],
+  [16012 /* EMPTY_DIRECCION_LIST */, "No hay direcciones de entrega disponibles"],
   [1e5 /* UNAUTHORIZED */, "No autorizado"],
   [100001 /* INVALID_USERNAME_OR_PASSWORD */, "Usuario o contrase\xF1a incorrectos"],
   [100002 /* INVALID_AUTH_TOKEN */, "Token de autorizaci\xF3n no v\xE1lido"],
@@ -220,13 +244,15 @@ var _API_ERROR_MESSAGES = /* @__PURE__ */ new Map([
   [101004 /* CUSTOMER_OR_VENDOR_ROLE_REQUIRED */, "Acceso solo para clientes y vendedores"],
   [101003 /* ADMIN_ROLE_REQUIRED */, "Acceso solo para administradores"],
   [101005 /* INSUFFICIENT_PRIVILEGES */, "Permisos insuficientes"],
-  [101006 /* CUSTOMER_DOES_NOT_BELONGS_TO_VENDOR */, "El cliente no pertenece al vendedor"],
-  [101007 /* ORDER_DOES_NOT_BELONGS_TO_VENDOR */, "El pedido no pertenece al vendedor"],
-  [101008 /* ORDER_DOES_NOT_BELONGS_TO_CUSTOMER */, "El pedido no pertenece al cliente"],
-  [101009 /* ORDER_CREATION_FORBIDDEN */, "El usuario no puede crear pedidos"],
-  [101010 /* ORDER_UPDATE_FORBIDDEN */, "El usuario no puede midificar pedidos"],
-  [101011 /* ORDER_CANCEL_FORBIDDEN */, "El usuario no puede anular pedidos"],
-  [101012 /* ORDER_DELETE_FORBIDDEN */, "El usuario no puede eliminar pedidos"],
+  [101006 /* CUSTOMER_DOES_NOT_BELONGS_TO_VENDOR */, "El cliente ya no pertenece al vendedor"],
+  [101007 /* ORDER_DOES_NOT_BELONGS_TO_VENDOR */, "El pedido o borrador no pertenece al vendedor"],
+  [101008 /* ORDER_DOES_NOT_BELONGS_TO_CUSTOMER */, "El pedido o borrador no pertenece al cliente"],
+  [101009 /* USER_CANNOT_CREATE_ORDERS */, "El usuario no puede crear pedidos"],
+  [101010 /* USER_CANNOT_UPDATE_ORDERS */, "El usuario no puede midificar pedidos"],
+  [101011 /* USER_CANNOT_CANCEL_ORDERS */, "El usuario no puede anular pedidos"],
+  [101012 /* USER_CANNOT_DELETE_ORDERS */, "El usuario no puede eliminar pedidos"],
+  [101013 /* FORBIDDEN_UPDATE_OF_ORDER_IN_PROCESS */, "No se puede modificar un pedido que se encuentra en proceso"],
+  [101014 /* ORDER_CUSTOMER_DOES_NOT_BELONGS_TO_VENDOR */, "El cliente asociado al pedido o borrador ya no pertenece al vendedor"],
   [2e5 /* TANGO_ERROR */, "Error de acceso a Tango"],
   [200001 /* TANGO_DB_ACCESS_ERROR */, "Error de acceso a base de datos de Tango"],
   [200002 /* TANGO_DB_INVALID_DATA */, "La informaci\xF3n en la base de datos de Tango es inconsistente"],
@@ -308,9 +334,9 @@ function requiresContactingAdmin(errorCode) {
   return _ERRORS_REQUIRING_CONTACTING_ADMIN.includes(errorCode) || _ERRORS_REQUIRING_CONTACTING_ADMIN.includes(getGenericErrorCode(errorCode));
 }
 var DXTError = class {
-  constructor(errorCode, options) {
-    this.errorCode = errorCode;
-    this.generic_error_code = getGenericErrorCode(errorCode), this.error = getDXTErrorDescription(errorCode), this.status = getHttpStatusFromErrorCode(this.errorCode), this.extra = options?.extra, this.is_silent = options?.isSilent, this.message_to_user = options?.messageToUser;
+  constructor(error_code, options) {
+    this.error_code = error_code;
+    this.generic_error_code = getGenericErrorCode(error_code), this.error_description = getDXTErrorDescription(error_code), this.status = getHttpStatusFromErrorCode(this.error_code), this.extra = options?.extra, this.is_silent = options?.isSilent, this.message_to_user = options?.messageToUser;
   }
 }, DXTApiMalformedResponse = class extends Error {
   constructor(status) {
@@ -320,7 +346,7 @@ var DXTError = class {
 }, DXTException = class extends Error {
   constructor(error, customMessage) {
     let dxtError = error instanceof DXTError ? error : new DXTError(error, { extra: customMessage });
-    super(dxtError.error);
+    super(dxtError.error_description);
     this.name = this.constructor.name.toString(), this.dxtError = dxtError;
   }
   isUnexpected() {
@@ -389,7 +415,7 @@ function errorApiResponse(errorCode) {
   return jsonResponse(
     {
       status,
-      error: error.message
+      error_description: error.message
     },
     { status }
   );
@@ -602,7 +628,8 @@ var ApiEndpoint = class {
             targetString = "Invalid body";
             break;
         }
-        throw new BadRequestException(`${targetString}: ${e?.toString() ?? "unknown error"}`);
+        let errorInfo = exceptionToDXTErrorInfo(e);
+        throw new BadRequestException(`${targetString}: ${errorInfo.extra ?? "unknown error"}`);
       }
   }
 };
@@ -661,8 +688,8 @@ function isErrorInfo(data) {
   let errorInfo = data;
   if (!isRealObject(errorInfo))
     return !1;
-  let { status, errorCode, error } = errorInfo, statusNumber = status && typeof status == "number" ? status : Number.parseInt(status?.toString()), errorCodeNumber = errorCode && typeof errorCode == "number" ? errorCode : Number.parseInt(errorCode?.toString());
-  return Number.isInteger(statusNumber) && Number.isInteger(errorCodeNumber) && typeof error == "string";
+  let { status, error_code, error_description } = errorInfo, statusNumber = status && typeof status == "number" ? status : Number.parseInt(status?.toString()), errorCodeNumber = error_code && typeof error_code == "number" ? error_code : Number.parseInt(error_code?.toString());
+  return Number.isInteger(statusNumber) && Number.isInteger(errorCodeNumber) && typeof error_description == "string";
 }
 function exceptionToDXTErrorInfo(error) {
   let originalErrorInfo = error?.originalError?.response?.data;
@@ -671,51 +698,51 @@ function exceptionToDXTErrorInfo(error) {
   if (error instanceof DXTException)
     return error.dxtError;
   if (error instanceof ValidationException) {
-    let statusCode = 400 /* BAD_REQUEST */, errorCode2 = getErrorCodeFromHttpStatus(statusCode);
+    let statusCode = 400 /* BAD_REQUEST */, error_code2 = getErrorCodeFromHttpStatus(statusCode);
     return {
       status: statusCode,
-      error: getDXTErrorDescription(errorCode2),
-      errorCode: errorCode2,
+      error_description: getDXTErrorDescription(error_code2),
+      error_code: error_code2,
       extra: error.message
     };
   }
   if (error instanceof HttpException) {
-    let { statusCode } = error, errorCode2 = getErrorCodeFromHttpStatus(statusCode);
+    let { statusCode } = error, error_code2 = getErrorCodeFromHttpStatus(statusCode);
     return {
       status: statusCode,
-      error: getDXTErrorDescription(errorCode2),
-      errorCode: errorCode2,
+      error_description: getDXTErrorDescription(error_code2),
+      error_code: error_code2,
       extra: error.message
     };
   }
   let isInternetAlive = null;
   if (error instanceof AxiosRequestPlusError && (isInternetAlive = error.isInternetAlive, error = error.originalError), error instanceof DXTApiMalformedResponse) {
-    let errorCode2 = 899001 /* FATAL_MALFORMED_SERVER_RESPONSE */;
+    let error_code2 = 899001 /* FATAL_MALFORMED_SERVER_RESPONSE */;
     return {
       status: error.status,
-      error: getDXTErrorDescription(errorCode2),
-      errorCode: errorCode2
+      error_description: getDXTErrorDescription(error_code2),
+      error_code: error_code2
     };
   }
   if (error instanceof AxiosError2) {
-    let errorCode2 = isInternetAlive ?? !1 ? 899e3 /* INTERNAL_SERVER_ERROR */ : 7e5 /* CLIENT_CONNECTION_ERROR */;
+    let error_code2 = isInternetAlive ?? !1 ? 899e3 /* INTERNAL_SERVER_ERROR */ : 7e5 /* CLIENT_CONNECTION_ERROR */;
     return {
-      status: error.response?.status ?? getHttpStatusFromErrorCode(errorCode2),
-      error: getDXTErrorDescription(errorCode2),
-      errorCode: errorCode2,
+      status: error.response?.status ?? getHttpStatusFromErrorCode(error_code2),
+      error_description: getDXTErrorDescription(error_code2),
+      error_code: error_code2,
       extra: error.message
     };
   }
-  let errorCode = 0 /* UNEXPECTED_ERROR */;
+  let error_code = 0 /* UNEXPECTED_ERROR */;
   return {
-    errorCode,
-    error: getDXTErrorDescription(errorCode),
-    status: getHttpStatusFromErrorCode(errorCode),
+    error_code,
+    error_description: getDXTErrorDescription(error_code),
+    status: getHttpStatusFromErrorCode(error_code),
     extra: error.message
   };
 }
 function isDXTException(e, errorCode) {
-  return e instanceof DXTException && (errorCode == null || e.dxtError.errorCode === errorCode || e.dxtError.generic_error_code === errorCode);
+  return e instanceof DXTException && (errorCode == null || e.dxtError.error_code === errorCode || e.dxtError.generic_error_code === errorCode);
 }
 function isNotFoundException(e) {
   return isDXTException(e, 11e3 /* NOT_FOUND */);
@@ -839,7 +866,7 @@ __export(root_exports, {
 });
 
 // css-bundle-plugin-ns:@remix-run/css-bundle
-var cssBundleHref = "/build/css-bundle-WHDU6KBJ.css";
+var cssBundleHref = "/build/css-bundle-FZ4LGFD5.css";
 
 // src/app/root.tsx
 import { Outlet, useLoaderData, useRouteError } from "@remix-run/react";
@@ -947,16 +974,32 @@ var VOUInt64 = class extends VOBigIntRange {
   }
 }, VOString = class extends ValueObject {
   validate(input) {
-    return typeof input != "string" && this.throwError(input), input;
+    return isStr(input) || this.throwError(input), input;
+  }
+}, VOTrimmedString = class extends ValueObject {
+  constructor(input, maxLength) {
+    super(input);
+    this.maxLength = maxLength;
+  }
+  validate(input) {
+    isStr(input) || this.throwError(input);
+    let value = input.trim();
+    if (this.maxLength == null || value.length <= this.maxLength)
+      return value;
+    this.throwError(input);
   }
 };
 
 // src/@core/value_objects/vo_not_empty_string.ts
 var VONotEmptyString = class extends ValueObject {
+  constructor(input, maxLength) {
+    super(input);
+    this.maxLength = maxLength;
+  }
   validate(input) {
     if (typeof input == "string") {
       let value = input.trim();
-      if (value !== "")
+      if (value !== "" && (this.maxLength == null || value.length <= this.maxLength))
         return value;
     }
     this.throwError(input);
@@ -968,6 +1011,13 @@ function random(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 var UINT64_VALUES = BigInt(1) << BigInt(64);
+function limitNumber(value, min, max) {
+  if (min = min ?? Number.NEGATIVE_INFINITY, max = max ?? Number.POSITIVE_INFINITY, min > max) {
+    let aux = min;
+    min = max, max = min;
+  }
+  return value < min ? min : value > max ? max : value;
+}
 
 // src/@core/time/index.ts
 var HOUR_IN_MINUTES = 60, DAY_IN_MINUTES = HOUR_IN_MINUTES * 24, WEEK_IN_MINUTES = DAY_IN_MINUTES * 7, MINUTE_IN_SECONDS = 60, TEN_MINUTES_IN_SECONDS = MINUTE_IN_SECONDS * 10, HOUR_IN_SECONDS = HOUR_IN_MINUTES * 60, DAY_IN_SECONDS = DAY_IN_MINUTES * 60, WEEK_IN_SECONDS = WEEK_IN_MINUTES * 60, MINUTE_IN_MILLISECONDS = MINUTE_IN_SECONDS * 1e3, TEN_MINUTES_IN_MILLISECONDS = MINUTE_IN_MILLISECONDS * 10, HOUR_IN_MILLISECONDS = HOUR_IN_SECONDS * 1e3, DAY_IN_MILLISECONDS = DAY_IN_SECONDS * 1e3, WEEK_IN_MILLISECONDS = WEEK_IN_SECONDS * 1e3;
@@ -980,6 +1030,10 @@ function addDays(date2, days) {
 }
 function dateToISOStringZ(date2) {
   return date2.toISOString().substring(0, 19) + "Z";
+}
+function getDateHHMMSS(date2) {
+  let hours = String(date2.getHours()).padStart(2, "0"), minutes = String(date2.getMinutes()).padStart(2, "0"), seconds = String(date2.getSeconds()).padStart(2, "0");
+  return `${hours}${minutes}${seconds}`;
 }
 
 // src/@core/value_objects/vo_date.ts
@@ -1021,7 +1075,7 @@ var VOEmailAddress = class extends ValueObject {
 
 // src/@core/value_objects/vo_md5.ts
 import validator4 from "validator";
-var DUMMY_MD5 = "12345678901234567890123456789012", VOMD5 = class extends ValueObject {
+var VOMD5 = class extends ValueObject {
   constructor(input) {
     Buffer.isBuffer(input) && (input = input.toString("hex")), super(input);
   }
@@ -1056,12 +1110,27 @@ var VOUInt32 = class extends VOIntegerRange {
   }
 };
 
-// src/@core/value_objects/vo_sha1.ts
+// src/@core/value_objects/vo_hexadecimal.ts
 import validator5 from "validator";
+var VOHexadecimal = class extends ValueObject {
+  validate(input) {
+    if (Buffer.isBuffer(input))
+      return input.toString("hex").toLowerCase();
+    if (typeof input == "string") {
+      let value = input.trim().toLowerCase();
+      if (validator5.isHexadecimal(value))
+        return value;
+    }
+    this.throwError(input);
+  }
+};
+
+// src/@core/value_objects/vo_sha1.ts
+import validator6 from "validator";
 var VOSHA1 = class extends ValueObject {
   validate(input) {
     let value;
-    if (Buffer.isBuffer(input) && (value = input.toString("hex")), typeof input == "string" && (value = input.trim().toLowerCase()), typeof value == "string" && validator5.isHash(value, "sha1"))
+    if (Buffer.isBuffer(input) && (value = input.toString("hex")), typeof input == "string" && (value = input.trim().toLowerCase()), typeof value == "string" && validator6.isHash(value, "sha1"))
       return value;
     this.throwError(input);
   }
@@ -1117,8 +1186,8 @@ var VOAuthRandom = class extends VOUInt64 {
 
 // src/domain/auth/value_objects/vo_weak_check_auth_token.ts
 var AuthTokenProps = class {
-  constructor(userId, random2, roleNumber) {
-    this.userId = new VOUInt32(userId), this.random = new VOAuthRandom(random2), this.roleNumber = new VOUInt16(roleNumber);
+  constructor(universalId, userId, random2, roleNumber) {
+    this.universalId = new VOHexadecimal(universalId), this.userId = new VOUInt32(userId), this.random = new VOAuthRandom(random2), this.roleNumber = new VOUInt16(roleNumber);
   }
 }, VOWeakCheckAuthToken = class extends ValueObject {
   constructor() {
@@ -1136,9 +1205,10 @@ var AuthTokenProps = class {
       if (typeof value == "string") {
         value = value.trim().toLowerCase();
         let parts = value.split("-");
-        if (parts.length === 4) {
-          let userId = Number.parseInt("0x" + parts[0]), random2 = BigInt("0x" + parts[1]), roleNumber = Number.parseInt(parts[2]);
-          return this.verificationHash = new VOSHA1(parts[3]), new AuthTokenProps(
+        if (parts.length === 5) {
+          let universalId = parts[0], userId = Number.parseInt("0x" + parts[1]), random2 = BigInt("0x" + parts[2]), roleNumber = Number.parseInt(parts[3]);
+          return this.verificationHash = new VOSHA1(parts[4]), new AuthTokenProps(
+            universalId,
             userId,
             random2,
             roleNumber
@@ -1158,8 +1228,8 @@ var AuthTokenProps = class {
     return this.verificationHash.toString();
   }
   getPayloadString() {
-    let userId = this.value.userId.valueOf().toString(16), randomNumber = this.value.random.valueOf().toString(16), roleNumber = this.value.roleNumber.valueOf();
-    return `${userId}-${randomNumber}-${roleNumber}`;
+    let universalId = this.value.universalId.valueOf(), userId = this.value.userId.valueOf().toString(16), randomNumber = this.value.random.valueOf().toString(16), roleNumber = this.value.roleNumber.valueOf();
+    return `${universalId}-${userId}-${randomNumber}-${roleNumber}`;
   }
   toString() {
     return this._payload ??= this.getPayloadString(), this._verificationHash ??= this.getVerificationHashString(), `${this._payload}-${this._verificationHash}`;
@@ -1236,7 +1306,7 @@ var AuthState = class {
       changingToken,
       loggedIn,
       disconnected,
-      orElse: (_13) => {
+      orElse: (_14) => {
         throw Error("Invalid AuthState");
       }
     });
@@ -1343,22 +1413,25 @@ var DXTApiRequestState = class {
       return error(this);
     throw Error("Invalid ApiRequestState state");
   }
+  isSuccess() {
+    return this instanceof DXTApiRequestStateSuccess;
+  }
   isError() {
     return this instanceof DXTApiRequestStateError;
   }
-  errorOrNull() {
-    return this instanceof DXTApiRequestStateError ? this.error : null;
+  errorInfoOrNull() {
+    return this instanceof DXTApiRequestStateError ? this.info : null;
   }
   flat() {
     return this.map({
-      error: (errorState) => errorState.error,
+      error: (errorState) => errorState.info,
       success: (successState) => successState.data
     });
   }
 }, DXTApiRequestStateError = class extends DXTApiRequestState {
-  constructor(error, originalRequest) {
+  constructor(info, originalRequest) {
     super(originalRequest);
-    this.error = error;
+    this.info = info;
   }
 }, DXTApiRequestStateSuccess = class extends DXTApiRequestState {
   constructor(data, originalRequest) {
@@ -1404,7 +1477,7 @@ async function dxtApiRequest(params, app) {
       if (isErrorInfo(response?.data)) {
         let dxtApiError = response?.data;
         throw new DXTException(
-          new DXTError(dxtApiError.errorCode, {
+          new DXTError(dxtApiError.error_code, {
             extra: dxtApiError.extra,
             isSilent: dxtApiError.is_silent
           })
@@ -1421,7 +1494,7 @@ async function dxtApiRequest(params, app) {
         dxtApiError,
         dxtParams
       );
-      if (!app || !isBasicAppResources(app) || (params?.silent ?? !1) || (retry = typeof app.retryCallback == "function" && await app.retryCallback({ message: dxtApiError.error }), !retry))
+      if (!app || !isBasicAppResources(app) || (params?.silent ?? !1) || (retry = typeof app.retryCallback == "function" && await app.retryCallback({ message: dxtApiError.error_description }), !retry))
         return errorState;
     }
   let impossibleError = exceptionToDXTErrorInfo(new DXTException(899e3 /* INTERNAL_SERVER_ERROR */, "Impossible state"));
@@ -1436,9 +1509,6 @@ var API_BASE_PATH = "/api";
 
 // src/api-client/shared/utils.ts
 import { join } from "path";
-function apiPath(path6) {
-  return join(API_BASE_PATH, path6);
-}
 function apiEndpoint(path6, method) {
   return {
     url: join(API_BASE_PATH, path6),
@@ -1464,7 +1534,7 @@ var authConnectRequest = async (token, app, silent) => {
     app
   )).map({
     error: (errorState) => new DXTApiRequestStateError(
-      errorState.error,
+      errorState.info,
       errorState.originalRequest
     ),
     success: (success) => success.data == null && originalUserInfo ? new DXTApiRequestStateSuccess(
@@ -1490,6 +1560,13 @@ var authConnectRequest = async (token, app, silent) => {
     ...API_AUTH_LOGOUT
   },
   app
+), authChangePasswordRequest = async (input, app) => await dxtApiRequest(
+  {
+    ...API_AUTH_CHANGE_PASSWORD,
+    data: input,
+    silent: !0
+  },
+  app
 );
 
 // src/code.client/auth/auth_context/actions/login.ts
@@ -1506,8 +1583,8 @@ var AuthActionLogin = class extends AuthAction {
         setAuthState(new AuthStateLoggedIn(auth_token, user));
       },
       error: async (errorState) => {
-        let apiError = errorState.error;
-        setAuthState(new AuthStateDisconnected(apiError)), this.errorCallback && this.errorCallback(apiError);
+        let apiErrorInfo = errorState.info;
+        setAuthState(new AuthStateDisconnected(apiErrorInfo)), this.errorCallback && this.errorCallback(apiErrorInfo);
       }
     });
   }
@@ -1518,10 +1595,11 @@ import { join as join2 } from "path";
 
 // src/texts/common.ts
 var RETRY = "Reintentar", CANCEL = "Cancelar", BACK = "Regresar", CLOSE = "Cerrar";
-var SAVE_DRAFT = "Guardar borrador", UPDATE = "Actualizar", DELETE = "Eliminar", PRINT = "Imprimir";
-var CREATE_ORDER = "Crear Pedido", CREATE_DRAFT = "Crear Borrador";
+var SAVE_DRAFT = "Guardar borrador", CONVERT_TO_DRAFT = "Convertir en borrador", UPDATE = "Actualizar", DELETE = "Eliminar", PRINT = "Imprimir";
+var CREATE_ORDER = "Crear Pedido", SEND_ORDER = "Enviar Pedido", CREATE_DRAFT = "Crear Borrador";
 var PREVIOUS = "Anterior", NEXT = "Siguiente";
-var FILTER_PLACEHOLDER = "Filtrar...", FILTER_NO_RESULTS = "La b\xFAsqueda no produjo resultados", SUMMARY = "Ver resumen", NO_NAME = "Sin nombre", NO_DATE = "Sin fecha", NONE_F = "Ninguna", NONE_M = "Ninguno", NONEXISTENT_PRODUCT = "Art\xEDculo inexistente", PASSWORD_TOO_SHORT = "Contrase\xF1a muy corta", PASSWORD_TOO_LONG = "Contrase\xF1a muy larga", PASSWORD_INVALID_CHARS = "Evite caracteres no v\xE1lidos", AN_ERROR_OCCURRED = "Ha ocurrido un error", WAIT_A_MOMENT = "Aguarde unos instantes";
+var FILTER_PLACEHOLDER = "Filtrar...", FILTER_NO_RESULTS = "La b\xFAsqueda no produjo resultados", SUMMARY = "Ver resumen", NO_NAME = "Sin nombre", NO_DATE = "Sin fecha", NONE_F = "Ninguna", NONE_M = "Ninguno", NONEXISTENT_PRODUCT = "Art\xEDculo inexistente";
+var PASSWORD_TOO_SHORT = "Contrase\xF1a muy corta", PASSWORD_TOO_LONG = "Contrase\xF1a muy larga", PASSWORD_INVALID_CHARS = "Evite caracteres no v\xE1lidos", PASSWORD_CHANGED = "Contrase\xF1a modificada", AN_ERROR_OCCURRED = "Ha ocurrido un error";
 
 // src/code.client/utils/index.ts
 var dateToLocale = (value) => value == null ? NO_DATE : (value instanceof Date ? value : new Date(value)).toLocaleDateString("es-AR", {
@@ -1541,13 +1619,13 @@ function pathParamsToUrl(url, pathParams) {
     url = url?.replaceAll(`:${key}`, encodeURIComponent(value));
   }), url;
 }
-function getSelectedValue(arrayOfObjects, key) {
-  return arrayOfObjects.length === 1 ? arrayOfObjects[0][key ?? "id"] : arrayOfObjects.find((arr) => arr.selected === !0)?.[key ?? "id"];
+function getSelectedValue(arrayOfObjects, selected, key) {
+  return arrayOfObjects.length === 1 ? arrayOfObjects[0][key ?? "id"] : arrayOfObjects.find((arr) => arr[selected ?? "selected"] === !0)?.[key ?? "id"];
 }
 
 // src/config/url_paths.ts
 import path2 from "path";
-var URL_ROOT_PATH = "/", URL_AUTH_BASE_PATH = path2.join(URL_ROOT_PATH, "auth"), URL_AUTH_LOGIN_PATH = appPath("/"), URL_AUTH_CHANGE_PASSWORD_PATH = appPath("/password"), URL_PEDIDOS_PATH = appPath("/orders"), URL_BORRADORES_PATH = appPath("/drafts"), URL_MAIN_PATH = URL_PEDIDOS_PATH, URL_PEDIDOS_ADD_PATH = appPath("/orders/:client/add"), URL_PEDIDOS_EDIT_PATH = appPath("/orders/:id/edit"), URL_BORRADORES_ADD_PATH = appPath("/drafts/:client/add"), URL_BORRADORES_EDIT_PATH = appPath("/drafts/:id/edit"), URL_SETTINGS_PATH = appPath("/settings"), URL_SETTINGS_TANGO_PATH = appPath("/settings/tango"), URL_SETTINGS_COMPANY_PATH = appPath("/settings/company"), URL_SETTINGS_MISC_PATH = appPath("/settings/misc"), URL_SETTINGS_CUSTOMERS_PATH = appPath("/settings/users/customers"), URL_SETTINGS_CUSTOMERS_ADD_PATH = appPath("/settings/users/customers/add"), URL_SETTINGS_CUSTOMERS_EDIT_PATH = appPath("/settings/users/customers/:id/edit"), URL_SETTINGS_VENDORS_PATH = appPath("/settings/users/vendors"), URL_SETTINGS_VENDORS_ADD_PATH = appPath("/settings/users/vendors/add"), URL_SETTINGS_VENDORS_EDIT_PATH = appPath("/settings/users/vendors/:id/edit"), URL_SETTINGS_ARTICULO_PRINT_LIST = appPath("/settings/product_list/print"), URL_SETTINGS_ARTICULO_EDIT_LIST = appPath("/settings/product_list/edit");
+var URL_ROOT_PATH = "/", URL_AUTH_BASE_PATH = path2.join(URL_ROOT_PATH, "auth"), URL_AUTH_LOGIN_PATH = appPath("/"), URL_AUTH_CHANGE_PASSWORD_PATH = appPath("/change_password"), URL_PEDIDOS_PATH = appPath("/orders"), URL_BORRADORES_PATH = appPath("/drafts"), URL_MAIN_PATH = URL_PEDIDOS_PATH, URL_PEDIDOS_ADD_PATH = appPath("/orders/:client/add"), URL_PEDIDOS_CUSTOMER_ADD_PATH = appPath("/orders/add"), URL_PEDIDOS_EDIT_PATH = appPath("/orders/:id/edit"), URL_BORRADORES_ADD_PATH = appPath("/drafts/:client/add"), URL_BORRADORES_CUSTOMER_ADD_PATH = appPath("/drafts/add"), URL_BORRADORES_EDIT_PATH = appPath("/drafts/:id/edit"), URL_SETTINGS_PATH = appPath("/settings"), URL_SETTINGS_TANGO_PATH = appPath("/settings/tango"), URL_SETTINGS_COMPANY_PATH = appPath("/settings/company"), URL_SETTINGS_MISC_PATH = appPath("/settings/misc"), URL_SETTINGS_CUSTOMERS_PATH = appPath("/settings/users/customers"), URL_SETTINGS_CUSTOMERS_ADD_PATH = appPath("/settings/users/customers/add"), URL_SETTINGS_CUSTOMERS_EDIT_PATH = appPath("/settings/users/customers/:id/edit"), URL_SETTINGS_VENDORS_PATH = appPath("/settings/users/vendors"), URL_SETTINGS_VENDORS_ADD_PATH = appPath("/settings/users/vendors/add"), URL_SETTINGS_VENDORS_EDIT_PATH = appPath("/settings/users/vendors/:id/edit"), URL_SETTINGS_ARTICULO_PRINT_LIST = appPath("/settings/product_list/print"), URL_SETTINGS_ARTICULO_EDIT_LIST = appPath("/settings/product_list/edit");
 
 // src/code.client/auth/auth_context/actions/logout.ts
 var AuthActionLogout = class extends AuthAction {
@@ -1584,8 +1662,8 @@ var AuthActionChangeToken = class extends AuthAction {
         );
       },
       error: (errorState) => {
-        let apiError = errorState.error;
-        setAuthState(new AuthStateDisconnected(apiError)), this.errorCallback && this.errorCallback(apiError);
+        let apiErrorInfo = errorState.info;
+        setAuthState(new AuthStateDisconnected(apiErrorInfo)), this.errorCallback && this.errorCallback(apiErrorInfo);
       }
     });
   }
@@ -1632,8 +1710,8 @@ var AuthActionRefreshAll = class extends AuthAction {
     }
     (await authConnectRequest(authState.authToken, app, !0)).map({
       error: (errorState) => {
-        let apiError = errorState.error;
-        isTokenError(apiError.status) && setAuthState(new AuthStateDisconnected());
+        let apiErrorInfo = errorState.info;
+        isTokenError(apiErrorInfo.status) && setAuthState(new AuthStateDisconnected());
       },
       success: (success) => {
         let currentUser = authState.userInfo, currentAuthToken = authState.authToken, newUser = success.data.user, newAuthToken = success.data.auth_token;
@@ -1776,7 +1854,7 @@ function useBasicAppResources(authStateOverride, authDispatchOverride) {
 import { jsx as jsx4 } from "react/jsx-runtime";
 var AUTH_NEW_TOKEN_EVENT = "auth_new_token", defaultValues = {
   state: _resolveState(),
-  dispatch: async (action39) => {
+  dispatch: async (action40) => {
     await Promise.resolve();
   },
   retry: async () => {
@@ -1797,8 +1875,8 @@ function _resolveState() {
   return userInfo ? new AuthStateLoggedIn(storedToken, userInfo) : new AuthStateChangingToken(storedToken);
 }
 var AuthProvider = ({ children, onRetry }) => {
-  let [authState, setAuthState] = useState2(_resolveState()), lastAction = useRef2(null), app = useBasicAppResources(authState), appRef = useRef2(app), forceLogoutAlreadyVerified = useRef2(!1), tokenExistence = useTokenExistenceCheck(), dispatch = async (action39) => {
-    lastAction.current = action39, await action39.run(authState, setAuthState, appRef.current, onRetry);
+  let [authState, setAuthState] = useState2(_resolveState()), lastAction = useRef2(null), app = useBasicAppResources(authState), appRef = useRef2(app), forceLogoutAlreadyVerified = useRef2(!1), tokenExistence = useTokenExistenceCheck(), dispatch = async (action40) => {
+    lastAction.current = action40, await action40.run(authState, setAuthState, appRef.current, onRetry);
   };
   eventBus.removeAllListeners(AUTH_NEW_TOKEN_EVENT), eventBus.on(AUTH_NEW_TOKEN_EVENT, (newToken) => {
     (async () => {
@@ -1841,7 +1919,6 @@ import { ModalProvider } from "react-hooks-async-modal";
 
 // src/app/root/RootDocument.tsx
 import { useContext as useContext2, useEffect as useEffect3 } from "react";
-import { ChakraProvider } from "@chakra-ui/react";
 import {
   Links,
   LiveReload,
@@ -1849,7 +1926,12 @@ import {
   Scripts,
   ScrollRestoration
 } from "@remix-run/react";
+import { ChakraProvider } from "@chakra-ui/react";
 import { withEmotionCache } from "@emotion/react";
+
+// src/app/chakra/styleContexts.tsx
+import { createContext as createContext2 } from "react";
+var ServerStyleContext = createContext2(null), ClientStyleContext = createContext2(null);
 
 // src/app/theme/index.ts
 import {
@@ -1959,45 +2041,6 @@ var { definePartsStyle: definePartsStyle2, defineMultiStyleConfig: defineMultiSt
     stripedHoverOverCard: variantStripedOverCardWithHover
   }
 });
-
-// src/app/theme/components/alertTheme.ts
-import { createMultiStyleConfigHelpers as createMultiStyleConfigHelpers3 } from "@chakra-ui/react";
-import { alertAnatomy } from "@chakra-ui/anatomy";
-var { definePartsStyle: definePartsStyle3, defineMultiStyleConfig: defineMultiStyleConfig3 } = createMultiStyleConfigHelpers3(alertAnatomy.keys), baseStyle = definePartsStyle3((props) => {
-  let { status } = props;
-  return {
-    ...status === "success" && {
-      container: {
-        background: "green.500",
-        color: "white"
-      }
-    },
-    ...status === "warning" && {
-      container: {
-        background: "amber.500",
-        color: "black"
-      },
-      icon: {
-        color: "black"
-      }
-    },
-    ...status === "error" && {
-      container: {
-        background: "red.700",
-        color: "white"
-      },
-      icon: {
-        color: "white"
-      }
-    },
-    ...status === "info" && {
-      container: {
-        background: "blue.700",
-        color: "white"
-      }
-    }
-  };
-}), alertTheme = defineMultiStyleConfig3({ baseStyle });
 
 // src/app/theme/colors.ts
 var colors = {
@@ -2231,16 +2274,89 @@ var colors = {
   }
 };
 
-// src/app/theme/components/textarea.ts
-import { defineStyle, defineStyleConfig } from "@chakra-ui/react";
-import { getColorVar as getColorVar2, mode as mode2 } from "@chakra-ui/theme-tools";
-var baseStyle2 = defineStyle((props) => {
-  let { theme: theme2 } = props, ec = mode2("white", "gray.800")(props);
+// src/app/theme/components/alertTheme.ts
+import { createMultiStyleConfigHelpers as createMultiStyleConfigHelpers3 } from "@chakra-ui/react";
+import { alertAnatomy } from "@chakra-ui/anatomy";
+var { definePartsStyle: definePartsStyle3, defineMultiStyleConfig: defineMultiStyleConfig3 } = createMultiStyleConfigHelpers3(alertAnatomy.keys), baseStyle = definePartsStyle3((props) => {
+  let { status } = props;
   return {
-    backgroundColor: `${getColorVar2(theme2, ec)} !important`
+    ...status === "success" && {
+      container: {
+        background: "green.500",
+        color: "white"
+      },
+      icon: {
+        color: "white"
+      }
+    },
+    ...status === "warning" && {
+      container: {
+        background: "amber.500",
+        color: "black"
+      },
+      icon: {
+        color: "black"
+      }
+    },
+    ...status === "error" && {
+      container: {
+        background: "red.700",
+        color: "white"
+      },
+      icon: {
+        color: "white"
+      }
+    },
+    ...status === "info" && {
+      container: {
+        background: "blue.700",
+        color: "white"
+      },
+      icon: {
+        color: "white"
+      }
+    }
+  };
+}), alertTheme = defineMultiStyleConfig3({ baseStyle });
+
+// src/app/theme/components/cardTheme.ts
+import { cardAnatomy } from "@chakra-ui/anatomy";
+import { createMultiStyleConfigHelpers as createMultiStyleConfigHelpers4 } from "@chakra-ui/react";
+import { getColorVar as getColorVar2, mode as mode2 } from "@chakra-ui/theme-tools";
+var { definePartsStyle: definePartsStyle4, defineMultiStyleConfig: defineMultiStyleConfig4 } = createMultiStyleConfigHelpers4(cardAnatomy.keys), baseStyle2 = definePartsStyle4((props) => {
+  let { theme: theme2 } = props, ec = mode2("brown.50", "gray.700")(props);
+  return {
+    container: {
+      backgroundColor: `${getColorVar2(theme2, ec)}`
+    }
+  };
+}), cardTheme = defineMultiStyleConfig4({ baseStyle: baseStyle2 });
+
+// src/app/theme/components/checkboxTheme.ts
+import { checkboxAnatomy } from "@chakra-ui/anatomy";
+import { createMultiStyleConfigHelpers as createMultiStyleConfigHelpers5, defineStyle } from "@chakra-ui/react";
+var { definePartsStyle: definePartsStyle5, defineMultiStyleConfig: defineMultiStyleConfig5 } = createMultiStyleConfigHelpers5(checkboxAnatomy.keys), sizes = {
+  xl: definePartsStyle5({
+    control: defineStyle({
+      boxSize: 8
+    }),
+    label: defineStyle({
+      fontSize: "2xl",
+      marginLeft: 6
+    })
+  })
+}, checkboxTheme = defineMultiStyleConfig5({ sizes });
+
+// src/app/theme/components/textarea.ts
+import { defineStyle as defineStyle2, defineStyleConfig } from "@chakra-ui/react";
+import { getColorVar as getColorVar3, mode as mode3 } from "@chakra-ui/theme-tools";
+var baseStyle3 = defineStyle2((props) => {
+  let { theme: theme2 } = props, ec = mode3("white", "gray.800")(props);
+  return {
+    backgroundColor: `${getColorVar3(theme2, ec)} !important`
   };
 }), textareaTheme = defineStyleConfig({
-  baseStyle: baseStyle2
+  baseStyle: baseStyle3
 });
 
 // src/app/theme/index.ts
@@ -2263,7 +2379,9 @@ var config = extendTheme({
     Table: tableTheme,
     Input: inputTheme,
     Textarea: textareaTheme,
+    Checkbox: checkboxTheme,
     Alert: alertTheme,
+    Card: cardTheme,
     FormLabel: {
       baseStyle: {
         marginBottom: "0.25rem"
@@ -2291,10 +2409,6 @@ function getColorMode(cookies) {
   );
   return match?.[2];
 }
-
-// src/app/chakra/styleContexts.tsx
-import { createContext as createContext2 } from "react";
-var ServerStyleContext = createContext2(null), ClientStyleContext = createContext2(null);
 
 // src/app/root/RootDocument.tsx
 import { jsx as jsx5, jsxs as jsxs3 } from "react/jsx-runtime";
@@ -2343,7 +2457,7 @@ var RootDocument = withEmotionCache(
                     toastOptions: {
                       defaultOptions: {
                         position: "bottom",
-                        duration: 1500,
+                        duration: 5e3,
                         isClosable: !0
                       }
                     },
@@ -2417,7 +2531,7 @@ var FetchState = class {
       loading,
       success,
       error,
-      orElse: (_13) => {
+      orElse: (_14) => {
         throw Error("Invalid useAxiosFetch state");
       }
     });
@@ -2463,6 +2577,8 @@ function useAxiosFetch(params, ...args) {
     new FetchStateLoading(params)
   ), retry = async () => {
     setFetchState(new FetchStateLoading(fetchState.originalRequest)), await makeRequest();
+  }, reload = async () => {
+    fetchState.isSuccess() || setFetchState(new FetchStateLoading(fetchState.originalRequest)), await makeRequest();
   }, makeRequest = async () => {
     let params2 = fetchState.originalRequest;
     try {
@@ -2480,13 +2596,14 @@ function useAxiosFetch(params, ...args) {
     makeRequest();
   }, []), {
     state: fetchState,
+    reload,
     retry
   };
 }
 
 // src/code.client/hooks/useDXTApiFetch.ts
 function useDXTApiFetch(params) {
-  let app = useBasicAppResources(), retryCallback = app.retryCallback, dxtApiParams = createDXTApiParams(app, params), { state, retry } = useAxiosFetch(
+  let app = useBasicAppResources(), retryCallback = app.retryCallback, dxtApiParams = createDXTApiParams(app, params), { state, retry, reload } = useAxiosFetch(
     dxtApiParams,
     (axiosError) => exceptionToDXTErrorInfo(axiosError)
   );
@@ -2496,21 +2613,62 @@ function useDXTApiFetch(params) {
         return;
       let stateError = state.error;
       await checkTokenErrorAndRedirect(app, stateError.status) || retryCallback && await retryCallback({
-        message: stateError.error
+        message: stateError.error_description
       }) && retry();
     })();
   }, [state]), {
     state,
-    retry
+    retry,
+    reload
   };
+}
+
+// src/api-client/dxt/user/paths.ts
+var API_DXT_USER_AUXILIARES = apiEndpoint("/dxt/usuario/auxiliares", "GET"), _API_DXT_CUSTOMER = "/dxt/cliente", _API_DXT_CUSTOMER_ID = "/dxt/cliente/:id", API_DXT_CUSTOMER_GET_ALL = apiEndpoint(_API_DXT_CUSTOMER, "GET"), API_DXT_CUSTOMER_CREATE = apiEndpoint(_API_DXT_CUSTOMER, "POST"), API_DXT_CUSTOMER_GET_ONE = apiEndpoint(_API_DXT_CUSTOMER_ID, "GET"), API_DXT_CUSTOMER_UPDATE = apiEndpoint(_API_DXT_CUSTOMER_ID, "PATCH"), API_DXT_CUSTOMER_DELETE = apiEndpoint(_API_DXT_CUSTOMER_ID, "DELETE"), _API_DXT_VENDOR = "/dxt/vendedor", _API_DXT_VENDOR_ID = "/dxt/vendedor/:id", API_DXT_VENDOR_GET_ALL = apiEndpoint(_API_DXT_VENDOR, "GET"), API_DXT_VENDOR_CREATE = apiEndpoint(_API_DXT_VENDOR, "POST"), API_DXT_VENDOR_GET_ONE = apiEndpoint(_API_DXT_VENDOR_ID, "GET"), API_DXT_VENDOR_UPDATE = apiEndpoint(_API_DXT_VENDOR_ID, "PATCH"), API_DXT_VENDOR_DELETE = apiEndpoint(_API_DXT_VENDOR_ID, "DELETE"), API_DXT_VENDOR_CUSTOMERS = apiEndpoint("/dxt/vendedor/cliente", "GET");
+
+// src/code.client/dxt/user/api_hooks/customer.api_hooks.ts
+function useGetAllDXTCustomers() {
+  return useDXTApiFetch({
+    ...API_DXT_CUSTOMER_GET_ALL,
+    silent: !0
+  });
+}
+function useGetOneDXTCustomer(id) {
+  return useDXTApiFetch({
+    ...API_DXT_CUSTOMER_GET_ONE,
+    pathParams: { id },
+    silent: !0
+  });
+}
+
+// src/code.client/dxt/user/api_hooks/vendor.api_hooks.ts
+function useGetAllDXTVendors() {
+  return useDXTApiFetch({
+    ...API_DXT_VENDOR_GET_ALL,
+    silent: !0
+  });
+}
+function useGetOneDXTVendor(id) {
+  return useDXTApiFetch({
+    ...API_DXT_VENDOR_GET_ONE,
+    pathParams: { id },
+    silent: !0
+  });
+}
+function useGetDXTVendorCustomers() {
+  return useDXTApiFetch({
+    ...API_DXT_VENDOR_CUSTOMERS,
+    silent: !0
+  });
 }
 
 // src/code.client/hooks/useTangoList.tsx
 var buildSelectOptions = (props) => {
   let { data, fieldsMap, disabledIcon } = props, result = [];
   return data.length && data.forEach((data2) => {
+    let label = Array.isArray(fieldsMap?.label) ? fieldsMap.label.map((value) => data2[value]).join(" - ") : data2[fieldsMap?.label ?? "name"];
     result.push({
-      label: data2[fieldsMap?.label ?? "name"],
+      label,
       value: data2[fieldsMap?.value ?? "id"],
       ...fieldsMap?.selected != null && {
         selected: data2[fieldsMap.selected]
@@ -2525,8 +2683,8 @@ var buildSelectOptions = (props) => {
   }), result;
 };
 function useTangoList(props) {
-  let { url, params, fieldsMap, disabledIcon } = props, { state, retry } = useDXTApiFetch({
-    url,
+  let { endpoint, params, fieldsMap, disabledIcon } = props, { state, retry } = useDXTApiFetch({
+    ...endpoint,
     silent: !0,
     params
   }), result = state.mapOrElse({
@@ -2543,100 +2701,94 @@ function useTangoList(props) {
 import { Icon } from "@chakra-ui/react";
 import AccountCancelIcon from "mdi-react/AccountCancelIcon.js";
 
-// src/api-client/dxt/user/paths.ts
-var API_DXT_CUSTOMERS = apiPath("/dxt/cliente"), API_DXT_CUSTOMERS_ID = apiPath("/dxt/cliente/:id"), API_DXT_VENDORS = apiPath("/dxt/vendedor"), API_DXT_VENDORS_ID = apiPath("/dxt/vendedor/:id"), API_DXT_VENDOR_CUSTOMERS = apiPath("/dxt/vendedor/cliente");
-
 // src/api-client/dxt/user/requests.ts
 var customerCreateRequest = async (input, app) => await dxtApiRequest(
   {
-    url: API_DXT_CUSTOMERS,
+    ...API_DXT_CUSTOMER_CREATE,
     data: input,
-    method: "POST",
     silent: !0
   },
   app
 ), customerUpdateRequest = async (id, input, app) => await dxtApiRequest(
   {
-    url: API_DXT_CUSTOMERS_ID,
+    ...API_DXT_CUSTOMER_UPDATE,
     pathParams: { id },
     data: input,
-    method: "PATCH",
     silent: !0
   },
   app
 ), customerDeleteRequest = async (id, input, app) => await dxtApiRequest(
   {
-    url: API_DXT_CUSTOMERS_ID,
+    ...API_DXT_CUSTOMER_DELETE,
     pathParams: { id },
     data: input,
-    method: "DELETE",
     silent: !0
   },
   app
 ), vendorCreateRequest = async (input, app) => await dxtApiRequest(
   {
-    url: API_DXT_VENDORS,
+    ...API_DXT_CUSTOMER_CREATE,
     data: input,
-    method: "POST",
     silent: !0
   },
   app
 ), vendorDeleteRequest = async (id, input, app) => await dxtApiRequest(
   {
-    url: API_DXT_VENDORS_ID,
+    ...API_DXT_VENDOR_DELETE,
     pathParams: { id },
     data: input,
-    method: "DELETE",
     silent: !0
   },
   app
 ), vendorUpdateRequest = async (id, input, app) => await dxtApiRequest(
   {
-    url: API_DXT_VENDORS_ID,
+    ...API_DXT_VENDOR_UPDATE,
     pathParams: { id },
     data: input,
-    method: "PATCH",
     silent: !0
   },
   app
 );
 
 // src/api-client/tango/paths.ts
-var API_TANGO_PERFIL = apiPath("/tango/perfil"), API_TANGO_CLIENTE = apiPath("/tango/cliente"), API_TANGO_VENDEDOR = apiPath("/tango/vendedor"), API_TANGO_AUXILIARES = apiPath("/tango/auxiliares");
+var API_TANGO_LISTA_DE_PRECIOS_GET_ALL = apiEndpoint("/tango/lista", "GET"), API_TANGO_PERFIL_GET_ALL = apiEndpoint("/tango/perfil", "GET"), API_TANGO_CLIENTE_GET_ALL = apiEndpoint("/tango/cliente", "GET"), API_TANGO_VENDEDOR_GET_ALL = apiEndpoint("/tango/vendedor", "GET");
 
 // src/texts/app.ts
-var WELCOME = "Bienvenido al sistema de pedidos de Sorbalok Pinturas.", OPTIONS = "Opciones", LOGOUT = "Cerrar sesi\xF3n", CHANGE_COLOR_MODE = "Cambiar modo de color", CONFIGURE = "Configurar", TANGO_CONNECTION = "Conexi\xF3n a Tango", TANGO_CONNECTION_UPDATED = "Conexi\xF3n a Tango actualizada", TANGO_CONNECTION_UPDATING = "Actualizando conexi\xF3n a Tango", COMPANY = "Empresa", COMPANY_UPDATED = "Empresa actualizada", COMPANY_UPDATING = "Actualizando Empresa", INVALID_LIST_TYPE = "Tipo de lista no v\xE1lida", BACK_TO_SETTINGS = "Volver a Configuraci\xF3n", BACK_TO_PEDIDOS = "Volver a Pedidos", USER_NOT_FOUND = "Usuario no encontrado";
-var CLIENT_NOT_FOUND = "Cliente no encontrado", NO_PEDIDOS = "No se encontraron pedidos", NO_BORRADORES = "El usuario no posee borradores", NO_USERS = "No se encontraron usuarios", PEDIDOS = "Pedidos", BORRADORES = "Borradores", ADMINISTRACION = "Administraci\xF3n", CHANGE_PASSWORD = "Cambiar contrase\xF1a", SELECTED_S = " seleccionado", SELECTED_P = " seleccionados";
-var USER_CREATED = "Usuario creado", USER_CREATING = "Creando usuario", USER_UPDATED = "Usuario actualizado", USER_UPDATING = "Actualizando usuario", USER_DELETE = "Eliminar usuario", USER_DELETE_CONFIRM = "\xBFEst\xE1 seguro que desea eliminar este usuario? Esta acci\xF3n no se puede deshacer.", USER_DELETED = "Usuario eliminado", USER_DELETING = "Eliminando usuario", CLIENTS_ADMIN = "Gesti\xF3n de Clientes", CLIENTS_CREATE = "Crear Cliente", CLIENTS_UPDATE = "Modificar Cliente", CLIENTS_SELECT = "Seleccione un Cliente", CLIENTS_LABEL = "Cliente Tango", CLIENTS_NO_OPTIONS = "No hay clientes disponibles", SELLERS_ADMIN = "Gesti\xF3n de Vendedores", SELLERS_CREATE = "Crear Vendedor", SELLERS_UPDATE = "Modificar Vendedor", SELLERS_SELECT = "Seleccione un Vendedor", SELLERS_LABEL = "Vendedor Tango", SELLERS_NO_OPTIONS = "No hay vendedores disponibles", PRODUCT_EDIT_LIST = "Lista de art\xEDculos para edici\xF3n", PRODUCT_PRINT_LIST = "Lista de art\xEDculos para impresi\xF3n", VARIOUS_SETTINGS = "Configuraciones Varias", VARIOUS_SETTINGS_UPDATED = "Configuraciones actualizadas", VARIOUS_SETTINGS_UPDATING = "Actualizando configuraciones", LIST_UPDATED = "Lista actualizada", LIST_UPDATING = "Actualizando lista", DATE_FORMAT = "dd/MM/yyyy", DATE_FORMAT_API = "yyyy-MM-dd", DATE_DAY_NAMES_SHORT = ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"];
+var WELCOME = "Bienvenido al sistema de pedidos de Sorbalok Pinturas.", OPTIONS = "Opciones", LOGOUT = "Cerrar sesi\xF3n", CHANGE_COLOR_MODE = "Cambiar modo de color", CONFIGURE = "Configurar", TANGO_CONNECTION = "Conexi\xF3n a Tango", TANGO_CONNECTION_UPDATED = "Conexi\xF3n a Tango actualizada";
+var COMPANY = "Empresa", COMPANY_UPDATED = "Empresa actualizada";
+var INVALID_LIST_TYPE = "Tipo de lista no v\xE1lida", BACK_TO_SETTINGS = "Volver a Configuraci\xF3n";
+var USER_NOT_FOUND = "Usuario no encontrado";
+var NO_PEDIDOS = "No se encontraron pedidos", NO_BORRADORES = "El usuario no posee borradores", NO_USERS = "No se encontraron usuarios", PEDIDOS = "Pedidos", BORRADORES = "Borradores", ADMINISTRACION = "Administraci\xF3n", CHANGE_PASSWORD = "Cambiar contrase\xF1a";
+var SELECTED_S = " seleccionado", SELECTED_P = " seleccionados";
+var USER_CREATED = "Usuario creado";
+var USER_UPDATED = "Usuario actualizado";
+var USER_DELETE = "Eliminar usuario", USER_DELETE_CONFIRM = "\xBFEst\xE1 seguro que desea eliminar este usuario? Esta acci\xF3n no se puede deshacer.", USER_DELETED = "Usuario eliminado";
+var CLIENTS_ADMIN = "Gesti\xF3n de Clientes", CLIENTS_CREATE = "Crear Cliente", CLIENTS_UPDATE = "Modificar Cliente", CLIENTS_SELECT = "Seleccione un Cliente", CLIENTS_LABEL = "Cliente Tango", CLIENTS_NO_OPTIONS = "No hay clientes disponibles", SELLERS_ADMIN = "Gesti\xF3n de Vendedores", SELLERS_CREATE = "Crear Vendedor", SELLERS_UPDATE = "Modificar Vendedor", SELLERS_SELECT = "Seleccione un Vendedor", SELLERS_LABEL = "Vendedor Tango", SELLERS_NO_OPTIONS = "No hay vendedores disponibles", PRODUCT_EDIT_LIST = "Lista de art\xEDculos para edici\xF3n", PRODUCT_PRINT_LIST = "Lista de art\xEDculos para impresi\xF3n", VARIOUS_SETTINGS = "Configuraciones Varias", VARIOUS_SETTINGS_UPDATED = "Configuraciones actualizadas";
+var LIST_UPDATED = "Lista actualizada";
+var DATE_FORMAT = "dd/MM/yyyy", DATE_FORMAT_API = "yyyy-MM-dd", DATE_DAY_NAMES_SHORT = ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"];
 var DATE_MONTH_NAMES_SHORT = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-var ORDER_CREATED = "Pedido {{numero_pedido}} creado", ORDER_CREATING = "Creando Pedido", DRAFT_CREATED = "Borrador {{numero_pedido}} creado", DRAFT_CREATING = "Creando Borrador";
+var ORDER_CREATED = "Pedido creado", ORDER_CREATED_NUMBER = "N\xFAmero de Pedido: {{numero_pedido}}";
+var DRAFT_CREATED = "Borrador creado", DRAFT_CREATED_NUMBER = "N\xFAmero de Borrador: {{numero_pedido}}";
 
 // src/code.client/crud_configs/users/index.tsx
 import { jsx as jsx7 } from "react/jsx-runtime";
 var settings = {
   customers: {
     api: {
-      getAll: () => useDXTApiFetch({
-        url: API_DXT_CUSTOMERS,
-        silent: !0
-      }),
-      getOne: (id) => useDXTApiFetch({
-        url: API_DXT_CUSTOMERS_ID,
-        pathParams: { id },
-        silent: !0
-      }),
+      getAll: useGetAllDXTCustomers,
+      getOne: useGetOneDXTCustomer,
+      post: customerCreateRequest,
+      patch: customerUpdateRequest,
+      delete: customerDeleteRequest,
       getRelation: () => useTangoList({
-        url: API_TANGO_CLIENTE,
+        endpoint: API_TANGO_CLIENTE_GET_ALL,
         fieldsMap: {
           label: "screen_name",
           value: "id",
           isEnabled: "habilitado"
         },
         disabledIcon: /* @__PURE__ */ jsx7(Icon, { as: AccountCancelIcon, color: "red.400", ml: 2, boxSize: 5 })
-      }),
-      post: async (input, app) => customerCreateRequest(input, app),
-      patch: async (id, input, app) => customerUpdateRequest(id, input, app),
-      delete: async (id, input, app) => customerDeleteRequest(id, input, app)
+      })
     },
     userType: "cliente",
     titles: {
@@ -2655,27 +2807,20 @@ var settings = {
   },
   vendors: {
     api: {
-      getAll: () => useDXTApiFetch({
-        url: API_DXT_VENDORS,
-        silent: !0
-      }),
-      getOne: (id) => useDXTApiFetch({
-        url: API_DXT_VENDORS_ID,
-        pathParams: { id },
-        silent: !0
-      }),
+      getAll: useGetAllDXTVendors,
+      getOne: useGetOneDXTVendor,
+      post: vendorCreateRequest,
+      patch: vendorUpdateRequest,
+      delete: vendorDeleteRequest,
       getRelation: () => useTangoList({
-        url: API_TANGO_VENDEDOR,
+        endpoint: API_TANGO_VENDEDOR_GET_ALL,
         fieldsMap: {
           label: "screen_name",
           value: "id",
           isEnabled: "habilitado"
         },
         disabledIcon: /* @__PURE__ */ jsx7(Icon, { as: AccountCancelIcon, color: "red.400", ml: 2, boxSize: 5 })
-      }),
-      post: async (input, app) => vendorCreateRequest(input, app),
-      patch: async (id, input, app) => vendorUpdateRequest(id, input, app),
-      delete: async (id, input, app) => vendorDeleteRequest(id, input, app)
+      })
     },
     userType: "vendedor",
     titles: {
@@ -2695,7 +2840,7 @@ var settings = {
 };
 
 // src/@core/validate_schema/schema_validators.ts
-var integerValidator = (v) => new VOInteger(v).valueOf();
+var optionalBooleanValidator = (v, def) => v == null ? def : new VOBoolean(v).valueOf(), integerValidator = (v) => new VOInteger(v).valueOf(), optionalIntegerValidator = (v, def) => v == null ? def : new VOInteger(v).valueOf();
 var stringValidator = (v) => new VONotEmptyString(v).valueOf(), optionalStringValidator = (v, def) => v == null ? def : new VOString(v).valueOf();
 
 // src/@core/validate_schema/validate_schema.ts
@@ -2724,16 +2869,16 @@ function validateSchema(schema, input, options) {
   let invalidValues = [], inputIsObject = isObj(input), entries = Object.entries(schema), validatedResult = Array(entries.length);
   isObj(input) || (input = {});
   let i = 0;
-  for (let [field, validator7] of entries) {
-    let valIsObject = isObj(validator7), fieldName = valIsObject && "n" in validator7 ? validator7.n : field, validatorFuncion = valIsObject && "f" in validator7 ? validator7.f : validator7;
+  for (let [field, validator8] of entries) {
+    let valIsObject = isObj(validator8), fieldName = valIsObject && "n" in validator8 ? validator8.n : field, validatorFuncion = valIsObject && "f" in validator8 ? validator8.f : validator8;
     if (typeof validatorFuncion != "function")
       throw new InvalidSchemaValidatorFunctionException(fieldName);
     let inputValue = inputIsObject ? input[field] : void 0;
     try {
-      let result = validatorFuncion(inputValue);
-      result instanceof ValueObjectBase && (result = result.valueOf()), invalidValues.length === 0 && (validatedResult[i++] = [
+      let result2 = validatorFuncion(inputValue);
+      result2 instanceof ValueObjectBase && (result2 = result2.valueOf()), invalidValues.length === 0 && (validatedResult[i++] = [
         field,
-        result
+        result2
       ]);
     } catch {
       invalidValues.push({
@@ -2753,7 +2898,8 @@ function validateSchema(schema, input, options) {
     let defaultError = new UnknownSchemaKeysException(unknownKeys);
     throw options?.onUnknownKeys?.(unknownKeys, defaultError) ?? defaultError;
   }
-  return Object.fromEntries(validatedResult);
+  let result = Object.fromEntries(validatedResult), extraValidation = options?.extraValidation;
+  return extraValidation != null ? extraValidation(result) : result;
 }
 
 // src/app/components/CommonErrors.tsx
@@ -2909,14 +3055,15 @@ var SettingsFormHeading = (props) => {
 // src/app/components/ApiErrors.tsx
 import { useNavigate as useNavigate2 } from "@remix-run/react";
 import {
-  Alert as Alert2,
-  AlertDescription as AlertDescription2,
-  AlertIcon as AlertIcon2,
-  AlertTitle,
   Box as Box2,
   Button as Button4,
-  HStack
+  Flex as Flex2,
+  Heading as Heading3,
+  HStack,
+  Icon as Icon3,
+  Text as Text2
 } from "@chakra-ui/react";
+import CloseIcon from "mdi-react/CloseIcon.js";
 import { Fragment as Fragment4, jsx as jsx12, jsxs as jsxs7 } from "react/jsx-runtime";
 var ApiErrors = ({
   error,
@@ -2924,56 +3071,49 @@ var ApiErrors = ({
   cancelAndNavigateTo
 }) => {
   let navigate = useNavigate2();
-  return /* @__PURE__ */ jsx12(
-    Box2,
-    {
-      width: "full",
-      sx: {
-        mt: 6
-      },
-      children: /* @__PURE__ */ jsxs7(
-        Alert2,
-        {
-          status: "error",
-          variant: "subtle",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          textAlign: "center",
-          height: "200px",
-          children: [
-            /* @__PURE__ */ jsx12(AlertIcon2, { boxSize: "40px", sx: { mr: 0, mb: 4 } }),
-            error.message_to_user ? /* @__PURE__ */ jsxs7(Fragment4, { children: [
-              /* @__PURE__ */ jsx12(AlertTitle, { mt: 4, mb: 1, fontSize: "lg", children: error.message_to_user?.title }),
-              /* @__PURE__ */ jsx12(AlertDescription2, { maxWidth: "sm", children: error.message_to_user?.content })
-            ] }) : /* @__PURE__ */ jsx12(AlertDescription2, { maxWidth: "sm", children: error.error }),
-            /* @__PURE__ */ jsxs7(
-              HStack,
-              {
-                sx: {
-                  mt: 4
-                },
-                spacing: 4,
-                children: [
-                  retry && /* @__PURE__ */ jsx12(Button4, { onClick: retry, colorScheme: "green", children: RETRY }),
-                  cancelAndNavigateTo != null && /* @__PURE__ */ jsx12(
-                    Button4,
-                    {
-                      onClick: () => {
-                        navigate(cancelAndNavigateTo);
-                      },
-                      colorScheme: "red",
-                      children: CANCEL
-                    }
-                  )
-                ]
-              }
-            )
-          ]
-        }
-      )
-    }
-  );
+  return /* @__PURE__ */ jsxs7(Box2, { textAlign: "center", py: 10, px: 6, children: [
+    /* @__PURE__ */ jsx12(Box2, { display: "inline-block", children: /* @__PURE__ */ jsx12(
+      Flex2,
+      {
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        bg: "red.500",
+        rounded: "50px",
+        w: "55px",
+        h: "55px",
+        textAlign: "center",
+        children: /* @__PURE__ */ jsx12(Icon3, { as: CloseIcon, boxSize: "40px", color: "white" })
+      }
+    ) }),
+    error.message_to_user ? /* @__PURE__ */ jsxs7(Fragment4, { children: [
+      /* @__PURE__ */ jsx12(Heading3, { as: "h2", size: "xl", mt: 6, mb: 2, children: error.message_to_user?.title }),
+      /* @__PURE__ */ jsx12(Text2, { color: "gray.500", children: error.message_to_user?.content })
+    ] }) : /* @__PURE__ */ jsx12(Text2, { color: "gray.500", mt: 6, children: error.error_description }),
+    /* @__PURE__ */ jsxs7(
+      HStack,
+      {
+        sx: {
+          mt: 6
+        },
+        spacing: 4,
+        justifyContent: "center",
+        children: [
+          retry && /* @__PURE__ */ jsx12(Button4, { onClick: retry, colorScheme: "blue", children: RETRY }),
+          cancelAndNavigateTo != null && /* @__PURE__ */ jsx12(
+            Button4,
+            {
+              onClick: () => {
+                navigate(cancelAndNavigateTo);
+              },
+              colorScheme: "gray",
+              children: CANCEL
+            }
+          )
+        ]
+      }
+    )
+  ] });
 };
 
 // src/app/routes/_admin.settings.users.customers.$id.edit/components/loading.tsx
@@ -3064,35 +3204,13 @@ function useAppResources() {
   return result;
 }
 
-// src/code.client/utils/promise_based_toast.ts
-async function promiseBasedToast(props) {
-  let { toast, result, messages } = props, resultToast = new Promise((resolve, reject) => {
-    result.map({
-      success: (successState) => {
-        resolve(successState.data);
-      },
-      error: (state) => {
-        reject(new Error(state.error.error));
-      }
-    });
-  });
-  return toast.promise(resultToast, {
-    success: { title: messages.success.title },
-    error: (e) => ({ title: messages.error.title, description: e.message }),
-    loading: {
-      title: messages.loading.title,
-      description: WAIT_A_MOMENT
-    }
-  }), resultToast;
-}
-
 // src/app/routes/_admin.settings.users.customers.$id.edit/components/success.tsx
 import {
   Box as Box6,
   Divider as Divider2,
   Grid as Grid2,
   GridItem as GridItem2,
-  Heading as Heading3,
+  Heading as Heading4,
   HStack as HStack3,
   Stack as Stack4,
   useToast
@@ -3112,7 +3230,7 @@ import { useController } from "react-hook-form";
 import { jsx as jsx15, jsxs as jsxs9 } from "react/jsx-runtime";
 var ControlledInput = (props) => {
   let { fieldProps, formControlProps, formControlInnerProps, control } = props, {
-    field: { ref, onChange, value },
+    field: { ref: ref3, onChange, value },
     fieldState: { invalid },
     formState: { errors }
   } = useController({
@@ -3133,12 +3251,13 @@ var ControlledInput = (props) => {
       /* @__PURE__ */ jsx15(
         Input,
         {
+          autoComplete: "off",
           ...fieldProps,
           onChange: (e) => {
             fieldProps.onChange && fieldProps.onChange(e), onChange(e);
           },
           value,
-          ref
+          ref: ref3
         }
       ),
       iconEnding
@@ -3166,7 +3285,7 @@ var ControlledRadio = (props) => {
     radioProps,
     control
   } = props, { name } = fieldProps, { helperText } = formControlInnerProps || {}, {
-    field: { ref, onChange, value },
+    field: { ref: ref3, onChange, value },
     fieldState: { invalid },
     formState: { errors }
   } = useController2({
@@ -3180,7 +3299,7 @@ var ControlledRadio = (props) => {
         ...fieldProps,
         onChange,
         value: value.toString(),
-        ref,
+        ref: ref3,
         children: /* @__PURE__ */ jsx16(Stack2, { direction: "row", spacing: 4, ...stackProps, children: fieldProps.options.map((option, index) => /* @__PURE__ */ jsx16(
           Radio,
           {
@@ -3310,7 +3429,7 @@ var VirtualizedMenuList = memo(function(props) {
   }
   (shouldSort ?? !1) && fieldProps.options.sort(compareByLabel);
   let {
-    field: { ref, onChange, value },
+    field: { ref: ref3, onChange, value },
     fieldState: { invalid },
     formState: { errors }
   } = useController3({
@@ -3329,7 +3448,7 @@ var VirtualizedMenuList = memo(function(props) {
       Select,
       {
         ...fieldProps,
-        ref,
+        ref: ref3,
         value: fieldProps.options.find((option) => option.value === value),
         filterOption: createFilter({ ignoreAccents: !1 }),
         onChange: (newValue, actionMeta) => onChange(newValue.value),
@@ -3380,7 +3499,7 @@ var ControlledSwitch = (props) => {
     control,
     watch
   } = props, { label } = formControlInnerProps || {}, {
-    field: { ref, onChange, onBlur, value },
+    field: { ref: ref3, onChange, onBlur, value },
     fieldState: { invalid },
     formState: { errors }
   } = useController4({
@@ -3403,7 +3522,7 @@ var ControlledSwitch = (props) => {
             isChecked: value,
             onChange: (e) => onChange(e.target.checked),
             onBlur,
-            ref
+            ref: ref3
           }
         ),
         label != null && /* @__PURE__ */ jsx19(
@@ -3441,32 +3560,37 @@ var FormErrors = ({ errors }) => {
 
 // src/app/components/form_elements/PasswordWithStatus.tsx
 import { useState as useState4 } from "react";
-import { Badge, Icon as Icon3, InputRightElement } from "@chakra-ui/react";
+import { Badge, Icon as Icon4, InputRightElement } from "@chakra-ui/react";
 import EyeOffOutlineIcon from "mdi-react/EyeOffOutlineIcon.js";
 import EyeOutlineIcon from "mdi-react/EyeOutlineIcon.js";
 import { Fragment as Fragment6, jsx as jsx21, jsxs as jsxs13 } from "react/jsx-runtime";
 var PasswordWithStatus = (props) => {
-  let { passwordStatus, disableForm, control } = props, [showPassword, setShowPassword] = useState4(!1);
+  let {
+    fieldProps,
+    formControlInnerProps,
+    passwordStatus,
+    disableForm,
+    control
+  } = props, [showPassword, setShowPassword] = useState4(!1), handleShowHidePassword = () => {
+    setShowPassword(!showPassword);
+  }, { label, helperText } = formControlInnerProps || {};
   return /* @__PURE__ */ jsxs13(Fragment6, { children: [
     /* @__PURE__ */ jsx21(
       ControlledInput,
       {
         fieldProps: {
-          name: "password",
-          id: "password",
+          ...fieldProps,
           type: showPassword ? "text" : "password"
         },
         formControlProps: {
           isDisabled: disableForm
         },
         formControlInnerProps: {
-          label: "Contrase\xF1a",
+          label,
           iconEnding: /* @__PURE__ */ jsx21(InputRightElement, { children: /* @__PURE__ */ jsx21(
-            Icon3,
+            Icon4,
             {
-              onClick: () => {
-                setShowPassword(!showPassword);
-              },
+              onClick: handleShowHidePassword,
               sx: { cursor: "pointer" },
               as: showPassword ? EyeOffOutlineIcon : EyeOutlineIcon,
               boxSize: 5
@@ -3573,12 +3697,13 @@ var commonValidationSchema = yup.object({
 }).required();
 
 // src/domain/shared/validation/validate_input.ts
-function validateInput(schema, values) {
+function validateInput(schema, values, extraValidation) {
   return validateSchema(
     schema,
     values,
     {
-      onUnknownKeys: (unknownKeys, _13) => new DXTException(
+      extraValidation,
+      onUnknownKeys: (unknownKeys, _14) => new DXTException(
         new DXTError(
           1e4 /* BAD_REQUEST */,
           {
@@ -3586,7 +3711,7 @@ function validateInput(schema, values) {
           }
         )
       ),
-      onInvalidValues: (invalidsValues, _13) => new DXTException(
+      onInvalidValues: (invalidsValues, _14) => new DXTException(
         new DXTError(
           1e4 /* BAD_REQUEST */,
           {
@@ -3687,8 +3812,8 @@ import { jsx as jsx24, jsxs as jsxs15 } from "react/jsx-runtime";
 var Success = (props) => {
   let { stateData, typeSettings } = props, updateData = {
     ...stateData
-  }, app = useAppResources(), toast = useToast(), { yupValidationSchema: yupValidationSchema6, passwordStatus } = useCustomValidationSchema(), { state: statePerfiles, result: resultPerfiles } = useTangoList({
-    url: API_TANGO_PERFIL,
+  }, app = useAppResources(), toast = useToast(), { yupValidationSchema: yupValidationSchema5, passwordStatus } = useCustomValidationSchema(), { state: statePerfiles, result: resultPerfiles } = useTangoList({
+    endpoint: API_TANGO_PERFIL_GET_ALL,
     fieldsMap: {
       label: "name",
       value: "id"
@@ -3715,7 +3840,7 @@ var Success = (props) => {
       aprobar_pedido_al_crear: updateData.aprobar_pedido_al_crear,
       dia_de_entrega: updateData.dia_de_entrega
     },
-    resolver: yupResolver(yupValidationSchema6)
+    resolver: yupResolver(yupValidationSchema5)
   }), watchPuedeAnularPedido = watch("puede_anular_pedido");
   useEffect6(() => {
     watchPuedeAnularPedido === !1 && resetField("borrar_pedido_al_anular", { defaultValue: !1 });
@@ -3733,19 +3858,20 @@ var Success = (props) => {
   return /* @__PURE__ */ jsx24("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
     let { ...data } = dataUnsafe;
     data.email === "" && delete data.email, data.password === "" && delete data.password;
-    let input = data, result = await typeSettings.api.patch(updateData.id, input, app);
-    await promiseBasedToast({
-      toast,
-      result,
-      messages: {
-        success: { title: USER_UPDATED },
-        error: { title: AN_ERROR_OCCURRED },
-        loading: { title: USER_UPDATING }
+    let input = data;
+    (await typeSettings.api.patch(updateData.id, input, app)).map({
+      success: (_14) => {
+        toast({
+          title: USER_UPDATED,
+          status: "success"
+        }), app.navigate(URL_SETTINGS_CUSTOMERS_PATH);
+      },
+      error: (e) => {
+        toast({
+          title: AN_ERROR_OCCURRED,
+          status: "error"
+        }), setError("root", { message: e.info.error_description });
       }
-    }).then(() => {
-      app.navigate(URL_SETTINGS_CUSTOMERS_PATH);
-    }).catch((e) => {
-      setError("root", { message: e });
     });
   }), children: /* @__PURE__ */ jsxs15(Box6, { children: [
     /* @__PURE__ */ jsx24(FormErrors, { errors }),
@@ -3756,7 +3882,7 @@ var Success = (props) => {
         alignItems: "start",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx24(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx24(Heading3, { size: "sm", textTransform: "uppercase", children: "Informaci\xF3n del Cliente" }) }),
+          /* @__PURE__ */ jsx24(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx24(Heading4, { size: "sm", textTransform: "uppercase", children: "Informaci\xF3n del Cliente" }) }),
           /* @__PURE__ */ jsxs15(GridItem2, { colSpan: { md: 2 }, children: [
             /* @__PURE__ */ jsx24(
               ControlledSelect,
@@ -3804,6 +3930,13 @@ var Success = (props) => {
           /* @__PURE__ */ jsx24(GridItem2, { children: /* @__PURE__ */ jsx24(
             PasswordWithStatus,
             {
+              fieldProps: {
+                name: "password",
+                id: "password"
+              },
+              formControlInnerProps: {
+                label: "Contrase\xF1a"
+              },
               passwordStatus,
               disableForm,
               control
@@ -3854,7 +3987,7 @@ var Success = (props) => {
             statePerfiles instanceof FetchStateError && /* @__PURE__ */ jsx24(InlineError, { error: statePerfiles.errorOrNull().error })
           ] }),
           /* @__PURE__ */ jsx24(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx24(Divider2, {}) }),
-          /* @__PURE__ */ jsx24(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx24(Heading3, { size: "sm", textTransform: "uppercase", children: "Estado" }) }),
+          /* @__PURE__ */ jsx24(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx24(Heading4, { size: "sm", textTransform: "uppercase", children: "Estado" }) }),
           /* @__PURE__ */ jsx24(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx24(
             ControlledRadio,
             {
@@ -3881,7 +4014,7 @@ var Success = (props) => {
             }
           ) }),
           /* @__PURE__ */ jsx24(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx24(Divider2, {}) }),
-          /* @__PURE__ */ jsx24(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx24(Heading3, { size: "sm", textTransform: "uppercase", children: "Comunicaci\xF3n" }) }),
+          /* @__PURE__ */ jsx24(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx24(Heading4, { size: "sm", textTransform: "uppercase", children: "Comunicaci\xF3n" }) }),
           /* @__PURE__ */ jsx24(GridItem2, { children: /* @__PURE__ */ jsx24(
             ControlledSwitch,
             {
@@ -3909,7 +4042,7 @@ var Success = (props) => {
         alignItems: "start",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx24(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx24(Heading3, { size: "sm", textTransform: "uppercase", children: "Pedidos" }) }),
+          /* @__PURE__ */ jsx24(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx24(Heading4, { size: "sm", textTransform: "uppercase", children: "Pedidos" }) }),
           /* @__PURE__ */ jsx24(GridItem2, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxs15(Stack4, { spacing: 4, direction: { base: "column" }, children: [
             /* @__PURE__ */ jsx24(HStack3, { spacing: 4, children: /* @__PURE__ */ jsx24(
               ControlledSwitch,
@@ -4076,7 +4209,7 @@ import { jsx as jsx25 } from "react/jsx-runtime";
 var FormEdit = (props) => {
   let { typeSettings, id } = props, { state, retry } = typeSettings.api.getOne(id);
   return state.map({
-    loading: (_13) => /* @__PURE__ */ jsx25(Loading, {}),
+    loading: (_14) => /* @__PURE__ */ jsx25(Loading, {}),
     error: ({ error }) => /* @__PURE__ */ jsx25(
       ApiErrors,
       {
@@ -4202,7 +4335,7 @@ import {
   Divider as Divider4,
   Grid as Grid4,
   GridItem as GridItem4,
-  Heading as Heading4,
+  Heading as Heading5,
   HStack as HStack5,
   Stack as Stack6,
   useToast as useToast2
@@ -4232,8 +4365,8 @@ import { jsx as jsx28, jsxs as jsxs18 } from "react/jsx-runtime";
 var Success2 = (props) => {
   let { stateData, typeSettings } = props, updateData = {
     ...stateData
-  }, app = useAppResources(), toast = useToast2(), { yupValidationSchema: yupValidationSchema6, passwordStatus } = useCustomValidationSchema2(), { state: statePerfiles, result: resultPerfiles } = useTangoList({
-    url: API_TANGO_PERFIL,
+  }, app = useAppResources(), toast = useToast2(), { yupValidationSchema: yupValidationSchema5, passwordStatus } = useCustomValidationSchema2(), { state: statePerfiles, result: resultPerfiles } = useTangoList({
+    endpoint: API_TANGO_PERFIL_GET_ALL,
     fieldsMap: {
       label: "name",
       value: "id"
@@ -4260,7 +4393,7 @@ var Success2 = (props) => {
       aprobar_pedido_al_crear: updateData.aprobar_pedido_al_crear,
       dia_de_entrega: updateData.dia_de_entrega
     },
-    resolver: yupResolver2(yupValidationSchema6)
+    resolver: yupResolver2(yupValidationSchema5)
   }), watchPuedeAnularPedido = watch("puede_anular_pedido");
   useEffect7(() => {
     watchPuedeAnularPedido === !1 && resetField("borrar_pedido_al_anular", { defaultValue: !1 });
@@ -4278,19 +4411,20 @@ var Success2 = (props) => {
   return /* @__PURE__ */ jsx28("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
     let { ...data } = dataUnsafe;
     data.email === "" && delete data.email, data.password === "" && delete data.password;
-    let input = data, result = await typeSettings.api.patch(updateData.id, input, app);
-    await promiseBasedToast({
-      toast,
-      result,
-      messages: {
-        success: { title: USER_UPDATED },
-        error: { title: AN_ERROR_OCCURRED },
-        loading: { title: USER_UPDATING }
+    let input = data;
+    (await typeSettings.api.patch(updateData.id, input, app)).map({
+      success: (_14) => {
+        toast({
+          title: USER_UPDATED,
+          status: "success"
+        }), app.navigate(URL_SETTINGS_VENDORS_PATH);
+      },
+      error: (e) => {
+        toast({
+          title: AN_ERROR_OCCURRED,
+          status: "error"
+        }), setError("root", { message: e.info.error_description });
       }
-    }).then(() => {
-      app.navigate(URL_SETTINGS_VENDORS_PATH);
-    }).catch((e) => {
-      setError("root", { message: e });
     });
   }), children: /* @__PURE__ */ jsxs18(Box8, { children: [
     /* @__PURE__ */ jsx28(FormErrors, { errors }),
@@ -4301,7 +4435,7 @@ var Success2 = (props) => {
         alignItems: "start",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx28(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx28(Heading4, { size: "sm", textTransform: "uppercase", children: "Informaci\xF3n del Vendedor" }) }),
+          /* @__PURE__ */ jsx28(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx28(Heading5, { size: "sm", textTransform: "uppercase", children: "Informaci\xF3n del Vendedor" }) }),
           /* @__PURE__ */ jsxs18(GridItem4, { colSpan: { md: 2 }, children: [
             /* @__PURE__ */ jsx28(
               ControlledSelect,
@@ -4349,6 +4483,13 @@ var Success2 = (props) => {
           /* @__PURE__ */ jsx28(GridItem4, { children: /* @__PURE__ */ jsx28(
             PasswordWithStatus,
             {
+              fieldProps: {
+                name: "password",
+                id: "password"
+              },
+              formControlInnerProps: {
+                label: "Contrase\xF1a"
+              },
               passwordStatus,
               disableForm,
               control
@@ -4399,7 +4540,7 @@ var Success2 = (props) => {
             statePerfiles instanceof FetchStateError && /* @__PURE__ */ jsx28(InlineError, { error: statePerfiles.errorOrNull().error })
           ] }),
           /* @__PURE__ */ jsx28(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx28(Divider4, {}) }),
-          /* @__PURE__ */ jsx28(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx28(Heading4, { size: "sm", textTransform: "uppercase", children: "Estado" }) }),
+          /* @__PURE__ */ jsx28(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx28(Heading5, { size: "sm", textTransform: "uppercase", children: "Estado" }) }),
           /* @__PURE__ */ jsx28(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx28(
             ControlledRadio,
             {
@@ -4426,7 +4567,7 @@ var Success2 = (props) => {
             }
           ) }),
           /* @__PURE__ */ jsx28(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx28(Divider4, {}) }),
-          /* @__PURE__ */ jsx28(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx28(Heading4, { size: "sm", textTransform: "uppercase", children: "Comunicaci\xF3n" }) }),
+          /* @__PURE__ */ jsx28(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx28(Heading5, { size: "sm", textTransform: "uppercase", children: "Comunicaci\xF3n" }) }),
           /* @__PURE__ */ jsx28(GridItem4, { children: /* @__PURE__ */ jsx28(
             ControlledSwitch,
             {
@@ -4454,7 +4595,7 @@ var Success2 = (props) => {
         alignItems: "start",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx28(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx28(Heading4, { size: "sm", textTransform: "uppercase", children: "Pedidos" }) }),
+          /* @__PURE__ */ jsx28(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx28(Heading5, { size: "sm", textTransform: "uppercase", children: "Pedidos" }) }),
           /* @__PURE__ */ jsx28(GridItem4, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxs18(Stack6, { spacing: 4, direction: { base: "column" }, children: [
             /* @__PURE__ */ jsx28(HStack5, { spacing: 4, children: /* @__PURE__ */ jsx28(
               ControlledSwitch,
@@ -4621,7 +4762,7 @@ import { jsx as jsx29 } from "react/jsx-runtime";
 var FormEdit2 = (props) => {
   let { typeSettings, id } = props, { state, retry } = typeSettings.api.getOne(id);
   return state.map({
-    loading: (_13) => /* @__PURE__ */ jsx29(Loading2, {}),
+    loading: (_14) => /* @__PURE__ */ jsx29(Loading2, {}),
     error: ({ error }) => /* @__PURE__ */ jsx29(
       ApiErrors,
       {
@@ -4673,12 +4814,1639 @@ function Edit2() {
   }
 }
 
-// src/app/routes/api.pedido.$id_pedido.start_new_draft.ts
-var api_pedido_id_pedido_start_new_draft_exports = {};
-__export(api_pedido_id_pedido_start_new_draft_exports, {
+// src/app/routes/_admin.settings.users.customers.add/route.tsx
+var route_exports3 = {};
+__export(route_exports3, {
+  default: () => Add
+});
+import { useNavigate as useNavigate6 } from "@remix-run/react";
+
+// src/app/routes/_admin.settings.users.customers.add/components/success.tsx
+import { useEffect as useEffect8 } from "react";
+import {
+  Box as Box9,
+  Divider as Divider5,
+  Grid as Grid5,
+  GridItem as GridItem5,
+  Heading as Heading6,
+  HStack as HStack6,
+  Stack as Stack7,
+  useToast as useToast3
+} from "@chakra-ui/react";
+import { yupResolver as yupResolver3 } from "@hookform/resolvers/yup";
+import { useForm as useForm3 } from "react-hook-form";
+
+// src/app/routes/_admin.settings.users.customers.add/validation.ts
+import { useState as useState7 } from "react";
+import * as yup4 from "yup";
+import _4 from "lodash";
+var useCustomValidationSchema3 = () => {
+  let [passwordStatus, setPasswordStatus] = useState7(null), customValidationSchema = yup4.object({
+    password: yup4.string().required("Ingrese una contrase\xF1a").test("password", "Formato de contrase\xF1a no v\xE1lido", (v) => {
+      if (v != "" && v != null) {
+        let newPasswordStatus = dxtPasswordStatus(v);
+        return _4.isEqual(passwordStatus, newPasswordStatus) || setPasswordStatus(newPasswordStatus), yupVOValidation(VODXTPassword, v);
+      }
+      return !0;
+    })
+  }).required();
+  return { yupValidationSchema: commonValidationSchema.concat(customValidationSchema), passwordStatus };
+};
+
+// src/app/routes/_admin.settings.users.customers.add/components/success.tsx
+import { jsx as jsx31, jsxs as jsxs20 } from "react/jsx-runtime";
+var Success3 = (props) => {
+  let { typeSettings } = props, app = useAppResources(), toast = useToast3(), { yupValidationSchema: yupValidationSchema5, passwordStatus } = useCustomValidationSchema3(), { state: statePerfiles, result: resultPerfiles } = useTangoList({
+    endpoint: API_TANGO_PERFIL_GET_ALL,
+    fieldsMap: {
+      label: "name",
+      value: "id"
+    }
+  }), { state: stateRelationship, result: resultRelationship } = typeSettings.api.getRelation(), {
+    handleSubmit,
+    control,
+    setError,
+    resetField,
+    watch,
+    formState: { errors, isSubmitting, isSubmitSuccessful }
+  } = useForm3({
+    defaultValues: {
+      username: "",
+      password: "",
+      email: "",
+      tango_id: 0,
+      perfil_facturacion_id: 0,
+      habilitado_en_dxt: !0,
+      puede_crear_pedido: !0,
+      puede_editar_pedido: !0,
+      ver_pedidos_cumplidos: !0,
+      ver_sin_precio: !1,
+      mostrar_mensaje_de_advertencia: !1,
+      puede_anular_pedido: !1,
+      borrar_pedido_al_anular: !1,
+      aprobar_pedido_al_crear: !1,
+      dia_de_entrega: 30
+    },
+    resolver: yupResolver3(yupValidationSchema5)
+  }), watchPuedeAnularPedido = watch("puede_anular_pedido");
+  useEffect8(() => {
+    watchPuedeAnularPedido === !1 && resetField("borrar_pedido_al_anular", { defaultValue: !1 });
+  }, [watchPuedeAnularPedido]);
+  let disableForm = isSubmitSuccessful || isSubmitting;
+  return /* @__PURE__ */ jsx31("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
+    let { ...data } = dataUnsafe;
+    data.email === "" && delete data.email;
+    let input = data;
+    (await typeSettings.api.post(input, app)).map({
+      success: (_14) => {
+        toast({
+          title: USER_CREATED,
+          status: "success"
+        }), app.navigate(URL_SETTINGS_CUSTOMERS_PATH);
+      },
+      error: (e) => {
+        toast({
+          title: AN_ERROR_OCCURRED,
+          status: "error"
+        }), setError("root", { message: e.info.error_description });
+      }
+    });
+  }), children: /* @__PURE__ */ jsxs20(Box9, { children: [
+    /* @__PURE__ */ jsx31(FormErrors, { errors }),
+    /* @__PURE__ */ jsx31(CommonCard, { children: /* @__PURE__ */ jsxs20(
+      Grid5,
+      {
+        templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
+        alignItems: "start",
+        gap: 4,
+        children: [
+          /* @__PURE__ */ jsx31(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx31(Heading6, { size: "sm", textTransform: "uppercase", children: "Informaci\xF3n del Cliente" }) }),
+          /* @__PURE__ */ jsxs20(GridItem5, { colSpan: { md: 2 }, children: [
+            /* @__PURE__ */ jsx31(
+              ControlledSelect,
+              {
+                fieldProps: {
+                  name: "tango_id",
+                  placeholder: typeSettings.tangoRelatedFields?.placeholder,
+                  options: resultRelationship,
+                  noOptionsMessage(obj) {
+                    return typeSettings.tangoRelatedFields?.empty;
+                  },
+                  isSearchable: !0,
+                  selectedOptionStyle: "check",
+                  isLoading: stateRelationship instanceof FetchStateLoading,
+                  virtualized: !0
+                },
+                formControlProps: {
+                  isDisabled: disableForm || !(stateRelationship instanceof FetchStateSuccess)
+                },
+                formControlInnerProps: {
+                  label: typeSettings.tangoRelatedFields?.label
+                },
+                control
+              }
+            ),
+            stateRelationship instanceof FetchStateError && /* @__PURE__ */ jsx31(InlineError, { error: stateRelationship.errorOrNull().error })
+          ] }),
+          /* @__PURE__ */ jsx31(GridItem5, { children: /* @__PURE__ */ jsx31(
+            ControlledInput,
+            {
+              fieldProps: {
+                name: "username",
+                id: "username",
+                type: "text"
+              },
+              formControlProps: {
+                isDisabled: disableForm
+              },
+              formControlInnerProps: {
+                label: "Nombre de Usuario"
+              },
+              control
+            }
+          ) }),
+          /* @__PURE__ */ jsx31(GridItem5, { children: /* @__PURE__ */ jsx31(
+            PasswordWithStatus,
+            {
+              fieldProps: {
+                name: "password",
+                id: "password"
+              },
+              formControlInnerProps: {
+                label: "Contrase\xF1a"
+              },
+              passwordStatus,
+              disableForm,
+              control
+            }
+          ) }),
+          /* @__PURE__ */ jsx31(GridItem5, { children: /* @__PURE__ */ jsx31(
+            ControlledInput,
+            {
+              fieldProps: {
+                name: "email",
+                id: "email",
+                type: "text",
+                inputMode: "email"
+              },
+              formControlProps: {
+                isDisabled: disableForm
+              },
+              formControlInnerProps: {
+                label: "Correo electr\xF3nico"
+              },
+              control
+            }
+          ) }),
+          /* @__PURE__ */ jsx31(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx31(Divider5, {}) }),
+          /* @__PURE__ */ jsxs20(GridItem5, { colSpan: { md: 2 }, children: [
+            /* @__PURE__ */ jsx31(
+              ControlledSelect,
+              {
+                fieldProps: {
+                  name: "perfil_facturacion_id",
+                  placeholder: "Seleccione un perfil",
+                  options: resultPerfiles,
+                  noOptionsMessage(obj) {
+                    return "No hay perfiles disponibles";
+                  },
+                  isLoading: statePerfiles instanceof FetchStateLoading,
+                  selectedOptionStyle: "check"
+                },
+                formControlProps: {
+                  isDisabled: disableForm || !(statePerfiles instanceof FetchStateSuccess)
+                },
+                formControlInnerProps: {
+                  label: "Perfil de facturaci\xF3n"
+                },
+                control
+              }
+            ),
+            statePerfiles instanceof FetchStateError && /* @__PURE__ */ jsx31(InlineError, { error: statePerfiles.errorOrNull().error })
+          ] }),
+          /* @__PURE__ */ jsx31(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx31(Divider5, {}) }),
+          /* @__PURE__ */ jsx31(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx31(Heading6, { size: "sm", textTransform: "uppercase", children: "Estado" }) }),
+          /* @__PURE__ */ jsx31(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx31(
+            ControlledRadio,
+            {
+              fieldProps: {
+                name: "habilitado_en_dxt",
+                options: [
+                  {
+                    value: !0,
+                    label: "Establecido en Tango"
+                  },
+                  {
+                    value: !1,
+                    label: "Deshabilitado"
+                  }
+                ]
+              },
+              formControlProps: {
+                isDisabled: disableForm
+              },
+              radioProps: {
+                size: { base: "sm", sm: "md" }
+              },
+              control
+            }
+          ) }),
+          /* @__PURE__ */ jsx31(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx31(Divider5, {}) }),
+          /* @__PURE__ */ jsx31(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx31(Heading6, { size: "sm", textTransform: "uppercase", children: "Comunicaci\xF3n" }) }),
+          /* @__PURE__ */ jsx31(GridItem5, { children: /* @__PURE__ */ jsx31(
+            ControlledSwitch,
+            {
+              fieldProps: {
+                name: "mostrar_mensaje_de_advertencia",
+                id: "mostrar_mensaje_de_advertencia"
+              },
+              formControlProps: {
+                width: "auto",
+                isDisabled: disableForm
+              },
+              formControlInnerProps: {
+                label: "Mostrar mensaje de advertencia"
+              },
+              control
+            }
+          ) })
+        ]
+      }
+    ) }),
+    /* @__PURE__ */ jsx31(CommonCard, { children: /* @__PURE__ */ jsxs20(
+      Grid5,
+      {
+        templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
+        alignItems: "start",
+        gap: 4,
+        children: [
+          /* @__PURE__ */ jsx31(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx31(Heading6, { size: "sm", textTransform: "uppercase", children: "Pedidos" }) }),
+          /* @__PURE__ */ jsx31(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxs20(Stack7, { spacing: 4, direction: { base: "column" }, children: [
+            /* @__PURE__ */ jsx31(HStack6, { spacing: 4, children: /* @__PURE__ */ jsx31(
+              ControlledSwitch,
+              {
+                fieldProps: {
+                  name: "puede_crear_pedido",
+                  id: "puede_crear_pedido"
+                },
+                formControlProps: {
+                  width: "auto",
+                  isDisabled: disableForm
+                },
+                formControlInnerProps: {
+                  label: "Puede crear pedidos"
+                },
+                control
+              }
+            ) }),
+            /* @__PURE__ */ jsx31(HStack6, { spacing: 4, children: /* @__PURE__ */ jsx31(
+              ControlledSwitch,
+              {
+                fieldProps: {
+                  name: "puede_editar_pedido",
+                  id: "puede_editar_pedido"
+                },
+                formControlProps: {
+                  width: "auto",
+                  isDisabled: disableForm
+                },
+                formControlInnerProps: {
+                  label: "Puede editar pedidos"
+                },
+                control
+              }
+            ) }),
+            /* @__PURE__ */ jsx31(HStack6, { spacing: 4, children: /* @__PURE__ */ jsx31(
+              ControlledSwitch,
+              {
+                fieldProps: {
+                  name: "puede_anular_pedido",
+                  id: "puede_anular_pedido"
+                },
+                formControlProps: {
+                  width: "auto",
+                  isDisabled: disableForm
+                },
+                formControlInnerProps: {
+                  label: "Puede anular pedidos"
+                },
+                control
+              }
+            ) }),
+            /* @__PURE__ */ jsx31(HStack6, { spacing: 4, children: /* @__PURE__ */ jsx31(
+              ControlledSwitch,
+              {
+                fieldProps: {
+                  name: "borrar_pedido_al_anular",
+                  id: "borrar_pedido_al_anular"
+                },
+                formControlProps: {
+                  width: "auto",
+                  isDisabled: disableForm
+                },
+                formControlInnerProps: {
+                  label: "Borrar pedido al anular"
+                },
+                control,
+                watch: {
+                  isDisabled: watchPuedeAnularPedido === !1,
+                  ...watchPuedeAnularPedido === !1 && {
+                    isChecked: !1
+                  }
+                }
+              }
+            ) }),
+            /* @__PURE__ */ jsx31(HStack6, { spacing: 4, children: /* @__PURE__ */ jsx31(
+              ControlledSwitch,
+              {
+                fieldProps: {
+                  name: "aprobar_pedido_al_crear",
+                  id: "aprobar_pedido_al_crear"
+                },
+                formControlProps: {
+                  width: "auto",
+                  isDisabled: disableForm
+                },
+                formControlInnerProps: {
+                  label: "Los pedidos se aprueban al crearlos"
+                },
+                control
+              }
+            ) }),
+            /* @__PURE__ */ jsx31(HStack6, { spacing: 4, children: /* @__PURE__ */ jsx31(
+              ControlledSwitch,
+              {
+                fieldProps: {
+                  name: "ver_pedidos_cumplidos",
+                  id: "ver_pedidos_cumplidos"
+                },
+                formControlProps: {
+                  width: "auto",
+                  isDisabled: disableForm
+                },
+                formControlInnerProps: {
+                  label: "Puede ver los pedidos cumplidos"
+                },
+                control
+              }
+            ) }),
+            /* @__PURE__ */ jsx31(HStack6, { spacing: 4, children: /* @__PURE__ */ jsx31(
+              ControlledSwitch,
+              {
+                fieldProps: {
+                  name: "ver_sin_precio",
+                  id: "ver_sin_precio"
+                },
+                formControlProps: {
+                  width: "auto",
+                  isDisabled: disableForm
+                },
+                formControlInnerProps: {
+                  label: "Puede ver art\xEDculos sin precios"
+                },
+                control
+              }
+            ) })
+          ] }) }),
+          /* @__PURE__ */ jsx31(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx31(Divider5, {}) }),
+          /* @__PURE__ */ jsx31(GridItem5, { children: /* @__PURE__ */ jsx31(
+            ControlledInput,
+            {
+              fieldProps: {
+                name: "dia_de_entrega",
+                id: "dia_de_entrega",
+                type: "number",
+                inputMode: "tel"
+              },
+              formControlProps: {
+                isDisabled: disableForm
+              },
+              formControlInnerProps: {
+                label: "Tiempo de entrega de pedidos",
+                helperText: "Expresado en d\xEDas"
+              },
+              control
+            }
+          ) }),
+          /* @__PURE__ */ jsx31(GridItem5, {})
+        ]
+      }
+    ) }),
+    /* @__PURE__ */ jsx31(CommonCard, { children: /* @__PURE__ */ jsx31(
+      SettingsFormsButtons,
+      {
+        buttonActionText: "Guardar",
+        isLoading: disableForm,
+        buttonCancelUrl: typeSettings.cancelButtonNavigateTo
+      }
+    ) })
+  ] }) });
+};
+
+// src/app/routes/_admin.settings.users.customers.add/components/index.tsx
+import { jsx as jsx32 } from "react/jsx-runtime";
+var Form = (props) => {
+  let { typeSettings } = props;
+  return /* @__PURE__ */ jsx32(Success3, { typeSettings });
+};
+
+// src/app/routes/_admin.settings.users.customers.add/route.tsx
+import { Fragment as Fragment10, jsx as jsx33, jsxs as jsxs21 } from "react/jsx-runtime";
+function Add() {
+  let typeSettings = settings.customers, navigate = useNavigate6();
+  return /* @__PURE__ */ jsxs21(Fragment10, { children: [
+    /* @__PURE__ */ jsx33(
+      SettingsFormHeading,
+      {
+        title: typeSettings.titles.create,
+        returnButton: {
+          buttonProps: {
+            onClick: () => {
+              navigate(URL_SETTINGS_CUSTOMERS_PATH);
+            }
+          }
+        }
+      }
+    ),
+    /* @__PURE__ */ jsx33(Form, { typeSettings })
+  ] });
+}
+
+// src/app/routes/_admin.settings.product_list.$type/route.tsx
+var route_exports4 = {};
+__export(route_exports4, {
+  default: () => Lists
+});
+import { useNavigate as useNavigate7, useParams as useParams3 } from "@remix-run/react";
+
+// src/api-client/dxt/articulo/paths.ts
+var API_DXT_ARTICULO_PRINT_LIST = apiEndpoint("/dxt/articulo/print_list", "GET"), API_DXT_ARTICULO_PRINT_LIST_UPDATE = apiEndpoint("/dxt/articulo/print_list", "POST"), API_DXT_ARTICULO_EDIT_LIST = apiEndpoint("/dxt/articulo/edit_list", "GET"), API_DXT_ARTICULO_EDIT_LIST_UPDATE = apiEndpoint("/dxt/articulo/edit_list", "POST"), API_DXT_ARTICULO_PRINT_LIST_IDS = apiEndpoint("/dxt/articulo/print_list/ids", "GET");
+
+// src/api-client/dxt/articulo/requests.ts
+var dxtArticuloPrintListUpdateRequest = async (input, app) => await dxtApiRequest(
+  {
+    ...API_DXT_ARTICULO_PRINT_LIST_UPDATE,
+    data: input,
+    silent: !0
+  },
+  app
+), dxtArticuloEditListUpdateRequest = async (input, app) => await dxtApiRequest(
+  {
+    ...API_DXT_ARTICULO_EDIT_LIST_UPDATE,
+    data: input,
+    silent: !0
+  },
+  app
+);
+
+// src/code.client/dxt/articulo/api_hooks/index.ts
+function useGetDXTArticuloEditList() {
+  return useDXTApiFetch({
+    ...API_DXT_ARTICULO_EDIT_LIST,
+    silent: !0
+  });
+}
+function useGetDXTArticuloPrintList() {
+  return useDXTApiFetch({
+    ...API_DXT_ARTICULO_PRINT_LIST,
+    silent: !0
+  });
+}
+
+// src/code.client/crud_configs/lists.tsx
+import { Fragment as Fragment11, jsx as jsx34, jsxs as jsxs22 } from "react/jsx-runtime";
+var settings2 = {
+  edit: {
+    api: {
+      getAll: useGetDXTArticuloEditList,
+      post: dxtArticuloEditListUpdateRequest
+    },
+    title: PRODUCT_EDIT_LIST,
+    description: /* @__PURE__ */ jsxs22(Fragment11, { children: [
+      "Ingrese en la lista los c\xF3digos de art\xEDculo en el \xF3rden en quedesea que aparezcan durante la creaci\xF3n o edici\xF3n de un pedido.",
+      /* @__PURE__ */ jsx34("br", {}),
+      /* @__PURE__ */ jsx34("br", {}),
+      "Cualquier l\xEDnea que ingrese, que no contenga ning\xFAn c\xF3digo de art\xEDculo, ser\xE1 considerada como t\xEDtulo de grupo."
+    ] })
+  },
+  print: {
+    api: {
+      getAll: useGetDXTArticuloPrintList,
+      post: dxtArticuloPrintListUpdateRequest
+    },
+    title: PRODUCT_PRINT_LIST,
+    description: /* @__PURE__ */ jsxs22(Fragment11, { children: [
+      "Ingrese en la lista los c\xF3digos de art\xEDculo en el \xF3rden en que desea que aparezcan durante la impresi\xF3n de un pedido.",
+      /* @__PURE__ */ jsx34("br", {}),
+      /* @__PURE__ */ jsx34("br", {}),
+      "Cualquier l\xEDnea que ingrese, que no contenga ning\xFAn c\xF3digo de art\xEDculo, ser\xE1 considerada como t\xEDtulo de grupo."
+    ] })
+  }
+};
+
+// src/app/routes/_admin.settings.product_list.$type/components/loading.tsx
+import { Box as Box10, Grid as Grid6, GridItem as GridItem6, Text as Text3 } from "@chakra-ui/react";
+import { jsx as jsx35, jsxs as jsxs23 } from "react/jsx-runtime";
+var Loading3 = (props) => {
+  let { typeSettings } = props;
+  return /* @__PURE__ */ jsx35(
+    Box10,
+    {
+      width: "full",
+      sx: {
+        mt: 8,
+        mb: 4
+      },
+      children: /* @__PURE__ */ jsxs23(
+        Grid6,
+        {
+          templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
+          alignItems: "start",
+          gap: 4,
+          children: [
+            /* @__PURE__ */ jsx35(GridItem6, { children: /* @__PURE__ */ jsx35(FormTextareaSkeleton, { height: "380px" }) }),
+            /* @__PURE__ */ jsx35(GridItem6, { children: /* @__PURE__ */ jsx35(Text3, { fontSize: "sm", children: typeSettings.description }) }),
+            /* @__PURE__ */ jsx35(GridItem6, { children: /* @__PURE__ */ jsx35(FormInputSkeleton, {}) }),
+            /* @__PURE__ */ jsx35(GridItem6, { children: /* @__PURE__ */ jsx35(FormInputSkeleton, {}) })
+          ]
+        }
+      )
+    }
+  );
+};
+
+// src/app/routes/_admin.settings.product_list.$type/components/success.tsx
+import { Box as Box11, Grid as Grid7, GridItem as GridItem7, Text as Text4, useToast as useToast4 } from "@chakra-ui/react";
+import { yupResolver as yupResolver4 } from "@hookform/resolvers/yup";
+import { useForm as useForm4 } from "react-hook-form";
+
+// src/app/components/form_elements/ControlledTextarea.tsx
+import {
+  FormControl as FormControl5,
+  FormHelperText as FormHelperText4,
+  FormLabel as FormLabel4,
+  Textarea
+} from "@chakra-ui/react";
+import { useController as useController5 } from "react-hook-form";
+import { jsx as jsx36, jsxs as jsxs24 } from "react/jsx-runtime";
+var ControlledTextarea = (props) => {
+  let { fieldProps, formControlProps, formControlInnerProps, control } = props, { label, helperText, icon } = formControlInnerProps || {}, {
+    field: { ref: ref3, onChange, value },
+    fieldState: { invalid },
+    formState: { errors }
+  } = useController5({
+    name: fieldProps.name,
+    control
+  });
+  return /* @__PURE__ */ jsxs24(FormControl5, { ...formControlProps, isInvalid: invalid, children: [
+    label != null && /* @__PURE__ */ jsx36(
+      FormLabel4,
+      {
+        htmlFor: fieldProps.name,
+        sx: fieldProps.variant === "flushed" ? { fontSize: "sm", mb: 0 } : {},
+        children: label
+      }
+    ),
+    /* @__PURE__ */ jsx36(Textarea, { ...fieldProps, onChange, value, ref: ref3 }),
+    helperText != null && /* @__PURE__ */ jsx36(FormHelperText4, { children: helperText })
+  ] });
+};
+
+// src/domain/dxt/articulo/utils/index.ts
+var ARTICLE_GROUP_NO_NAME = "_";
+function _getDXTArticuloListParam(s) {
+  let chunks = s.split("=", 2);
+  if (chunks.length != 2)
+    return null;
+  let key = chunks[0].trim().toLowerCase(), value = chunks[1].trim();
+  return key.length == 0 ? null : { key, value };
+}
+function strToDXTArticuloListRecord(s) {
+  if (!isStr(s))
+    return null;
+  let p = s.indexOf(";");
+  p <= 0 && (p = s.length);
+  let codigo_articulo = s.substring(0, p).trimEnd();
+  if (codigo_articulo.length == 0)
+    return null;
+  let params = s.substring(p + 1).trim();
+  if (codigo_articulo == ARTICLE_GROUP_NO_NAME)
+    throw new DXTException(10003 /* RESERVED_ARTICLE_GROUP_NAME */, `"${ARTICLE_GROUP_NO_NAME}"`);
+  return params.length == 0 ? { codigo_articulo } : {
+    codigo_articulo,
+    params
+  };
+}
+function strToDXTArticuloListParams(paramsStr) {
+  if (paramsStr == null)
+    return;
+  let result = {}, emptyParams = !0;
+  return paramsStr.split(";").forEach((s, i) => {
+    let paramEntry = _getDXTArticuloListParam(s);
+    if (paramEntry == null)
+      return;
+    let { key, value } = paramEntry;
+    result[key] = value, emptyParams = !1;
+  }), emptyParams ? void 0 : result;
+}
+
+// src/app/routes/_admin.settings.product_list.$type/validation.ts
+import * as yup5 from "yup";
+var yupValidationSchema = yup5.object({
+  list: yup5.string().default("").test("avoid-ARTICLE_GROUP_NO_NAME", `Evite utilizar ${ARTICLE_GROUP_NO_NAME}`, function(value) {
+    return !/(^|[^a-zA-Z0-9])_([^a-zA-Z0-9]|$)/.test(value);
+  })
+}).required();
+
+// src/app/routes/_admin.settings.product_list.$type/components/success.tsx
+import { jsx as jsx37, jsxs as jsxs25 } from "react/jsx-runtime";
+var Success4 = (props) => {
+  let { stateData, typeSettings } = props, app = useAppResources(), toast = useToast4(), {
+    handleSubmit,
+    control,
+    reset,
+    setError,
+    formState: { errors, isSubmitting, isSubmitSuccessful }
+  } = useForm4({
+    defaultValues: {
+      list: stateData?.join(`\r
+`) || ""
+    },
+    resolver: yupResolver4(yupValidationSchema)
+  }), disableForm = isSubmitSuccessful || isSubmitting;
+  return /* @__PURE__ */ jsx37("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
+    let input = { data: dataUnsafe.list.split(`
+`) };
+    (await typeSettings.api.post(input, app)).map({
+      success: (_14) => {
+        toast({
+          title: LIST_UPDATED,
+          status: "success"
+        }), app.navigate(URL_SETTINGS_PATH);
+      },
+      error: (e) => {
+        toast({
+          title: AN_ERROR_OCCURRED,
+          status: "error"
+        }), setError("root", { message: e.info.error_description });
+      }
+    });
+  }), children: /* @__PURE__ */ jsxs25(Box11, { children: [
+    /* @__PURE__ */ jsx37(FormErrors, { errors }),
+    /* @__PURE__ */ jsx37(CommonCard, { children: /* @__PURE__ */ jsxs25(
+      Grid7,
+      {
+        templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
+        alignItems: "start",
+        gap: 4,
+        children: [
+          /* @__PURE__ */ jsx37(GridItem7, { children: /* @__PURE__ */ jsx37(
+            ControlledTextarea,
+            {
+              fieldProps: {
+                name: "list",
+                id: "list",
+                rows: 20,
+                fontSize: "sm"
+              },
+              formControlProps: {
+                isDisabled: disableForm
+              },
+              control
+            }
+          ) }),
+          /* @__PURE__ */ jsx37(GridItem7, { children: /* @__PURE__ */ jsx37(Text4, { fontSize: "sm", children: typeSettings.description }) })
+        ]
+      }
+    ) }),
+    /* @__PURE__ */ jsx37(CommonCard, { children: /* @__PURE__ */ jsx37(SettingsFormsButtons, { isLoading: disableForm }) })
+  ] }) });
+};
+
+// src/app/routes/_admin.settings.product_list.$type/components/index.tsx
+import { jsx as jsx38 } from "react/jsx-runtime";
+var FormLists = (props) => {
+  let { typeSettings } = props, { state, retry } = typeSettings.api.getAll();
+  return state.map({
+    loading: (_14) => /* @__PURE__ */ jsx38(Loading3, { typeSettings }),
+    error: ({ error }) => /* @__PURE__ */ jsx38(
+      ApiErrors,
+      {
+        error,
+        retry,
+        cancelAndNavigateTo: URL_SETTINGS_PATH
+      }
+    ),
+    success: (state2) => /* @__PURE__ */ jsx38(Success4, { stateData: state2.data, typeSettings })
+  });
+};
+
+// src/app/routes/_admin.settings.product_list.$type/route.tsx
+import { Fragment as Fragment12, jsx as jsx39, jsxs as jsxs26 } from "react/jsx-runtime";
+function Lists() {
+  let navigate = useNavigate7(), { type } = useParams3(), typeSettings = settings2[type];
+  return type != null && typeSettings != null ? /* @__PURE__ */ jsxs26(Fragment12, { children: [
+    /* @__PURE__ */ jsx39(
+      SettingsFormHeading,
+      {
+        title: typeSettings.title,
+        returnButton: {
+          buttonProps: {
+            onClick: () => {
+              navigate(URL_SETTINGS_PATH);
+            }
+          }
+        }
+      }
+    ),
+    /* @__PURE__ */ jsx39(FormLists, { typeSettings })
+  ] }) : /* @__PURE__ */ jsx39(
+    CommonErrors,
+    {
+      error: INVALID_LIST_TYPE,
+      buttonProps: {
+        label: BACK_TO_SETTINGS,
+        colorScheme: "green",
+        onClick: () => {
+          navigate(URL_SETTINGS_PATH);
+        }
+      }
+    }
+  );
+}
+
+// src/app/routes/_admin.settings.users.$type._index/route.tsx
+var route_exports5 = {};
+__export(route_exports5, {
+  default: () => Lists2
+});
+import { useNavigate as useNavigate8, useParams as useParams4 } from "@remix-run/react";
+import AccountPlusIcon from "mdi-react/AccountPlusIcon.js";
+
+// src/app/routes/_admin.settings.users.$type._index/components/loading.tsx
+import { Box as Box12, Grid as Grid8, GridItem as GridItem8 } from "@chakra-ui/react";
+import { jsx as jsx40, jsxs as jsxs27 } from "react/jsx-runtime";
+var Loading4 = () => /* @__PURE__ */ jsx40(
+  Box12,
+  {
+    width: "full",
+    sx: {
+      mt: 8,
+      mb: 4
+    },
+    children: /* @__PURE__ */ jsxs27(Grid8, { templateColumns: "1fr", gap: { base: 2, md: 4 }, children: [
+      /* @__PURE__ */ jsx40(GridItem8, { children: /* @__PURE__ */ jsx40(FormInputSkeleton, {}) }),
+      /* @__PURE__ */ jsx40(GridItem8, { children: /* @__PURE__ */ jsx40(FormInputSkeleton, {}) }),
+      /* @__PURE__ */ jsx40(GridItem8, { children: /* @__PURE__ */ jsx40(FormTextareaSkeleton, { height: "400px" }) }),
+      /* @__PURE__ */ jsx40(GridItem8, { children: /* @__PURE__ */ jsx40(FormInputSkeleton, {}) })
+    ] })
+  }
+);
+
+// src/app/routes/_admin.settings.users.$type._index/components/success.tsx
+import { useMemo as useMemo4, useRef as useRef6, useState as useState10 } from "react";
+
+// src/code.client/hooks/useSearchField.ts
+import _5 from "lodash";
+import { useEffect as useEffect9, useState as useState8 } from "react";
+function useSearchField(data, fieldsToFilter) {
+  let [state, setState] = useState8({
+    filteredData: data,
+    query: null
+  });
+  useEffect9(() => {
+    let { query: query2 } = state, filteredData2 = _filter(
+      data,
+      query2,
+      fieldsToFilter
+    );
+    setState({
+      filteredData: filteredData2,
+      query: query2
+    });
+  }, [data]);
+  let handleSearchInputChange = (query2) => {
+    let filteredData2 = _filter(
+      data,
+      query2,
+      fieldsToFilter
+    );
+    console.log(query2), setState({
+      filteredData: filteredData2,
+      query: query2 ?? null
+    });
+  }, { filteredData, query } = state;
+  return {
+    filteredData,
+    handleSearchInputChange,
+    isFiltering: query != null && query != ""
+  };
+}
+function _filter(data, query, fieldsToFilter) {
+  if (_5.isArray(data))
+    return query == null ? [...data] : _5.filter(data, (obj) => _5.some(fieldsToFilter, (prop) => String(_5.get(obj, prop)).toLowerCase().includes(query.toLowerCase())));
+  if (_5.isObject(data)) {
+    if (query == null)
+      return { ...data };
+    let filteredData = {};
+    return _5.forEach(data, (array2, key) => {
+      let filteredArray = _5.filter(array2, (obj) => _5.some(fieldsToFilter, (prop) => String(_5.get(obj, prop)).toLowerCase().includes(query.toLowerCase())));
+      filteredData[key] = filteredArray;
+    }), filteredData;
+  }
+  return data;
+}
+
+// src/app/routes/_admin.settings.users.$type._index/components/success.tsx
+import {
+  Alert as Alert4,
+  AlertDescription as AlertDescription3,
+  AlertIcon as AlertIcon3,
+  Box as Box13,
+  Flex as Flex3,
+  Grid as Grid9,
+  GridItem as GridItem9,
+  HStack as HStack8,
+  Icon as Icon7,
+  IconButton as IconButton4,
+  Table,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
+  useDisclosure,
+  useToast as useToast5
+} from "@chakra-ui/react";
+import AccountCancelIcon2 from "mdi-react/AccountCancelIcon.js";
+import AccountCheckIcon from "mdi-react/AccountCheckIcon.js";
+import PencilIcon from "mdi-react/PencilIcon.js";
+import TrashIcon from "mdi-react/TrashIcon.js";
+
+// src/app/components/DeleteDialog.tsx
+import { useRef as useRef4 } from "react";
+import {
+  AlertDialog,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogOverlay,
+  Button as Button6
+} from "@chakra-ui/react";
+import { jsx as jsx41, jsxs as jsxs28 } from "react/jsx-runtime";
+var DeleteDialog = ({
+  isOpen,
+  onClose,
+  handleDeletion,
+  message
+}) => {
+  let cancelRef = useRef4();
+  return /* @__PURE__ */ jsx41(
+    AlertDialog,
+    {
+      isOpen,
+      leastDestructiveRef: cancelRef,
+      onClose,
+      motionPreset: "slideInBottom",
+      isCentered: !0,
+      children: /* @__PURE__ */ jsx41(AlertDialogOverlay, { children: /* @__PURE__ */ jsxs28(AlertDialogContent, { children: [
+        /* @__PURE__ */ jsx41(AlertDialogHeader, { fontSize: "lg", fontWeight: "bold", children: message.title }),
+        /* @__PURE__ */ jsx41(AlertDialogBody, { children: message.body }),
+        /* @__PURE__ */ jsxs28(AlertDialogFooter, { children: [
+          /* @__PURE__ */ jsx41(Button6, { ref: cancelRef, onClick: onClose, children: CANCEL }),
+          /* @__PURE__ */ jsx41(Button6, { colorScheme: "red", onClick: handleDeletion, ml: 3, children: DELETE })
+        ] })
+      ] }) })
+    }
+  );
+};
+
+// src/code.client/hooks/usePagination.ts
+import { useMemo as useMemo3 } from "react";
+var DOTS_LEFT = "{left}", DOTS_RIGHT = "{right}", range = (start, end) => {
+  let length = end - start + 1;
+  return Array.from({ length }, (_14, idx) => idx + start);
+}, usePagination = ({ totalCount, pageSize, siblingCount = 1, currentPage }) => useMemo3(() => {
+  let totalPageCount = Math.ceil(totalCount / pageSize);
+  if (siblingCount + 5 >= totalPageCount)
+    return range(1, totalPageCount);
+  let leftSiblingIndex = Math.max(currentPage - siblingCount, 1), rightSiblingIndex = Math.min(currentPage + siblingCount, totalPageCount), shouldShowLeftDots = leftSiblingIndex > 2, shouldShowRightDots = rightSiblingIndex < totalPageCount - 2, firstPageIndex = 1, lastPageIndex = totalPageCount;
+  if (!shouldShowLeftDots && shouldShowRightDots) {
+    let leftItemCount = 3 + 2 * siblingCount;
+    return [...range(1, leftItemCount), DOTS_LEFT, totalPageCount];
+  }
+  if (shouldShowLeftDots && !shouldShowRightDots) {
+    let rightItemCount = 3 + 2 * siblingCount, rightRange = range(totalPageCount - rightItemCount + 1, totalPageCount);
+    return [firstPageIndex, DOTS_RIGHT, ...rightRange];
+  }
+  if (shouldShowLeftDots && shouldShowRightDots) {
+    let middleRange = range(leftSiblingIndex, rightSiblingIndex);
+    return [firstPageIndex, DOTS_LEFT, ...middleRange, DOTS_RIGHT, lastPageIndex];
+  }
+}, [totalCount, pageSize, siblingCount, currentPage]);
+
+// src/app/components/Pagination.tsx
+import { Button as Button7, HStack as HStack7, Icon as Icon5, IconButton as IconButton3, VStack as VStack2 } from "@chakra-ui/react";
+import ChevronLeftIcon2 from "mdi-react/ChevronLeftIcon.js";
+import ChevronRightIcon from "mdi-react/ChevronRightIcon.js";
+import DotsHorizontalIcon from "mdi-react/DotsHorizontalIcon.js";
+import { jsx as jsx42, jsxs as jsxs29 } from "react/jsx-runtime";
+var Pagination = (props) => {
+  let {
+    onPageChange,
+    totalCount,
+    siblingCount = 1,
+    currentPage,
+    pageSize
+  } = props, paginationRange = usePagination({
+    currentPage,
+    totalCount,
+    siblingCount,
+    pageSize
+  });
+  if (!paginationRange || currentPage === 0 || paginationRange.length < 2)
+    return null;
+  let onNext = () => {
+    onPageChange(currentPage + 1);
+  }, onPrevious = () => {
+    onPageChange(currentPage - 1);
+  }, lastPage = paginationRange[paginationRange.length - 1];
+  return /* @__PURE__ */ jsxs29(VStack2, { children: [
+    /* @__PURE__ */ jsx42(HStack7, { spacing: 1, wrap: "wrap", justifyContent: "center", children: paginationRange.map((pageNumber) => pageNumber === DOTS_LEFT || pageNumber === DOTS_RIGHT ? /* @__PURE__ */ jsx42(
+      Icon5,
+      {
+        as: DotsHorizontalIcon,
+        boxSize: 3
+      },
+      `page-${pageNumber}`
+    ) : /* @__PURE__ */ jsx42(
+      Button7,
+      {
+        colorScheme: pageNumber === currentPage ? "blue" : "gray",
+        size: { base: "sm", md: "md" },
+        onClick: () => onPageChange(pageNumber),
+        children: pageNumber
+      },
+      `button-${pageNumber}`
+    )) }),
+    /* @__PURE__ */ jsxs29(HStack7, { children: [
+      /* @__PURE__ */ jsx42(
+        IconButton3,
+        {
+          "aria-label": PREVIOUS,
+          size: { base: "sm", md: "md" },
+          onClick: onPrevious,
+          isDisabled: currentPage === 1,
+          children: /* @__PURE__ */ jsx42(Icon5, { as: ChevronLeftIcon2 })
+        }
+      ),
+      /* @__PURE__ */ jsx42(
+        IconButton3,
+        {
+          "aria-label": NEXT,
+          size: { base: "sm", md: "md" },
+          onClick: onNext,
+          isDisabled: currentPage === lastPage,
+          children: /* @__PURE__ */ jsx42(Icon5, { as: ChevronRightIcon })
+        }
+      )
+    ] })
+  ] });
+};
+
+// src/app/components/SearchField.tsx
+import { useRef as useRef5, useState as useState9 } from "react";
+import {
+  Icon as Icon6,
+  Input as Input2,
+  InputGroup as InputGroup2,
+  InputLeftElement,
+  InputRightElement as InputRightElement2
+} from "@chakra-ui/react";
+import CloseIcon2 from "mdi-react/CloseIcon.js";
+import MagnifyIcon from "mdi-react/MagnifyIcon.js";
+import { jsx as jsx43, jsxs as jsxs30 } from "react/jsx-runtime";
+var SearchField = ({
+  handleSearchInputChange,
+  inputProps
+}) => {
+  let [searchValue, setSearchValue] = useState9(null), inputRef = useRef5(null), inputChangeRef = useRef5(), handleSearchReset = () => {
+    setSearchValue(null), handleSearchInputChange(), inputChangeRef.current && clearTimeout(inputChangeRef.current), inputRef.current && inputRef.current.focus();
+  };
+  return /* @__PURE__ */ jsxs30(InputGroup2, { children: [
+    /* @__PURE__ */ jsx43(InputLeftElement, { pointerEvents: "none", children: /* @__PURE__ */ jsx43(Icon6, { as: MagnifyIcon, boxSize: 4 }) }),
+    /* @__PURE__ */ jsx43(
+      Input2,
+      {
+        ref: inputRef,
+        type: "text",
+        name: "filter",
+        placeholder: FILTER_PLACEHOLDER,
+        value: searchValue ?? "",
+        autoCapitalize: "off",
+        onChange: (e) => {
+          setSearchValue(e.target.value), inputChangeRef.current && clearTimeout(inputChangeRef.current), inputChangeRef.current = setTimeout(() => {
+            handleSearchInputChange(e.target.value);
+          }, 500);
+        },
+        ...inputProps
+      }
+    ),
+    searchValue !== "" && searchValue != null ? /* @__PURE__ */ jsx43(InputRightElement2, { cursor: "pointer", children: /* @__PURE__ */ jsx43(Icon6, { as: CloseIcon2, onClick: handleSearchReset }) }) : /* @__PURE__ */ jsx43(InputRightElement2, {})
+  ] });
+};
+
+// src/app/components/TextWordBreak.tsx
+import { Text as Text5 } from "@chakra-ui/react";
+import { jsx as jsx44 } from "react/jsx-runtime";
+var TextWordBreak = ({
+  children,
+  breakType,
+  props
+}) => /* @__PURE__ */ jsx44(
+  Text5,
+  {
+    ...props,
+    sx: {
+      whiteSpace: "normal",
+      wordBreak: breakType ?? "break-all"
+    },
+    children
+  }
+);
+
+// src/app/routes/_admin.settings.users.$type._index/components/success.tsx
+import { Fragment as Fragment13, jsx as jsx45, jsxs as jsxs31 } from "react/jsx-runtime";
+var Success5 = (props) => {
+  let { stateData, retry, typeSettings } = props, app = useAppResources(), { isOpen, onOpen, onClose } = useDisclosure(), toast = useToast5(), selectedUser = useRef6(null), { filteredData, handleSearchInputChange, isFiltering } = useSearchField(stateData, [
+    "screen_name",
+    "username"
+  ]), [currentPage, setCurrentPage] = useState10(1), PageSize = 10, currentTableData = useMemo4(() => {
+    let firstPageIndex = (currentPage - 1) * PageSize, lastPageIndex = firstPageIndex + PageSize;
+    return filteredData.slice(firstPageIndex, lastPageIndex);
+  }, [currentPage, filteredData]), handleDeleteDialog = (id, username) => () => {
+    selectedUser.current = { id, username }, onOpen();
+  }, handleEdit = (id) => () => {
+    app.navigate(pathParamsToUrl(typeSettings.editButtonNavigateTo, { id }));
+  };
+  return /* @__PURE__ */ jsxs31(Fragment13, { children: [
+    /* @__PURE__ */ jsx45(
+      DeleteDialog,
+      {
+        isOpen,
+        onClose,
+        handleDeletion: async () => {
+          if (selectedUser.current != null) {
+            let { id, username } = selectedUser.current;
+            selectedUser.current = null, (await typeSettings.api.delete(id, { username }, app)).map({
+              success: (_14) => {
+                toast({
+                  title: USER_DELETED,
+                  status: "success"
+                }), stateData.splice(
+                  stateData.findIndex((object13) => object13.id === id),
+                  1
+                ), handleSearchInputChange();
+              },
+              error: (e) => {
+                toast({
+                  title: AN_ERROR_OCCURRED,
+                  status: "error"
+                });
+              }
+            }), onClose();
+          }
+        },
+        message: {
+          title: USER_DELETE,
+          body: USER_DELETE_CONFIRM
+        }
+      }
+    ),
+    /* @__PURE__ */ jsxs31(CommonCard, { children: [
+      /* @__PURE__ */ jsx45(Box13, { sx: { pb: 4 }, children: /* @__PURE__ */ jsx45(SearchField, { handleSearchInputChange }) }),
+      /* @__PURE__ */ jsx45(Box13, { children: /* @__PURE__ */ jsxs31(Table, { variant: "grayOverCard", size: "md", children: [
+        /* @__PURE__ */ jsx45(Thead, { children: /* @__PURE__ */ jsx45(Tr, { children: /* @__PURE__ */ jsx45(
+          Th,
+          {
+            sx: {
+              p: { base: 2, md: 4 }
+            },
+            children: /* @__PURE__ */ jsxs31(
+              Grid9,
+              {
+                templateColumns: {
+                  base: "3fr 1fr 2fr",
+                  md: "3fr 3fr 1fr 2fr"
+                },
+                gap: { base: 2, md: 4 },
+                children: [
+                  /* @__PURE__ */ jsx45(GridItem9, { children: "Nombre completo" }),
+                  /* @__PURE__ */ jsx45(GridItem9, { sx: { display: { base: "none", md: "block" } }, children: "Nombre de usuario" }),
+                  /* @__PURE__ */ jsx45(GridItem9, { textAlign: "center", children: "Estado" }),
+                  /* @__PURE__ */ jsx45(GridItem9, {})
+                ]
+              }
+            )
+          }
+        ) }) }),
+        /* @__PURE__ */ jsx45(Tbody, { children: currentTableData.length > 0 ? currentTableData.map((user) => /* @__PURE__ */ jsx45(Tr, { children: /* @__PURE__ */ jsx45(
+          Td,
+          {
+            sx: {
+              p: { base: 2, md: 4 }
+            },
+            children: /* @__PURE__ */ jsxs31(
+              Grid9,
+              {
+                templateColumns: {
+                  base: "3fr 1fr 2fr",
+                  md: "3fr 3fr 1fr 2fr"
+                },
+                gap: { base: 2, md: 4 },
+                alignItems: "center",
+                children: [
+                  /* @__PURE__ */ jsx45(GridItem9, { children: /* @__PURE__ */ jsx45(TextWordBreak, { breakType: "normal", children: user.screen_name }) }),
+                  /* @__PURE__ */ jsx45(
+                    GridItem9,
+                    {
+                      sx: { display: { base: "none", md: "block" } },
+                      children: /* @__PURE__ */ jsx45(TextWordBreak, { breakType: "normal", children: user.username })
+                    }
+                  ),
+                  /* @__PURE__ */ jsx45(GridItem9, { textAlign: "center", children: /* @__PURE__ */ jsx45(
+                    Icon7,
+                    {
+                      as: user.habilitado_en_dxt && user.usuario_tango_existe && user.habilitado_en_tango === !0 ? AccountCheckIcon : AccountCancelIcon2,
+                      boxSize: 6,
+                      color: resolveUserStatusColor(user)
+                    }
+                  ) }),
+                  /* @__PURE__ */ jsx45(GridItem9, { children: /* @__PURE__ */ jsxs31(HStack8, { justifyContent: "center", children: [
+                    /* @__PURE__ */ jsx45(
+                      IconButton4,
+                      {
+                        "aria-label": "Eliminar",
+                        size: "sm",
+                        colorScheme: "red",
+                        onClick: handleDeleteDialog(
+                          user.id,
+                          user.username
+                        ),
+                        children: /* @__PURE__ */ jsx45(Icon7, { as: TrashIcon, boxSize: 4 })
+                      }
+                    ),
+                    /* @__PURE__ */ jsx45(
+                      IconButton4,
+                      {
+                        "aria-label": "Editar",
+                        size: "sm",
+                        colorScheme: "blue",
+                        onClick: handleEdit(user.id),
+                        children: /* @__PURE__ */ jsx45(Icon7, { as: PencilIcon, boxSize: 4 })
+                      }
+                    )
+                  ] }) })
+                ]
+              }
+            )
+          }
+        ) }, `row_${user.id}`)) : /* @__PURE__ */ jsx45(Tr, { children: /* @__PURE__ */ jsx45(Td, { children: /* @__PURE__ */ jsxs31(Alert4, { status: "info", children: [
+          /* @__PURE__ */ jsx45(AlertIcon3, {}),
+          /* @__PURE__ */ jsx45(AlertDescription3, { children: isFiltering ? FILTER_NO_RESULTS : NO_USERS })
+        ] }) }) }) })
+      ] }) }),
+      /* @__PURE__ */ jsx45(Flex3, { sx: { pt: 4, justifyContent: "center" }, children: /* @__PURE__ */ jsx45(
+        Pagination,
+        {
+          currentPage,
+          totalCount: filteredData.length,
+          pageSize: PageSize,
+          onPageChange: (page) => setCurrentPage(page)
+        }
+      ) })
+    ] })
+  ] });
+};
+
+// src/app/routes/_admin.settings.users.$type._index/components/index.tsx
+import { jsx as jsx46 } from "react/jsx-runtime";
+var ListsUsers = (props) => {
+  let { typeSettings } = props, { state, retry } = typeSettings.api.getAll();
+  return state.map({
+    loading: (_14) => /* @__PURE__ */ jsx46(Loading4, {}),
+    error: ({ error }) => /* @__PURE__ */ jsx46(
+      ApiErrors,
+      {
+        error,
+        retry,
+        cancelAndNavigateTo: URL_SETTINGS_PATH
+      }
+    ),
+    success: (state2) => /* @__PURE__ */ jsx46(
+      Success5,
+      {
+        stateData: state2.data,
+        retry,
+        typeSettings
+      }
+    )
+  });
+};
+
+// src/app/routes/_admin.settings.users.$type._index/route.tsx
+import { Fragment as Fragment14, jsx as jsx47, jsxs as jsxs32 } from "react/jsx-runtime";
+function Lists2() {
+  let navigate = useNavigate8(), { type } = useParams4(), typeSettings = settings[type];
+  return type != null && typeSettings != null ? /* @__PURE__ */ jsxs32(Fragment14, { children: [
+    /* @__PURE__ */ jsx47(
+      SettingsFormHeading,
+      {
+        title: typeSettings.titles.common,
+        returnButton: {
+          buttonProps: {
+            onClick: () => {
+              navigate(URL_SETTINGS_PATH);
+            }
+          }
+        },
+        actionButton: {
+          label: typeSettings.titles.create,
+          icon: AccountPlusIcon,
+          buttonProps: {
+            onClick: () => {
+              typeSettings.actionButtonNavigateTo != null && navigate(typeSettings.actionButtonNavigateTo);
+            }
+          }
+        }
+      }
+    ),
+    /* @__PURE__ */ jsx47(ListsUsers, { typeSettings })
+  ] }) : /* @__PURE__ */ jsx47(
+    CommonErrors,
+    {
+      error: INVALID_LIST_TYPE,
+      buttonProps: {
+        label: BACK_TO_SETTINGS,
+        colorScheme: "green",
+        onClick: () => {
+          navigate(URL_SETTINGS_PATH);
+        }
+      }
+    }
+  );
+}
+
+// src/app/routes/api.pedido.$id_pedido.start_update.ts
+var api_pedido_id_pedido_start_update_exports = {};
+__export(api_pedido_id_pedido_start_update_exports, {
   action: () => action,
   loader: () => loader2
 });
+
+// src/code.server/infrastucture/articulo/models/articulo.model.ts
+var ARTICULO_TABLE = "STA11", ARTICULO_ID_FIELD = "ID_STA11", ARTICULO_CODE_FIELD = "COD_ARTICU", articuloModelColumns = [
+  ARTICULO_ID_FIELD,
+  ARTICULO_CODE_FIELD,
+  "DESCRIPCIO",
+  "DESC_ADIC",
+  "DESCUENTO",
+  "USA_ESC",
+  "PERFIL",
+  "COD_IVA",
+  "COD_S_IVA",
+  "COD_II",
+  "COD_S_II",
+  "ID_MEDIDA_STOCK",
+  "ID_MEDIDA_STOCK_2",
+  "ID_MEDIDA_VENTAS"
+], ARTICULO_NAME_COLUMNS = ["DESCRIPCIO", "DESC_ADIC"];
+
+// src/code.server/infrastucture/articulo/models/lista.model.ts
+var LISTA_TABLE = "GVA10", LISTA_ID_FIELD = "ID_GVA10", LISTA_CODE_FIELD = "NRO_DE_LIS", LISTA_CODE2_FIELD = "N_LISTA", listaModelColumns = [
+  LISTA_ID_FIELD,
+  LISTA_CODE_FIELD,
+  "NOMBRE_LIS",
+  "INCLUY_IMP",
+  "INCLUY_IVA",
+  "HABILITADA"
+];
+
+// src/code.server/infrastucture/articulo/models/precio.model.ts
+var PRECIO_TABLE = "GVA17", PRECIO_ID_FIELD = "ID_GVA17", precioModelColumns = [
+  PRECIO_ID_FIELD,
+  ARTICULO_CODE_FIELD,
+  ARTICULO_ID_FIELD,
+  LISTA_CODE_FIELD,
+  LISTA_ID_FIELD,
+  "PRECIO"
+];
+
+// src/code.server/infrastucture/auxiliar/models/alicuota.model.ts
+var ALICUOTA_TABLE = "GVA41", ALICUOTA_ID_FIELD = "ID_GVA41", ALICUOTA_CODE_FIELD = "COD_ALICUO", alicuotaModelColumns = [
+  ALICUOTA_ID_FIELD,
+  ALICUOTA_CODE_FIELD,
+  "COD_REGIM",
+  "DESCRIPCIO",
+  "IMPORTE",
+  "PORCENTAJE",
+  "PROVINCIA",
+  "GRUPO",
+  "GRUPO_AGIP",
+  "COD_SII",
+  "GRUPO_MAGNITUDES_SUPERADAS_AGIP",
+  "GRUPO_EXENTOS_AGIP",
+  "GRUPO_REGIMEN_GENERAL_AGIP",
+  "PADRON",
+  "GRUPO_PADRON",
+  "COD_GVA18",
+  "ID_GVA18"
+];
+
+// src/code.server/infrastucture/auxiliar/models/asiento.model.ts
+var ASIENTO_TABLE = "GVA25", ASIENTO_ID_FIELD = "ID_GVA25", ASIENTO_CODE_FIELD = "TIPO_ASIEN", asientoModelColumns = [
+  ASIENTO_ID_FIELD,
+  ASIENTO_CODE_FIELD,
+  "RENGLON",
+  "COD_CUENTA",
+  "CONC_ASI",
+  "CONC_MOV",
+  "DEBE",
+  "HABER",
+  "COD_IMPUES"
+];
+
+// src/code.server/infrastucture/auxiliar/models/condicion.model.ts
+var CONDICION_TABLE = "GVA01", CONDICION_ID_FIELD = "ID_GVA01", CONDICION_CODE_FIELD = "COND_VTA", condicionModelColumns = [
+  CONDICION_ID_FIELD,
+  CONDICION_CODE_FIELD,
+  LISTA_ID_FIELD,
+  LISTA_CODE_FIELD,
+  "ACEPTA_CONTADO",
+  "PORC_MIN_CONTADO",
+  "ACEPTA_CTA",
+  "OBLIGA_CONTADO",
+  "DESC_COND",
+  "FAC_CREDIT",
+  "PAGO_CF",
+  "APLICA_MORA",
+  "ID_INTERES_POR_MORA",
+  "GENERA_FECHAS_ALTERNATIVAS",
+  "FECHA_VIGENCIA_DESDE",
+  "FECHA_VIGENCIA_HASTA",
+  "CONTADO",
+  "CALCULA_INTERESES",
+  "TIPO_ASIGNACION"
+];
+
+// src/code.server/infrastucture/auxiliar/models/deposito.model.ts
+var DEPOSITO_TABLE = "STA22", DEPOSITO_ID_FIELD = "ID_STA22", DEPOSITO_CODE_FIELD = "COD_SUCURS", depositoModelColumns = [
+  DEPOSITO_ID_FIELD,
+  DEPOSITO_CODE_FIELD,
+  "ABASTECE",
+  "DIR_SUCURS",
+  "NOMBRE_SUC",
+  "INHABILITA",
+  "SUCURSAL_DESTINO",
+  "SINCRONIZA_NEXO_PEDIDOS"
+];
+
+// src/code.server/infrastucture/auxiliar/models/perfil.model.ts
+var PERFIL_TABLE = "GVA51", PERFIL_ID_FIELD = "ID_GVA51", PERFIL_CODE_FIELD = "COD_PERFIL", perfilModelColumns = [
+  PERFIL_CODE_FIELD,
+  PERFIL_ID_FIELD,
+  "COMP_STK",
+  "DESCRIPCIO",
+  "BONIFIC",
+  "BONIF_DEF",
+  "D_BONIFIC",
+  "FECHA",
+  "COND_VENTA",
+  "DEPOSITO",
+  "TAL_FACTUR",
+  "TAL_PEDIDO",
+  "TAL_REMITO",
+  "TIPO_ASIEN",
+  "TRANSPORTE",
+  "D_COND_VEN",
+  "D_DEPOSITO",
+  "D_TAL_FACT",
+  "D_TAL_PED",
+  "D_TAL_REMI",
+  "D_LISTA_PR",
+  "D_TRANSPOR",
+  "D_TIPO_ASI",
+  "EDITA_DIRECCION_ENTREGA",
+  "ID_ASIENTO_MODELO_GV"
+];
+
+// src/code.server/infrastucture/auxiliar/models/talonario.model.ts
+var TALONARIO_TABLE = "GVA43", TALONARIO_CODE_FIELD = "TALONARIO", TALONARIO_ID_FIELD = "ID_GVA43", TALONARIO_ID2_FIELD = "TALON_PED", talonarioModelColumns = [
+  TALONARIO_CODE_FIELD,
+  TALONARIO_ID_FIELD,
+  "TIPO",
+  "COMPROB",
+  "DESCRIP",
+  "DESTINO",
+  "EDITA_NRO",
+  "FECHA_VTO",
+  "NRO_DESDE",
+  "NRO_HASTA",
+  "PROXIMO",
+  "RENGLONES",
+  "SUCURSAL",
+  "EXCLUSIVO",
+  "FECH_AVISO",
+  "VAL_FECHA",
+  "TIPO_TALONARIO"
+];
+
+// src/code.server/infrastucture/auxiliar/models/transporte.model.ts
+var TRANSPORTE_TABLE = "GVA24", TRANSPORTE_ID_FIELD = "ID_GVA24", TRANSPORTE_CODE_FIELD = "COD_TRANSP", transporteModelColumns = [
+  TRANSPORTE_CODE_FIELD,
+  TRANSPORTE_ID_FIELD,
+  "CATEG_TRAN",
+  "CUIT_TRANS",
+  "DOM_TRANS",
+  "NOMBRE_TRA",
+  "PORC_RECAR",
+  "COD_POSTAL",
+  "LOCALIDAD",
+  "COD_PROVIN",
+  "TELEFONO",
+  "E_MAIL",
+  "WEB",
+  "COD_GVA18",
+  "ID_GVA18"
+], TRANSPORTE_NAME_COLUMNS = ["NOMBRE_TRA"];
+
+// src/code.server/infrastucture/user/models/vendedor.model.ts
+var VENDEDOR_TABLE = "GVA23", VENDEDOR_ID_FIELD = "ID_GVA23", VENDEDOR_CODE_FIELD = "COD_VENDED", vendedorModelColumns = [
+  VENDEDOR_ID_FIELD,
+  VENDEDOR_CODE_FIELD,
+  "NOMBRE_VEN",
+  "INHABILITA"
+], VENDEDOR_NAME_COLUMNS = ["NOMBRE_VEN"], fullVendedorModelColumns = [
+  ...vendedorModelColumns,
+  "PORC_COMIS",
+  "TIPO_DOC",
+  "NRO_DOC",
+  "DOM_VENDED",
+  "COD_POSTAL",
+  "LOCALIDAD",
+  "COD_PROVIN",
+  "TELEFONO",
+  "E_MAIL",
+  "ID_TIPO_DOCUMENTO_GV",
+  "COD_GVA18",
+  "ID_GVA18"
+];
+
+// src/code.server/infrastucture/user/models/cliente.model.ts
+var CLIENTE_TABLE = "GVA14", CLIENTE_ID_FIELD = "ID_GVA14", CLIENTE_CODE_FIELD = "COD_CLIENT", CLIENTE_CODE2_FIELD = "COD_CLIENTE", clienteModelColumns = [
+  CLIENTE_ID_FIELD,
+  CLIENTE_CODE_FIELD,
+  VENDEDOR_ID_FIELD,
+  VENDEDOR_CODE_FIELD,
+  TRANSPORTE_ID_FIELD,
+  TRANSPORTE_CODE_FIELD,
+  CONDICION_ID_FIELD,
+  CONDICION_CODE_FIELD,
+  LISTA_ID_FIELD,
+  "NRO_LISTA",
+  "II_D",
+  "IVA_D",
+  "SOBRE_II",
+  "SOBRE_IVA",
+  "NOM_COM",
+  "RAZON_SOCI",
+  "HABILITADO",
+  "FECHA_INHA",
+  "PORC_DESC"
+], CLIENTE_NAME_COLUMNS = ["RAZON_SOCI", "NOM_COM"], fullClienteModelColumns = [
+  ...clienteModelColumns,
+  "CUIT",
+  "N_IMPUESTO",
+  "N_ING_BRUT",
+  "E_MAIL",
+  "CALLE",
+  "DOMICILIO",
+  "C_POSTAL",
+  "CIUDAD",
+  "COD_ZONA",
+  "COD_PROVIN",
+  "TELEFONO_1",
+  "TELEFONO_2"
+];
+
+// src/code.server/infrastucture/auxiliar/models/direccion.model.ts
+var DIRECCION_TABLE = "DIRECCION_ENTREGA", DIRECCION_ID_FIELD = "ID_DIRECCION_ENTREGA", DIRECCION_CODE_FIELD = "COD_DIRECCION_ENTREGA", direccionModelColumns = [
+  DIRECCION_ID_FIELD,
+  DIRECCION_CODE_FIELD,
+  CLIENTE_CODE2_FIELD,
+  CLIENTE_ID_FIELD,
+  "HABITUAL",
+  "DIRECCION",
+  "LOCALIDAD",
+  "CODIGO_POSTAL",
+  "TELEFONO1",
+  "TELEFONO2",
+  "HABILITADO"
+];
+
+// src/code.server/infrastucture/pedido/models/pedido.model.ts
+var PEDIDO_TABLE = "GVA21", PEDIDO_ID_FIELD = "ID_GVA21", PEDIDO_CODE_FIELD = "NRO_PEDIDO", pedidoModelColumns = [
+  PEDIDO_ID_FIELD,
+  PEDIDO_CODE_FIELD,
+  "ESTADO",
+  CLIENTE_ID_FIELD,
+  CLIENTE_CODE_FIELD,
+  VENDEDOR_ID_FIELD,
+  VENDEDOR_CODE_FIELD,
+  DEPOSITO_CODE_FIELD,
+  TRANSPORTE_ID_FIELD,
+  TRANSPORTE_CODE_FIELD,
+  "FECHA_INGRESO",
+  "HORA_INGRESO",
+  "FECHA_ENTR",
+  "FECHA_PEDI",
+  "HORA",
+  "COMENTARIO",
+  "LEYENDA_4",
+  "LEYENDA_5",
+  "TOTAL_PEDI",
+  "PORC_DESC"
+], extendedPedidoModelColumns = [
+  ...pedidoModelColumns,
+  TALONARIO_ID2_FIELD,
+  TALONARIO_CODE_FIELD,
+  CONDICION_ID_FIELD,
+  CONDICION_CODE_FIELD,
+  LISTA_ID_FIELD,
+  LISTA_CODE2_FIELD,
+  ASIENTO_CODE_FIELD,
+  "COMP_STK",
+  "ID_ASIENTO_MODELO_GV"
+], fullPedidoModelColumns = [
+  ...extendedPedidoModelColumns,
+  "APRUEBA",
+  "CIRCUITO",
+  "COMP_STK",
+  "COTIZ",
+  "EXPORTADO",
+  "FECHA_APRU",
+  "HORA_APRUE",
+  "ID_EXTERNO",
+  "LEYENDA_1",
+  "LEYENDA_2",
+  "LEYENDA_3",
+  "MON_CTE",
+  "N_REMITO",
+  "NRO_O_COMP",
+  "NRO_SUCURS",
+  "ORIGEN",
+  "REVISO_FAC",
+  "REVISO_PRE",
+  "REVISO_STK",
+  "MOTIVO",
+  "HORA",
+  "COD_CLASIF",
+  "TAL_PE_ORI",
+  "NRO_PE_ORI",
+  "FECHA_INGRESO",
+  "HORA_INGRESO",
+  "USUARIO_INGRESO",
+  "TERMINAL_INGRESO",
+  "FECHA_ULTIMA_MODIFICACION",
+  "HORA_ULTIMA_MODIFICACION",
+  "USUA_ULTIMA_MODIFICACION",
+  "TERM_ULTIMA_MODIFICACION",
+  "ID_DIRECCION_ENTREGA",
+  "ES_PEDIDO_WEB",
+  "WEB_ORDER_ID",
+  "FECHA_O_COMP",
+  "ACTIVIDAD_COMPROBANTE_AFIP",
+  "ID_ACTIVIDAD_EMPRESA_AFIP",
+  "TIPO_DOCUMENTO_PAGADOR",
+  "NUMERO_DOCUMENTO_PAGADOR",
+  "USUARIO_TIENDA",
+  "TIENDA",
+  "ORDER_ID_TIENDA",
+  "NRO_OC_COMP",
+  "TOTAL_DESC_TIENDA",
+  "TIENDA_QUE_VENDE",
+  "PORCEN_DESC_TIENDA",
+  "USUARIO_TIENDA_VENDEDOR",
+  "ID_NEXO_PEDIDOS_ORDEN",
+  // "ID_GVA24", TRANSPORTE_ID_FIELD
+  "ID_GVA38",
+  "ID_GVA43_TALON_PED",
+  "ID_GVA81",
+  "ID_SUCURSAL",
+  "METODO_EXPORTACION",
+  "NRO_SUCURSAL_DESTINO_PEDIDO"
+];
 
 // src/code.server/infrastucture/settings/settings.service.ts
 import path4 from "path";
@@ -4767,7 +6535,7 @@ var storedDBSettingsSchema = {
 import md52 from "md5";
 
 // src/domain/auth/validation/index.ts
-import validator6 from "validator";
+import validator7 from "validator";
 var ADMIN_USERNAME = "admin";
 var AUTH_DEVICE_ID_BYTES = 128 / 8;
 
@@ -4893,7 +6661,8 @@ var UserEntity = class extends RootEntity {
       timestamp_modificacion,
       vendedor_id,
       id_lista_alternativa,
-      bonificacion_lista_alternativa
+      bonificacion_lista_alternativa,
+      universal_id
     } = unsafe;
     if (this.username = new VOUserName(username), this.screenName = new VOString(screen_name), typeof email == "string" && (this.email = new VOString(email.trim() !== "" ? new VOEmailAddress(email).valueOf() : "")), this.passwordHash = new VOMD5(password_hash), this.role = new VOUserRole(numberToUserRole(role)), this.habilitadoEnDXT = new VOBoolean(habilitado_en_dxt), this.puedeCrearPedido = new VOBoolean(puede_crear_pedido), this.puedeEditarPedido = new VOBoolean(puede_editar_pedido), this.puedeAnularPedido = new VOBoolean(puede_anular_pedido), this.borrarPedidoAlAnular = new VOBoolean(borrar_pedido_al_anular), this.perfilFacturacionId = new VOUInt32(perfil_facturacion_id), this.aprobarPedidoAlCrear = new VOBoolean(aprobar_pedido_al_crear), this.verPedidosCumplidos = new VOBoolean(ver_pedidos_cumplidos), this.diaDeEntrega = new VOInteger(dia_de_entrega), this.verSinPrecio = new VOBoolean(ver_sin_precio), this.mostrarMensajeDeAdvertencia = new VOBoolean(mostrar_mensaje_de_advertencia), this.timestampModificacion = new VOInteger(timestamp_modificacion), !this.role.isAdmin() && tango_id == null)
       throw new DXTException(
@@ -4901,7 +6670,7 @@ var UserEntity = class extends RootEntity {
           extra: "tango_id missing in UserEntity"
         })
       );
-    this.tangoId = tango_id != null ? new VOUInt32(tango_id) : void 0, this.habilitadoEnTango = habilitado_en_tango != null ? new VOBoolean(habilitado_en_tango) : void 0, this.vendedorId = vendedor_id != null ? new VOUInt32(vendedor_id) : void 0, this.idListaAlternativa = id_lista_alternativa != null ? new VOUInt32(id_lista_alternativa) : void 0, this.bonificacionListaAlternativa = bonificacion_lista_alternativa != null ? new VOPositiveNumber(bonificacion_lista_alternativa) : void 0;
+    this.tangoId = tango_id != null ? new VOUInt32(tango_id) : void 0, this.habilitadoEnTango = habilitado_en_tango != null ? new VOBoolean(habilitado_en_tango) : void 0, this.vendedorId = vendedor_id != null ? new VOUInt32(vendedor_id) : void 0, this.idListaAlternativa = id_lista_alternativa != null ? new VOUInt32(id_lista_alternativa) : void 0, this.bonificacionListaAlternativa = bonificacion_lista_alternativa != null ? new VOPositiveNumber(bonificacion_lista_alternativa) : void 0, this.universalId = new VOHexadecimal(universal_id.replaceAll("-", ""));
   }
   toUnsafe() {
     return {
@@ -4926,7 +6695,8 @@ var UserEntity = class extends RootEntity {
       mostrar_mensaje_de_advertencia: this.mostrarMensajeDeAdvertencia.valueOf(),
       timestamp_modificacion: this.timestampModificacion.valueOf(),
       id_lista_alternativa: this.idListaAlternativa?.valueOf(),
-      bonificacion_lista_alternativa: this.bonificacionListaAlternativa?.valueOf()
+      bonificacion_lista_alternativa: this.bonificacionListaAlternativa?.valueOf(),
+      universal_id: this.universalId.valueOf()
     };
   }
   tangoUserExists() {
@@ -4974,7 +6744,7 @@ var UserEntity = class extends RootEntity {
 };
 
 // src/code.server/infrastucture/auth/utils.ts
-function createAdminUserEntity(email) {
+function createAdminUserEntity(email, passwordHash) {
   return new UserEntity({
     id: 0,
     username: ADMIN_USERNAME,
@@ -4992,8 +6762,9 @@ function createAdminUserEntity(email) {
     habilitado_en_dxt: !0,
     screen_name: DEFAULT_ADMIN_NAME,
     role: userRoleToNumber(2 /* admin */),
-    password_hash: DUMMY_MD5,
-    timestamp_modificacion: 0
+    password_hash: passwordHash,
+    timestamp_modificacion: 0,
+    universal_id: "0"
   });
 }
 async function resolveUserStateException(user, tangoUserNotFoundErrorCode) {
@@ -5256,8 +7027,8 @@ function dbErrorToDXTException(e) {
   ));
 }
 
-// src/code.server/infrastucture/user/models/user_base.model.ts
-var userBaseTableCreationFieldsSQL = {
+// src/code.server/infrastucture/dxt/user/models/dxt_user.model.ts
+var dxtUserTableCreationFieldsSQL = {
   tango_id: "D_ID NOT NULL",
   username: `varchar(${60}) NOT NULL`,
   puede_crear_pedido: "bit NOT NULL",
@@ -5274,24 +7045,27 @@ var userBaseTableCreationFieldsSQL = {
   habilitado_en_dxt: "bit NOT NULL",
   timestamp_modificacion: "bigint NOT NULL",
   id_lista_alternativa: "D_ID NULL",
-  bonificacion_lista_alternativa: "DECIMAL_TG NULL"
+  bonificacion_lista_alternativa: "DECIMAL_TG NULL",
+  universal_id: "uniqueidentifier DEFAULT newid() NOT NULL"
 };
 
-// src/code.server/infrastucture/dxt/models/dxt_cliente.model.ts
+// src/code.server/infrastucture/dxt/user/models/dxt_cliente.model.ts
 var DXT_CLIENTE_TABLE = "dxt_cliente", DXT_CLIENTE_ID_FIELD = "dxt_cliente_id", dxtClienteTableCreationFieldsSQL = {
   dxt_cliente_id: "int IDENTITY(1,1) NOT NULL",
   password_hash: `varchar(${MD5_LENGTH}) NOT NULL`,
-  ...userBaseTableCreationFieldsSQL
+  ...dxtUserTableCreationFieldsSQL
 }, dxtClienteTableCreationIndexesSQL = [
   "CONSTRAINT pk_dxt_cliente_username UNIQUE (username)",
   "CONSTRAINT pk_dxt_cliente_id PRIMARY KEY (dxt_cliente_id)"
+], dxtClienteTablePostCommandsSQL = [
+  "CREATE INDEX ix_dxt_cliente_tango_id ON dbo.dxt_cliente (tango_id);"
 ];
 
-// src/code.server/infrastucture/dxt/models/dxt_vendedor.model.ts
+// src/code.server/infrastucture/dxt/user/models/dxt_vendedor.model.ts
 var DXT_VENDEDOR_TABLE = "dxt_vendedor", DXT_VENDEDOR_ID_FIELD = "dxt_vendedor_id", dxtVendedorTableCreationFieldsSQL = {
   dxt_vendedor_id: "int IDENTITY(1,1) NOT NULL",
   password_hash: `varchar(${MD5_LENGTH}) NOT NULL`,
-  ...userBaseTableCreationFieldsSQL
+  ...dxtUserTableCreationFieldsSQL
 }, dxtVendedorTableCreationIndexesSQL = [
   "CONSTRAINT pk_dxt_vendedor_username UNIQUE (username)",
   "CONSTRAINT pk_dxt_vendedor_id PRIMARY KEY (dxt_vendedor_id)"
@@ -5327,7 +7101,7 @@ var isCacheDisabledGlobally = tryVO(() => new VOBoolean(settingsService.getProgr
     (newDictionary || newCompany || resetCache) && this.clear();
   }
   onTablesChanged(event) {
-    let { payload: tablesChanged } = event, dependencies = this._cacheOwnerStatus.getTableDependencies();
+    let { payload: tablesChanged } = event, dependencies = this._cacheOwnerStatus.getDependencies();
     tablesChanged.findIndex((table) => dependencies.includes(table)) >= 0 && this.clear();
   }
   async isEnabled() {
@@ -5377,319 +7151,7 @@ var DXT_LIST_ARTICULO_CODE_FIELD = "codigo_articulo", DXT_LIST_ARTICULO_ID_FIELD
 var DXT_ARTICULO_EDIT_LIST_TABLE = "dxt_articulo_edit_list";
 
 // src/code.server/infrastucture/dictionary/models/dataset.model.ts
-var DATASET_TABLE = "Dataset";
-
-// src/code.server/infrastucture/articulo/models/articulo.model.ts
-var ARTICULO_TABLE = "STA11", ARTICULO_ID_FIELD = "ID_STA11", ARTICULO_CODE_FIELD = "COD_ARTICU", articuloModelColumns = [
-  ARTICULO_ID_FIELD,
-  ARTICULO_CODE_FIELD,
-  "DESCRIPCIO",
-  "DESC_ADIC",
-  "DESCUENTO",
-  "USA_ESC",
-  "PERFIL",
-  "COD_IVA",
-  "COD_S_IVA",
-  "COD_II",
-  "COD_S_II"
-], ARTICULO_NAME_COLUMNS = ["DESCRIPCIO", "DESC_ADIC"];
-
-// src/code.server/infrastucture/articulo/models/lista.model.ts
-var LISTA_TABLE = "GVA10", LISTA_ID_FIELD = "ID_GVA10", LISTA_CODE_FIELD = "NRO_DE_LIS";
-
-// src/code.server/infrastucture/articulo/models/precio.model.ts
-var PRECIO_TABLE = "GVA17";
-
-// src/code.server/infrastucture/auxiliar/models/alicuota.model.ts
-var ALICUOTA_TABLE = "GVA41", ALICUOTA_ID_FIELD = "ID_GVA41", ALICUOTA_CODE_FIELD = "COD_ALICUO", alicuotaModelColumns = [
-  ALICUOTA_ID_FIELD,
-  ALICUOTA_CODE_FIELD,
-  "COD_REGIM",
-  "DESCRIPCIO",
-  "IMPORTE",
-  "PORCENTAJE",
-  "PROVINCIA",
-  "GRUPO",
-  "GRUPO_AGIP",
-  "COD_SII",
-  "GRUPO_MAGNITUDES_SUPERADAS_AGIP",
-  "GRUPO_EXENTOS_AGIP",
-  "GRUPO_REGIMEN_GENERAL_AGIP",
-  "PADRON",
-  "GRUPO_PADRON",
-  "COD_GVA18",
-  "ID_GVA18"
-];
-
-// src/code.server/infrastucture/auxiliar/models/asiento.model.ts
-var ASIENTO_TABLE = "GVA25", ASIENTO_ID_FIELD = "ID_GVA25", ASIENTO_TYPE_FIELD = "TIPO_ASIEN", asientoModelColumns = [
-  ASIENTO_ID_FIELD,
-  ASIENTO_TYPE_FIELD,
-  "RENGLON",
-  "COD_CUENTA",
-  "CONC_ASI",
-  "CONC_MOV",
-  "DEBE",
-  "HABER",
-  "COD_IMPUES"
-];
-
-// src/code.server/infrastucture/auxiliar/models/condicion.model.ts
-var CONDICION_TABLE = "GVA01", CONDICION_ID_FIELD = "ID_GVA01", CONDICION_CODE_FIELD = "COND_VTA", condicionModelColumns = [
-  CONDICION_ID_FIELD,
-  CONDICION_CODE_FIELD,
-  LISTA_ID_FIELD,
-  LISTA_CODE_FIELD,
-  "ACEPTA_CONTADO",
-  "PORC_MIN_CONTADO",
-  "ACEPTA_CTA",
-  "OBLIGA_CONTADO",
-  "DESC_COND",
-  "FAC_CREDIT",
-  "PAGO_CF",
-  "APLICA_MORA",
-  "ID_INTERES_POR_MORA",
-  "GENERA_FECHAS_ALTERNATIVAS",
-  "FECHA_VIGENCIA_DESDE",
-  "FECHA_VIGENCIA_HASTA",
-  "CONTADO",
-  "CALCULA_INTERESES",
-  "TIPO_ASIGNACION"
-];
-
-// src/code.server/infrastucture/auxiliar/models/transporte.model.ts
-var TRANSPORTE_TABLE = "GVA24", TRANSPORTE_ID_FIELD = "ID_GVA24", TRANSPORTE_CODE_FIELD = "COD_TRANSP", transporteModelColumns = [
-  TRANSPORTE_CODE_FIELD,
-  TRANSPORTE_ID_FIELD,
-  "CATEG_TRAN",
-  "CUIT_TRANS",
-  "DOM_TRANS",
-  "NOMBRE_TRA",
-  "PORC_RECAR",
-  "COD_POSTAL",
-  "LOCALIDAD",
-  "COD_PROVIN",
-  "TELEFONO",
-  "E_MAIL",
-  "WEB",
-  "COD_GVA18",
-  "ID_GVA18"
-], TRANSPORTE_NAME_COLUMNS = ["NOMBRE_TRA"];
-
-// src/code.server/infrastucture/auxiliar/models/vendedor.model.ts
-var VENDEDOR_TABLE = "GVA23", VENDEDOR_ID_FIELD = "ID_GVA23", VENDEDOR_CODE_FIELD = "COD_VENDED", vendedorModelColumns = [
-  VENDEDOR_ID_FIELD,
-  VENDEDOR_CODE_FIELD,
-  "NOMBRE_VEN",
-  "INHABILITA"
-], VENDEDOR_NAME_COLUMNS = ["NOMBRE_VEN"], fullVendedorModelColumns = [
-  ...vendedorModelColumns,
-  "PORC_COMIS",
-  "TIPO_DOC",
-  "NRO_DOC",
-  "DOM_VENDED",
-  "COD_POSTAL",
-  "LOCALIDAD",
-  "COD_PROVIN",
-  "TELEFONO",
-  "E_MAIL",
-  "ID_TIPO_DOCUMENTO_GV",
-  "COD_GVA18",
-  "ID_GVA18"
-];
-
-// src/code.server/infrastucture/auxiliar/models/cliente.model.ts
-var CLIENTE_TABLE = "GVA14", CLIENTE_ID_FIELD = "ID_GVA14", CLIENTE_CODE_FIELD = "COD_CLIENT", clienteModelColumns = [
-  CLIENTE_ID_FIELD,
-  CLIENTE_CODE_FIELD,
-  VENDEDOR_ID_FIELD,
-  VENDEDOR_CODE_FIELD,
-  TRANSPORTE_ID_FIELD,
-  TRANSPORTE_CODE_FIELD,
-  CONDICION_ID_FIELD,
-  CONDICION_CODE_FIELD,
-  LISTA_ID_FIELD,
-  "NRO_LISTA",
-  "II_D",
-  "IVA_D",
-  "SOBRE_II",
-  "SOBRE_IVA",
-  "NOM_COM",
-  "RAZON_SOCI",
-  "HABILITADO",
-  "FECHA_INHA",
-  "PORC_DESC"
-], CLIENTE_NAME_COLUMNS = ["RAZON_SOCI", "NOM_COM"], fullClienteModelColumns = [
-  ...clienteModelColumns,
-  "CUIT",
-  "N_IMPUESTO",
-  "N_ING_BRUT",
-  "E_MAIL",
-  "CALLE",
-  "DOMICILIO",
-  "C_POSTAL",
-  "CIUDAD",
-  "COD_ZONA",
-  "COD_PROVIN",
-  "TELEFONO_1",
-  "TELEFONO_2"
-];
-
-// src/code.server/infrastucture/auxiliar/models/deposito.model.ts
-var DEPOSITO_TABLE = "STA22", DEPOSITO_ID_FIELD = "ID_STA22", DEPOSITO_CODE_FIELD = "COD_SUCURS", depositoModelColumns = [
-  DEPOSITO_ID_FIELD,
-  DEPOSITO_CODE_FIELD,
-  "ABASTECE",
-  "DIR_SUCURS",
-  "NOMBRE_SUC",
-  "INHABILITA",
-  "SUCURSAL_DESTINO",
-  "SINCRONIZA_NEXO_PEDIDOS"
-];
-
-// src/code.server/infrastucture/auxiliar/models/parametros.model.ts
-var TANGO_PARAMETROS_TABLE = "GVA16", TANGO_PARAMETROS_ID_FIELD = "ID_GVA16", tangoParametrosModelColumns = [
-  TANGO_PARAMETROS_ID_FIELD,
-  "PED_APR_CO",
-  "PED_AUT_CO",
-  "PED_FECHA",
-  "PROX_NDOC"
-];
-
-// src/code.server/infrastucture/auxiliar/models/perfil.model.ts
-var PERFIL_TABLE = "GVA51", PERFIL_ID_FIELD = "ID_GVA51", PERFIL_CODE_FIELD = "COD_PERFIL", perfilModelColumns = [
-  PERFIL_CODE_FIELD,
-  PERFIL_ID_FIELD,
-  "DESCRIPCIO",
-  "BONIFIC",
-  "BONIF_DEF",
-  "D_BONIFIC",
-  "FECHA",
-  "COND_VENTA",
-  "DEPOSITO",
-  "TAL_FACTUR",
-  "TAL_PEDIDO",
-  "TAL_REMITO",
-  "TIPO_ASIEN",
-  "TRANSPORTE",
-  "D_COND_VEN",
-  "D_DEPOSITO",
-  "D_TAL_FACT",
-  "D_TAL_PED",
-  "D_TAL_REMI",
-  "D_LISTA_PR",
-  "D_TRANSPOR",
-  "D_TIPO_ASI",
-  "ID_ASIENTO_MODELO_GV"
-];
-
-// src/code.server/infrastucture/auxiliar/models/talonario.model.ts
-var TALONARIO_TABLE = "GVA43", TALONARIO_CODE_FIELD = "TALONARIO", TALONARIO_ID_FIELD = "ID_GVA43", talonarioModelColumns = [
-  TALONARIO_CODE_FIELD,
-  TALONARIO_ID_FIELD,
-  "TIPO",
-  "COMPROB",
-  "DESCRIP",
-  "DESTINO",
-  "EDITA_NRO",
-  "FECHA_VTO",
-  "NRO_DESDE",
-  "NRO_HASTA",
-  "PROXIMO",
-  "RENGLONES",
-  "SUCURSAL",
-  "EXCLUSIVO",
-  "FECH_AVISO",
-  "VAL_FECHA",
-  "TIPO_TALONARIO"
-];
-
-// src/code.server/infrastucture/pedido/models/pedido.model.ts
-var PEDIDO_TABLE = "GVA21", PEDIDO_ID_FIELD = "ID_GVA21", PEDIDO_CODE_FIELD = "NRO_PEDIDO", pedidoModelColumns = [
-  PEDIDO_ID_FIELD,
-  PEDIDO_CODE_FIELD,
-  "ESTADO",
-  CLIENTE_ID_FIELD,
-  CLIENTE_CODE_FIELD,
-  VENDEDOR_ID_FIELD,
-  VENDEDOR_CODE_FIELD,
-  DEPOSITO_CODE_FIELD,
-  TRANSPORTE_ID_FIELD,
-  TRANSPORTE_CODE_FIELD,
-  "FECHA_ENTR",
-  "FECHA_PEDI",
-  "LEYENDA_4",
-  "LEYENDA_5",
-  "TOTAL_PEDI",
-  "PORC_DESC"
-], fullPedidoModelColumns = [
-  ...pedidoModelColumns,
-  "APRUEBA",
-  "CIRCUITO",
-  "COMENTARIO",
-  "COMP_STK",
-  CONDICION_CODE_FIELD,
-  "COTIZ",
-  "EXPORTADO",
-  "FECHA_APRU",
-  "HORA_APRUE",
-  "ID_EXTERNO",
-  "LEYENDA_1",
-  "LEYENDA_2",
-  "LEYENDA_3",
-  "MON_CTE",
-  "N_LISTA",
-  "N_REMITO",
-  "NRO_O_COMP",
-  "NRO_SUCURS",
-  "ORIGEN",
-  "REVISO_FAC",
-  "REVISO_PRE",
-  "REVISO_STK",
-  TALONARIO_CODE_FIELD,
-  "TALON_PED",
-  "TIPO_ASIEN",
-  "MOTIVO",
-  "HORA",
-  "COD_CLASIF",
-  "ID_ASIENTO_MODELO_GV",
-  "TAL_PE_ORI",
-  "NRO_PE_ORI",
-  "FECHA_INGRESO",
-  "HORA_INGRESO",
-  "USUARIO_INGRESO",
-  "TERMINAL_INGRESO",
-  "FECHA_ULTIMA_MODIFICACION",
-  "HORA_ULTIMA_MODIFICACION",
-  "USUA_ULTIMA_MODIFICACION",
-  "TERM_ULTIMA_MODIFICACION",
-  "ID_DIRECCION_ENTREGA",
-  "ES_PEDIDO_WEB",
-  "WEB_ORDER_ID",
-  "FECHA_O_COMP",
-  "ACTIVIDAD_COMPROBANTE_AFIP",
-  "ID_ACTIVIDAD_EMPRESA_AFIP",
-  "TIPO_DOCUMENTO_PAGADOR",
-  "NUMERO_DOCUMENTO_PAGADOR",
-  "USUARIO_TIENDA",
-  "TIENDA",
-  "ORDER_ID_TIENDA",
-  "NRO_OC_COMP",
-  "TOTAL_DESC_TIENDA",
-  "TIENDA_QUE_VENDE",
-  "PORCEN_DESC_TIENDA",
-  "USUARIO_TIENDA_VENDEDOR",
-  "ID_NEXO_PEDIDOS_ORDEN",
-  CONDICION_ID_FIELD,
-  LISTA_ID_FIELD,
-  // "ID_GVA24", TRANSPORTE_ID_FIELD
-  "ID_GVA38",
-  "ID_GVA43_TALON_PED",
-  "ID_GVA81",
-  "ID_SUCURSAL",
-  "METODO_EXPORTACION",
-  "NRO_SUCURSAL_DESTINO_PEDIDO"
-];
+var DATASET_TABLE = "Dataset", DATASET_ID_FIELD = "IDDataset";
 
 // src/code.server/infrastucture/dictionary/models/campo.model.ts
 var CAMPO_TABLE = "Campo";
@@ -5697,11 +7159,8 @@ var CAMPO_TABLE = "Campo";
 // src/code.server/infrastucture/dictionary/models/empresa.model.ts
 var EMPRESA_TABLE = "Empresa";
 
-// src/domain/dictionary/entities/dataset.unsafe.ts
-var DatasetIDField = "IDDataset";
-
-// src/code.server/infrastucture/dictionary/dictionary.provider.ts
-var DictionaryProvider = class extends TDBProvider {
+// src/code.server/infrastucture/dictionary/dictionary.repository.ts
+var DictionaryRepository = class extends TDBProvider {
   constructor() {
     super();
     this._tangoCompanies = /* @__PURE__ */ new Map();
@@ -5715,7 +7174,7 @@ var DictionaryProvider = class extends TDBProvider {
     if (this.connectionChangeRequired === 0 /* none */ && this._knexInstance)
       return this._knexInstance;
     let originalKnexInstance = this._knexInstance;
-    this._knexInstance = void 0, this._numeroPedidoRange = void 0, this._tangoCompanies.clear(), await originalKnexInstance?.destroy();
+    this._knexInstance = void 0, this._numeroPedidoLongitud = void 0, this._numeroPedidoRange = void 0, this._tangoCompanies.clear(), await originalKnexInstance?.destroy();
     let settings3 = await settingsService.getDBSettings();
     this.connectionChangeRequired === 2 /* fullReload */ && this.cleanConnectionError();
     let newKnexInstance = await this.initializeKnex(settings3.tango_dictionary, settings3, 200003 /* TANGO_DICTIONARY_ACCESS_ERROR */);
@@ -5728,13 +7187,13 @@ var DictionaryProvider = class extends TDBProvider {
       throw new DXTException(200004 /* TANGO_DICTIONARY_INITIALIZATION_ERROR */, e?.message);
     }
   }
-  async _prepareNumeroPedido(q) {
-    this._numeroPedidoRange = void 0;
-    let result = await q(DATASET_TABLE).first("*").where({ Dataset: PEDIDO_TABLE });
+  async _prepareNumeroPedido(k) {
+    this._numeroPedidoRange = void 0, this._numeroPedidoLongitud = void 0;
+    let result = await k(DATASET_TABLE).first("*").where({ Dataset: PEDIDO_TABLE });
     if (result == null)
       throw new DXTException(0 /* UNEXPECTED_ERROR */, "DictionaryProvider._prepareNumeroPedido");
-    let datasetId = result[DatasetIDField], campos = await q(CAMPO_TABLE).select("*").where({
-      [DatasetIDField]: datasetId,
+    let datasetId = result[DATASET_ID_FIELD], campos = await k(CAMPO_TABLE).select("*").where({
+      [DATASET_ID_FIELD]: datasetId,
       Campo: "N_REMITO"
     });
     if (campos.length === 0)
@@ -5745,16 +7204,21 @@ var DictionaryProvider = class extends TDBProvider {
     if (nroPedidoLongitud < 12)
       throw new DXTException(
         0 /* UNEXPECTED_ERROR */,
-        `Error en longitud para el n\xFAmero de remito: \xABLongitud\xBB es menor a ${12}.`
+        `Error en longitud para el n\xFAmero de pedido (${nroPedidoLongitud}), es menor a ${12}.`
       );
-    this._numeroPedidoRange = {
-      min: BigInt(1),
-      max: BigInt(10) ** BigInt(nroPedidoLongitud) - BigInt(1)
+    if (nroPedidoLongitud > 14)
+      throw new DXTException(
+        0 /* UNEXPECTED_ERROR */,
+        `Error en longitud para el n\xFAmero de pedido (${nroPedidoLongitud}), es mayor a ${14}.`
+      );
+    this._numeroPedidoLongitud = nroPedidoLongitud, this._numeroPedidoRange = {
+      min: 1,
+      max: Number(BigInt(10) ** BigInt(nroPedidoLongitud - 1) - BigInt(1))
     };
   }
-  async _loadCompaniesFromDictionary(q) {
+  async _loadCompaniesFromDictionary(k) {
     this._tangoCompanies.clear();
-    let empresas = await q(EMPRESA_TABLE).select("*"), currentCompany = (await settingsService.getDBSettings()).tango_active_company;
+    let empresas = await k(EMPRESA_TABLE).select("*"), currentCompany = (await settingsService.getDBSettings()).tango_active_company;
     empresas.forEach((empresa) => {
       this._tangoCompanies.set(
         empresa.NombreBD,
@@ -5772,19 +7236,29 @@ var DictionaryProvider = class extends TDBProvider {
   async getCompanies() {
     return await this.getDictionary(), Array.from(this._tangoCompanies.values());
   }
+  async getNumeroPedidoLongitud() {
+    if (await this.getDictionary(), this._numeroPedidoLongitud == null)
+      throw new DXTException(0 /* UNEXPECTED_ERROR */, "DictionaryProvider.getNumeroPedidoLongitud");
+    return this._numeroPedidoLongitud;
+  }
   async getNumeroPedidoRange() {
-    if (await this.getDictionary(), !this._numeroPedidoRange)
+    if (await this.getDictionary(), this._numeroPedidoRange == null)
       throw new DXTException(0 /* UNEXPECTED_ERROR */, "DictionaryProvider.getNumeroPedidoRange");
     return this._numeroPedidoRange;
   }
-};
-
-// src/code.server/infrastucture/dictionary/dictionary.repository.ts
-var DictionaryRepository = class extends DictionaryProvider {
+  async formatNumeroPedido(id) {
+    let idStr = id.toString(), longitudMaxima = await this.getNumeroPedidoLongitud() - 1;
+    if (idStr.length > longitudMaxima)
+      throw new DXTException(
+        0 /* UNEXPECTED_ERROR */,
+        `La longitud del n\xFAmero de pedido (${idStr}) es mayor a ${longitudMaxima}.`
+      );
+    return ` ${idStr.padStart(longitudMaxima, "0")}`;
+  }
 }, dictionaryRepository = new DictionaryRepository();
 
 // src/code.server/infrastucture/dxt/pedido/models/dxt_pedido_draft.model.ts
-var DXT_PEDIDO_DRAFT_TABLE = "dxt_pedido_draft", dxtPedidoDraftTableCreationFieldsSQL = {
+var DXT_PEDIDO_DRAFT_CLIENTES_TABLE = "dxt_pedido_draft_clientes", DXT_PEDIDO_DRAFT_VENDEDORES_TABLE = "dxt_pedido_draft_vendedores", dxtPedidoDraftTableCreationFieldsSQL = {
   [PEDIDO_ID_FIELD]: "int IDENTITY(1,1) NOT NULL",
   [PEDIDO_CODE_FIELD]: "varchar(14) COLLATE Latin1_General_BIN DEFAULT '' NULL",
   [CLIENTE_ID_FIELD]: "D_ID NULL",
@@ -5796,7 +7270,7 @@ var DXT_PEDIDO_DRAFT_TABLE = "dxt_pedido_draft", dxtPedidoDraftTableCreationFiel
   CIRCUITO: "ENTERO_TG DEFAULT 1 NULL",
   [DEPOSITO_CODE_FIELD]: "varchar(2) COLLATE Latin1_General_BIN DEFAULT '' NULL",
   [TRANSPORTE_CODE_FIELD]: "varchar(10) COLLATE Latin1_General_BIN DEFAULT '' NULL",
-  COMENTARIO: "varchar(30) COLLATE Latin1_General_BIN DEFAULT '' NULL",
+  COMENTARIO: "varchar(120) COLLATE Latin1_General_BIN NOT NULL",
   COMP_STK: "bit DEFAULT 0 NULL",
   [CONDICION_CODE_FIELD]: "ENTERO_TG DEFAULT 0 NULL",
   COTIZ: "DECIMAL_TG DEFAULT 1 NULL",
@@ -5822,7 +7296,7 @@ var DXT_PEDIDO_DRAFT_TABLE = "dxt_pedido_draft", dxtPedidoDraftTableCreationFiel
   REVISO_PRE: "varchar(1) COLLATE Latin1_General_BIN DEFAULT '' NULL",
   REVISO_STK: "varchar(1) COLLATE Latin1_General_BIN DEFAULT '' NULL",
   [TALONARIO_CODE_FIELD]: "ENTERO_TG DEFAULT 0 NULL",
-  TALON_PED: "ENTERO_TG DEFAULT 0 NOT NULL",
+  [TALONARIO_ID2_FIELD]: "ENTERO_TG DEFAULT 0 NOT NULL",
   TOTAL_PEDI: "DECIMAL_TG DEFAULT 0 NULL",
   TIPO_ASIEN: "varchar(2) COLLATE Latin1_General_BIN DEFAULT '' NULL",
   MOTIVO: "varchar(3) COLLATE Latin1_General_BIN DEFAULT '' NOT NULL",
@@ -5866,11 +7340,14 @@ var DXT_PEDIDO_DRAFT_TABLE = "dxt_pedido_draft", dxtPedidoDraftTableCreationFiel
   METODO_EXPORTACION: "varchar(30) COLLATE Modern_Spanish_CI_AI NULL",
   NRO_SUCURSAL_DESTINO_PEDIDO: "ENTERO_TG NULL",
   ID_MODELO_PEDIDO: "D_ID NULL"
-}, dxtPedidoDraftTableCreationIndexesSQL = [
-  `CONSTRAINT PK_dxt_pedido_draft_id PRIMARY KEY (${PEDIDO_ID_FIELD})`
-], dxtPedidoDraftTablePostCommandsSQL = [
-  `CREATE NONCLUSTERED INDEX dxt_pedido_draft_cliente_FK ON dbo.dxt_pedido_draft (  ${CLIENTE_ID_FIELD} ASC, FECHA_PEDI ASC  )  WITH (  PAD_INDEX = OFF ,FILLFACTOR = 100  ,SORT_IN_TEMPDB = OFF , IGNORE_DUP_KEY = OFF , STATISTICS_NORECOMPUTE = OFF , ONLINE = OFF , ALLOW_ROW_LOCKS = ON , ALLOW_PAGE_LOCKS = ON  )  ON [PRIMARY ] ;`,
-  `CREATE NONCLUSTERED INDEX dxt_pedido_draft_vendedor_FK ON dbo.dxt_pedido_draft (  ${VENDEDOR_ID_FIELD} ASC, FECHA_PEDI ASC  )  WITH (  PAD_INDEX = OFF ,FILLFACTOR = 100  ,SORT_IN_TEMPDB = OFF , IGNORE_DUP_KEY = OFF , STATISTICS_NORECOMPUTE = OFF , ONLINE = OFF , ALLOW_ROW_LOCKS = ON , ALLOW_PAGE_LOCKS = ON  )  ON [PRIMARY ] ;`
+}, dxtPedidoDraftTableCreationIndexesSQL = (draftTableName) => [
+  `CONSTRAINT PK_${draftTableName}_id PRIMARY KEY (${PEDIDO_ID_FIELD})`
+], dxtPedidoDraftTablePostCommandsSQL = (draftTableName) => [
+  `CREATE INDEX IX_dxt_pedido_draft_code ON ${draftTableName} (${PEDIDO_CODE_FIELD} ASC);`,
+  `CREATE UNIQUE INDEX IX_dxt_pedido_draft_cliente_comentario ON ${draftTableName} (${CLIENTE_ID_FIELD} ASC, COMENTARIO ASC);`,
+  // `CONSTRAINT IX_dxt_pedido_draft_cliente_comentario INDEX (${CLIENTE_ID_FIELD}, COMENTARIO)`,
+  `CREATE INDEX IX_dxt_pedido_draft_cliente ON ${draftTableName} (  ${CLIENTE_ID_FIELD} ASC, FECHA_PEDI ASC );`,
+  `CREATE INDEX IX_dxt_pedido_draft_vendedor ON ${draftTableName} (  ${VENDEDOR_ID_FIELD} ASC, FECHA_PEDI ASC );`
 ];
 
 // src/code.server/infrastucture/pedido/models/renglon_pedido.model.ts
@@ -5896,7 +7373,7 @@ var RENGLON_PEDIDO_TABLE = "GVA03", RENGLON_PEDIDO_ID_FIELD = "ID_GVA03", DEPOSI
   "DESCUENTO",
   "PEN_REM_FC",
   "PEN_FAC_RE",
-  "TALON_PED",
+  TALONARIO_ID2_FIELD,
   "COD_CLASIF",
   "CANT_A_DES_2",
   "CANT_A_FAC_2",
@@ -5930,7 +7407,7 @@ var RENGLON_PEDIDO_TABLE = "GVA03", RENGLON_PEDIDO_ID_FIELD = "ID_GVA03", DEPOSI
 ];
 
 // src/code.server/infrastucture/dxt/pedido/models/dxt_pedido_draft_row.model.ts
-var DXT_PEDIDO_DRAFT_ROW_TABLE = "dxt_pedido_draft_row", dxtPedidoDraftRowTableCreationFieldsSQL = {
+var DXT_PEDIDO_DRAFT_ROW_CLIENTES_TABLE = "dxt_pedido_draft_row_clientes", DXT_PEDIDO_DRAFT_ROW_VENDEDORES_TABLE = "dxt_pedido_draft_row_vendedores", dxtPedidoDraftRowTableCreationFieldsSQL = {
   [RENGLON_PEDIDO_ID_FIELD]: "int IDENTITY(1,1) NOT NULL",
   [PEDIDO_ID_FIELD]: "D_ID NULL",
   [PEDIDO_CODE_FIELD]: "varchar(14) COLLATE Latin1_General_BIN DEFAULT '' NULL",
@@ -5946,7 +7423,7 @@ var DXT_PEDIDO_DRAFT_ROW_TABLE = "dxt_pedido_draft_row", dxtPedidoDraftRowTableC
   PEN_REM_FC: "DECIMAL_TG DEFAULT 0 NULL",
   PEN_FAC_RE: "DECIMAL_TG DEFAULT 0 NULL",
   PRECIO: "DECIMAL_TG DEFAULT 0 NULL",
-  TALON_PED: "ENTERO_TG DEFAULT 0 NOT NULL",
+  [TALONARIO_ID2_FIELD]: "ENTERO_TG DEFAULT 0 NOT NULL",
   COD_CLASIF: "varchar(6) COLLATE Latin1_General_BIN DEFAULT '' NULL",
   CANT_A_DES_2: "DECIMAL_TG DEFAULT 0 NULL",
   CANT_A_FAC_2: "DECIMAL_TG DEFAULT 0 NULL",
@@ -5980,11 +7457,10 @@ var DXT_PEDIDO_DRAFT_ROW_TABLE = "dxt_pedido_draft_row", dxtPedidoDraftRowTableC
   [DEPOSITO_CODE2_FIELD]: "varchar(2) COLLATE Latin1_General_BIN NULL",
   [ARTICULO_ID_FIELD]: "D_ID NULL",
   [DEPOSITO_ID_FIELD]: "D_ID NULL"
-}, dxtPedidoDraftRowTableCreationIndexesSQL = [
-  `CONSTRAINT PK_dxt_pedido_draft_row_id PRIMARY KEY (${RENGLON_PEDIDO_ID_FIELD})`
-], dxtPedidoDraftRowTablePostCommandsSQL = [
-  `CREATE UNIQUE NONCLUSTERED INDEX IX_dxt_pedido_draft_with_order ON dbo.dxt_pedido_draft_row ( ${PEDIDO_ID_FIELD} ASC, N_RENGLON ASC )  WITH (  PAD_INDEX = OFF ,FILLFACTOR = 100  ,SORT_IN_TEMPDB = OFF , IGNORE_DUP_KEY = OFF , STATISTICS_NORECOMPUTE = OFF , ONLINE = OFF , ALLOW_ROW_LOCKS = ON , ALLOW_PAGE_LOCKS = ON  )  ON [PRIMARY ] ;`,
-  `ALTER TABLE dbo.dxt_pedido_draft_row   ADD CONSTRAINT FK_dxt_pedido_draft_to_row_pedido_draft FOREIGN KEY (${PEDIDO_ID_FIELD}) REFERENCES dbo.dxt_pedido_draft(${PEDIDO_ID_FIELD});`
+}, dxtPedidoDraftRowTableCreationIndexesSQL = (draftRowTableName) => [
+  `CONSTRAINT PK_${draftRowTableName}_id PRIMARY KEY (${RENGLON_PEDIDO_ID_FIELD})`
+], dxtPedidoDraftRowTablePostCommandsSQL = (draftTableName, draftRowTableName) => [
+  `CREATE UNIQUE INDEX IX_dxt_pedido_draft_with_order ON ${draftRowTableName} ( ${PEDIDO_ID_FIELD} ASC, N_RENGLON ASC );ALTER TABLE ${draftRowTableName}   ADD CONSTRAINT FK_${draftTableName}_to_row_pedido_draft FOREIGN KEY (${PEDIDO_ID_FIELD}) REFERENCES ${draftTableName}(${PEDIDO_ID_FIELD});`
 ];
 
 // src/code.server/infrastucture/company/company_init.provider.ts
@@ -6037,18 +7513,36 @@ var CompanyInitProvider = class extends TDBProvider {
     await this._initializeTables(knexInstance);
   }
   async _initializeTables(knex2) {
-    await this._initializeTable(knex2, DXT_CLIENTE_TABLE, dxtClienteTableCreationFieldsSQL, dxtClienteTableCreationIndexesSQL), await this._initializeTable(knex2, DXT_VENDEDOR_TABLE, dxtVendedorTableCreationFieldsSQL, dxtVendedorTableCreationIndexesSQL), await this._initializeTable(knex2, DXT_ARTICULO_PRINT_LIST_TABLE, dxtArticuloListCreationFieldsSQL, dxtArticuloListCreationIndexesSQL), await this._initializeTable(knex2, DXT_ARTICULO_EDIT_LIST_TABLE, dxtArticuloListCreationFieldsSQL, dxtArticuloListCreationIndexesSQL), await this._initializeTable(
+    await this._initializeTable(
       knex2,
-      DXT_PEDIDO_DRAFT_TABLE,
+      DXT_CLIENTE_TABLE,
+      dxtClienteTableCreationFieldsSQL,
+      dxtClienteTableCreationIndexesSQL,
+      dxtClienteTablePostCommandsSQL
+    ), await this._initializeTable(knex2, DXT_VENDEDOR_TABLE, dxtVendedorTableCreationFieldsSQL, dxtVendedorTableCreationIndexesSQL), await this._initializeTable(knex2, DXT_ARTICULO_PRINT_LIST_TABLE, dxtArticuloListCreationFieldsSQL, dxtArticuloListCreationIndexesSQL), await this._initializeTable(knex2, DXT_ARTICULO_EDIT_LIST_TABLE, dxtArticuloListCreationFieldsSQL, dxtArticuloListCreationIndexesSQL), await this._initializeTable(
+      knex2,
+      DXT_PEDIDO_DRAFT_CLIENTES_TABLE,
       dxtPedidoDraftTableCreationFieldsSQL,
-      dxtPedidoDraftTableCreationIndexesSQL,
-      dxtPedidoDraftTablePostCommandsSQL
+      dxtPedidoDraftTableCreationIndexesSQL(DXT_PEDIDO_DRAFT_CLIENTES_TABLE),
+      dxtPedidoDraftTablePostCommandsSQL(DXT_PEDIDO_DRAFT_CLIENTES_TABLE)
     ), await this._initializeTable(
       knex2,
-      DXT_PEDIDO_DRAFT_ROW_TABLE,
+      DXT_PEDIDO_DRAFT_ROW_CLIENTES_TABLE,
       dxtPedidoDraftRowTableCreationFieldsSQL,
-      dxtPedidoDraftRowTableCreationIndexesSQL,
-      dxtPedidoDraftRowTablePostCommandsSQL
+      dxtPedidoDraftRowTableCreationIndexesSQL(DXT_PEDIDO_DRAFT_ROW_CLIENTES_TABLE),
+      dxtPedidoDraftRowTablePostCommandsSQL(DXT_PEDIDO_DRAFT_CLIENTES_TABLE, DXT_PEDIDO_DRAFT_ROW_CLIENTES_TABLE)
+    ), await this._initializeTable(
+      knex2,
+      DXT_PEDIDO_DRAFT_VENDEDORES_TABLE,
+      dxtPedidoDraftTableCreationFieldsSQL,
+      dxtPedidoDraftTableCreationIndexesSQL(DXT_PEDIDO_DRAFT_VENDEDORES_TABLE),
+      dxtPedidoDraftTablePostCommandsSQL(DXT_PEDIDO_DRAFT_VENDEDORES_TABLE)
+    ), await this._initializeTable(
+      knex2,
+      DXT_PEDIDO_DRAFT_ROW_VENDEDORES_TABLE,
+      dxtPedidoDraftRowTableCreationFieldsSQL,
+      dxtPedidoDraftRowTableCreationIndexesSQL(DXT_PEDIDO_DRAFT_ROW_VENDEDORES_TABLE),
+      dxtPedidoDraftRowTablePostCommandsSQL(DXT_PEDIDO_DRAFT_VENDEDORES_TABLE, DXT_PEDIDO_DRAFT_ROW_VENDEDORES_TABLE)
     );
   }
   async _initializeTable(knex2, tableName, fields, indexes, postCommands) {
@@ -6070,48 +7564,110 @@ var CompanyInitProvider = class extends TDBProvider {
     if (tableWithUnknownColumns)
       throw new DXTException(200008 /* TANGO_COMPANY_INITIALIZATION_ERROR */, `Tabla con formato no v\xE1lido: ${tableName}`);
     let allDefinitions = [...Object.entries(fields).map(([field, sql]) => `${field} ${sql}`), ...indexes].join(","), creationSql = `CREATE TABLE ${tableName} (${allDefinitions});`;
-    if (await knex2.raw(creationSql), postCommands != null)
-      for (let postCommandSql of postCommands)
-        await knex2.raw(postCommandSql);
+    try {
+      let result = await knex2.raw(creationSql);
+      if (console.log(result), postCommands == null)
+        return;
+      for (let postCommandSql of postCommands) {
+        let result2 = await knex2.raw(postCommandSql);
+        console.log(result2);
+      }
+    } catch (e) {
+      throw console.error(e), e;
+    }
   }
 };
 
 // src/code.server/infrastucture/company/company.provider.ts
-var CompanyProvider = class extends CompanyInitProvider {
+var _CompanyProvider = class extends CompanyInitProvider {
   constructor(config2) {
     super();
-    this.config = config2, this._tableDependencies = [
-      this.config.mainTable,
-      ...this.config.tableDependencies ?? []
+    this.config = config2;
+    let { dependencies, mainTable } = config2, _collectedProviders = [];
+    dependencies != null && _collectDependencies(dependencies, _collectedProviders), this._dependencies = [
+      mainTable,
+      ..._collectedProviders.map((p) => isStr(p) ? p : p.config.mainTable)
     ], this.cache = new MemoryCache(this), eventBus.on(DBSettingsChangedEvent.NAME, this.onDBSettingsChanged.bind(this));
   }
   getTableName() {
     return this.config.mainTable;
   }
-  getTableDependencies() {
-    return this._tableDependencies;
+  getDependencies() {
+    return this._dependencies;
   }
   async isReady() {
     return await this.getCompany(), !0;
   }
   async count() {
-    let q = await this.getCompany(), { mainTable } = this.config, data = await q(mainTable).count({ count: "*" });
+    let k = await this.getCompany(), { mainTable } = this.config, data = await k(mainTable).count({ count: "*" });
     if (!(Array.isArray(data) && data.length > 0 && isANumber(data[0].count)))
       throw new DXTException(899100 /* FATAL_DB_QUERY_FAILED */, `CompanyProvider.count() on ${mainTable}`);
     return data[0].count;
   }
-  async getById(id, options) {
-    let q = await this.getCompany(), useCache = options?.useCache ?? !0;
+  async _getById(id, options) {
+    let k = await this.getCompany(), useCache = options?.useCache ?? !0;
     if (useCache) {
       let cachedData = await this.cache.getById(id);
       if (cachedData != null)
         return cachedData;
     }
-    let { mainTable, mainIdField, columns } = this.config, data = await q(mainTable).first(...columns ?? "*").where(mainIdField, id);
+    let { mainTable, mainIdField, columns } = this.config, data = id != null ? await k(mainTable).first(...columns ?? "*").where(mainIdField, id) : await k(mainTable).first(...columns ?? "*");
     if (data == null)
-      throw new DXTException(11e3 /* NOT_FOUND */);
+      return null;
     let result = this.toResult(data);
     return useCache && await this.cache.setById(id, result), result;
+  }
+  async getMany(columnName, columnValue, options) {
+    let k = await this.getCompany(), useCache = options?.useCache ?? !0, first = options?.first ?? !1, cacheKey = this._getByColumnCacheKey(columnName, columnValue, first ? "_FIRST" : "", options);
+    if (cacheKey != null) {
+      let cachedData = await this.cache.getMetadata(cacheKey);
+      if (cachedData != null)
+        return cachedData;
+    }
+    let { mainTable, columns } = this.config, query = k(mainTable);
+    first ? query = query.first(...columns ?? "*") : query = query.select(...columns ?? "*");
+    let where = options?.where;
+    where != null && (query = query.where(where.field, where.value));
+    let data = await query.andWhere(columnName, columnValue);
+    if (data == null)
+      return [];
+    let result = Array.isArray(data) ? data.map((m) => this.toResult(m)) : [this.toResult(data)];
+    return cacheKey != null && await this.cache.setMetadata(cacheKey, result), result;
+  }
+  async getOneOrNull(columnName, columnValue, options) {
+    let data = await this.getMany(
+      columnName,
+      columnValue,
+      {
+        ...options,
+        first: !0
+      }
+    );
+    return data.length == 0 ? null : data[0];
+  }
+  async getOne(columnName, columnValue, options) {
+    let result = await this.getOneOrNull(columnName, columnValue, options);
+    if (result == null)
+      throw new DXTException(11e3 /* NOT_FOUND */);
+    return result;
+  }
+  async getFirstOrNull(options) {
+    return await this._getById(void 0, options);
+  }
+  async getByIdOrNull(id, options) {
+    return await this._getById(id, options);
+  }
+  async getById(id, options) {
+    let result = await this.getByIdOrNull(id, options);
+    if (result == null)
+      throw new DXTException(11e3 /* NOT_FOUND */);
+    return result;
+  }
+  async getFirst(options) {
+    let result = await this.getFirstOrNull(options);
+    if (result == null)
+      throw new DXTException(11e3 /* NOT_FOUND */);
+    return result;
   }
   async getAll(options) {
     let cacheKey = this.getAllCacheKey(options);
@@ -6137,32 +7693,123 @@ var CompanyProvider = class extends CompanyInitProvider {
     if (!(options?.useCache ?? !0))
       return null;
     let { mainTable } = this.config;
-    return `${mainTable}_BU_${role}_${tangoUserId ?? "A"}`;
+    return `${mainTable}_BU_${this._getOptionsCacheKey(options)}_${role}_${tangoUserId ?? "A"}`;
+  }
+  _getByColumnCacheKey(columnName, columnValue, extraKey, options) {
+    if (!(options?.useCache ?? !0))
+      return null;
+    let finalColumnName = valueToString(columnName?.toString?.()), finalColumnValue = columnValue?.toString() ?? _CompanyProvider._noValueCacheKey, { mainTable } = this.config;
+    return `${mainTable}_BC_${this._getOptionsCacheKey(options)}_${extraKey}_${finalColumnName}_${finalColumnValue}`;
   }
   getAllCacheKey(options) {
     if (!(options?.useCache ?? !0))
       return null;
     let { mainTable } = this.config;
+    return `${mainTable}_ALL_${this._getOptionsCacheKey(options)}`;
+  }
+  _getOptionsCacheKey(options) {
     if (options == null)
-      return mainTable;
+      return "NO";
     let {
       offset,
       limit,
       where,
       whereIn
-    } = options, chunks = [
+    } = options;
+    return [
       offset ?? "O",
       limit ?? "L",
       where?.field ?? "W",
       where?.value ?? "V",
       whereIn?.field ?? "I",
       whereIn?.values.join("-") ?? "V"
-    ];
-    return `${mainTable}_ALL_${chunks.join("_")}`;
+    ].join("_");
   }
-};
+}, CompanyProvider = _CompanyProvider;
+CompanyProvider._noValueCacheKey = "NO_VALUE";
+function _collectDependencies(providers, collectedProviders) {
+  providers.forEach((p) => {
+    let providerName = _providerUniqueName(p);
+    if (collectedProviders.findIndex((el) => _providerUniqueName(el) == providerName) >= 0 || (collectedProviders.push(p), isStr(p)))
+      return;
+    let { dependencies } = p.config;
+    dependencies != null && _collectDependencies(dependencies, collectedProviders);
+  });
+}
+function _providerUniqueName(p) {
+  return isStr(p) ? p : `${p.constructor.name}.${p.config.mainTable}`;
+}
 
-// src/code.server/infrastucture/auxiliar/tango.provider.ts
+// src/code.server/infrastucture/pedido/utils/index.ts
+function getUserRoleWhere(role, tangoUserId) {
+  switch (role) {
+    case 1 /* vendor */:
+      return {
+        field: VENDEDOR_ID_FIELD,
+        value: tangoUserId
+      };
+    case 0 /* customer */:
+      return {
+        field: CLIENTE_ID_FIELD,
+        value: tangoUserId
+      };
+  }
+}
+
+// src/texts/pedidos.ts
+var PEDIDO_INVALIDO = "Inv\xE1lido", PEDIDO_INGRESADO = "Ingresado", PEDIDO_APROBADO = "Visto", PEDIDO_CUMPLIDO = "Cumplido", PEDIDO_CERRADO = "Cerrado", PEDIDO_ANULADO = "Anulado", PEDIDO_ENPROGRESO = "En progreso", PEDIDO_MENU_MODIFY = "Modificar", PEDIDO_MENU_DELETE = "Eliminar", PEDIDO_MENU_CANCEL = "Anular", PEDIDO_MENU_DUPLICATE = "Duplicar", PEDIDO_MENU_CREATE_ORDER = "Crear pedido", PEDIDO_MENU_CREATE_DRAFT = "Crear borrador", PEDIDO_MENU_CONVERT_DRAFT_TO_ORDER = "Convertir en pedido", PEDIDO_ARTICLE_GROUP_NO_NAME = "Varios", PEDIDO_CANCEL_ORDER = "Anular pedido", PEDIDO_CANCEL_ORDER_CONFIRM = "\xBFEst\xE1 seguro que desea anular este pedido? Esta acci\xF3n no se puede deshacer.", PEDIDO_ORDER_CANCELED = "Pedido anulado";
+var PEDIDO_DELETE_ORDER = "Eliminar pedido", PEDIDO_DELETE_ORDER_CONFIRM = "\xBFEst\xE1 seguro que desea eliminar este pedido? Esta acci\xF3n no se puede deshacer.", PEDIDO_ORDER_DELETED = "Pedido eliminado";
+var PEDIDO_DELETE_DRAFT = "Eliminar borrador", PEDIDO_DELETE_DRAFT_CONFIRM = "\xBFEst\xE1 seguro que desea eliminar este borrador? Esta acci\xF3n no se puede deshacer.", PEDIDO_DRAFT_DELETED = "Borrador eliminado";
+
+// src/domain/pedido/utils/index.ts
+function getEstadoPedidoText(estado) {
+  switch (estado) {
+    case 1 /* INGRESADO */:
+      return PEDIDO_INGRESADO;
+    case 2 /* APROBADO */:
+      return PEDIDO_APROBADO;
+    case 3 /* CUMPLIDO */:
+      return PEDIDO_CUMPLIDO;
+    case 4 /* CERRADO */:
+      return PEDIDO_CERRADO;
+    case 5 /* ANULADO */:
+      return PEDIDO_ANULADO;
+    case 100 /* EN_PROGRESO */:
+      return PEDIDO_ENPROGRESO;
+    default:
+      return PEDIDO_INVALIDO;
+  }
+}
+function numberToEstadoPedido(value) {
+  if (!Number.isInteger(value))
+    return 0 /* INVALIDO */;
+  switch (value) {
+    case 1 /* INGRESADO */:
+      return 1 /* INGRESADO */;
+    case 2 /* APROBADO */:
+      return 2 /* APROBADO */;
+    case 3 /* CUMPLIDO */:
+      return 3 /* CUMPLIDO */;
+    case 4 /* CERRADO */:
+      return 4 /* CERRADO */;
+    case 5 /* ANULADO */:
+      return 5 /* ANULADO */;
+  }
+  return 0 /* INVALIDO */;
+}
+function realOrderStatus(header, rows) {
+  let { estado } = header;
+  if (!(rows != null && (estado == 2 /* APROBADO */ || estado == 1 /* INGRESADO */)))
+    return estado;
+  for (let row of rows) {
+    let { a_descontar, a_facturar, pendiente_descontar, pendiente_facturar } = row;
+    if (a_descontar != pendiente_descontar || a_facturar != pendiente_facturar)
+      return 100 /* EN_PROGRESO */;
+  }
+  return estado;
+}
+
+// src/code.server/infrastucture/_src/tango.provider.ts
 var TangoProvider = class extends CompanyProvider {
   toResultWithoutDisposables(m) {
     let { FILLER, OBSERVACIONES, ROW_VERSION, CAMPOS_ADICIONALES, ...remaining } = m;
@@ -6172,14 +7819,15 @@ var TangoProvider = class extends CompanyProvider {
   }
 };
 
-// src/code.server/infrastucture/auxiliar/utils.ts
-function createTangoRepository(mainTable, mainIdField, modelMapper, columns) {
+// src/code.server/infrastucture/_src/tango.utils.ts
+function createTangoRepository(mainTable, mainIdField, modelMapper, columns, dependencies) {
   return new class extends TangoProvider {
     constructor() {
       super({
         mainTable,
         mainIdField,
-        columns
+        columns,
+        dependencies
       });
     }
     toResult(m) {
@@ -6200,20 +7848,155 @@ function customerTrulyEnabled(habilitado, fechaInhabilitacion) {
   return year <= 1900 || currentTime < disableTimestamp;
 }
 
-// src/code.server/infrastucture/auxiliar/model_mappers/index.ts
+// src/code.server/infrastucture/pedido/model_mappers/pedido.model_mapper.ts
+var pedidoModelMapper = (m) => {
+  let {
+    [PEDIDO_ID_FIELD]: idPedido,
+    [PEDIDO_CODE_FIELD]: numero_pedido,
+    [CLIENTE_ID_FIELD]: id_cliente,
+    [CLIENTE_CODE_FIELD]: codigo_cliente,
+    [VENDEDOR_ID_FIELD]: id_vendedor,
+    [VENDEDOR_CODE_FIELD]: codigo_vendedor,
+    [TRANSPORTE_ID_FIELD]: id_transporte,
+    [TRANSPORTE_CODE_FIELD]: codigo_transporte,
+    FECHA_INGRESO,
+    HORA_INGRESO,
+    FECHA_PEDI,
+    FECHA_ENTR,
+    LEYENDA_4,
+    LEYENDA_5,
+    TOTAL_PEDI,
+    PORC_DESC,
+    COMENTARIO: descripcion,
+    ESTADO
+  } = m;
+  if (!isAnInteger(id_cliente))
+    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "pedidoModelMapper -> id_cliente");
+  if (!isNotEmptyStr(codigo_cliente))
+    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "pedidoModelMapper -> codigo_cliente");
+  if (!isAnInteger(id_vendedor))
+    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "pedidoModelMapper -> id_vendedor");
+  if (!isNotEmptyStr(codigo_vendedor))
+    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "pedidoModelMapper -> codigo_vendedor");
+  if (!isAnInteger(id_transporte))
+    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "pedidoModelMapper -> id_transporte");
+  if (!isNotEmptyStr(codigo_transporte))
+    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "pedidoModelMapper -> codigo_transporte");
+  if (!(FECHA_PEDI instanceof Date))
+    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "pedidoModelMapper -> FECHA_PEDI");
+  if (!(FECHA_ENTR === null || FECHA_ENTR instanceof Date))
+    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "pedidoModelMapper -> FECHA_ENTR");
+  if (!(FECHA_INGRESO === null || FECHA_INGRESO instanceof Date))
+    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "pedidoModelMapper -> FECHA_INGRESO");
+  let [hour, min, sec] = _getHMS(HORA_INGRESO);
+  if (!isAnInteger(hour) || !isAnInteger(min) || !isAnInteger(sec))
+    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "pedidoModelMapper -> HORA_INGRESO");
+  try {
+    FECHA_INGRESO instanceof Date && FECHA_INGRESO.setHours(hour, min, sec);
+  } catch {
+  }
+  return {
+    id: idPedido,
+    numero_pedido,
+    estado: numberToEstadoPedido(ESTADO),
+    id_cliente,
+    codigo_cliente,
+    id_vendedor,
+    codigo_vendedor,
+    id_transporte,
+    codigo_transporte,
+    fecha_ingreso: FECHA_INGRESO,
+    fecha_alta: FECHA_PEDI,
+    fecha_entrega: FECHA_ENTR,
+    descripcion: descripcion ?? "",
+    comentarios: LEYENDA_4 ?? "" + LEYENDA_5 ?? "",
+    total: TOTAL_PEDI ?? 0,
+    descuento: PORC_DESC ?? 0
+  };
+};
+function _getHMS(hms) {
+  if (!isStr(hms))
+    return [0, 0, 0];
+  if (hms = hms.trim(), hms.length != 6)
+    return [0, 0, 0];
+  let hStr = hms.substring(0, 2), mStr = hms.substring(2, 4), sStr = hms.substring(4, 6);
+  return [
+    Number.parseInt(hStr),
+    Number.parseInt(mStr),
+    Number.parseInt(sStr)
+  ];
+}
+var extendedPedidoModelMapper = (m) => {
+  let {
+    [TALONARIO_ID2_FIELD]: id_talonario,
+    [TALONARIO_CODE_FIELD]: codigo_talonario,
+    [CONDICION_ID_FIELD]: id_condicion,
+    [CONDICION_CODE_FIELD]: codigo_condicion,
+    [LISTA_ID_FIELD]: id_lista,
+    [LISTA_CODE2_FIELD]: codigo_lista,
+    [ASIENTO_CODE_FIELD]: codigo_asiento,
+    [DEPOSITO_CODE_FIELD]: codigo_deposito,
+    COMP_STK: compromete_stock,
+    ID_ASIENTO_MODELO_GV: id_asiento_modelo_gv
+  } = m;
+  if (!isAnInteger(id_talonario))
+    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "extendedPedidoModelMapper -> id_talonario");
+  if (!isAnInteger(codigo_talonario))
+    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "extendedPedidoModelMapper -> codigo_talonario");
+  if (!isAnInteger(id_condicion))
+    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "extendedPedidoModelMapper -> id_vendedor");
+  if (!isAnInteger(codigo_condicion))
+    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "extendedPedidoModelMapper -> codigo_condicion");
+  if (!isAnInteger(id_lista))
+    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "extendedPedidoModelMapper -> id_lista");
+  if (!isAnInteger(codigo_lista))
+    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "extendedPedidoModelMapper -> codigo_lista");
+  if (!isNotEmptyStr(codigo_asiento))
+    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "extendedPedidoModelMapper -> codigo_asiento");
+  if (!isNotEmptyStr(codigo_deposito))
+    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "extendedPedidoModelMapper -> codigo_deposito");
+  if (!isAnInteger(id_asiento_modelo_gv))
+    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "extendedPedidoModelMapper -> id_asiento_modelo_gv");
+  return {
+    ...pedidoModelMapper(m),
+    id_talonario,
+    codigo_talonario,
+    id_condicion,
+    codigo_condicion,
+    id_lista,
+    codigo_lista,
+    codigo_asiento,
+    codigo_deposito,
+    compromete_stock: compromete_stock === !0,
+    id_asiento_modelo_gv
+  };
+}, pedidoAndRelationsModelMapper = (m) => {
+  let r = pedidoModelMapper(m), nombre_cliente = resolveScreenName(CLIENTE_NAME_COLUMNS, m), nombre_vendedor = r.codigo_vendedor != null ? resolveScreenName(VENDEDOR_NAME_COLUMNS, m) : void 0, nombre_transporte = r.codigo_transporte != null ? resolveScreenName(TRANSPORTE_NAME_COLUMNS, m) : void 0;
+  return {
+    ...r,
+    nombre_cliente,
+    nombre_vendedor,
+    nombre_transporte
+  };
+};
+
+// src/code.server/infrastucture/user/model_mappers/cliente.model_mappers.ts
 var tangoClienteModelMapper = (m) => {
-  let { [CLIENTE_ID_FIELD]: id, COD_CLIENT, HABILITADO: isEnabled, FECHA_INHA: fechaInhabilitacion } = m, screen_name = resolveScreenName(
+  let { [CLIENTE_ID_FIELD]: id, [CLIENTE_CODE_FIELD]: code, HABILITADO: isEnabled, FECHA_INHA: fechaInhabilitacion } = m, screen_name = resolveScreenName(
     CLIENTE_NAME_COLUMNS,
     m,
-    COD_CLIENT
+    code
   ), habilitado = customerTrulyEnabled(isEnabled, fechaInhabilitacion);
   return {
     id,
+    code,
     screen_name,
     habilitado
   };
-}, tangoFullClienteModelMapper = (m) => {
+}, tangoExtendedClienteModelMapper = (m) => {
   let {
+    [VENDEDOR_ID_FIELD]: idVendedor,
+    [VENDEDOR_CODE_FIELD]: codigoVendedor,
     [TRANSPORTE_ID_FIELD]: idTransporte,
     [TRANSPORTE_CODE_FIELD]: codigoTransporte,
     [LISTA_ID_FIELD]: idLista,
@@ -6226,6 +8009,10 @@ var tangoClienteModelMapper = (m) => {
     SOBRE_II,
     PORC_DESC
   } = m;
+  if (!isAnInteger(idVendedor))
+    throw new DXTException(200011 /* TANGO_CLIENTE_DB_DATA_ERROR */, `tangoFullClienteModelMapper -> ${VENDEDOR_ID_FIELD}`);
+  if (!isNotEmptyStr(codigoVendedor))
+    throw new DXTException(200011 /* TANGO_CLIENTE_DB_DATA_ERROR */, `tangoFullClienteModelMapper ${VENDEDOR_CODE_FIELD}`);
   if (!isAnInteger(idLista))
     throw new DXTException(200011 /* TANGO_CLIENTE_DB_DATA_ERROR */, `tangoFullClienteModelMapper ${LISTA_ID_FIELD}`);
   if (!isAnInteger(codigoLista))
@@ -6236,6 +8023,8 @@ var tangoClienteModelMapper = (m) => {
     throw new DXTException(200011 /* TANGO_CLIENTE_DB_DATA_ERROR */, `tangoFullClienteModelMapper ${CONDICION_CODE_FIELD}`);
   return {
     ...tangoClienteModelMapper(m),
+    idVendedor,
+    codigoVendedor,
     idTransporte,
     codigoTransporte,
     idCondicion,
@@ -6252,116 +8041,8 @@ var tangoClienteModelMapper = (m) => {
 function _isYes(field) {
   return isStr(field) ? field.trim().toUpperCase() === "S" : !1;
 }
-var tangoVendedorModelMapper = (m) => {
-  let { [VENDEDOR_ID_FIELD]: id, COD_VENDED, INHABILITA } = m, screen_name = resolveScreenName(
-    VENDEDOR_NAME_COLUMNS,
-    m,
-    COD_VENDED
-  );
-  return { id, screen_name, habilitado: !(INHABILITA ?? !1) };
-}, tangoPerfilModelMapper = (m) => {
-  let {
-    [PERFIL_CODE_FIELD]: code,
-    [PERFIL_ID_FIELD]: id,
-    DESCRIPCIO,
-    FECHA,
-    DEPOSITO,
-    TAL_FACTUR,
-    TIPO_ASIEN,
-    TRANSPORTE,
-    COND_VENTA,
-    BONIFIC,
-    BONIF_DEF,
-    D_BONIFIC,
-    D_TAL_FACT,
-    D_TAL_PED,
-    D_TAL_REMI,
-    D_COND_VEN,
-    D_LISTA_PR,
-    D_TRANSPOR,
-    D_DEPOSITO,
-    D_TIPO_ASI,
-    ID_ASIENTO_MODELO_GV
-  } = m, bonificacion = isStr(BONIF_DEF) && BONIF_DEF.trim().toUpperCase() == "O" ? Number.isFinite(D_BONIFIC) ? D_BONIFIC : 0 : void 0, codigoCondicionVenta = isNotEmptyStr(D_COND_VEN) ? Number.parseInt(D_COND_VEN.trim()) : void 0;
-  if (!isAnInteger(D_TAL_FACT))
-    throw new DXTException(200014 /* TANGO_PERFIL_DB_DATA_ERROR */, "tangoPerfilModelMapper -> D_TAL_FACT");
-  if (!isAnInteger(D_TAL_PED))
-    throw new DXTException(200014 /* TANGO_PERFIL_DB_DATA_ERROR */, "tangoPerfilModelMapper -> D_TAL_PED");
-  if (!isAnInteger(D_TAL_REMI))
-    throw new DXTException(200014 /* TANGO_PERFIL_DB_DATA_ERROR */, "tangoPerfilModelMapper -> D_TAL_REMI");
-  if (!isAnInteger(codigoCondicionVenta))
-    throw new DXTException(200014 /* TANGO_PERFIL_DB_DATA_ERROR */, "tangoPerfilModelMapper -> codigoCondicionVenta");
-  if (!isAnInteger(D_LISTA_PR))
-    throw new DXTException(200014 /* TANGO_PERFIL_DB_DATA_ERROR */, "tangoPerfilModelMapper -> D_LISTA_PR");
-  if (!isNotEmptyStr(D_TRANSPOR))
-    throw new DXTException(200014 /* TANGO_PERFIL_DB_DATA_ERROR */, "tangoPerfilModelMapper -> D_TRANSPOR");
-  if (!isNotEmptyStr(D_TIPO_ASI))
-    throw new DXTException(200014 /* TANGO_PERFIL_DB_DATA_ERROR */, "tangoPerfilModelMapper -> D_TIPO_ASI");
-  if (!isAnInteger(ID_ASIENTO_MODELO_GV))
-    throw new DXTException(200014 /* TANGO_PERFIL_DB_DATA_ERROR */, "tangoPerfilModelMapper -> ID_ASIENTO_MODELO_GV");
-  return {
-    code,
-    id,
-    name: DESCRIPCIO,
-    bonificacion,
-    asientoModelo: ID_ASIENTO_MODELO_GV,
-    codigoTalonarioFactura: D_TAL_FACT,
-    codigoTalonarioPedido: D_TAL_PED,
-    codigoTalonarioRemito: D_TAL_REMI,
-    codigoCondicionVenta,
-    codigoListaPrecio: D_LISTA_PR,
-    codigoTransporte: D_TRANSPOR,
-    codigoDeposito: D_DEPOSITO,
-    codigoAsiento: D_TIPO_ASI,
-    fechaEditable: _isEditable(FECHA),
-    talonarioEditable: _isEditable(TAL_FACTUR),
-    asientoEditable: _isEditable(TIPO_ASIEN),
-    transporteEditable: _isEditable(TRANSPORTE),
-    condicionEditable: _isEditable(COND_VENTA),
-    bonificacionEditable: _isEditable(BONIFIC),
-    depositoEditable: _isEditable(DEPOSITO)
-  };
-};
-function _isEditable(field) {
-  return isStr(field) ? field.trim().toUpperCase() === "E" : !1;
-}
-var tangoTransporteModelMapper = (m) => {
-  let { [TRANSPORTE_ID_FIELD]: id, [TRANSPORTE_CODE_FIELD]: code, NOMBRE_TRA } = m;
-  return { id, code, name: NOMBRE_TRA ?? code };
-}, tangoDepositoModelMapper = (m) => {
-  let { [DEPOSITO_ID_FIELD]: id, [DEPOSITO_CODE_FIELD]: code, NOMBRE_SUC } = m;
-  return { id, code, name: NOMBRE_SUC ?? code };
-}, tangoCondicionModelMapper = (m) => {
-  let { [CONDICION_ID_FIELD]: id, [CONDICION_CODE_FIELD]: code, DESC_COND } = m;
-  return { id, code, name: DESC_COND ?? id.toString() };
-}, tangoAsientoModelMapper = (m) => {
-  let { [ASIENTO_ID_FIELD]: id, [ASIENTO_TYPE_FIELD]: tipo, CONC_ASI, CONC_MOV } = m;
-  if (!isAnInteger(id))
-    throw new DXTException(200014 /* TANGO_PERFIL_DB_DATA_ERROR */, `tangoAsientoModelMapper -> ${ASIENTO_ID_FIELD}`);
-  if (!isNotEmptyStr(tipo))
-    throw new DXTException(200014 /* TANGO_PERFIL_DB_DATA_ERROR */, `tangoAsientoModelMapper -> ${ASIENTO_TYPE_FIELD}`);
-  let name = CONC_ASI ?? id.toString();
-  return { id, code: tipo, tipo, name };
-}, tangoTalonarioModelMapper = (m) => {
-  let { [TALONARIO_ID_FIELD]: id, [TALONARIO_CODE_FIELD]: code, DESCRIP } = m;
-  return { id, code, name: DESCRIP ?? code.toString() };
-}, tangoAlicuotaModelMapper = (m) => {
-  let { [ALICUOTA_ID_FIELD]: id, [ALICUOTA_CODE_FIELD]: code, DESCRIPCIO } = m;
-  return { id, code, name: DESCRIPCIO ?? code.toString() };
-}, tangoParametrosModelMapper = (m) => {
-  let { PED_AUT_CO, PROX_NDOC } = m, idsPedidosAutomaticos = toBoolean(PED_AUT_CO, !1), proximoId = PROX_NDOC;
-  if (proximoId == null || Number.isFinite(proximoId))
-    throw new DXTException(200002 /* TANGO_DB_INVALID_DATA */, "tangoParametrosModelMapper");
-  return {
-    idsPedidosAutomaticos,
-    proximoId
-  };
-};
 
-// src/code.server/infrastucture/auxiliar/base.repositories.ts
-var tangoParametrosRepository = createTangoRepository(TANGO_PARAMETROS_TABLE, TANGO_PARAMETROS_ID_FIELD, tangoParametrosModelMapper, tangoParametrosModelColumns), alicuotaRepository = createTangoRepository(ALICUOTA_TABLE, ALICUOTA_ID_FIELD, tangoAlicuotaModelMapper, alicuotaModelColumns), asientoRepository = createTangoRepository(ASIENTO_TABLE, ASIENTO_ID_FIELD, tangoAsientoModelMapper, asientoModelColumns), condicionRepository = createTangoRepository(CONDICION_TABLE, CONDICION_ID_FIELD, tangoCondicionModelMapper, condicionModelColumns), depositoRepository = createTangoRepository(DEPOSITO_TABLE, DEPOSITO_ID_FIELD, tangoDepositoModelMapper, depositoModelColumns), perfilRepository = createTangoRepository(PERFIL_TABLE, PERFIL_ID_FIELD, tangoPerfilModelMapper, perfilModelColumns), talonarioRepository = createTangoRepository(TALONARIO_TABLE, TALONARIO_ID_FIELD, tangoTalonarioModelMapper, talonarioModelColumns), transporteRepository = createTangoRepository(TRANSPORTE_TABLE, TRANSPORTE_ID_FIELD, tangoTransporteModelMapper, transporteModelColumns), vendedorRepository = createTangoRepository(VENDEDOR_TABLE, VENDEDOR_ID_FIELD, tangoVendedorModelMapper, vendedorModelColumns);
-
-// src/code.server/infrastucture/auxiliar/cliente.repository.ts
+// src/code.server/infrastucture/user/cliente.repository.ts
 var ClienteRepository = class extends TangoProvider {
   constructor() {
     super({
@@ -6390,194 +8071,293 @@ var ClienteRepository = class extends TangoProvider {
     })).map((m) => this.toResult(m));
     return await this.cache.setMetadata(cacheKey, result), result;
   }
-  async getFullById(customerId) {
+  async getExtendedById(customerId) {
     let cacheKey = `fullById_${customerId}`, cachedData = await this.cache.getMetadata(cacheKey);
     if (cachedData != null)
       return cachedData;
-    let { mainTable, mainIdField, columns } = this.config, data = await (await this.getCompany())(mainTable).first(...columns ?? "*").where(mainIdField, customerId), result = this.toFullResult(data);
+    let { mainTable, mainIdField, columns } = this.config, data = await (await this.getCompany())(mainTable).first(...columns ?? "*").where(mainIdField, customerId), result = this._toExtendedResult(data);
     return await this.cache.setMetadata(cacheKey, result), result;
   }
   toResult(m) {
     return tangoClienteModelMapper(m);
   }
-  toFullResult(m) {
-    return tangoFullClienteModelMapper(m);
+  _toExtendedResult(m) {
+    return tangoExtendedClienteModelMapper(m);
   }
 }, clienteRepository = new ClienteRepository();
 
-// src/code.server/api/pedido/services/_src/checkUserIsOwnerOrThrow.ts
-async function checkUserIsOwnerOrThrow(user, orderHeader) {
-  let { role } = user;
-  if (role.isAdmin())
-    throw new DXTException(101004 /* CUSTOMER_OR_VENDOR_ROLE_REQUIRED */);
-  if (role.isVendor()) {
-    let idVendedor = user.tangoId.valueOf();
-    if (!await clienteRepository.customerBelongsToVendor(
-      orderHeader.id_cliente,
-      idVendedor
-    ))
-      throw new DXTException(101007 /* ORDER_DOES_NOT_BELONGS_TO_VENDOR */);
-    return;
-  }
-  let idCliente = user.tangoId.valueOf();
-  if (orderHeader.id_cliente !== idCliente)
-    throw new DXTException(101008 /* ORDER_DOES_NOT_BELONGS_TO_CUSTOMER */);
-}
+// src/code.server/infrastucture/user/model_mappers/vendedor.model_mapper.ts
+var tangoVendedorModelMapper = (m) => {
+  let { [VENDEDOR_ID_FIELD]: id, [VENDEDOR_CODE_FIELD]: code, INHABILITA } = m, screen_name = resolveScreenName(
+    VENDEDOR_NAME_COLUMNS,
+    m,
+    code
+  );
+  return { id, screen_name, habilitado: !(INHABILITA ?? !1) };
+};
 
-// src/code.server/infrastucture/pedido/utils/index.ts
-function getUserRoleWhere(role, tangoUserId) {
-  switch (role) {
-    case 1 /* vendor */:
-      return {
-        field: VENDEDOR_ID_FIELD,
-        value: tangoUserId
-      };
-    case 0 /* customer */:
-      return {
-        field: CLIENTE_ID_FIELD,
-        value: tangoUserId
-      };
-  }
-}
+// src/code.server/infrastucture/user/vendedor.repository.ts
+var vendedorRepository = createTangoRepository(
+  VENDEDOR_TABLE,
+  VENDEDOR_ID_FIELD,
+  tangoVendedorModelMapper,
+  vendedorModelColumns,
+  [
+    clienteRepository
+  ]
+);
 
-// src/texts/pedidos.ts
-var PEDIDO_INVALIDO = "Inv\xE1lido", PEDIDO_INGRESADO = "Ingresado", PEDIDO_APROBADO = "Visto", PEDIDO_CUMPLIDO = "Cumplido", PEDIDO_CERRADO = "Cerrado", PEDIDO_ANULADO = "Anulado";
-var PEDIDO_MENU_CANCEL = "Anular", PEDIDO_MENU_MODIFY = "Modificar", PEDIDO_MENU_DELETE = "Eliminar", PEDIDO_MENU_DUPLICATE = "Duplicar", PEDIDO_MENU_CREATE_DRAFT = "Crear borrador", PEDIDO_MENU_CREATE_ORDER = "Crear pedido";
-
-// src/domain/pedido/utils/index.ts
-function getEstadoPedidoText(estado) {
-  switch (estado) {
-    case 1 /* INGRESADO */:
-      return PEDIDO_INGRESADO;
-    case 2 /* APROBADO */:
-      return PEDIDO_APROBADO;
-    case 3 /* CUMPLIDO */:
-      return PEDIDO_CUMPLIDO;
-    case 4 /* CERRADO */:
-      return PEDIDO_CERRADO;
-    case 5 /* ANULADO */:
-      return PEDIDO_ANULADO;
-    default:
-      return PEDIDO_INVALIDO;
-  }
-}
-function numberToEstadoPedido(value) {
-  if (!Number.isInteger(value))
-    return 0 /* INVALIDO */;
-  switch (value) {
-    case 1 /* INGRESADO */:
-      return 1 /* INGRESADO */;
-    case 2 /* APROBADO */:
-      return 2 /* APROBADO */;
-    case 3 /* CUMPLIDO */:
-      return 3 /* CUMPLIDO */;
-    case 4 /* CERRADO */:
-      return 4 /* CERRADO */;
-    case 5 /* ANULADO */:
-      return 5 /* ANULADO */;
-  }
-  return 0 /* INVALIDO */;
-}
-function realOrderIsInProgress(header, rows) {
-  let { estado } = header;
-  if (!(estado == 2 /* APROBADO */ || estado == 1 /* INGRESADO */))
-    return estado;
-  for (let row of rows) {
-    let { a_descontar, a_facturar, pendiente_descontar, pendiente_facturar } = row;
-    if (a_descontar != pendiente_descontar || a_facturar != pendiente_facturar)
-      return 100 /* EN_PROGRESO */;
-  }
-  return estado;
-}
-
-// src/code.server/infrastucture/pedido/model_mappers/pedido.model_mapper.ts
-var pedidoModelMapper = (m) => {
-  let {
-    [PEDIDO_ID_FIELD]: idPedido,
-    [PEDIDO_CODE_FIELD]: numero_pedido,
-    [CLIENTE_ID_FIELD]: id_cliente,
-    [CLIENTE_CODE_FIELD]: codigo_cliente,
-    [DEPOSITO_CODE_FIELD]: codigo_deposito,
-    [VENDEDOR_ID_FIELD]: id_vendedor,
-    [VENDEDOR_CODE_FIELD]: codigo_vendedor,
-    [TRANSPORTE_ID_FIELD]: id_transporte,
-    [TRANSPORTE_CODE_FIELD]: codigo_transporte,
-    FECHA_PEDI,
-    FECHA_ENTR,
-    LEYENDA_4,
-    LEYENDA_5,
-    TOTAL_PEDI,
-    PORC_DESC,
-    ESTADO
-  } = m;
-  if (!isAnInteger(id_cliente))
-    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "pedidoModelMapper -> id_cliente");
-  if (!isNotEmptyStr(codigo_cliente))
-    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "pedidoModelMapper -> codigo_cliente");
-  if (!isAnInteger(id_vendedor))
-    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "pedidoModelMapper -> id_vendedor");
-  if (!isNotEmptyStr(codigo_vendedor))
-    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "pedidoModelMapper -> codigo_vendedor");
-  if (!isNotEmptyStr(codigo_transporte))
-    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "pedidoModelMapper -> codigo_transporte");
-  if (!(FECHA_PEDI instanceof Date))
-    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "pedidoModelMapper -> FECHA_PEDI");
-  if (!(FECHA_ENTR === null || FECHA_ENTR instanceof Date))
-    throw new DXTException(200013 /* TANGO_PEDIDO_DB_DATA_ERROR */, "pedidoModelMapper -> FECHA_ENTR");
+// src/code.server/infrastucture/auxiliar/model_mappers/others.model_mappers.ts
+var tangoTransporteModelMapper = (m) => {
+  let { [TRANSPORTE_ID_FIELD]: id, [TRANSPORTE_CODE_FIELD]: code, NOMBRE_TRA } = m;
+  return { id, code, name: NOMBRE_TRA ?? code };
+}, tangoDepositoModelMapper = (m) => {
+  let { [DEPOSITO_ID_FIELD]: id, [DEPOSITO_CODE_FIELD]: code, NOMBRE_SUC } = m;
+  return { id, code, name: NOMBRE_SUC ?? code };
+}, tangoCondicionModelMapper = (m) => {
+  let { [CONDICION_ID_FIELD]: id, [CONDICION_CODE_FIELD]: code, DESC_COND } = m;
+  return { id, code, name: DESC_COND ?? id.toString() };
+}, tangoAsientoModelMapper = (m) => {
+  let { [ASIENTO_ID_FIELD]: id, [ASIENTO_CODE_FIELD]: tipo, CONC_ASI, COD_CUENTA: codigo_cuenta } = m;
+  if (!isAnInteger(id))
+    throw new DXTException(200014 /* TANGO_PERFIL_DB_DATA_ERROR */, `tangoAsientoModelMapper -> ${ASIENTO_ID_FIELD}`);
+  if (!isAnInteger(codigo_cuenta))
+    throw new DXTException(200014 /* TANGO_PERFIL_DB_DATA_ERROR */, "tangoAsientoModelMapper -> codigo_cuenta");
+  if (!isNotEmptyStr(tipo))
+    throw new DXTException(200014 /* TANGO_PERFIL_DB_DATA_ERROR */, `tangoAsientoModelMapper -> ${ASIENTO_CODE_FIELD}`);
+  let name = CONC_ASI ?? id.toString();
+  return { id, code: tipo, tipo, name, codigo_cuenta };
+}, tangoTalonarioModelMapper = (m) => {
+  let { [TALONARIO_ID_FIELD]: id, [TALONARIO_CODE_FIELD]: code, DESCRIP, COMPROB, TIPO } = m;
   return {
-    id: idPedido,
-    numero_pedido,
-    estado: numberToEstadoPedido(ESTADO),
-    id_cliente,
-    codigo_cliente,
-    id_vendedor,
-    codigo_vendedor,
-    codigo_transporte,
-    fecha_alta: FECHA_PEDI,
-    fecha_entrega: FECHA_ENTR,
-    comentarios: LEYENDA_4 ?? "" + LEYENDA_5 ?? "",
-    total: TOTAL_PEDI ?? 0,
-    descuento: PORC_DESC ?? 0
+    id,
+    code,
+    name: DESCRIP ?? code.toString(),
+    comprobante: COMPROB?.trim().toUpperCase() ?? "",
+    tipo: TIPO?.trim().toUpperCase() ?? ""
   };
-}, pedidoAndRelationsModelMapper = (m) => {
-  let r = pedidoModelMapper(m), nombre_cliente = resolveScreenName(CLIENTE_NAME_COLUMNS, m), nombre_vendedor = r.codigo_vendedor != null ? resolveScreenName(VENDEDOR_NAME_COLUMNS, m) : void 0, nombre_transporte = r.codigo_transporte != null ? resolveScreenName(TRANSPORTE_NAME_COLUMNS, m) : void 0;
+}, tangoAlicuotaModelMapper = (m) => {
+  let { [ALICUOTA_ID_FIELD]: id, [ALICUOTA_CODE_FIELD]: code, PORCENTAJE } = m;
+  return { id, code, percentage: PORCENTAJE ?? 0 };
+}, tangoDireccionModelMapper = (m) => {
+  let {
+    [DIRECCION_ID_FIELD]: id,
+    [DIRECCION_CODE_FIELD]: code,
+    HABITUAL,
+    HABILITADO,
+    DIRECCION,
+    LOCALIDAD,
+    CODIGO_POSTAL,
+    TELEFONO1,
+    TELEFONO2
+  } = m;
   return {
-    ...r,
-    nombre_cliente,
-    nombre_vendedor,
-    nombre_transporte
+    id,
+    code: id,
+    name: code,
+    habitual: HABITUAL === "S",
+    habilitada: HABILITADO === "S",
+    calle_numero: DIRECCION ?? "No especificada",
+    localidad: LOCALIDAD ?? "",
+    codigo_postal: CODIGO_POSTAL ?? "",
+    telefono1: TELEFONO1 ?? "",
+    telefono2: TELEFONO2 ?? ""
   };
 };
+
+// src/code.server/infrastucture/auxiliar/model_mappers/perfil.model_mapper.ts
+var tangoPerfilModelMapper = (m) => {
+  let {
+    [PERFIL_CODE_FIELD]: code,
+    [PERFIL_ID_FIELD]: id,
+    COMP_STK,
+    DESCRIPCIO,
+    FECHA,
+    DEPOSITO,
+    TAL_FACTUR,
+    TIPO_ASIEN,
+    TRANSPORTE,
+    COND_VENTA,
+    EDITA_DIRECCION_ENTREGA,
+    BONIFIC,
+    BONIF_DEF,
+    D_BONIFIC,
+    D_TAL_FACT,
+    D_TAL_PED,
+    D_TAL_REMI,
+    D_COND_VEN,
+    D_LISTA_PR,
+    D_TRANSPOR,
+    D_DEPOSITO,
+    D_TIPO_ASI,
+    ID_ASIENTO_MODELO_GV
+  } = m, bonificacion = isStr(BONIF_DEF) && BONIF_DEF.trim().toUpperCase() == "O" ? Number.isFinite(D_BONIFIC) ? D_BONIFIC : 0 : void 0, codigo_condicion_venta = isNotEmptyStr(D_COND_VEN) ? Number.parseInt(D_COND_VEN.trim()) : void 0;
+  if (!isAnInteger(D_TAL_FACT))
+    throw new DXTException(200014 /* TANGO_PERFIL_DB_DATA_ERROR */, "tangoPerfilModelMapper -> D_TAL_FACT");
+  if (!isAnInteger(D_TAL_PED))
+    throw new DXTException(200014 /* TANGO_PERFIL_DB_DATA_ERROR */, "tangoPerfilModelMapper -> D_TAL_PED");
+  if (!isAnInteger(D_TAL_REMI))
+    throw new DXTException(200014 /* TANGO_PERFIL_DB_DATA_ERROR */, "tangoPerfilModelMapper -> D_TAL_REMI");
+  if (!isAnInteger(codigo_condicion_venta))
+    throw new DXTException(200014 /* TANGO_PERFIL_DB_DATA_ERROR */, "tangoPerfilModelMapper -> codigoCondicionVenta");
+  if (!isAnInteger(D_LISTA_PR))
+    throw new DXTException(200014 /* TANGO_PERFIL_DB_DATA_ERROR */, "tangoPerfilModelMapper -> D_LISTA_PR");
+  if (!isNotEmptyStr(D_TRANSPOR))
+    throw new DXTException(200014 /* TANGO_PERFIL_DB_DATA_ERROR */, "tangoPerfilModelMapper -> D_TRANSPOR");
+  if (!isNotEmptyStr(D_TIPO_ASI))
+    throw new DXTException(200014 /* TANGO_PERFIL_DB_DATA_ERROR */, "tangoPerfilModelMapper -> D_TIPO_ASI");
+  if (!isAnInteger(ID_ASIENTO_MODELO_GV))
+    throw new DXTException(200014 /* TANGO_PERFIL_DB_DATA_ERROR */, "tangoPerfilModelMapper -> ID_ASIENTO_MODELO_GV");
+  return {
+    code,
+    id,
+    name: DESCRIPCIO,
+    bonificacion,
+    idAsientoModelo: ID_ASIENTO_MODELO_GV,
+    compromete_stock: COMP_STK === !0,
+    codigo_talonario_factura: D_TAL_FACT,
+    codigo_talonario_pedido: D_TAL_PED,
+    codigo_talonario_remito: D_TAL_REMI,
+    codigo_condicion_venta,
+    codigo_lista_precio: D_LISTA_PR,
+    codigo_transporte: D_TRANSPOR,
+    codigo_deposito: D_DEPOSITO,
+    codigo_asiento: D_TIPO_ASI,
+    fecha_editable: _isEditable(FECHA),
+    talonario_editable: _isEditable(TAL_FACTUR),
+    asiento_editable: _isEditable(TIPO_ASIEN),
+    transporte_editable: _isEditable(TRANSPORTE),
+    condicion_editable: _isEditable(COND_VENTA),
+    bonificacion_editable: _isEditable(BONIFIC),
+    deposito_editable: _isEditable(DEPOSITO),
+    direccion_editable: _isEditable(EDITA_DIRECCION_ENTREGA)
+  };
+};
+function _isEditable(field) {
+  return isStr(field) ? field.trim().toUpperCase() === "E" : !1;
+}
+
+// src/code.server/infrastucture/auxiliar/others.repositories.ts
+var asientoRepository = createTangoRepository(ASIENTO_TABLE, ASIENTO_ID_FIELD, tangoAsientoModelMapper, asientoModelColumns), condicionRepository = createTangoRepository(CONDICION_TABLE, CONDICION_ID_FIELD, tangoCondicionModelMapper, condicionModelColumns), depositoRepository = createTangoRepository(DEPOSITO_TABLE, DEPOSITO_ID_FIELD, tangoDepositoModelMapper, depositoModelColumns), perfilRepository = createTangoRepository(PERFIL_TABLE, PERFIL_ID_FIELD, tangoPerfilModelMapper, perfilModelColumns), talonarioRepository = createTangoRepository(TALONARIO_TABLE, TALONARIO_ID_FIELD, tangoTalonarioModelMapper, talonarioModelColumns), transporteRepository = createTangoRepository(TRANSPORTE_TABLE, TRANSPORTE_ID_FIELD, tangoTransporteModelMapper, transporteModelColumns);
+
+// src/code.server/infrastucture/auxiliar/alicuota.repository.ts
+var AlicuotaRepository = class extends TangoProvider {
+  constructor() {
+    super({
+      mainTable: ALICUOTA_TABLE,
+      mainIdField: ALICUOTA_ID_FIELD,
+      columns: alicuotaModelColumns
+    });
+  }
+  async getAllPercentages() {
+    let rows = await this.getAll();
+    return new Map(rows.map((row) => [row.code, row.percentage]));
+  }
+  toResult(m) {
+    return tangoAlicuotaModelMapper(m);
+  }
+}, alicuotaRepository = new AlicuotaRepository();
+
+// src/code.server/infrastucture/auxiliar/direccion.repository.ts
+var DireccionRepository = class extends TangoProvider {
+  constructor() {
+    super({
+      mainTable: DIRECCION_TABLE,
+      mainIdField: DIRECCION_ID_FIELD,
+      columns: direccionModelColumns
+    });
+  }
+  async getByCustomer(idCustomer) {
+    return await this.getMany(CLIENTE_ID_FIELD, idCustomer);
+  }
+  toResult(m) {
+    return tangoDireccionModelMapper(m);
+  }
+}, direccionRepository = new DireccionRepository();
+
+// src/code.server/infrastucture/tango/models/parametros.model.ts
+var TANGO_PARAMETROS_TABLE = "GVA16", TANGO_PARAMETROS_ID_FIELD = "ID_GVA16", tangoParametrosModelColumns = [
+  TANGO_PARAMETROS_ID_FIELD,
+  "PED_APR_CO",
+  "PED_AUT_CO",
+  "PED_FECHA",
+  "PROX_NDOC"
+];
+
+// src/code.server/infrastucture/tango/model_mappers/index.ts
+var tangoParametrosModelMapper = (m) => {
+  let { PED_AUT_CO, PROX_NDOC } = m, idsPedidosAutomaticos = toBoolean(PED_AUT_CO, !1), proximoId = PROX_NDOC;
+  if (proximoId == null || !Number.isFinite(proximoId))
+    throw new DXTException(200002 /* TANGO_DB_INVALID_DATA */, "tangoParametrosModelMapper -> PROX_NDOC");
+  return {
+    idsPedidosAutomaticos,
+    proximoId
+  };
+};
+
+// src/code.server/infrastucture/tango/tango.repository.ts
+var TangoRepository = class extends CompanyProvider {
+  constructor() {
+    super({
+      mainTable: TANGO_PARAMETROS_TABLE,
+      mainIdField: TANGO_PARAMETROS_ID_FIELD,
+      columns: tangoParametrosModelColumns
+    });
+  }
+  async getParametros() {
+    return await this.getFirst();
+  }
+  async updateNextId(id, trx) {
+    let { mainTable } = this.config;
+    await (trx ?? await this.getCompany())(mainTable).update({ PROX_NDOC: id });
+  }
+  toResult(m) {
+    return tangoParametrosModelMapper(m);
+  }
+}, tangoRepository = new TangoRepository();
 
 // src/code.server/infrastucture/pedido/pedido_base.repository.ts
 var PedidoBaseRepository = class extends CompanyProvider {
   constructor(config2) {
-    let { mainTable } = config2;
+    let { mainTable, rowsRepository } = config2;
     super({
       mainTable,
       mainIdField: PEDIDO_ID_FIELD,
       columns: pedidoModelColumns,
-      tableDependencies: [
-        CLIENTE_TABLE,
-        VENDEDOR_TABLE,
-        TRANSPORTE_TABLE,
-        PRECIO_TABLE,
-        LISTA_TABLE
+      dependencies: [
+        clienteRepository,
+        vendedorRepository,
+        transporteRepository,
+        rowsRepository
       ]
     });
+    this._rowsRepository = rowsRepository;
   }
   _avoidInvalidsFilterWhereRaw() {
     let { mainTable } = this.config;
     return `${mainTable}.${PEDIDO_ID_FIELD} IS NOT NULL AND ${mainTable}.${PEDIDO_CODE_FIELD} IS NOT NULL AND ${mainTable}.${CLIENTE_ID_FIELD} IS NOT NULL AND ${mainTable}.${CLIENTE_CODE_FIELD} IS NOT NULL AND ${mainTable}.${VENDEDOR_ID_FIELD} IS NOT NULL AND ${mainTable}.${VENDEDOR_CODE_FIELD} IS NOT NULL AND ${mainTable}.${TRANSPORTE_ID_FIELD} IS NOT NULL AND ${mainTable}.${TRANSPORTE_CODE_FIELD} IS NOT NULL`;
   }
-  async getAllByUser(role, tangoUserId, options) {
-    let cacheKey = this.getAllByUserCacheKey(role, tangoUserId, options);
+  _toExtendedResult(m) {
+    return extendedPedidoModelMapper(m);
+  }
+  async getExtendedById(orderId) {
+    let cacheKey = `fullById_${orderId}`, cachedData = await this.cache.getMetadata(cacheKey);
+    if (cachedData != null)
+      return cachedData;
+    let { mainTable, mainIdField, columns } = this.config, data = await (await this.getCompany())(mainTable).first(...extendedPedidoModelColumns).where(mainIdField, orderId), result = this._toExtendedResult(data);
+    return await this.cache.setMetadata(cacheKey, result), result;
+  }
+  _getUserRoleWhere(role, tangoUserId) {
+    return getUserRoleWhere(role, tangoUserId);
+  }
+  async getAllByUser(user, options) {
+    let role = user.role.valueOf(), tangoUserId = user.tangoId?.valueOf(), cacheKey = this.getAllByUserCacheKey(role, tangoUserId, options);
     if (cacheKey != null) {
       let cachedData = await this.cache.getMetadata(cacheKey);
       if (cachedData)
         return cachedData;
     }
-    let { mainTable, columns } = this.config, q = await this.getCompany(), where = getUserRoleWhere(role, tangoUserId), query = q(mainTable);
+    let { mainTable, columns } = this.config, k = await this.getCompany(), where = this._getUserRoleWhere(role, tangoUserId), query = k(mainTable);
     where != null && (query = query.where(
       `${mainTable}.${where.field}`,
       where.value
@@ -6588,22 +8368,177 @@ var PedidoBaseRepository = class extends CompanyProvider {
     let result = data.map((p) => this.toResultWithRelations(p));
     return cacheKey != null && await this.cache.setMetadata(cacheKey, result), result;
   }
+  async deleteById(orderId) {
+    let k = await this.getCompany(), { mainTable: orderTable, mainIdField: orderIdField } = this.config;
+    if (await k.transaction(async (trx) => {
+      let { mainTable: rowsTable, mainIdField: rowIdField } = this._rowsRepository.config;
+      return await trx(rowsTable).where(orderIdField, orderId).del(), await trx(orderTable).where(orderIdField, orderId).del();
+    }) <= 0)
+      throw new DXTException(11e3 /* NOT_FOUND */);
+  }
+  composeUpsertRecord(customer, orderAndRows) {
+    let {
+      idLista,
+      codigoLista
+    } = customer, {
+      estado,
+      idTransporte,
+      codigoTransporte,
+      idDeposito,
+      codigoDeposito,
+      idCondicion,
+      codigoCondicion,
+      idAsiento,
+      codigoAsiento,
+      idTalonario,
+      codigoTalonario,
+      idDireccionDeEntrega,
+      idAsientoModelo,
+      bonificacion,
+      comentarios,
+      comprometeStock,
+      total
+    } = orderAndRows, comentariosLinea1 = comentarios.substring(0, 60), comentariosLinea2 = comentarios.substring(60, 60);
+    return {
+      [CLIENTE_ID_FIELD]: customer.id,
+      [CLIENTE_CODE_FIELD]: customer.code,
+      [VENDEDOR_ID_FIELD]: customer.idVendedor,
+      [VENDEDOR_CODE_FIELD]: customer.codigoVendedor,
+      [CONDICION_ID_FIELD]: idCondicion,
+      [CONDICION_CODE_FIELD]: codigoCondicion,
+      [LISTA_ID_FIELD]: idLista,
+      [LISTA_CODE2_FIELD]: codigoLista,
+      [TRANSPORTE_ID_FIELD]: idTransporte,
+      [TRANSPORTE_CODE_FIELD]: codigoTransporte,
+      [TALONARIO_ID2_FIELD]: idTalonario,
+      [TALONARIO_CODE_FIELD]: codigoTalonario,
+      [DEPOSITO_CODE_FIELD]: codigoDeposito,
+      [ASIENTO_CODE_FIELD]: codigoAsiento,
+      [DIRECCION_ID_FIELD]: idDireccionDeEntrega,
+      PORC_DESC: bonificacion,
+      COMP_STK: comprometeStock,
+      LEYENDA_4: comentariosLinea1,
+      LEYENDA_5: comentariosLinea2,
+      TOTAL_PEDI: total,
+      ESTADO: estado,
+      ID_ASIENTO_MODELO_GV: idAsientoModelo,
+      N_REMITO: "",
+      APRUEBA: "",
+      EXPORTADO: !1,
+      ID_EXTERNO: "",
+      NRO_O_COMP: "",
+      NRO_SUCURS: 0,
+      ORIGEN: "T",
+      REVISO_FAC: "0",
+      REVISO_STK: "0"
+    };
+  }
+  composeInsertRecord(customer, params) {
+    return this.composeUpsertRecord(
+      customer,
+      params
+    );
+  }
+  composeUpdateRecord(customer, params) {
+    return this.composeUpsertRecord(
+      customer,
+      params
+    );
+  }
+  async create(customer, params) {
+    let k = await this.getCompany(), { mainTable: orderTable } = this.config, { rows } = params, orderModel = this.composeInsertRecord(customer, params);
+    return await k.transaction(async (trx) => {
+      let newOrderCode = await this.getNewOrderCodeAndUpdate(trx), newOrderCodeStr = await this.formatOrderCode(newOrderCode);
+      await trx(orderTable).insert({
+        ...orderModel,
+        [PEDIDO_CODE_FIELD]: newOrderCodeStr
+      });
+      let newOrderId = await this.getOrderIdFromCode(newOrderCodeStr, trx);
+      if (newOrderId == null)
+        throw new DXTException(0 /* UNEXPECTED_ERROR */, "PedidoBaseRepository.create -> newOrderId not found");
+      let rowIndex = 0;
+      for (let row of rows)
+        rowIndex++, await this._rowsRepository.create(
+          newOrderId,
+          newOrderCodeStr,
+          params,
+          row,
+          rowIndex,
+          trx
+        );
+      return {
+        nuevo_pedido: !0,
+        id_pedido: newOrderId,
+        numero_pedido: newOrderCodeStr
+      };
+    });
+  }
+  async update(customer, params) {
+    let k = await this.getCompany(), { mainTable: orderTable, mainIdField: orderIdField } = this.config, { mainTable: rowsTable } = this._rowsRepository.config, { rows, idPedido } = params, orderModel = this.composeUpdateRecord(customer, params);
+    return await k.transaction(
+      async (trx) => {
+        let changedRecords = await trx(orderTable).where(
+          PEDIDO_ID_FIELD,
+          idPedido
+        ).update(orderModel);
+        if (changedRecords != 1)
+          throw new DXTException(0 /* UNEXPECTED_ERROR */, `PedidoBaseRepository.update -> Invalid count of changed records: ${changedRecords}`);
+        let updatedOrder = await this.getByIdOrNull(params.idPedido);
+        if (updatedOrder == null)
+          throw new DXTException(0 /* UNEXPECTED_ERROR */, "PedidoBaseRepository.create -> Updated record not found");
+        await trx(rowsTable).where(orderIdField, updatedOrder.id).del();
+        let rowIndex = 0;
+        for (let row of rows)
+          rowIndex++, await this._rowsRepository.create(
+            updatedOrder.id,
+            updatedOrder.numero_pedido,
+            params,
+            row,
+            rowIndex,
+            trx
+          );
+        return {
+          nuevo_pedido: !1,
+          id_pedido: updatedOrder.id,
+          numero_pedido: updatedOrder.numero_pedido
+        };
+      }
+    );
+  }
   toResult(m) {
     return pedidoModelMapper(m);
   }
   toResultWithRelations(m) {
     return pedidoAndRelationsModelMapper(m);
   }
-};
-
-// src/code.server/infrastucture/dxt/pedido/dxt_pedido_draft.repository.ts
-var DXTPedidoDraftRepository = class extends PedidoBaseRepository {
-  constructor() {
-    super({
-      mainTable: DXT_PEDIDO_DRAFT_TABLE
-    });
+  async getOrderIdFromCode(orderCode, trx) {
+    return (await (trx ?? await this.getCompany())(this.config.mainTable).first(PEDIDO_ID_FIELD).where(PEDIDO_CODE_FIELD, orderCode))?.[PEDIDO_ID_FIELD] ?? null;
   }
-}, dxtPedidoDraftRepository = new DXTPedidoDraftRepository();
+  async getOrderCodeFromId(orderId, trx) {
+    return (await (trx ?? await this.getCompany())(this.config.mainTable).first(PEDIDO_CODE_FIELD).where(PEDIDO_ID_FIELD, orderId))?.[PEDIDO_CODE_FIELD] ?? null;
+  }
+  async getBiggerOrderCode(trx) {
+    let { mainTable } = this.config, orderCode = (await (trx ?? await this.getCompany())(mainTable).first(PEDIDO_CODE_FIELD).orderBy(PEDIDO_CODE_FIELD, "desc"))?.[PEDIDO_CODE_FIELD]?.trim(), orderCodeNumber = Number.parseInt(orderCode);
+    return isAnInteger(orderCodeNumber) && orderCodeNumber > 0 ? orderCodeNumber : 1;
+  }
+  async formatOrderCode(orderCode) {
+    return await dictionaryRepository.formatNumeroPedido(orderCode);
+  }
+  async getNewOrderCodeAndUpdate(trx) {
+    let { idsPedidosAutomaticos, proximoId } = await tangoRepository.getParametros(), newOrderCode;
+    return idsPedidosAutomaticos ? newOrderCode = proximoId : newOrderCode = await this.getBiggerOrderCode(trx), newOrderCode = await this.getNextFreeOrderCode(newOrderCode, trx), await this._updateNextOrderCode(newOrderCode, trx), newOrderCode;
+  }
+  async _updateNextOrderCode(newOrderCode, trx) {
+    let { idsPedidosAutomaticos } = await tangoRepository.getParametros();
+    idsPedidosAutomaticos && await tangoRepository.updateNextId(newOrderCode, trx);
+  }
+  async getNextFreeOrderCode(initialOrderCode, trx) {
+    let { min, max } = await dictionaryRepository.getNumeroPedidoRange(), newId = initialOrderCode;
+    for (; await this.getOrderIdFromCode(await this.formatOrderCode(newId), trx) != null; )
+      newId++, newId >= max && (newId = min);
+    return newId;
+  }
+};
 
 // src/code.server/infrastucture/pedido/model_mappers/renglon_pedido.model_mapper.ts
 var renglonPedidoModelMapper = (m) => {
@@ -6641,6 +8576,113 @@ var renglonPedidoModelMapper = (m) => {
   };
 };
 
+// src/code.server/infrastucture/articulo/model_mappers/tango_articulo.model_mapper.ts
+function tangoArticuloModelMapper(m) {
+  let { [ARTICULO_ID_FIELD]: id, [ARTICULO_CODE_FIELD]: codigo, DESCRIPCIO, DESC_ADIC } = m;
+  return {
+    id,
+    codigo,
+    nombre: DESCRIPCIO ?? codigo,
+    descripcion_adicional: DESC_ADIC
+  };
+}
+function tangoFullArticleModelMapper(m, alternateListId, alternateDiscount) {
+  let {
+    PRECIO,
+    [LISTA_ID_FIELD]: idLista,
+    COD_II,
+    COD_IVA,
+    COD_S_II,
+    COD_S_IVA,
+    ID_MEDIDA_STOCK,
+    ID_MEDIDA_STOCK_2,
+    ID_MEDIDA_VENTAS
+  } = m, discount = alternateListId != null && idLista === alternateListId ? alternateDiscount : null;
+  return {
+    ...tangoArticuloModelMapper(m),
+    id_lista: idLista,
+    precio: PRECIO,
+    bonificacion: discount ?? void 0,
+    codigo_iva: COD_IVA,
+    codigo_sobre_iva: COD_S_IVA,
+    codigo_ii: COD_II,
+    codigo_sobre_ii: COD_S_II,
+    id_medida_stock: ID_MEDIDA_STOCK ?? null,
+    id_medida_stock_2: ID_MEDIDA_STOCK_2 ?? null,
+    id_medida_ventas: ID_MEDIDA_VENTAS ?? null
+  };
+}
+function tangoFullArticleOrGroupNameModelMapper(m, alternateListId, alternateDiscount) {
+  let { DXTO_CODIGO_ARTICULO, [ARTICULO_CODE_FIELD]: codigoArticulo } = m;
+  return DXTO_CODIGO_ARTICULO != null && DXTO_CODIGO_ARTICULO !== codigoArticulo ? DXTO_CODIGO_ARTICULO.trim() : tangoFullArticleModelMapper(
+    m,
+    alternateListId,
+    alternateDiscount
+  );
+}
+
+// src/code.server/infrastucture/articulo/model_mappers/tango_lista.model_mapper.ts
+function tangoListaModelMapper(m) {
+  let {
+    [LISTA_ID_FIELD]: id,
+    [LISTA_CODE_FIELD]: codigo,
+    NOMBRE_LIS,
+    INCLUY_IMP,
+    INCLUY_IVA,
+    HABILITADA
+  } = m, nombre = NOMBRE_LIS ?? codigo.toString(), incluye_ii = toBoolean(INCLUY_IMP, !1), incluye_iva = toBoolean(INCLUY_IVA, !1), habilitada = toBoolean(HABILITADA, !1);
+  return {
+    id,
+    codigo,
+    nombre,
+    incluye_ii,
+    incluye_iva,
+    habilitada
+  };
+}
+
+// src/code.server/infrastucture/articulo/model_mappers/tango_precio.model_mapper.ts
+function tangoPrecioModelMapper(m) {
+  let {
+    [ARTICULO_CODE_FIELD]: codigoArticulo,
+    PRECIO
+  } = m;
+  return {
+    codigoArticulo,
+    precio: PRECIO ?? 0
+  };
+}
+
+// src/code.server/infrastucture/articulo/articulo.repository.ts
+var ArticuloRepository = class extends TangoProvider {
+  constructor() {
+    super({
+      mainTable: ARTICULO_TABLE,
+      mainIdField: ARTICULO_ID_FIELD,
+      columns: articuloModelColumns
+    });
+  }
+  toResult(m) {
+    return tangoArticuloModelMapper(m);
+  }
+  async getArticlesWithTaxes(listId, alternateListId, alternateDiscount) {
+    let { mainTable } = this.config, k = await this.getCompany(), fullArticuloCodeField = `${ARTICULO_TABLE}.${ARTICULO_CODE_FIELD}`, fullPrecioListaIdField = `${PRECIO_TABLE}.${LISTA_ID_FIELD}`, otherListId = alternateListId ?? listId, articuloColumns = articuloModelColumns.map((c) => `${ARTICULO_TABLE}.${c} as ${c}`), precioColumns = ["PRECIO", LISTA_ID_FIELD].map((c) => `${PRECIO_TABLE}.${c} as ${c}`);
+    return (await k(mainTable).select(...articuloColumns, ...precioColumns).leftOuterJoin(PRECIO_TABLE, fullArticuloCodeField, `${PRECIO_TABLE}.${ARTICULO_CODE_FIELD}`).where(
+      k.raw(
+        `${fullPrecioListaIdField} = ? OR ${fullPrecioListaIdField} = ?`,
+        [listId, otherListId]
+      )
+    ).orderBy(fullArticuloCodeField)).map((item) => tangoFullArticleModelMapper(
+      item,
+      alternateListId,
+      alternateDiscount
+    ));
+  }
+}, articuloRepository = new ArticuloRepository();
+
+// src/code.server/infrastucture/articulo/others.repositories.ts
+var listaRepository = createTangoRepository(LISTA_TABLE, LISTA_ID_FIELD, tangoListaModelMapper, listaModelColumns), precioRepository = createTangoRepository(PRECIO_TABLE, PRECIO_ID_FIELD, tangoPrecioModelMapper, precioModelColumns, [listaRepository, articuloRepository]);
+
 // src/code.server/infrastucture/pedido/renglon_pedido_base.repository.ts
 var RenglonPedidoBaseRepository = class extends CompanyProvider {
   constructor(config2) {
@@ -6649,12 +8691,12 @@ var RenglonPedidoBaseRepository = class extends CompanyProvider {
       mainTable,
       mainIdField: RENGLON_PEDIDO_ID_FIELD,
       columns: renglonPedidoModelColumns,
-      tableDependencies: [
-        ARTICULO_TABLE,
-        PRECIO_TABLE,
-        LISTA_TABLE
+      dependencies: [
+        articuloRepository,
+        pedidoTable
       ]
     });
+    this._pedidoTable = pedidoTable;
     let filteredColumns = renglonPedidoModelColumns.filter((c) => c != PEDIDO_ID_FIELD) ?? [];
     this.mainColumns = filteredColumns.map((c) => `${mainTable}.${c.toString()}`), this.pedidoColumns = [`${pedidoTable}.${PEDIDO_ID_FIELD}`], this.articuloColumns = ARTICULO_NAME_COLUMNS.map((c) => `${ARTICULO_TABLE}.${c}`);
   }
@@ -6662,13 +8704,13 @@ var RenglonPedidoBaseRepository = class extends CompanyProvider {
     let cacheKey = `byWhere_${whereColumn ?? "x"}_${whereValue ?? "x"}`, resultFromCache = await this.cache.getMetadata(cacheKey);
     if (resultFromCache != null)
       return resultFromCache;
-    let { mainTable, columns } = this.config, query = (await this.getCompany())(mainTable);
+    let { mainTable } = this.config, pedidoTable = this._pedidoTable, query = (await this.getCompany())(mainTable);
     whereColumn != null && (query = query.where(whereColumn, whereValue));
     let allColumns = [
       ...this.mainColumns,
       ...this.articuloColumns,
       ...this.pedidoColumns
-    ], rawData = await query.select(allColumns).leftOuterJoin(ARTICULO_TABLE, `${mainTable}.${ARTICULO_ID_FIELD}`, `${ARTICULO_TABLE}.${ARTICULO_ID_FIELD}`).innerJoin(PEDIDO_TABLE, `${mainTable}.${PEDIDO_CODE_FIELD}`, `${PEDIDO_TABLE}.${PEDIDO_CODE_FIELD}`).orderBy(PEDIDO_ID_FIELD);
+    ], rawData = await query.select(allColumns).leftOuterJoin(ARTICULO_TABLE, `${mainTable}.${ARTICULO_ID_FIELD}`, `${ARTICULO_TABLE}.${ARTICULO_ID_FIELD}`).innerJoin(pedidoTable, `${mainTable}.${PEDIDO_CODE_FIELD}`, `${pedidoTable}.${PEDIDO_CODE_FIELD}`).orderBy(PEDIDO_ID_FIELD);
     if (rawData == null)
       throw new DXTException(11e3 /* NOT_FOUND */);
     let data = rawData.map((renglonPedido) => this.toRenglonPedidoWithIdPedido(renglonPedido)), result = {}, sliceBegin = 0, idPedidoPrev;
@@ -6687,8 +8729,8 @@ var RenglonPedidoBaseRepository = class extends CompanyProvider {
     let data = await this._getByWhere(PEDIDO_CODE_FIELD, numeroPedido);
     return Object.values(data)[0] ?? [];
   }
-  async getAllByUser(role, tangoUserId, options) {
-    let where = getUserRoleWhere(role, tangoUserId);
+  async getAllByUser(user, options) {
+    let role = user.role.valueOf(), tangoUserId = user.tangoId?.valueOf(), where = getUserRoleWhere(role, tangoUserId);
     return await this._getByWhere(where?.field, where?.value);
   }
   toResult(m) {
@@ -6706,32 +8748,57 @@ var RenglonPedidoBaseRepository = class extends CompanyProvider {
   toResultAndRelations(m) {
     return renglonPedidoAndRelationsModelMapper(m);
   }
+  async create(idPedido, numeroPedido, order, row, rowIndex, trx) {
+    let model = this.composeInsertRecord(
+      idPedido,
+      numeroPedido,
+      order,
+      row,
+      rowIndex
+    ), { mainTable } = this.config, k = trx ?? await this.getCompany();
+    try {
+      await k(mainTable).insert(model);
+    } catch (e) {
+      throw console.error(e), e;
+    }
+  }
+  composeInsertRecord(idPedido, numeroPedido, order, row, rowIndex) {
+    let {
+      idTalonario,
+      codigoTalonario
+    } = order, {
+      idArticle,
+      codeArticle,
+      quantity,
+      price,
+      discount,
+      idMedidaStock,
+      idMedidaStock2,
+      idMedidaVentas,
+      unidadMedidaSeleccionada
+    } = row;
+    return {
+      [PEDIDO_CODE_FIELD]: numeroPedido,
+      [PEDIDO_ID_FIELD]: idPedido,
+      N_RENGLON: rowIndex,
+      [ARTICULO_CODE_FIELD]: codeArticle,
+      [ARTICULO_ID_FIELD]: idArticle,
+      [TALONARIO_ID2_FIELD]: idTalonario,
+      PRECIO: price ?? 0,
+      DESCUENTO: discount ?? 0,
+      CANT_A_DES: quantity,
+      CANT_A_FAC: quantity,
+      CANT_PEDID: quantity,
+      CANT_PEN_D: quantity,
+      CANT_PEN_F: quantity,
+      CAN_EQUI_V: quantity,
+      ID_MEDIDA_STOCK: idMedidaStock,
+      ID_MEDIDA_STOCK_2: idMedidaStock2,
+      ID_MEDIDA_VENTAS: idMedidaVentas,
+      UNIDAD_MEDIDA_SELECCIONADA: unidadMedidaSeleccionada
+    };
+  }
 };
-
-// src/code.server/infrastucture/dxt/pedido/dxt_pedido_draft_row.repository.ts
-var DXTPedidoDraftRowRepository = class extends RenglonPedidoBaseRepository {
-  constructor() {
-    super({
-      mainTable: DXT_PEDIDO_DRAFT_ROW_TABLE,
-      pedidoTable: DXT_PEDIDO_DRAFT_TABLE
-    });
-  }
-}, dxtPedidoDraftRowRepository = new DXTPedidoDraftRowRepository();
-
-// src/code.server/infrastucture/pedido/pedido.repository.ts
-var PedidoRepository = class extends PedidoBaseRepository {
-  constructor() {
-    super({
-      mainTable: PEDIDO_TABLE
-    });
-  }
-  async cancel(id) {
-    let q = await this.getCompany(), { mainTable, mainIdField, columns } = this.config;
-    await q(mainTable).where(mainIdField, id).update({
-      ESTADO: 5 /* ANULADO */
-    }), await this.cache.invalidateById(id);
-  }
-}, pedidoRepository = new PedidoRepository();
 
 // src/code.server/infrastucture/pedido/renglon_pedido.repository.ts
 var RenglonPedidoRepository = class extends RenglonPedidoBaseRepository {
@@ -6743,113 +8810,208 @@ var RenglonPedidoRepository = class extends RenglonPedidoBaseRepository {
   }
 }, renglonPedidoRepository = new RenglonPedidoRepository();
 
+// src/code.server/infrastucture/pedido/pedido.repository.ts
+var PedidoRepository = class extends PedidoBaseRepository {
+  constructor() {
+    super({
+      mainTable: PEDIDO_TABLE,
+      rowsRepository: renglonPedidoRepository
+    });
+  }
+  getRowsRepository() {
+    return renglonPedidoRepository;
+  }
+  async cancel(id) {
+    let k = await this.getCompany(), { mainTable, mainIdField, columns } = this.config;
+    await k(mainTable).where(mainIdField, id).update({
+      ESTADO: 5 /* ANULADO */
+    }), await this.cache.invalidateById(id);
+  }
+  composeUpsertRecord(customer, params) {
+    let parentResult = super.composeUpsertRecord(customer, params), {
+      fechaPedido,
+      fechaEntrega
+    } = params;
+    return {
+      ...parentResult,
+      FECHA_PEDI: fechaPedido,
+      FECHA_ENTR: fechaEntrega
+    };
+  }
+  composeInsertRecord(customer, params) {
+    let parentResult = this.composeUpsertRecord(
+      customer,
+      params
+    ), {
+      fechaIngreso
+    } = params, horaIngreso = getDateHHMMSS(fechaIngreso);
+    return {
+      ...parentResult,
+      FECHA_INGRESO: fechaIngreso,
+      HORA_INGRESO: horaIngreso,
+      HORA: horaIngreso
+    };
+  }
+  composeUpdateRecord(customer, params) {
+    let parentResult = this.composeUpsertRecord(
+      customer,
+      params
+    ), {} = params;
+    return {
+      ...parentResult
+    };
+  }
+}, pedidoRepository = new PedidoRepository();
+
+// src/code.server/api/pedido/services/_src/checkUserIsOwnerOrThrow.ts
+async function checkUserIsOwnerOrThrow(user, orderHeader, adminAllowed) {
+  let { role } = user;
+  if (role.isAdmin()) {
+    if (!adminAllowed)
+      throw new DXTException(101004 /* CUSTOMER_OR_VENDOR_ROLE_REQUIRED */);
+    return;
+  }
+  if (role.isVendor()) {
+    let idVendedor = user.tangoId.valueOf();
+    if (!await clienteRepository.customerBelongsToVendor(
+      orderHeader.id_cliente,
+      idVendedor
+    ))
+      throw new DXTException(101014 /* ORDER_CUSTOMER_DOES_NOT_BELONGS_TO_VENDOR */);
+    return;
+  }
+  let idCliente = user.tangoId.valueOf();
+  if (orderHeader.id_cliente !== idCliente)
+    throw new DXTException(101008 /* ORDER_DOES_NOT_BELONGS_TO_CUSTOMER */);
+}
+
+// src/code.server/infrastucture/dxt/pedido/dxt_pedido_draft_row.repository.ts
+var DXTPedidoDraftRowRepository = class extends RenglonPedidoBaseRepository {
+  constructor(config2) {
+    super(config2);
+  }
+};
+
+// src/code.server/infrastucture/dxt/pedido/dxt_pedido_draft_row_clientes.repository.ts
+var DXTPedidoDraftRowClientesRepository = class extends DXTPedidoDraftRowRepository {
+  constructor() {
+    super({
+      mainTable: DXT_PEDIDO_DRAFT_ROW_CLIENTES_TABLE,
+      pedidoTable: DXT_PEDIDO_DRAFT_CLIENTES_TABLE
+    });
+  }
+}, dxtPedidoDraftRowClientesRepository = new DXTPedidoDraftRowClientesRepository();
+
+// src/code.server/infrastucture/dxt/pedido/dxt_pedido_draft_row_vendedores.repository.ts
+var DXTPedidoDraftRowVendedoresRepository = class extends DXTPedidoDraftRowRepository {
+  constructor() {
+    super({
+      mainTable: DXT_PEDIDO_DRAFT_ROW_VENDEDORES_TABLE,
+      pedidoTable: DXT_PEDIDO_DRAFT_VENDEDORES_TABLE
+    });
+  }
+}, dxtPedidoDraftRowVendedoresRepository = new DXTPedidoDraftRowVendedoresRepository();
+
+// src/code.server/infrastucture/dxt/pedido/dxt_pedido_draft.repository.ts
+var DXTPedidoDraftRepository = class extends PedidoBaseRepository {
+  // constructor(config: PedidoBaseRepositoryConfig) {
+  //   super(config);
+  // }
+  async descriptionExists(idCustomer, description) {
+    return await this.getOneOrNull(CLIENTE_ID_FIELD, idCustomer, {
+      where: {
+        field: "COMENTARIO",
+        value: description
+      }
+    }) != null;
+  }
+  composeUpsertRecord(customer, params) {
+    let parentResult = super.composeUpsertRecord(customer, params), {
+      descripcion
+    } = params;
+    return {
+      ...parentResult,
+      COMENTARIO: descripcion
+    };
+  }
+  composeInsertRecord(customer, params) {
+    let parentResult = this.composeUpsertRecord(
+      customer,
+      params
+    ), {} = params;
+    return {
+      ...parentResult
+    };
+  }
+  composeUpdateRecord(customer, params) {
+    let parentResult = this.composeUpsertRecord(
+      customer,
+      params
+    ), {} = params;
+    return {
+      ...parentResult
+    };
+  }
+  async getNewOrderCodeAndUpdate() {
+    return await this.getNextFreeOrderCode(await this.getBiggerOrderCode());
+  }
+};
+
+// src/code.server/infrastucture/dxt/pedido/dxt_pedido_draft_clientes.repository.ts
+var DXTPedidoDraftClientesRepository = class extends DXTPedidoDraftRepository {
+  constructor() {
+    super({
+      mainTable: DXT_PEDIDO_DRAFT_CLIENTES_TABLE,
+      rowsRepository: dxtPedidoDraftRowClientesRepository
+    });
+  }
+}, dxtPedidoDraftClientesRepository = new DXTPedidoDraftClientesRepository();
+
+// src/code.server/infrastucture/dxt/pedido/dxt_pedido_draft_vendedores.repository.ts
+var DXTPedidoDraftVendedoresRepository = class extends DXTPedidoDraftRepository {
+  constructor() {
+    super({
+      mainTable: DXT_PEDIDO_DRAFT_VENDEDORES_TABLE,
+      rowsRepository: dxtPedidoDraftRowVendedoresRepository
+    });
+  }
+}, dxtPedidoDraftVendedoresRepository = new DXTPedidoDraftVendedoresRepository();
+
+// src/code.server/infrastucture/dxt/pedido/utils.ts
+function getDraftRepository(user) {
+  return _isCustomer(user) ? dxtPedidoDraftClientesRepository : dxtPedidoDraftVendedoresRepository;
+}
+function getDraftRowRepository(user) {
+  return _isCustomer(user) ? dxtPedidoDraftRowClientesRepository : dxtPedidoDraftRowVendedoresRepository;
+}
+function _isCustomer(user) {
+  let role = user.role.valueOf();
+  if (role == 2 /* admin */)
+    throw new DXTException(101004 /* CUSTOMER_OR_VENDOR_ROLE_REQUIRED */);
+  return role == 0 /* customer */;
+}
+
 // src/code.server/api/pedido/services/_src/getOrderWithRows.ts
-async function getOrderWithRows(user, isDraft, idPedido) {
-  let header = isDraft ? await dxtPedidoDraftRepository.getById(idPedido) : await pedidoRepository.getById(idPedido), rows = isDraft ? await dxtPedidoDraftRowRepository.getByIdPedido(idPedido) : await renglonPedidoRepository.getByIdPedido(idPedido);
-  if (header == null || rows == null)
-    throw new DXTException(11003 /* PEDIDO_NOT_FOUND */);
+async function getOrderWithRows(idPedido, user, isDraft, adminAllowed, ignoreRows) {
+  let dxtPedidoDraftRepository = getDraftRepository(user), dxtPedidoDraftRowRepository = getDraftRowRepository(user), header = isDraft ? await dxtPedidoDraftRepository.getExtendedById(idPedido) : await pedidoRepository.getExtendedById(idPedido), rows = ignoreRows ? null : isDraft ? await dxtPedidoDraftRowRepository.getByIdPedido(idPedido) : await renglonPedidoRepository.getByIdPedido(idPedido), rowsOk = rows != null || ignoreRows;
+  if (header == null || !rowsOk)
+    throw new DXTException(isDraft ? 11004 /* DRAFT_NOT_FOUND */ : 11003 /* ORDER_NOT_FOUND */);
   let { estado, ...remaining } = header, finalHeader = {
     ...remaining,
-    estado: realOrderIsInProgress(header, rows)
+    estado: realOrderStatus(header, rows)
   };
   return await checkUserIsOwnerOrThrow(
     user,
-    finalHeader
-  ), {
+    finalHeader,
+    adminAllowed
+  ), rows == null ? {
+    isDraft,
+    header: finalHeader
+  } : {
     isDraft,
     header: finalHeader,
     rows
   };
-}
-
-// src/code.server/api/tango/services/getAuxiliares.ts
-import _4 from "lodash";
-async function getAuxiliares() {
-  let [
-    transportes,
-    depositos,
-    condiciones,
-    asientos,
-    talonarios
-  ] = await Promise.all([
-    transporteRepository.getAll(),
-    depositoRepository.getAll(),
-    condicionRepository.getAll(),
-    asientoRepository.getAll(),
-    talonarioRepository.getAll()
-  ]);
-  return {
-    transportes,
-    depositos,
-    condiciones,
-    asientos: _4.uniqWith(
-      asientos,
-      (a, b) => a.tipo == b.tipo
-    ),
-    talonarios
-  };
-}
-
-// src/code.server/api/pedido/services/startPedido/prepareOrderHeader.ts
-async function prepareOrderHeader(user, originalOrder, customer, createNew, startDraft) {
-  if (!createNew && originalOrder == null)
-    throw new DXTException(899e3 /* INTERNAL_SERVER_ERROR */, "prepareOrderHeader() -> createNew must be true if originalOrder is null");
-  let vendorId = user.vendedorId?.valueOf();
-  if (vendorId == null)
-    throw new DXTException(899e3 /* INTERNAL_SERVER_ERROR */, "prepareOrderHeader() -> vendorId is null");
-  let billingProfile = await perfilRepository.getById(user.perfilFacturacionId.valueOf()), vendor = await vendedorRepository.getById(vendorId), {
-    transportes,
-    depositos,
-    condiciones,
-    asientos,
-    talonarios
-  } = await getAuxiliares(), {
-    discriminaIVA,
-    discriminaII,
-    aplicaSobreIVA,
-    aplicaSobreII
-  } = customer, bonificacion_editable = billingProfile.bonificacionEditable, orderId = createNew || originalOrder == null ? void 0 : originalOrder.header.id, numeroPedido = createNew || originalOrder == null ? void 0 : originalOrder.header.numero_pedido, bonificacion = (bonificacion_editable ? originalOrder?.header.descuento : billingProfile.bonificacion) ?? billingProfile.bonificacion ?? customer.bonificacion, orderIsDraft = originalOrder?.isDraft === !0, originalDeliveryDate = orderIsDraft ? null : originalOrder?.header.fecha_entrega, creationDate = (createNew || orderIsDraft ? /* @__PURE__ */ new Date() : originalOrder?.header.fecha_alta) ?? /* @__PURE__ */ new Date(), deliveryDate = createNew || originalDeliveryDate == null ? addDays(creationDate, user.diaDeEntrega.valueOf()) : originalDeliveryDate, {
-    codigoTransporte,
-    transporteEditable,
-    codigoDeposito,
-    depositoEditable,
-    codigoCondicionVenta,
-    condicionEditable,
-    codigoAsiento,
-    asientoEditable,
-    codigoTalonarioFactura,
-    talonarioEditable
-  } = billingProfile;
-  return {
-    es_borrador: startDraft,
-    id_pedido: orderId,
-    numero_pedido: numeroPedido,
-    id_cliente: customer.id,
-    nombre_cliente: customer.screen_name,
-    id_vendedor: vendorId,
-    nombre_vendedor: vendor.screen_name,
-    bonificacion,
-    bonificacion_editable,
-    fecha_alta: dateToISOStringZ(creationDate),
-    fecha_alta_editable: billingProfile.fechaEditable,
-    fecha_entrega: dateToISOStringZ(deliveryDate),
-    fecha_entrega_editable: billingProfile.fechaEditable,
-    transportes: _setSelectedItem(transportes, (el) => el.code == codigoTransporte, transporteEditable),
-    depositos: _setSelectedItem(depositos, (el) => el.code == codigoDeposito, depositoEditable),
-    condiciones: _setSelectedItem(condiciones, (el) => el.code == codigoCondicionVenta, condicionEditable),
-    asientos: _setSelectedItem(asientos, (el) => el.code == codigoAsiento, asientoEditable),
-    talonarios: _setSelectedItem(talonarios, (el) => el.code == codigoTalonarioFactura, talonarioEditable),
-    discrimina_iva: discriminaIVA,
-    discrimina_ii: discriminaII,
-    aplica_sobre_iva: aplicaSobreIVA,
-    aplica_sobre_ii: aplicaSobreII
-  };
-}
-function _setSelectedItem(list, checkSelected, editable) {
-  return editable ? list.map((el) => ({
-    ...el,
-    selected: checkSelected(el)
-  })) : list.filter((el) => checkSelected(el));
 }
 
 // src/code.server/infrastucture/dxt/articulo/dxt_articulo_list.repository.ts
@@ -6868,8 +9030,10 @@ var DXTArticuloListRepository = class extends CompanyProvider {
   }
   async setList(list) {
     this.cache.clear();
-    let finalList = list.filter((e) => e.codigo_articulo.trim().length > 0), { mainTable } = this.config, trx = await (await this.getCompany()).transaction();
-    return await trx(mainTable).truncate(), await trx.batchInsert(mainTable, finalList, 500), await trx.commit(), emitBusEvent(
+    let finalList = list.filter((e) => e.codigo_articulo.trim().length > 0), { mainTable } = this.config;
+    return await (await this.getCompany()).transaction(async (trx) => {
+      await trx(mainTable).truncate(), await trx.batchInsert(mainTable, finalList, 500);
+    }), emitBusEvent(
       new DBSettingsChangedEvent({
         passiveDBChanges: !1,
         newDictionary: !1,
@@ -6883,226 +9047,35 @@ var DXTArticuloListRepository = class extends CompanyProvider {
   }
 };
 
-// src/code.server/infrastucture/articulo/model_mappers/tango_articulo.model_mapper.ts
-function tangoArticuloModelMapper(m) {
-  let { [ARTICULO_ID_FIELD]: id, [ARTICULO_CODE_FIELD]: codigo, DESCRIPCIO, DESC_ADIC } = m;
-  return {
-    id,
-    codigo,
-    nombre: DESCRIPCIO ?? codigo,
-    descripcion_adicional: DESC_ADIC
-  };
-}
-function tangoArticuloConPrecioModelMapper(m, alternateListId, alternateDiscount) {
-  let { PRECIO, [LISTA_ID_FIELD]: idLista } = m, discount = alternateListId != null && idLista === alternateListId ? alternateDiscount : null;
-  return {
-    ...tangoArticuloModelMapper(m),
-    precio: PRECIO,
-    bonificacion: discount ?? void 0
-  };
-}
-
-// src/domain/dxt/articulo/utils/index.ts
-var ARTICLE_GROUP_NO_NAME = "_";
-function _getDXTArticuloListParam(s) {
-  let chunks = s.split("=", 2);
-  if (chunks.length != 2)
-    return null;
-  let key = chunks[0].trim().toLowerCase(), value = chunks[1].trim();
-  return key.length == 0 ? null : { key, value };
-}
-function strToDXTArticuloListRecord(s) {
-  if (!isStr(s))
-    return null;
-  let p = s.indexOf(";");
-  p <= 0 && (p = s.length);
-  let codigo_articulo = s.substring(0, p).trimEnd();
-  if (codigo_articulo.length == 0)
-    return null;
-  let params = s.substring(p + 1).trim();
-  if (codigo_articulo == ARTICLE_GROUP_NO_NAME)
-    throw new DXTException(10003 /* RESERVED_ARTICLE_GROUP_NAME */, `"${ARTICLE_GROUP_NO_NAME}"`);
-  return params.length == 0 ? { codigo_articulo } : {
-    codigo_articulo,
-    params
-  };
-}
-function strToDXTArticuloListParams(paramsStr) {
-  if (paramsStr == null)
-    return;
-  let result = {}, emptyParams = !0;
-  return paramsStr.split(";").forEach((s, i) => {
-    let paramEntry = _getDXTArticuloListParam(s);
-    if (paramEntry == null)
-      return;
-    let { key, value } = paramEntry;
-    result[key] = value, emptyParams = !1;
-  }), emptyParams ? void 0 : result;
-}
-
 // src/code.server/infrastucture/dxt/articulo/dxt_articulo_edit_list.repository.ts
 var DXTArticuloEditListRepository = class extends DXTArticuloListRepository {
   constructor() {
     super({
       mainTable: DXT_ARTICULO_EDIT_LIST_TABLE,
-      tableDependencies: [ARTICULO_TABLE, PRECIO_TABLE]
+      dependencies: [
+        articuloRepository,
+        precioRepository
+      ]
     });
   }
-  async getGroupedArticules(listId, alternateListId, alternateDiscount, keepArticulesWithoutPrice) {
-    let cacheKey = `groupedArticules_${listId}_${alternateListId ?? "0"}`, cachedData = await this.cache.getMetadata(cacheKey);
-    if (cachedData != null)
-      return this._splitByGroup(cachedData, alternateListId, alternateDiscount, keepArticulesWithoutPrice);
-    let orderListExists = await this.count() > 0, q = await this.getCompany(), fullDXTArticuloListCodeField = `${DXT_ARTICULO_EDIT_LIST_TABLE}.codigo_articulo`, fullArticuloCodeField = `${ARTICULO_TABLE}.${ARTICULO_CODE_FIELD}`, fullPrecioListaIdField = `${PRECIO_TABLE}.${LISTA_ID_FIELD}`, mainColumns = orderListExists ? [`${fullDXTArticuloListCodeField} as DXTO_CODIGO_ARTICULO`] : [], articuloColumns = articuloModelColumns.map((c) => `${ARTICULO_TABLE}.${c} as ${c}`), precioColumns = ["PRECIO", LISTA_ID_FIELD].map((c) => `${PRECIO_TABLE}.${c} as ${c}`), query = q(
-      orderListExists ? DXT_ARTICULO_EDIT_LIST_TABLE : ARTICULO_TABLE
-    ).select(...mainColumns, ...articuloColumns, ...precioColumns);
-    orderListExists ? query = query.leftOuterJoin(ARTICULO_TABLE, fullDXTArticuloListCodeField, fullArticuloCodeField).leftOuterJoin(PRECIO_TABLE, fullDXTArticuloListCodeField, `${PRECIO_TABLE}.${ARTICULO_CODE_FIELD}`) : query = query.leftOuterJoin(PRECIO_TABLE, fullArticuloCodeField, `${PRECIO_TABLE}.${ARTICULO_CODE_FIELD}`);
+  async getArticlesWithTaxes(listId, alternateListId, alternateDiscount) {
+    let { mainTable } = this.config, k = await this.getCompany(), fullDXTArticuloListCodeField = `${mainTable}.codigo_articulo`, fullArticuloCodeField = `${ARTICULO_TABLE}.${ARTICULO_CODE_FIELD}`, fullPrecioListaIdField = `${PRECIO_TABLE}.${LISTA_ID_FIELD}`, mainColumns = [`${fullDXTArticuloListCodeField} as DXTO_CODIGO_ARTICULO`], articuloColumns = articuloModelColumns.map((c) => `${ARTICULO_TABLE}.${c} as ${c}`), precioColumns = ["PRECIO", LISTA_ID_FIELD].map((c) => `${PRECIO_TABLE}.${c} as ${c}`), query = k(mainTable).select(...mainColumns, ...articuloColumns, ...precioColumns);
+    query = query.leftOuterJoin(ARTICULO_TABLE, fullDXTArticuloListCodeField, fullArticuloCodeField).leftOuterJoin(PRECIO_TABLE, fullDXTArticuloListCodeField, `${PRECIO_TABLE}.${ARTICULO_CODE_FIELD}`);
     let otherListId = alternateListId ?? listId;
-    orderListExists ? query = query.where(
-      q.raw(
+    return (await query.where(
+      k.raw(
         `${fullPrecioListaIdField} = ? OR ${fullPrecioListaIdField} = ? OR (${fullDXTArticuloListCodeField} IS NOT NULL AND ${fullPrecioListaIdField} IS NULL AND ${fullArticuloCodeField} IS NULL )`,
         [listId, otherListId]
       )
-    ).orderBy(`${DXT_ARTICULO_EDIT_LIST_TABLE}.id`) : query = query.where(
-      q.raw(
-        `${fullPrecioListaIdField} = ? OR ${fullPrecioListaIdField} = ?`,
-        [listId, otherListId]
-      )
-    ).orderBy(fullArticuloCodeField);
-    let data = await query;
-    return await this.cache.setMetadata(cacheKey, data), this._splitByGroup(data, alternateListId, alternateDiscount, keepArticulesWithoutPrice);
-  }
-  _splitByGroup(data, alternateListId, alternateDiscount, keepArticulesWithoutPrice) {
-    let result = {}, currentList = null, lastGroupName = null;
-    return data.forEach((item) => {
-      let { DXTO_CODIGO_ARTICULO, [ARTICULO_CODE_FIELD]: codigoArticulo, PRECIO, [LISTA_ID_FIELD]: idLista } = item;
-      DXTO_CODIGO_ARTICULO != null && DXTO_CODIGO_ARTICULO !== codigoArticulo ? (lastGroupName = DXTO_CODIGO_ARTICULO.trim(), lastGroupName.length == 0 && (lastGroupName = ARTICLE_GROUP_NO_NAME), currentList = result[lastGroupName], currentList == null && (currentList = [], result[lastGroupName] = currentList)) : (currentList == null && (currentList = [], result[ARTICLE_GROUP_NO_NAME] = currentList), idLista != null && (PRECIO > 0 || keepArticulesWithoutPrice) && currentList.push(
-        tangoArticuloConPrecioModelMapper(
-          item,
-          alternateListId,
-          alternateDiscount
-        )
-      ));
-    }), result;
+    ).orderBy(`${DXT_ARTICULO_EDIT_LIST_TABLE}.id`)).map((item) => tangoFullArticleOrGroupNameModelMapper(
+      item,
+      alternateListId,
+      alternateDiscount
+    ));
   }
 }, dxtArticuloEditListRepository = new DXTArticuloEditListRepository();
 
-// src/code.server/api/pedido/services/startPedido/prepareOrderGroupedArticules.ts
-async function prepareOrderGroupedArticules(user, originalOrder, customer, createNew) {
-  let articles = await dxtArticuloEditListRepository.getGroupedArticules(
-    customer.idLista,
-    user.idListaAlternativa?.valueOf(),
-    user.bonificacionListaAlternativa?.valueOf(),
-    user.verSinPrecio.valueOf()
-  );
-  return createNew || originalOrder == null ? articles : _addQuantities(
-    articles,
-    originalOrder.rows
-  );
-}
-function _addQuantities(articles, rows) {
-  let quantities = new Map(rows.map((row) => [row.codigo_articulo, row]));
-  return Object.fromEntries(
-    Object.entries(articles).map(
-      ([groupName, articles2]) => [
-        groupName,
-        articles2.map((article) => {
-          let row = quantities.get(article.codigo);
-          return row == null ? article : {
-            ...article,
-            cantidad: row.cantidad
-          };
-        })
-      ]
-    )
-  );
-}
-
-// src/code.server/api/pedido/services/startPedido/prepareStartValues.ts
-async function prepareStartValues(user, originalOrder, customerId, createNew, startDraft) {
-  let customer = await clienteRepository.getFullById(customerId), header = await prepareOrderHeader(
-    user,
-    originalOrder,
-    customer,
-    createNew,
-    startDraft
-  ), groupedArticules = await prepareOrderGroupedArticules(
-    user,
-    originalOrder,
-    customer,
-    createNew
-  );
-  return {
-    cabecera: header,
-    articulos: groupedArticules
-  };
-}
-
-// src/code.server/api/pedido/services/startPedido/index.ts
-async function startPedido(params) {
-  let { user, mode: mode4 } = params, createNew = mode4 != 0 /* edit */;
-  if (createNew && !user.puedeCrearPedido.valueOf())
-    throw new DXTException(101009 /* ORDER_CREATION_FORBIDDEN */);
-  if (!createNew && !user.puedeEditarPedido.valueOf())
-    throw new DXTException(101010 /* ORDER_UPDATE_FORBIDDEN */);
-  let startDraft = mode4 == 0 /* edit */ ? params.isDraft : params.createDraft, originalOrder = mode4 == 1 /* create */ ? null : await getOrderWithRows(user, params.isDraft, params.idPedido), idCliente = mode4 == 1 /* create */ ? params.idCliente : originalOrder.header.id_cliente;
-  return await prepareStartValues(
-    user,
-    originalOrder,
-    idCliente,
-    createNew,
-    startDraft
-  );
-}
-
-// src/code.server/api/root.controller.ts
-var RootController = class extends ApiController {
-  async onError(e, req) {
-    let finalE = e instanceof ValidationException && isProduction() ? new ValidationException(VALIDATION_ERROR) : e, dxtError = exceptionToDXTErrorInfo(finalE), {
-      status: originalStatus,
-      errorCode,
-      extra,
-      message_to_user
-    } = dxtError, status = originalStatus === HTTP_STATUS_UNAVAILABLE ? getHttpStatusFromErrorCode(errorCode) : originalStatus, errorDescription = getDXTErrorDescription(errorCode);
-    return requiresContactingAdmin(errorCode) && (errorDescription = errorDescription.toLocaleUpperCase() + ". Si el problema persiste contacte al administrador."), jsonResponse(
-      {
-        status,
-        error: errorDescription,
-        errorCode,
-        extra,
-        message_to_user
-      },
-      {
-        status
-      }
-    );
-  }
-}, rootController = new RootController();
-
-// src/@depsel-nodejs/crypto/utils.ts
-import * as crypto from "crypto";
-function sha1ToString(value, secret, encoding = "hex") {
-  return crypto.createHmac("SHA1", secret).update(value).digest(encoding);
-}
-
-// src/code.server/api/auth/value_objects/vo_auth_token.ts
-var AUTH_SECRET = "Ema0PpqK0jMhUl64n5q6ZVhc1WukcYSpKW8GdaQCd1b0W7jh6rwvyopI8UB7DBaU", VOAuthToken = class extends VOWeakCheckAuthToken {
-  validate(rawValue) {
-    if (rawValue instanceof AuthTokenProps)
-      return rawValue;
-    if (typeof rawValue == "string") {
-      let value = rawValue.trim().toLowerCase(), p = value.lastIndexOf("-");
-      p < 0 && this.throwError(rawValue);
-      let result = super.validate(value), payloadHash = sha1ToString(value.substring(0, p), AUTH_SECRET), weakCheckTokenHash = this.verificationHash?.toString();
-      return payloadHash !== weakCheckTokenHash && this.throwError(rawValue), result;
-    }
-    this.throwError(rawValue);
-  }
-  getVerificationHashString() {
-    return sha1ToString(this.getPayloadString(), AUTH_SECRET);
-  }
-};
-
-// src/code.server/infrastucture/dxt/dxt_user.repository.ts
+// src/code.server/infrastucture/dxt/user/dxt_user.repository.ts
 var DXTUserRepository = class extends CompanyProvider {
   constructor(config2) {
     super(config2);
@@ -7118,8 +9091,8 @@ var DXTUserRepository = class extends CompanyProvider {
     let cachedUser = await this.cache.getById(id);
     if (cachedUser)
       return cachedUser;
-    let { mainIdField } = this.config, q = await this.getCompany();
-    return await this._getUserWithRelationsByWhere(q, mainIdField, id, relationRequired);
+    let { mainIdField } = this.config, k = await this.getCompany();
+    return await this._getUserWithRelationsByWhere(k, mainIdField, id, relationRequired);
   }
   async getUserWithRelationsByName(username, relationRequired) {
     relationRequired = relationRequired ?? !0;
@@ -7129,11 +9102,11 @@ var DXTUserRepository = class extends CompanyProvider {
         if (user.username.toLowerCase() === username.toLowerCase())
           return user;
     }
-    let q = await this.getCompany();
-    return await this._getUserWithRelationsByWhere(q, "username", username, relationRequired);
+    let k = await this.getCompany();
+    return await this._getUserWithRelationsByWhere(k, "username", username, relationRequired);
   }
   async _getUserWithRelationsByWhere(knexInstance, field, value, relationRequired) {
-    let q = knexInstance, { mainTable, mainIdField, tangoTable, tangoIdField, dxtUserNotFoundErrorCode, tangoUserNotFoundErrorCode } = this.config, modelAndRelations = await q(mainTable).joinRaw(
+    let k = knexInstance, { mainTable, mainIdField, tangoTable, tangoIdField, dxtUserNotFoundErrorCode, tangoUserNotFoundErrorCode } = this.config, modelAndRelations = await k(mainTable).joinRaw(
       "LEFT JOIN :tangoTable: ON :mainTable:.tango_id = :tangoTable:.:tangoIdField:",
       {
         tangoTable,
@@ -7195,7 +9168,7 @@ var DXTUserRepository = class extends CompanyProvider {
   async _throwIfTwinTableUserExists(username) {
     let { twinRepository } = this.config;
     try {
-      let _13 = await twinRepository().getUserWithRelationsByName(username, !1);
+      let _14 = await twinRepository().getUserWithRelationsByName(username, !1);
       throw new DXTException(14001 /* DUPLICATED_TABLE_RECORD */);
     } catch (e) {
       if (isNotFoundException(e))
@@ -7204,22 +9177,22 @@ var DXTUserRepository = class extends CompanyProvider {
     }
   }
   async create(input) {
-    let q = await this.getCompany(), inputModel = this._userInputToModel(input);
+    let k = await this.getCompany(), inputModel = this._userInputToModel(input);
     await this._throwIfTwinTableUserExists(inputModel.username);
     let { mainTable, mainIdField } = this.config;
     try {
-      let id = (await q(mainTable).returning(mainIdField).insert(inputModel))[0][mainIdField];
+      let id = (await k(mainTable).returning(mainIdField).insert(inputModel))[0][mainIdField];
       return await this.getById(id);
     } catch (e) {
       throw dbErrorToDXTException(e);
     }
   }
   async update(id, input) {
-    let q = await this.getCompany(), inputModel = this._userInputToModel(input);
+    let k = await this.getCompany(), inputModel = this._userInputToModel(input);
     await this._throwIfTwinTableUserExists(inputModel.username);
     let { mainTable, mainIdField } = this.config;
     try {
-      if (await q(mainTable).where(mainIdField, id).update(inputModel) <= 0)
+      if (await k(mainTable).where(mainIdField, id).update(inputModel) <= 0)
         throw new DXTException(11e3 /* NOT_FOUND */);
     } catch (e) {
       throw dbErrorToDXTException(e);
@@ -7248,7 +9221,7 @@ var DXTUserRepository = class extends CompanyProvider {
   }
 };
 
-// src/code.server/infrastucture/dxt/dxt_vendedor.repository.ts
+// src/code.server/infrastucture/dxt/user/dxt_vendedor.repository.ts
 var DXTVendedorRepository = class extends DXTUserRepository {
   constructor() {
     super({
@@ -7262,9 +9235,8 @@ var DXTVendedorRepository = class extends DXTUserRepository {
       tangoUserNotFoundErrorCode: 200010 /* TANGO_VENDOR_NO_LONGER_EXISTS */,
       screenNameFields: VENDEDOR_NAME_COLUMNS,
       sortField: "NOMBRE_VEN",
-      tableDependencies: [
-        VENDEDOR_TABLE,
-        CLIENTE_TABLE
+      dependencies: [
+        vendedorRepository
       ],
       twinRepository: () => dxtClienteRepository
     });
@@ -7296,7 +9268,7 @@ var DXTVendedorRepository = class extends DXTUserRepository {
   }
 }, dxtVendedorRepository = new DXTVendedorRepository();
 
-// src/code.server/infrastucture/dxt/dxt_cliente.repository.ts
+// src/code.server/infrastucture/dxt/user/dxt_cliente.repository.ts
 var DXTClienteRepository = class extends DXTUserRepository {
   constructor() {
     super({
@@ -7309,8 +9281,8 @@ var DXTClienteRepository = class extends DXTUserRepository {
       tangoUserNotFoundErrorCode: 200009 /* TANGO_CUSTOMER_NO_LONGER_EXISTS */,
       screenNameFields: CLIENTE_NAME_COLUMNS,
       sortField: "RAZON_SOCI",
-      tableDependencies: [
-        CLIENTE_TABLE
+      dependencies: [
+        clienteRepository
       ],
       twinRepository: () => dxtVendedorRepository
     });
@@ -7348,6 +9320,422 @@ var DXTClienteRepository = class extends DXTUserRepository {
     };
   }
 }, dxtClienteRepository = new DXTClienteRepository();
+
+// src/code.server/api/dxt/articulo/services/_src/getArticlesWithTaxes.ts
+async function getArticlesWithTaxes(user, customer, alwaysIncludeArticlesWithoutPrice, splitInGroups) {
+  let dxtCustomer;
+  user.isVendor() && (dxtCustomer = await dxtClienteRepository.getOneOrNull("tango_id", customer.id));
+  let listId = customer.idLista, alternateListId = dxtCustomer != null ? dxtCustomer.id_lista_alternativa : user.idListaAlternativa?.valueOf(), alternateDiscount = dxtCustomer != null ? dxtCustomer.bonificacion_lista_alternativa : user.bonificacionListaAlternativa?.valueOf(), keepArticlesWithoutPrice = alwaysIncludeArticlesWithoutPrice || user.verSinPrecio.valueOf(), orderListExists = await dxtArticuloEditListRepository.count() > 0, cacheKey = `groupedArticles_${listId}_${alternateListId ?? "0"}_${orderListExists ? "OL" : "NOL"}_${splitInGroups ? "S" : "NS"}`, cachedData = await articuloRepository.cache.getMetadata(cacheKey);
+  if (cachedData != null)
+    return keepArticlesWithoutPrice ? cachedData : _removeArticlesWithoutPrice(cachedData);
+  let useOrderLists = orderListExists && splitInGroups, result;
+  if (useOrderLists) {
+    let data = await dxtArticuloEditListRepository.getArticlesWithTaxes(
+      listId,
+      alternateListId,
+      alternateDiscount
+    );
+    result = _splitByOrderListGroup(data);
+  } else {
+    let data = await articuloRepository.getArticlesWithTaxes(
+      listId,
+      alternateListId,
+      alternateDiscount
+    );
+    result = splitInGroups ? _splitByArticleCode(data) : { [ARTICLE_GROUP_NO_NAME]: data };
+  }
+  return await articuloRepository.cache.setMetadata(cacheKey, result), keepArticlesWithoutPrice ? result : _removeArticlesWithoutPrice(result);
+}
+function _removeArticlesWithoutPrice(articles) {
+  return Object.fromEntries(
+    Object.entries(articles).map(
+      ([groupName, articles2]) => [
+        groupName,
+        articles2.filter((a) => a.precio > 0)
+      ]
+    )
+  );
+}
+function _splitByOrderListGroup(data) {
+  let result = {}, currentList = null, lastGroupName = null;
+  return data.forEach((item) => {
+    isStr(item) ? (lastGroupName = item.trim(), lastGroupName.length == 0 && (lastGroupName = ARTICLE_GROUP_NO_NAME), currentList = result[lastGroupName], currentList == null && (currentList = [], result[lastGroupName] = currentList)) : (currentList == null && (currentList = [], result[ARTICLE_GROUP_NO_NAME] = currentList), item.id_lista != null && currentList.push(item));
+  }), result;
+}
+function _splitByArticleCode(data) {
+  let result = {}, currentList = null, lastGroupName = null, totalGroups = 0;
+  data.forEach((articulo) => {
+    let { codigo, id_lista } = articulo;
+    id_lista != null && (totalGroups += codigo.trim().split(" ").length);
+  });
+  let averageGroupCount = Math.round(data.length > 0 ? totalGroups / data.length : 0), groupNameLimit = averageGroupCount <= 1 ? 0 : averageGroupCount <= 2 ? 1 : 2;
+  return data.filter((articulo) => articulo.id_lista != null).forEach((articulo) => {
+    let { codigo } = articulo, possibleGroupName = codigo.trim().split(" ", groupNameLimit).map((g) => g.trim()).join(" ").toUpperCase(), currentGroupName = possibleGroupName.length > 0 ? possibleGroupName : ARTICLE_GROUP_NO_NAME;
+    currentGroupName !== lastGroupName && (lastGroupName = currentGroupName, currentList = result[lastGroupName] ?? [], result[lastGroupName] = currentList), currentList == null && (lastGroupName = ARTICLE_GROUP_NO_NAME, currentList = [], result[lastGroupName] = currentList), currentList.push(articulo);
+  }), result;
+}
+
+// src/code.server/api/dxt/articulo/services/index.ts
+async function getArticles(user, customer) {
+  let groupedArticles = await getArticlesWithTaxes(
+    user,
+    customer,
+    !0,
+    !1
+  );
+  console.log(Object.keys(groupedArticles));
+  let result = groupedArticles[ARTICLE_GROUP_NO_NAME];
+  return new Map(result.map((article) => [article.id, article]));
+}
+async function getGroupedArticles(user, customer) {
+  return await getArticlesWithTaxes(
+    user,
+    customer,
+    !1,
+    !0
+  );
+}
+
+// src/code.server/api/pedido/utils/adjustPrice.ts
+function adjustPrice(orderHeader, article, alicuotas, applyDiscount, forceTaxesDiscrimination) {
+  let { incluye_iva, incluye_ii, aplica_sobre_ii, aplica_sobre_iva } = orderHeader, discriminaIVA = forceTaxesDiscrimination ? !0 : orderHeader.discrimina_iva, discriminaII = forceTaxesDiscrimination ? !0 : orderHeader.discrimina_ii, { codigo_iva, codigo_ii, codigo_sobre_iva, codigo_sobre_ii } = article, ivaPercentage = codigo_iva != null ? alicuotas.get(codigo_iva) ?? 0 : 0, impuestoInternoPercentage = codigo_ii != null ? alicuotas.get(codigo_ii) ?? 0 : 0, sobreIVABruto = codigo_sobre_iva != null ? alicuotas.get(codigo_sobre_iva) ?? 0 : 0, sobreIIBruto = codigo_sobre_ii != null ? alicuotas.get(codigo_sobre_ii) ?? 0 : 0, sobreIVA = percentageToFactor(ivaPercentage * sobreIVABruto / 100), sobreII = percentageToFactor(impuestoInternoPercentage * sobreIIBruto / 100), iva = percentageToFactor(ivaPercentage), impuestoInterno = percentageToFactor(impuestoInternoPercentage), result = article.precio;
+  if (!incluye_iva && !discriminaIVA ? (result = result * iva, aplica_sobre_iva && (result = result * sobreIVA)) : incluye_iva && discriminaIVA && (result = result / iva / sobreIVA), !incluye_ii && !discriminaII ? (result = result * impuestoInterno, aplica_sobre_ii && (result = result * sobreII)) : incluye_ii && discriminaII && (result = result / impuestoInterno / sobreII), applyDiscount) {
+    let bonificacion = article.bonificacion ?? 0;
+    result = result - result * bonificacion / 100;
+  }
+  return result;
+}
+function percentageToFactor(value) {
+  let sign = value >= 0 ? 1 : -1;
+  return (1 + value / 100) * sign;
+}
+
+// src/code.server/api/pedido/services/startPedido/_src/prepareOrderGroupedArticles.ts
+async function prepareOrderGroupedArticles(user, originalOrder, newOrderHeader, customer, createNew) {
+  let articles = await getGroupedArticles(
+    user,
+    customer
+  ), alicuotas = await alicuotaRepository.getAllPercentages();
+  return createNew || originalOrder == null ? _addQuantitiesAndAdjustPrices(
+    newOrderHeader,
+    articles,
+    alicuotas
+  ) : _addQuantitiesAndAdjustPrices(
+    newOrderHeader,
+    articles,
+    alicuotas,
+    originalOrder.rows
+  );
+}
+function _addQuantitiesAndAdjustPrices(orderHeader, articles, alicuotas, rows) {
+  let quantities = rows != null ? new Map(rows.map((row) => [row.codigo_articulo, row])) : null;
+  return Object.fromEntries(
+    Object.entries(articles).map(
+      ([groupName, articles2]) => [
+        groupName,
+        articles2.map((article) => {
+          let {
+            codigo_iva,
+            codigo_sobre_iva,
+            codigo_ii,
+            codigo_sobre_ii,
+            ...remainingArticle
+          } = article, newPrice = adjustPrice(
+            orderHeader,
+            article,
+            alicuotas,
+            !0,
+            !1
+          ), row = quantities?.get(article.codigo);
+          return row == null ? {
+            ...remainingArticle,
+            precio: newPrice
+          } : {
+            ...remainingArticle,
+            precio: newPrice,
+            cantidad: row.cantidad
+          };
+        })
+      ]
+    )
+  );
+}
+
+// src/code.server/api/auxiliar/services/getAuxiliares.ts
+import _6 from "lodash";
+async function getAuxiliares(customerId) {
+  let [
+    preListas,
+    transportes,
+    preDepositos,
+    condiciones,
+    preAsientos,
+    preTalonarios,
+    preDirecciones
+  ] = await Promise.all([
+    listaRepository.getAll(),
+    transporteRepository.getAll(),
+    depositoRepository.getAll(),
+    condicionRepository.getAll(),
+    asientoRepository.getAll(),
+    talonarioRepository.getAll(),
+    direccionRepository.getByCustomer(customerId)
+  ]), listas = new Map(preListas.map((row) => [row.codigo, row])), asientos = _6.uniqWith(
+    preAsientos.filter((asiento) => asiento.codigo_cuenta == 0),
+    (a, b) => a.tipo == b.tipo
+  ), talonarios = preTalonarios.filter((talonario) => {
+    let { tipo, comprobante } = talonario;
+    return (comprobante == "" || comprobante == "FAC") && tipo != "X" && tipo != "R" && tipo != "";
+  }), direcciones = preDirecciones.filter((direccion) => direccion.habilitada), depositos = [
+    ...preDepositos,
+    {
+      id: 0,
+      code: "",
+      name: "MOSTRADOR"
+    }
+  ];
+  if (transportes.length == 0)
+    throw new DXTException(16007 /* EMPTY_TRANSPORTE_LIST */);
+  if (depositos.length == 0)
+    throw new DXTException(16008 /* EMPTY_DEPOSITO_LIST */);
+  if (condiciones.length == 0)
+    throw new DXTException(16009 /* EMPTY_CONDICION_LIST */);
+  if (asientos.length == 0)
+    throw new DXTException(16010 /* EMPTY_ASIENTO_LIST */);
+  if (talonarios.length == 0)
+    throw new DXTException(16011 /* EMPTY_TALONARIO_LIST */);
+  if (direcciones.length == 0)
+    throw new DXTException(16012 /* EMPTY_DIRECCION_LIST */);
+  return {
+    listas,
+    transportes,
+    depositos,
+    condiciones,
+    asientos,
+    talonarios,
+    direcciones
+  };
+}
+
+// src/code.server/api/dxt/user/services/getOptimalBillingProfile.ts
+async function getOptimalBillingProfile(user, originalOrder, customer, auxiliares) {
+  let userBillingProfile = await perfilRepository.getById(user.perfilFacturacionId.valueOf());
+  if ((originalOrder != null && !originalOrder.isDraft ? originalOrder : null)?.header.codigo_talonario != null)
+    return userBillingProfile;
+  let codigo_talonario;
+  if (user.isVendor()) {
+    let customerBillingProfileId = (await dxtClienteRepository.getOneOrNull("tango_id", customer.id))?.perfil_facturacion_id, customerBillingProfile = customerBillingProfileId != null ? await perfilRepository.getById(customerBillingProfileId) : null;
+    customerBillingProfile != null && (codigo_talonario = customerBillingProfile.codigo_talonario_factura);
+  }
+  codigo_talonario == null && (codigo_talonario = userBillingProfile.codigo_talonario_factura);
+  let optimalBillingProfile = {
+    ...userBillingProfile,
+    codigo_talonario_factura: codigo_talonario
+  };
+  if (customer.discriminaIVA)
+    return optimalBillingProfile;
+  let { talonarios } = await getAuxiliares(customer.id), selectedTalonario = talonarios.find((talonario) => talonario.code == codigo_talonario);
+  if (selectedTalonario != null && _talonarioConsumidorFinal(selectedTalonario))
+    return optimalBillingProfile;
+  let talonarioConsumidorFinal = talonarios.find((talonario) => _talonarioConsumidorFinal(talonario));
+  if (!talonarioConsumidorFinal)
+    throw new DXTException(10012 /* INVALID_CONSUMIDOR_FINAL_TALONARIO */);
+  return {
+    ...optimalBillingProfile,
+    codigo_talonario_factura: talonarioConsumidorFinal.code
+  };
+}
+function _talonarioConsumidorFinal(talonario) {
+  let { tipo } = talonario;
+  return tipo == "B" || tipo == "C";
+}
+
+// src/code.server/api/pedido/services/_src/prepareOrderHeader.ts
+async function prepareOrderHeader(user, originalOrder, customer, billingProfile, auxiliares, createNew, startDraft) {
+  if (!createNew && originalOrder == null)
+    throw new DXTException(899e3 /* INTERNAL_SERVER_ERROR */, "prepareOrderHeader() -> createNew must be true if originalOrder is null");
+  let originalOrderIsDraft = originalOrder?.isDraft === !0, sameType = originalOrderIsDraft == startDraft;
+  if (!createNew && !sameType)
+    throw new DXTException(899e3 /* INTERNAL_SERVER_ERROR */, "prepareOrderHeader() -> When createNew is false, both originalOrder.isDraft and startDraft must be the same");
+  let vendorId = user.vendedorId?.valueOf();
+  if (vendorId == null)
+    throw new DXTException(899e3 /* INTERNAL_SERVER_ERROR */, "prepareOrderHeader() -> vendorId is null");
+  let vendor = await vendedorRepository.getById(vendorId), {
+    depositos,
+    talonarios,
+    transportes,
+    listas,
+    condiciones,
+    asientos,
+    direcciones
+  } = auxiliares, {
+    discriminaIVA,
+    discriminaII,
+    aplicaSobreIVA,
+    aplicaSobreII
+  } = customer, bonificacion_editable = billingProfile.bonificacion_editable, descripcion = startDraft && originalOrder != null ? originalOrder.header.descripcion : "", comentarios = originalOrder != null ? originalOrder.header.comentarios : "", realOrder = originalOrder != null && !originalOrder.isDraft ? originalOrder : null, updatingRealOrder = createNew == !1 && startDraft == !1 && realOrder != null, ignoreOriginalOrderId = createNew || originalOrder == null || !sameType, orderId = ignoreOriginalOrderId ? void 0 : originalOrder.header.id, numeroPedido = ignoreOriginalOrderId ? void 0 : originalOrder.header.numero_pedido, bonificacion = (bonificacion_editable ? originalOrder?.header.descuento : billingProfile.bonificacion) ?? billingProfile.bonificacion ?? customer.bonificacion, originalDeliveryDate = originalOrderIsDraft ? null : originalOrder?.header.fecha_entrega, creationDate = (createNew || originalOrderIsDraft ? /* @__PURE__ */ new Date() : originalOrder?.header.fecha_alta) ?? /* @__PURE__ */ new Date(), deliveryDate = createNew || originalDeliveryDate == null ? addDays(creationDate, user.diaDeEntrega.valueOf()) : originalDeliveryDate, {
+    codigo_lista_precio,
+    deposito_editable,
+    transporte_editable,
+    condicion_editable,
+    asiento_editable,
+    talonario_editable,
+    direccion_editable,
+    compromete_stock
+  } = billingProfile, bp = billingProfile, codigo_transporte = updatingRealOrder && transporte_editable ? realOrder.header.codigo_transporte : bp.codigo_transporte, codigo_deposito = updatingRealOrder && deposito_editable ? realOrder.header.codigo_deposito : bp.codigo_deposito, codigo_condicion_venta = updatingRealOrder && condicion_editable ? realOrder.header.codigo_condicion : bp.codigo_condicion_venta, codigo_asiento = updatingRealOrder && talonario_editable ? realOrder.header.codigo_asiento : bp.codigo_asiento, codigo_talonario_factura = updatingRealOrder && talonario_editable ? realOrder.header.codigo_talonario : bp.codigo_talonario_factura, codigo_direccion = direcciones.find((direccion) => direccion.habitual)?.code ?? direcciones[0].code, lista = listas.get(codigo_lista_precio);
+  if (lista == null)
+    throw new DXTException(899e3 /* INTERNAL_SERVER_ERROR */, "prepareOrderHeader() -> Lista de precios inexistente");
+  return {
+    es_borrador: startDraft,
+    descripcion,
+    comentarios,
+    id_pedido: orderId,
+    numero_pedido: numeroPedido,
+    id_cliente: customer.id,
+    nombre_cliente: customer.screen_name,
+    id_vendedor: vendorId,
+    nombre_vendedor: vendor.screen_name,
+    compromete_stock,
+    bonificacion,
+    bonificacion_editable,
+    fecha_alta: dateToISOStringZ(creationDate),
+    fecha_alta_editable: billingProfile.fecha_editable,
+    fecha_entrega: dateToISOStringZ(deliveryDate),
+    fecha_entrega_editable: billingProfile.fecha_editable,
+    transportes: _setSelectedItem(transportes, transporte_editable, 16001 /* UNKNOWN_TRANSPORTE */, codigo_transporte, (el) => el.code == codigo_transporte),
+    depositos: _setSelectedItem(depositos, deposito_editable, 16002 /* UNKNOWN_DEPOSITO */, codigo_deposito, (el) => codigo_deposito == null && el.code == "" || el.code == codigo_deposito),
+    condiciones: _setSelectedItem(condiciones, condicion_editable, 16003 /* UNKNOWN_CONDICION */, codigo_condicion_venta, (el) => el.code == codigo_condicion_venta),
+    asientos: _setSelectedItem(asientos, asiento_editable, 16004 /* UNKNOWN_ASIENTO */, codigo_asiento, (el) => el.code == codigo_asiento),
+    talonarios: _setSelectedItem(talonarios, talonario_editable, 16005 /* UNKNOWN_TALONARIO */, codigo_talonario_factura, (el) => el.code == codigo_talonario_factura),
+    direcciones: _setSelectedItem(direcciones, direccion_editable, 16006 /* UNKNOWN_DIRECCION */, codigo_direccion, (el) => el.code == codigo_direccion),
+    transporte_editable,
+    deposito_editable,
+    condicion_editable,
+    asiento_editable,
+    talonario_editable,
+    direccion_editable,
+    incluye_iva: lista.incluye_iva,
+    incluye_ii: lista.incluye_ii,
+    discrimina_iva: discriminaIVA,
+    discrimina_ii: discriminaII,
+    aplica_sobre_iva: aplicaSobreIVA,
+    aplica_sobre_ii: aplicaSobreII
+  };
+}
+function _setSelectedItem(list, editable, unknownElementError, targetValue, checkSelected) {
+  if (targetValue == null)
+    return list;
+  if (editable)
+    return list.map((el) => ({
+      ...el,
+      selected: checkSelected?.(el) ?? !1
+    }));
+  if (checkSelected == null)
+    throw new DXTException(899e3 /* INTERNAL_SERVER_ERROR */, "_setSelectedItem -> <checkSelected> must be defined when <editable> is false");
+  let result = list.filter((el) => checkSelected(el));
+  if (result.length == 0)
+    throw new DXTException(unknownElementError, valueToString(targetValue));
+  return result;
+}
+
+// src/code.server/api/pedido/services/startPedido/_src/prepareStartValues.ts
+async function prepareStartValues(user, originalOrder, customerId, createNew, startDraft) {
+  let customer = await clienteRepository.getExtendedById(customerId), auxiliares = await getAuxiliares(customerId), billingProfile = await getOptimalBillingProfile(
+    user,
+    originalOrder,
+    customer,
+    auxiliares
+  ), header = await prepareOrderHeader(
+    user,
+    originalOrder,
+    customer,
+    billingProfile,
+    auxiliares,
+    createNew,
+    startDraft
+  ), groupedArticles = await prepareOrderGroupedArticles(
+    user,
+    originalOrder,
+    header,
+    customer,
+    createNew
+  );
+  return {
+    cabecera: header,
+    articulos: groupedArticles
+  };
+}
+
+// src/code.server/api/pedido/services/startPedido/index.ts
+async function startPedido(user, params) {
+  let { mode: mode5 } = params, createNew = mode5 != 0 /* edit */;
+  if (createNew && !user.puedeCrearPedido.valueOf())
+    throw new DXTException(101009 /* USER_CANNOT_CREATE_ORDERS */);
+  if (!createNew && !user.puedeEditarPedido.valueOf())
+    throw new DXTException(101010 /* USER_CANNOT_UPDATE_ORDERS */);
+  let startDraft = mode5 == 0 /* edit */ ? params.isDraft : params.createDraft, originalOrder = mode5 == 1 /* create */ ? null : await getOrderWithRows(params.idPedido, user, params.isDraft, !1, !1);
+  if (originalOrder != null && originalOrder.header.estado != 1 /* INGRESADO */)
+    throw new DXTException(101013 /* FORBIDDEN_UPDATE_OF_ORDER_IN_PROCESS */);
+  let idCliente = mode5 == 1 /* create */ ? params.idCliente : originalOrder.header.id_cliente;
+  return {
+    ...await prepareStartValues(
+      user,
+      originalOrder,
+      idCliente,
+      createNew,
+      startDraft
+    ),
+    eliminar_borrador: mode5 == 2 /* createCopy */ && params.isDraft && !params.createDraft && params.deleteOriginal
+  };
+}
+
+// src/code.server/api/root.controller.ts
+var RootController = class extends ApiController {
+  async onError(e, req) {
+    let finalE = e instanceof ValidationException && isProduction() ? new ValidationException(VALIDATION_ERROR) : e, dxtError = exceptionToDXTErrorInfo(finalE), {
+      status: originalStatus,
+      error_code,
+      extra,
+      message_to_user
+    } = dxtError, status = originalStatus === HTTP_STATUS_UNAVAILABLE ? getHttpStatusFromErrorCode(error_code) : originalStatus, error_description = getDXTErrorDescription(error_code);
+    return requiresContactingAdmin(error_code) && (error_description = error_description.toLocaleUpperCase() + ". Si el problema persiste contacte al administrador."), jsonResponse(
+      {
+        status,
+        error_description,
+        error_code,
+        extra,
+        message_to_user
+      },
+      {
+        status
+      }
+    );
+  }
+}, rootController = new RootController();
+
+// src/@depsel-nodejs/crypto/utils.ts
+import * as crypto from "crypto";
+function sha1ToString(value, secret, encoding = "hex") {
+  return crypto.createHmac("SHA1", secret).update(value).digest(encoding);
+}
+
+// src/code.server/api/auth/value_objects/vo_auth_token.ts
+var AUTH_SECRET = "Ema0PpqK0jMhUl64n5q6ZVhc1WukcYSpKW8GdaQCd1b0W7jh6rwvyopI8UB7DBaU", VOAuthToken = class extends VOWeakCheckAuthToken {
+  validate(rawValue) {
+    if (rawValue instanceof AuthTokenProps)
+      return rawValue;
+    if (typeof rawValue == "string") {
+      let value = rawValue.trim().toLowerCase(), p = value.lastIndexOf("-");
+      p < 0 && this.throwError(rawValue);
+      let result = super.validate(value), payloadHash = sha1ToString(value.substring(0, p), AUTH_SECRET), weakCheckTokenHash = this.verificationHash?.toString();
+      return payloadHash !== weakCheckTokenHash && this.throwError(rawValue), result;
+    }
+    this.throwError(rawValue);
+  }
+  getVerificationHashString() {
+    return sha1ToString(this.getPayloadString(), AUTH_SECRET);
+  }
+};
 
 // src/code.server/infrastucture/auth/auth_token.repository.ts
 import path5, { join as join3 } from "path";
@@ -7407,6 +9795,7 @@ var _tokensPath = path5.join(cachePath, "tokens"), AuthTokenRepository = class {
     do
       authToken = new VOAuthToken(
         new AuthTokenProps(
+          user.universalId.valueOf(),
           user.id.valueOf(),
           VOAuthRandom.generate().valueOf(),
           userRoleToNumber(user.role.valueOf())
@@ -7433,23 +9822,23 @@ async function connectWorker(authTokenString) {
       throw new DXTException(100004 /* MISSING_AUTH_TOKEN */);
     authTokenRepository.save(token);
   }
-  let tokenProps = token.valueOf(), userId = tokenProps.userId.valueOf(), role = numberToUserRole(tokenProps.roleNumber.valueOf());
+  let tokenProps = token.valueOf(), role = numberToUserRole(tokenProps.roleNumber.valueOf());
   if (role === 2 /* admin */) {
     let settings3 = await settingsService.getMiscSettings();
     return {
       auth_token: authTokenString,
-      user: createAdminUserEntity(settings3.admin_email)
+      user: createAdminUserEntity(settings3.admin_email, settings3.admin_password_hash)
     };
   }
-  let result;
+  let universalId = tokenProps.universalId.valueOf();
   if (role === 0 /* customer */)
-    return await _testUserConnect(dxtClienteRepository, userId, token, 200009 /* TANGO_CUSTOMER_NO_LONGER_EXISTS */);
+    return await _testUserConnect(dxtClienteRepository, token, 200009 /* TANGO_CUSTOMER_NO_LONGER_EXISTS */);
   if (role === 1 /* vendor */)
-    return await _testUserConnect(dxtVendedorRepository, userId, token, 200010 /* TANGO_VENDOR_NO_LONGER_EXISTS */);
+    return await _testUserConnect(dxtVendedorRepository, token, 200010 /* TANGO_VENDOR_NO_LONGER_EXISTS */);
   throw new DXTException(100004 /* MISSING_AUTH_TOKEN */);
 }
-async function _testUserConnect(repository, userId, authToken, tangoUserNotFoundErrorCode) {
-  let userUnsafe = await repository.getUserWithRelationsById(userId, !1), userEntity;
+async function _testUserConnect(repository, authToken, tangoUserNotFoundErrorCode) {
+  let userId = authToken.valueOf().userId.valueOf(), userUnsafe = await repository.getUserWithRelationsById(userId, !1), userEntity;
   try {
     userEntity = new UserEntity(userUnsafe);
   } catch (e) {
@@ -7471,7 +9860,7 @@ async function loginWorker(username, password) {
   if (username.toLocaleLowerCase() === ADMIN_USERNAME.toLowerCase()) {
     let settings3 = await settingsService.getMiscSettings();
     if (passwordHash === settings3.admin_password_hash) {
-      let user = createAdminUserEntity(settings3.admin_email);
+      let user = createAdminUserEntity(settings3.admin_email, settings3.admin_password_hash);
       return await authTokenRepository.createUserAuthToken(user);
     }
     throw new DXTException(100001 /* INVALID_USERNAME_OR_PASSWORD */);
@@ -7512,27 +9901,22 @@ async function _testUserLogin(repository, username, passwordHash, tangoUserNotFo
 }
 
 // src/code.server/infrastucture/auth/workers/change_password.worker.ts
-async function changePasswordWorker(role, id, password) {
-  let passwordHash = getPasswordHash(password);
-  switch (role) {
-    case 2 /* admin */: {
-      let settings3 = await settingsService.getMiscSettings();
-      await settingsService.setMiscSettings(
-        new StoredMiscSettingsDTO({
-          ...settings3,
-          admin_password_hash: passwordHash
-        })
-      );
-      return;
-    }
-    case 0 /* customer */:
-      await dxtClienteRepository.changePassword(id, passwordHash);
-      return;
-    case 1 /* vendor */:
-      await dxtVendedorRepository.changePassword(id, passwordHash);
-      return;
+async function changePasswordWorker(user, oldPassword, newPassword) {
+  let oldPasswordHash = getPasswordHash(oldPassword);
+  if (user.passwordHash.valueOf() != oldPasswordHash)
+    throw new DXTException(10004 /* INVALID_OLD_PASSWORD */);
+  let newPasswordHash = getPasswordHash(newPassword), role = user.role.valueOf();
+  if (role == 2 /* admin */) {
+    let settings3 = await settingsService.getMiscSettings();
+    await settingsService.setMiscSettings(
+      new StoredMiscSettingsDTO({
+        ...settings3,
+        admin_password_hash: newPasswordHash
+      })
+    );
+    return;
   }
-  throw new DXTException(0 /* UNEXPECTED_ERROR */, "AuthRepository.changepassword");
+  await (role == 0 /* customer */ ? dxtClienteRepository : dxtVendedorRepository).changePassword(user.id.valueOf(), newPasswordHash);
 }
 
 // src/code.server/infrastucture/auth/auth.service.ts
@@ -7602,6 +9986,9 @@ var idClienteValidationOptions = {
   validation: {
     params: {
       id_pedido: integerValidator
+    },
+    query: {
+      delete_draft: optionalBooleanValidator
     }
   }
 };
@@ -7611,9 +9998,8 @@ async function _startNew(user, createDraft) {
   let { tangoId, role } = user;
   if (tangoId == null || !role.isCustomer())
     throw new DXTException(101001 /* CUSTOMER_ROLE_REQUIRED */);
-  return await startPedido({
+  return await startPedido(user, {
     mode: 1 /* create */,
-    user,
     idCliente: tangoId.valueOf(),
     createDraft
   });
@@ -7622,20 +10008,20 @@ async function _startNewForCustomer(user, idCliente, createDraft) {
   let { tangoId, role } = user;
   if (tangoId == null || !role.isVendor())
     throw new DXTException(101002 /* VENDOR_ROLE_REQUIRED */);
-  return await startPedido({
+  return await startPedido(user, {
     mode: 1 /* create */,
-    user,
     idCliente,
     createDraft
   });
 }
-async function _startNewFromCopy(user, isDraft, idPedido, createDraft) {
-  return await startPedido({
+async function _startNewFromCopy(user, isDraft, idPedido, createDraft, deleteOriginal) {
+  let finalDeleteOriginal = isDraft && !createDraft && deleteOriginal === !0;
+  return await startPedido(user, {
     mode: 2 /* createCopy */,
-    user,
     isDraft,
     idPedido,
-    createDraft
+    createDraft,
+    deleteOriginal: finalDeleteOriginal
   });
 }
 var startNewDraftEndpoint = createApiEndpoint(
@@ -7657,18 +10043,16 @@ var startNewDraftEndpoint = createApiEndpoint(
 ), startOrderUpdateEndpoint = createApiEndpoint(
   customerAndVendorRootController,
   idPedidoValidationOptions,
-  async (req) => await startPedido({
+  async (req) => await startPedido(req.auth.user, {
     mode: 0 /* edit */,
-    user: req.auth.user,
     isDraft: !1,
     idPedido: req.validated.params.id_pedido
   })
 ), startDraftUpdateEndpoint = createApiEndpoint(
   customerAndVendorRootController,
   idPedidoValidationOptions,
-  async (req) => await startPedido({
+  async (req) => await startPedido(req.auth.user, {
     mode: 0 /* edit */,
-    user: req.auth.user,
     isDraft: !0,
     idPedido: req.validated.params.id_pedido
   })
@@ -7679,7 +10063,7 @@ var startNewDraftEndpoint = createApiEndpoint(
 ), startNewOrderFromExistingDraftEndpoint = createApiEndpoint(
   customerAndVendorRootController,
   idPedidoValidationOptions,
-  async (req) => await _startNewFromCopy(req.auth.user, !0, req.validated.params.id_pedido, !1)
+  async (req) => await _startNewFromCopy(req.auth.user, !0, req.validated.params.id_pedido, !1, req.validated.query.delete_draft)
 ), startNewDraftFromExistingOrderEndpoint = createApiEndpoint(
   customerAndVendorRootController,
   idPedidoValidationOptions,
@@ -7702,33 +10086,287 @@ var VOOrderRows = class extends ValueObject {
 };
 
 // src/domain/pedido/inputs/pedido.ts
-var updateDraftInputSchema = {
+var COMENTARIOS_MAX_LENGTH = 120, DESCRIPCION_MAX_LENGTH = 120, baseInputSchema = {
+  comentarios: (v) => new VOTrimmedString(v, COMENTARIOS_MAX_LENGTH),
   bonificacion: (v) => new VOUInt32(v),
   id_transporte: (v) => new VOUInt32(v),
   id_deposito: (v) => new VOUInt32(v),
   id_condicion: (v) => new VOUInt32(v),
   id_asiento: (v) => new VOUInt32(v),
   id_talonario: (v) => new VOUInt32(v),
+  id_direccion: (v) => new VOUInt32(v),
   renglones: (v) => new VOOrderRows(v)
-}, createDraftInputSchema = {
-  ...updateDraftInputSchema,
-  id_cliente: (v) => new VOUInt32(v)
-}, updateOrderInputSchema = {
-  ...updateDraftInputSchema,
+}, baseDraftInputSchema = {
+  ...baseInputSchema,
+  descripcion: (v) => new VONotEmptyString(v, DESCRIPCION_MAX_LENGTH)
+}, baseOrderInputSchema = {
+  ...baseInputSchema,
   fecha_alta: (v) => new VODate(v),
   fecha_entrega: (v) => new VODate(v)
-}, createOrderInputSchema = {
-  ...updateOrderInputSchema,
+}, updateDraftInputSchema = {
+  ...baseDraftInputSchema,
+  id_pedido: (v) => new VOUInt32(v)
+}, createDraftInputSchema = {
+  ...baseDraftInputSchema,
   id_cliente: (v) => new VOUInt32(v)
-}, validateUpdateDraftInput = (input) => validateInput(updateDraftInputSchema, input), validateCreateDraftInput = (input) => validateInput(createDraftInputSchema, input), validateUpdateOrderInput = (input) => validateInput(updateOrderInputSchema, input), validateCreateOrderInput = (input) => validateInput(createOrderInputSchema, input);
+}, updateOrderInputSchema = {
+  ...baseOrderInputSchema,
+  id_pedido: (v) => new VOUInt32(v)
+}, createOrderInputSchema = {
+  ...baseOrderInputSchema,
+  id_cliente: (v) => new VOUInt32(v)
+}, validateUpdateDraftInput = (input) => validateInput(updateDraftInputSchema, input), validateCreateDraftInput = (input) => validateInput(createDraftInputSchema, input);
+function _extraValidation(values) {
+  let { fecha_alta, fecha_entrega } = values;
+  if (fecha_entrega < fecha_alta)
+    throw new DXTException(10011 /* DELIVERY_DATE_IS_EARLIER */);
+}
+var validateUpdateOrderInput = (input) => validateInput(updateOrderInputSchema, input, (v) => (_extraValidation(v), v)), validateCreateOrderInput = (input) => validateInput(createOrderInputSchema, input, (v) => (_extraValidation(v), v));
+
+// src/code.server/api/pedido/services/savePedido/_src/createOrUpdateOrder.ts
+async function createOrUpdateOrder(user, customer, order) {
+  let repository = order.saveDraft ? getDraftRepository(user) : pedidoRepository;
+  return order.idPedido != null ? await repository.update(customer, order) : await repository.create(customer, order);
+}
+
+// src/code.server/infrastucture/dxt/articulo/dxt_articulo_print_list.repository.ts
+var DXTArticuloPrintListRepository = class extends DXTArticuloListRepository {
+  constructor() {
+    super({
+      mainTable: DXT_ARTICULO_PRINT_LIST_TABLE,
+      dependencies: [
+        articuloRepository
+      ]
+    });
+    this.mainColumns = [`${DXT_ARTICULO_PRINT_LIST_TABLE}.*`], this.articuloColumns = [ARTICULO_ID_FIELD].map((c) => `${ARTICULO_TABLE}.${c}`);
+  }
+  async getIdsWithParams(paramsToReturn) {
+    let cacheKey = `ids_${paramsToReturn?.join(".")}`, resultFromCache = await this.cache.getMetadata(cacheKey);
+    if (resultFromCache != null)
+      return resultFromCache;
+    let { mainTable } = this.config, rawData = await (await this.getCompany())(mainTable).select(...this.mainColumns, ...this.articuloColumns).innerJoin(ARTICULO_TABLE, `${mainTable}.${DXT_LIST_ARTICULO_CODE_FIELD}`, `${ARTICULO_TABLE}.${ARTICULO_CODE_FIELD}`).orderBy(DXT_LIST_ARTICULO_ID_FIELD);
+    if (rawData == null)
+      throw new DXTException(11e3 /* NOT_FOUND */);
+    let data = rawData.map((m) => this.toArticuloIdResult(m, paramsToReturn));
+    return await this.cache.setMetadata(cacheKey, data), data;
+  }
+  toArticuloIdResult(m, paramsToReturn) {
+    let { [ARTICULO_ID_FIELD]: id_articulo } = m, params = strToDXTArticuloListParams(m.params);
+    if (paramsToReturn.length == 0)
+      return params != null ? [id_articulo, params] : id_articulo;
+    let filteredParamsEntries = params == null ? null : Object.entries(params).filter(
+      ([key, _14]) => paramsToReturn.includes(key)
+    );
+    return filteredParamsEntries != null && filteredParamsEntries.length > 0 ? [id_articulo, Object.fromEntries(filteredParamsEntries)] : id_articulo;
+  }
+}, dxtArticuloPrintListRepository = new DXTArticuloPrintListRepository();
+
+// src/code.server/api/pedido/services/savePedido/_src/validateInputRows.ts
+async function validateInputRows(user, originalOrder, customer, billingProfile, auxiliares, validatedOrderHeader, inputRows) {
+  let articles = await getArticles(user, customer), rawResult = inputRows.map((row) => _validateOrderRow(
+    row,
+    articles.get(row.id)
+  )), rowsOrder = await dxtArticuloPrintListRepository.getAll(), result = rawResult, total = _calculateTotal(
+    result
+  );
+  return {
+    ...validatedOrderHeader,
+    total,
+    rows: result
+  };
+}
+function _validateOrderRow(row, article) {
+  let {
+    quantity
+  } = row;
+  if (article == null)
+    throw new DXTException(10013 /* INACCESIBLE_ORDER_ROW_ARTICLE */);
+  let {
+    id,
+    codigo,
+    precio,
+    bonificacion,
+    id_medida_stock,
+    id_medida_stock_2,
+    id_medida_ventas
+  } = article;
+  return {
+    idArticle: id,
+    codeArticle: codigo,
+    quantity,
+    price: precio,
+    discount: bonificacion,
+    idMedidaStock: id_medida_stock,
+    idMedidaStock2: id_medida_stock_2,
+    idMedidaVentas: id_medida_ventas,
+    unidadMedidaSeleccionada: "P"
+  };
+}
+function _calculateTotal(rows) {
+  let total = 0;
+  return rows.forEach((row) => {
+    total += row.quantity * (row.price ?? 0);
+  }), total;
+}
+
+// src/code.server/api/pedido/services/savePedido/_src/validateInputHeader.ts
+async function validateInputHeader(user, originalOrder, customer, params, billingProfile, auxiliares) {
+  let {
+    mode: mode5,
+    saveDraft,
+    input
+  } = params, createNew = mode5 == 0 /* create */;
+  if (saveDraft && await getDraftRepository(user).descriptionExists(
+    customer.id,
+    input.descripcion
+  ))
+    throw new DXTException(14002 /* DUPLICATED_DRAFT_DESCRIPTION */);
+  let {
+    comentarios,
+    renglones
+  } = input, initialOrderHeader = await prepareOrderHeader(
+    user,
+    originalOrder,
+    customer,
+    billingProfile,
+    auxiliares,
+    createNew,
+    saveDraft
+  ), {
+    transportes,
+    depositos,
+    condiciones,
+    asientos,
+    talonarios,
+    direcciones,
+    transporte_editable,
+    deposito_editable,
+    condicion_editable,
+    asiento_editable,
+    talonario_editable,
+    direccion_editable,
+    bonificacion_editable
+  } = initialOrderHeader, estado = user.aprobarPedidoAlCrear.valueOf() ? 2 /* APROBADO */ : 1 /* INGRESADO */, {
+    idAsientoModelo,
+    compromete_stock
+  } = billingProfile, [idTransporte, codigoTransporte] = _checkSelection(transportes, transporte_editable, input.id_transporte, 10005 /* INVALID_TRANSPORTE */), [idDeposito, codigoDeposito] = _checkSelection(depositos, deposito_editable, input.id_deposito, 10006 /* INVALID_DEPOSITO */), [idCondicion, codigoCondicion] = _checkSelection(condiciones, condicion_editable, input.id_condicion, 10007 /* INVALID_CONDICION */), [idAsiento, codigoAsiento] = _checkSelection(asientos, asiento_editable, input.id_asiento, 10008 /* INVALID_ASIENTO */), [idTalonario, codigoTalonario] = _checkSelection(talonarios, talonario_editable, input.id_talonario, 10009 /* INVALID_TALONARIO */), idDireccionDeEntrega = direcciones[0].id, validatedDiscount = limitNumber(
+    bonificacion_editable ? input.bonificacion : initialOrderHeader.bonificacion,
+    0,
+    100
+  );
+  return {
+    idTransporte,
+    codigoTransporte,
+    idDeposito,
+    codigoDeposito,
+    idCondicion,
+    codigoCondicion,
+    idAsiento,
+    codigoAsiento,
+    idTalonario,
+    codigoTalonario,
+    idDireccionDeEntrega,
+    bonificacion: validatedDiscount,
+    comentarios,
+    comprometeStock: compromete_stock,
+    estado,
+    idAsientoModelo
+  };
+}
+function _checkSelection(list, isEditable, selectedId, errorCode) {
+  let pickFirst = !isEditable, index = list.findIndex((item) => pickFirst || item.id == selectedId);
+  if (index < 0)
+    throw new DXTException(errorCode);
+  return [
+    list[index].id,
+    list[index].code
+  ];
+}
+
+// src/code.server/api/pedido/services/savePedido/_src/validateInputParams.ts
+async function validateInputParams(user, originalOrder, customer, params) {
+  let auxiliares = await getAuxiliares(customer.id), billingProfile = await getOptimalBillingProfile(
+    user,
+    originalOrder,
+    customer,
+    auxiliares
+  ), validatedOrderHeader = await validateInputHeader(
+    user,
+    originalOrder,
+    customer,
+    params,
+    billingProfile,
+    auxiliares
+  ), validatedOrder = await validateInputRows(
+    user,
+    originalOrder,
+    customer,
+    billingProfile,
+    auxiliares,
+    validatedOrderHeader,
+    params.input.renglones
+  ), {
+    mode: mode5,
+    saveDraft,
+    input
+  } = params, idPedido = mode5 == 1 /* update */ ? params.idPedido : null;
+  if (saveDraft) {
+    let descripcion = input.descripcion;
+    return {
+      ...validatedOrder,
+      saveDraft,
+      idPedido,
+      descripcion
+    };
+  }
+  let fechaIngreso = (originalOrder?.isDraft === !1 ? originalOrder : null)?.header.fecha_ingreso ?? /* @__PURE__ */ new Date(), fechaPedido = input.fecha_alta, fechaEntrega = input.fecha_entrega;
+  return {
+    ...validatedOrder,
+    saveDraft,
+    idPedido,
+    fechaIngreso,
+    fechaPedido,
+    fechaEntrega
+  };
+}
+
+// src/code.server/api/pedido/services/cancelPedido.ts
+async function cancelPedido(user, idPedido) {
+  let deleteOrder = user.borrarPedidoAlAnular.valueOf();
+  if (!user.puedeAnularPedido.valueOf())
+    throw deleteOrder ? new DXTException(101012 /* USER_CANNOT_DELETE_ORDERS */) : new DXTException(101011 /* USER_CANNOT_CANCEL_ORDERS */);
+  let pedidoOriginal = await getOrderWithRows(idPedido, user, !1, !0, !0), { header } = pedidoOriginal, currentStatus = header.estado;
+  if (!(currentStatus == 1 /* INGRESADO */ || currentStatus == 2 /* APROBADO */ && user.aprobarPedidoAlCrear.valueOf() || (currentStatus == 100 /* EN_PROGRESO */ || currentStatus == 5 /* ANULADO */) && user.isAdmin()))
+    throw new DXTException(101011 /* USER_CANNOT_CANCEL_ORDERS */);
+  deleteOrder ? await pedidoRepository.deleteById(idPedido) : await pedidoRepository.cancel(idPedido);
+}
 
 // src/code.server/api/pedido/services/savePedido/index.ts
-async function savePedido(params) {
-  let { user, mode: mode4 } = params, createNew = mode4 == 0 /* createDraft */ || mode4 == 1 /* createOrder */, saveDraft = mode4 == 0 /* createDraft */ || mode4 == 2 /* updateDraft */;
-  return {
-    id_pedido: 999,
-    numero_pedido: "00000000999"
-  };
+async function savePedido(user, params) {
+  let { mode: mode5, saveDraft, input } = params, createNew = mode5 == 0 /* create */;
+  if (user.isAdmin())
+    throw new DXTException(101004 /* CUSTOMER_OR_VENDOR_ROLE_REQUIRED */);
+  if (createNew && !user.puedeCrearPedido.valueOf())
+    throw new DXTException(101009 /* USER_CANNOT_CREATE_ORDERS */);
+  if (!createNew && !user.puedeEditarPedido.valueOf())
+    throw new DXTException(101010 /* USER_CANNOT_UPDATE_ORDERS */);
+  let originalIsDraft = mode5 == 1 /* update */ && saveDraft, originalOrder = mode5 == 1 /* update */ ? await getOrderWithRows(input.id_pedido, user, originalIsDraft, !1, !1) : null;
+  if (originalOrder != null && originalOrder.header.estado != 1 /* INGRESADO */)
+    throw new DXTException(101013 /* FORBIDDEN_UPDATE_OF_ORDER_IN_PROCESS */);
+  let idCliente = mode5 == 1 /* update */ ? originalOrder.header.id_cliente : input.id_cliente, customer = await clienteRepository.getExtendedById(idCliente), idCustomerVendedor = customer.idVendedor;
+  if (user.isVendor() && idCustomerVendedor != user.vendedorId?.valueOf())
+    throw new DXTException(101006 /* CUSTOMER_DOES_NOT_BELONGS_TO_VENDOR */);
+  let validatedOrder = await validateInputParams(
+    user,
+    originalOrder,
+    customer,
+    params
+  ), result = await createOrUpdateOrder(user, customer, validatedOrder);
+  return params.mode == 0 /* create */ && !params.saveDraft && params.draftIdToDelete != null && await cancelPedido(
+    user,
+    params.draftIdToDelete,
+    !0
+  ), result;
 }
 
 // src/code.server/api/pedido/endpoints/create.ts
@@ -7736,13 +10374,17 @@ var createOrderEndpoint = createApiEndpoint(
   customerAndVendorRootController,
   {
     validation: {
-      body: validateCreateOrderInput
+      body: validateCreateOrderInput,
+      query: {
+        draft_id_to_delete: optionalIntegerValidator
+      }
     }
   },
-  async (req) => await savePedido({
-    user: req.auth.user,
-    mode: 1 /* createOrder */,
-    input: req.validated.body
+  async (req) => await savePedido(req.auth.user, {
+    mode: 0 /* create */,
+    saveDraft: !1,
+    input: req.validated.body,
+    draftIdToDelete: req.validated.query.draft_id_to_delete
   })
 ), createDraftEndpoint = createApiEndpoint(
   customerAndVendorRootController,
@@ -7751,9 +10393,9 @@ var createOrderEndpoint = createApiEndpoint(
       body: validateCreateDraftInput
     }
   },
-  async (req) => await savePedido({
-    user: req.auth.user,
-    mode: 0 /* createDraft */,
+  async (req) => await savePedido(req.auth.user, {
+    mode: 0 /* create */,
+    saveDraft: !0,
     input: req.validated.body
   })
 );
@@ -7770,9 +10412,9 @@ var updateOrderEndpoint = createApiEndpoint(
       body: validateUpdateOrderInput
     }
   },
-  async (req) => await savePedido({
-    user: req.auth.user,
-    mode: 3 /* updateOrder */,
+  async (req) => await savePedido(req.auth.user, {
+    mode: 1 /* update */,
+    saveDraft: !1,
     idPedido: req.validated.params.id_pedido,
     input: req.validated.body
   })
@@ -7784,50 +10426,37 @@ var updateOrderEndpoint = createApiEndpoint(
       body: validateUpdateDraftInput
     }
   },
-  async (req) => await savePedido({
-    user: req.auth.user,
-    mode: 2 /* updateDraft */,
+  async (req) => await savePedido(req.auth.user, {
+    mode: 1 /* update */,
+    saveDraft: !0,
     idPedido: req.validated.params.id_pedido,
     input: req.validated.body
   })
 );
 
-// src/code.server/api/pedido/services/cancelPedido.ts
-async function cancelPedido(user, idPedido, isDraft) {
-  let deleteOrder = isDraft || user.borrarPedidoAlAnular.valueOf();
-  if (!user.puedeAnularPedido.valueOf())
-    throw deleteOrder ? new DXTException(101012 /* ORDER_DELETE_FORBIDDEN */) : new DXTException(101011 /* ORDER_CANCEL_FORBIDDEN */);
-  let pedidoOriginal = await getOrderWithRows(user, isDraft, idPedido), { header } = pedidoOriginal;
-  await checkUserIsOwnerOrThrow(user, header);
-  let currentStatus = header.estado, canCancel = currentStatus == 1 /* INGRESADO */ || currentStatus == 2 /* APROBADO */ && user.aprobarPedidoAlCrear.valueOf() || currentStatus == 100 /* EN_PROGRESO */ || currentStatus == 5 /* ANULADO */ && user.isAdmin();
-  deleteOrder && await _deletePedido(idPedido, isDraft), await pedidoRepository.cancel(idPedido);
-}
-async function _deletePedido(idPedido, isDraft) {
+// src/code.server/api/pedido/services/deleteDraft.ts
+async function deleteDraft(user, idDraft) {
+  let pedidoOriginal = await getOrderWithRows(idDraft, user, !0, !0, !0);
+  await getDraftRepository(user).deleteById(idDraft);
 }
 
 // src/code.server/api/pedido/endpoints/cancel.ts
 var cancelOrderEndpoint = createApiEndpoint(
   customerAndVendorRootController,
   idPedidoValidationOptions,
-  async (req) => await cancelPedido(req.auth.user, req.validated.params.id_pedido, !1)
+  async (req) => await cancelPedido(req.auth.user, req.validated.params.id_pedido)
 ), cancelDraftEndpoint = createApiEndpoint(
   customerAndVendorRootController,
   idPedidoValidationOptions,
-  async (req) => await cancelPedido(req.auth.user, req.validated.params.id_pedido, !0)
+  async (req) => (await deleteDraft(req.auth.user, req.validated.params.id_pedido), { ok: !0 })
 );
 
 // src/code.server/api/pedido/services/getAllPedidos.ts
 async function getAllPedidos(user, draft) {
   let role = user.role.valueOf(), tangoId = user.tangoId?.valueOf();
   if (draft)
-    return await dxtPedidoDraftRepository.getAllByUser(
-      role,
-      tangoId
-    );
-  let result = await pedidoRepository.getAllByUser(
-    role,
-    tangoId
-  );
+    return await getDraftRepository(user).getAllByUser(user);
+  let result = await pedidoRepository.getAllByUser(user);
   return _filterVisibleOrders(user, result);
 }
 function _filterVisibleOrders(user, orders) {
@@ -7851,11 +10480,7 @@ var getAllOrdersEndpoint = createApiEndpoint(
 
 // src/code.server/api/pedido/services/getAllPedidosRows.ts
 async function getAllRowsPedidos(user, draft) {
-  let role = user.role.valueOf(), tangoId = user.tangoId?.valueOf();
-  return draft = !1, await (draft ? dxtPedidoDraftRowRepository : renglonPedidoRepository).getAllByUser(
-    role,
-    tangoId
-  );
+  return await (draft ? getDraftRowRepository(user) : renglonPedidoRepository).getAllByUser(user);
 }
 
 // src/code.server/api/pedido/endpoints/getRows.ts
@@ -7869,1239 +10494,11 @@ var getOrderRowsEndpoint = createApiEndpoint(
   async (req) => await getAllRowsPedidos(req.auth.user, !0)
 );
 
-// src/app/routes/api.pedido.$id_pedido.start_new_draft.ts
-async function loader2({ request, params }) {
-  return await startNewDraftFromExistingOrderEndpoint.get(request, params);
-}
-var action = unimplementedApiResponse;
-
-// src/app/routes/api.pedido.$id_pedido.start_new_order.ts
-var api_pedido_id_pedido_start_new_order_exports = {};
-__export(api_pedido_id_pedido_start_new_order_exports, {
-  action: () => action2,
-  loader: () => loader3
-});
-async function loader3({ request, params }) {
-  return await startNewOrderFromExistingOrderEndpoint.get(request, params);
-}
-var action2 = unimplementedApiResponse;
-
-// src/app/routes/api.draft.$id_pedido.start_new_order.ts
-var api_draft_id_pedido_start_new_order_exports = {};
-__export(api_draft_id_pedido_start_new_order_exports, {
-  action: () => action3,
-  loader: () => loader4
-});
-async function loader4({ request, params }) {
-  return await startNewOrderFromExistingDraftEndpoint.get(request, params);
-}
-var action3 = unimplementedApiResponse;
-
-// src/app/routes/_admin.settings.users.customers.add/route.tsx
-var route_exports3 = {};
-__export(route_exports3, {
-  default: () => Add
-});
-import { useNavigate as useNavigate6 } from "@remix-run/react";
-
-// src/app/routes/_admin.settings.users.customers.add/components/success.tsx
-import { useEffect as useEffect8 } from "react";
-import {
-  Box as Box9,
-  Divider as Divider5,
-  Grid as Grid5,
-  GridItem as GridItem5,
-  Heading as Heading5,
-  HStack as HStack6,
-  Stack as Stack7,
-  useToast as useToast3
-} from "@chakra-ui/react";
-import { yupResolver as yupResolver3 } from "@hookform/resolvers/yup";
-import { useForm as useForm3 } from "react-hook-form";
-
-// src/app/routes/_admin.settings.users.customers.add/validation.ts
-import { useState as useState7 } from "react";
-import * as yup4 from "yup";
-import _5 from "lodash";
-var useCustomValidationSchema3 = () => {
-  let [passwordStatus, setPasswordStatus] = useState7(null), customValidationSchema = yup4.object({
-    password: yup4.string().required("Ingrese una contrase\xF1a").test("password", "Formato de contrase\xF1a no v\xE1lido", (v) => {
-      if (v != "" && v != null) {
-        let newPasswordStatus = dxtPasswordStatus(v);
-        return _5.isEqual(passwordStatus, newPasswordStatus) || setPasswordStatus(newPasswordStatus), yupVOValidation(VODXTPassword, v);
-      }
-      return !0;
-    })
-  }).required();
-  return { yupValidationSchema: commonValidationSchema.concat(customValidationSchema), passwordStatus };
-};
-
-// src/app/routes/_admin.settings.users.customers.add/components/success.tsx
-import { jsx as jsx31, jsxs as jsxs20 } from "react/jsx-runtime";
-var Success3 = (props) => {
-  let { typeSettings } = props, app = useAppResources(), toast = useToast3(), { yupValidationSchema: yupValidationSchema6, passwordStatus } = useCustomValidationSchema3(), { state: statePerfiles, result: resultPerfiles } = useTangoList({
-    url: API_TANGO_PERFIL,
-    fieldsMap: {
-      label: "name",
-      value: "id"
-    }
-  }), { state: stateRelationship, result: resultRelationship } = typeSettings.api.getRelation(), {
-    handleSubmit,
-    control,
-    setError,
-    resetField,
-    watch,
-    formState: { errors, isSubmitting, isSubmitSuccessful }
-  } = useForm3({
-    defaultValues: {
-      habilitado_en_dxt: !0,
-      puede_crear_pedido: !0,
-      puede_editar_pedido: !0,
-      ver_pedidos_cumplidos: !0,
-      ver_sin_precio: !1,
-      mostrar_mensaje_de_advertencia: !1,
-      puede_anular_pedido: !1,
-      borrar_pedido_al_anular: !1,
-      aprobar_pedido_al_crear: !1,
-      dia_de_entrega: 30
-    },
-    resolver: yupResolver3(yupValidationSchema6)
-  }), watchPuedeAnularPedido = watch("puede_anular_pedido");
-  useEffect8(() => {
-    watchPuedeAnularPedido === !1 && resetField("borrar_pedido_al_anular", { defaultValue: !1 });
-  }, [watchPuedeAnularPedido]);
-  let disableForm = isSubmitSuccessful || isSubmitting;
-  return /* @__PURE__ */ jsx31("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
-    let { ...data } = dataUnsafe;
-    data.email === "" && delete data.email;
-    let input = data, result = await typeSettings.api.post(input, app);
-    await promiseBasedToast({
-      toast,
-      result,
-      messages: {
-        success: { title: USER_CREATED },
-        error: { title: AN_ERROR_OCCURRED },
-        loading: { title: USER_CREATING }
-      }
-    }).then(() => {
-      app.navigate(URL_SETTINGS_CUSTOMERS_PATH);
-    }).catch((e) => {
-      setError("root", { message: e });
-    });
-  }), children: /* @__PURE__ */ jsxs20(Box9, { children: [
-    /* @__PURE__ */ jsx31(FormErrors, { errors }),
-    /* @__PURE__ */ jsx31(CommonCard, { children: /* @__PURE__ */ jsxs20(
-      Grid5,
-      {
-        templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
-        alignItems: "start",
-        gap: 4,
-        children: [
-          /* @__PURE__ */ jsx31(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx31(Heading5, { size: "sm", textTransform: "uppercase", children: "Informaci\xF3n del Cliente" }) }),
-          /* @__PURE__ */ jsxs20(GridItem5, { colSpan: { md: 2 }, children: [
-            /* @__PURE__ */ jsx31(
-              ControlledSelect,
-              {
-                fieldProps: {
-                  name: "tango_id",
-                  placeholder: typeSettings.tangoRelatedFields?.placeholder,
-                  options: resultRelationship,
-                  noOptionsMessage(obj) {
-                    return typeSettings.tangoRelatedFields?.empty;
-                  },
-                  isSearchable: !0,
-                  selectedOptionStyle: "check",
-                  isLoading: stateRelationship instanceof FetchStateLoading,
-                  virtualized: !0
-                },
-                formControlProps: {
-                  isDisabled: disableForm || !(stateRelationship instanceof FetchStateSuccess)
-                },
-                formControlInnerProps: {
-                  label: typeSettings.tangoRelatedFields?.label
-                },
-                control
-              }
-            ),
-            stateRelationship instanceof FetchStateError && /* @__PURE__ */ jsx31(InlineError, { error: stateRelationship.errorOrNull().error })
-          ] }),
-          /* @__PURE__ */ jsx31(GridItem5, { children: /* @__PURE__ */ jsx31(
-            ControlledInput,
-            {
-              fieldProps: {
-                name: "username",
-                id: "username",
-                type: "text"
-              },
-              formControlProps: {
-                isDisabled: disableForm
-              },
-              formControlInnerProps: {
-                label: "Nombre de Usuario"
-              },
-              control
-            }
-          ) }),
-          /* @__PURE__ */ jsx31(GridItem5, { children: /* @__PURE__ */ jsx31(
-            PasswordWithStatus,
-            {
-              passwordStatus,
-              disableForm,
-              control
-            }
-          ) }),
-          /* @__PURE__ */ jsx31(GridItem5, { children: /* @__PURE__ */ jsx31(
-            ControlledInput,
-            {
-              fieldProps: {
-                name: "email",
-                id: "email",
-                type: "text",
-                inputMode: "email"
-              },
-              formControlProps: {
-                isDisabled: disableForm
-              },
-              formControlInnerProps: {
-                label: "Correo electr\xF3nico"
-              },
-              control
-            }
-          ) }),
-          /* @__PURE__ */ jsx31(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx31(Divider5, {}) }),
-          /* @__PURE__ */ jsxs20(GridItem5, { colSpan: { md: 2 }, children: [
-            /* @__PURE__ */ jsx31(
-              ControlledSelect,
-              {
-                fieldProps: {
-                  name: "perfil_facturacion_id",
-                  placeholder: "Seleccione un perfil",
-                  options: resultPerfiles,
-                  noOptionsMessage(obj) {
-                    return "No hay perfiles disponibles";
-                  },
-                  isLoading: statePerfiles instanceof FetchStateLoading,
-                  selectedOptionStyle: "check"
-                },
-                formControlProps: {
-                  isDisabled: disableForm || !(statePerfiles instanceof FetchStateSuccess)
-                },
-                formControlInnerProps: {
-                  label: "Perfil de facturaci\xF3n"
-                },
-                control
-              }
-            ),
-            statePerfiles instanceof FetchStateError && /* @__PURE__ */ jsx31(InlineError, { error: statePerfiles.errorOrNull().error })
-          ] }),
-          /* @__PURE__ */ jsx31(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx31(Divider5, {}) }),
-          /* @__PURE__ */ jsx31(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx31(Heading5, { size: "sm", textTransform: "uppercase", children: "Estado" }) }),
-          /* @__PURE__ */ jsx31(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx31(
-            ControlledRadio,
-            {
-              fieldProps: {
-                name: "habilitado_en_dxt",
-                options: [
-                  {
-                    value: !0,
-                    label: "Establecido en Tango"
-                  },
-                  {
-                    value: !1,
-                    label: "Deshabilitado"
-                  }
-                ]
-              },
-              formControlProps: {
-                isDisabled: disableForm
-              },
-              radioProps: {
-                size: { base: "sm", sm: "md" }
-              },
-              control
-            }
-          ) }),
-          /* @__PURE__ */ jsx31(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx31(Divider5, {}) }),
-          /* @__PURE__ */ jsx31(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx31(Heading5, { size: "sm", textTransform: "uppercase", children: "Comunicaci\xF3n" }) }),
-          /* @__PURE__ */ jsx31(GridItem5, { children: /* @__PURE__ */ jsx31(
-            ControlledSwitch,
-            {
-              fieldProps: {
-                name: "mostrar_mensaje_de_advertencia",
-                id: "mostrar_mensaje_de_advertencia"
-              },
-              formControlProps: {
-                width: "auto",
-                isDisabled: disableForm
-              },
-              formControlInnerProps: {
-                label: "Mostrar mensaje de advertencia"
-              },
-              control
-            }
-          ) })
-        ]
-      }
-    ) }),
-    /* @__PURE__ */ jsx31(CommonCard, { children: /* @__PURE__ */ jsxs20(
-      Grid5,
-      {
-        templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
-        alignItems: "start",
-        gap: 4,
-        children: [
-          /* @__PURE__ */ jsx31(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx31(Heading5, { size: "sm", textTransform: "uppercase", children: "Pedidos" }) }),
-          /* @__PURE__ */ jsx31(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxs20(Stack7, { spacing: 4, direction: { base: "column" }, children: [
-            /* @__PURE__ */ jsx31(HStack6, { spacing: 4, children: /* @__PURE__ */ jsx31(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "puede_crear_pedido",
-                  id: "puede_crear_pedido"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Puede crear pedidos"
-                },
-                control
-              }
-            ) }),
-            /* @__PURE__ */ jsx31(HStack6, { spacing: 4, children: /* @__PURE__ */ jsx31(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "puede_editar_pedido",
-                  id: "puede_editar_pedido"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Puede editar pedidos"
-                },
-                control
-              }
-            ) }),
-            /* @__PURE__ */ jsx31(HStack6, { spacing: 4, children: /* @__PURE__ */ jsx31(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "puede_anular_pedido",
-                  id: "puede_anular_pedido"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Puede anular pedidos"
-                },
-                control
-              }
-            ) }),
-            /* @__PURE__ */ jsx31(HStack6, { spacing: 4, children: /* @__PURE__ */ jsx31(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "borrar_pedido_al_anular",
-                  id: "borrar_pedido_al_anular"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Borrar pedido al anular"
-                },
-                control,
-                watch: {
-                  isDisabled: watchPuedeAnularPedido === !1,
-                  ...watchPuedeAnularPedido === !1 && {
-                    isChecked: !1
-                  }
-                }
-              }
-            ) }),
-            /* @__PURE__ */ jsx31(HStack6, { spacing: 4, children: /* @__PURE__ */ jsx31(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "aprobar_pedido_al_crear",
-                  id: "aprobar_pedido_al_crear"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Los pedidos se aprueban al crearlos"
-                },
-                control
-              }
-            ) }),
-            /* @__PURE__ */ jsx31(HStack6, { spacing: 4, children: /* @__PURE__ */ jsx31(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "ver_pedidos_cumplidos",
-                  id: "ver_pedidos_cumplidos"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Puede ver los pedidos cumplidos"
-                },
-                control
-              }
-            ) }),
-            /* @__PURE__ */ jsx31(HStack6, { spacing: 4, children: /* @__PURE__ */ jsx31(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "ver_sin_precio",
-                  id: "ver_sin_precio"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Puede ver art\xEDculos sin precios"
-                },
-                control
-              }
-            ) })
-          ] }) }),
-          /* @__PURE__ */ jsx31(GridItem5, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx31(Divider5, {}) }),
-          /* @__PURE__ */ jsx31(GridItem5, { children: /* @__PURE__ */ jsx31(
-            ControlledInput,
-            {
-              fieldProps: {
-                name: "dia_de_entrega",
-                id: "dia_de_entrega",
-                type: "number",
-                inputMode: "tel"
-              },
-              formControlProps: {
-                isDisabled: disableForm
-              },
-              formControlInnerProps: {
-                label: "Tiempo de entrega de pedidos",
-                helperText: "Expresado en d\xEDas"
-              },
-              control
-            }
-          ) }),
-          /* @__PURE__ */ jsx31(GridItem5, {})
-        ]
-      }
-    ) }),
-    /* @__PURE__ */ jsx31(CommonCard, { children: /* @__PURE__ */ jsx31(
-      SettingsFormsButtons,
-      {
-        buttonActionText: "Guardar",
-        isLoading: disableForm,
-        buttonCancelUrl: typeSettings.cancelButtonNavigateTo
-      }
-    ) })
-  ] }) });
-};
-
-// src/app/routes/_admin.settings.users.customers.add/components/index.tsx
-import { jsx as jsx32 } from "react/jsx-runtime";
-var Form = (props) => {
-  let { typeSettings } = props;
-  return /* @__PURE__ */ jsx32(Success3, { typeSettings });
-};
-
-// src/app/routes/_admin.settings.users.customers.add/route.tsx
-import { Fragment as Fragment10, jsx as jsx33, jsxs as jsxs21 } from "react/jsx-runtime";
-function Add() {
-  let typeSettings = settings.customers, navigate = useNavigate6();
-  return /* @__PURE__ */ jsxs21(Fragment10, { children: [
-    /* @__PURE__ */ jsx33(
-      SettingsFormHeading,
-      {
-        title: typeSettings.titles.create,
-        returnButton: {
-          buttonProps: {
-            onClick: () => {
-              navigate(URL_SETTINGS_CUSTOMERS_PATH);
-            }
-          }
-        }
-      }
-    ),
-    /* @__PURE__ */ jsx33(Form, { typeSettings })
-  ] });
-}
-
-// src/app/routes/_admin.settings.product_list.$type/route.tsx
-var route_exports4 = {};
-__export(route_exports4, {
-  default: () => Lists
-});
-import { useNavigate as useNavigate7, useParams as useParams3 } from "@remix-run/react";
-
-// src/api-client/dxt/articulo/paths.ts
-var API_DXT_ARTICULO_PRINT_LIST = apiPath("/dxt/articulo/print_list"), API_DXT_ARTICULO_EDIT_LIST = apiPath("/dxt/articulo/edit_list"), API_DXT_ARTICULO_PRINT_LIST_IDS = apiPath("/dxt/articulo/print_list/ids");
-
-// src/api-client/dxt/articulo/requests.ts
-var dxtArticuloPrintListUpdateRequest = async (input, app) => await dxtApiRequest(
-  {
-    url: API_DXT_ARTICULO_PRINT_LIST,
-    data: input,
-    method: "POST",
-    silent: !0
-  },
-  app
-), dxtArticuloEditListUpdateRequest = async (input, app) => await dxtApiRequest(
-  {
-    url: API_DXT_ARTICULO_EDIT_LIST,
-    data: input,
-    method: "POST",
-    silent: !0
-  },
-  app
-);
-
-// src/code.client/crud_configs/lists.tsx
-import { Fragment as Fragment11, jsx as jsx34, jsxs as jsxs22 } from "react/jsx-runtime";
-var settings2 = {
-  edit: {
-    api: {
-      getAll: () => useDXTApiFetch({
-        url: API_DXT_ARTICULO_EDIT_LIST,
-        silent: !0
-      }),
-      post: async (input, app) => dxtArticuloEditListUpdateRequest(input, app)
-    },
-    title: PRODUCT_EDIT_LIST,
-    description: /* @__PURE__ */ jsxs22(Fragment11, { children: [
-      "Ingrese en la lista los c\xF3digos de art\xEDculo en el \xF3rden en quedesea que aparezcan durante la creaci\xF3n o edici\xF3n de un pedido.",
-      /* @__PURE__ */ jsx34("br", {}),
-      /* @__PURE__ */ jsx34("br", {}),
-      "Cualquier l\xEDnea que ingrese, que no contenga ning\xFAn c\xF3digo de art\xEDculo, ser\xE1 considerada como t\xEDtulo de grupo."
-    ] })
-  },
-  print: {
-    api: {
-      getAll: () => useDXTApiFetch({
-        url: API_DXT_ARTICULO_PRINT_LIST,
-        silent: !0
-      }),
-      post: async (input, app) => dxtArticuloPrintListUpdateRequest(input, app)
-    },
-    title: PRODUCT_PRINT_LIST,
-    description: /* @__PURE__ */ jsxs22(Fragment11, { children: [
-      "Ingrese en la lista los c\xF3digos de art\xEDculo en el \xF3rden en que desea que aparezcan durante la impresi\xF3n de un pedido.",
-      /* @__PURE__ */ jsx34("br", {}),
-      /* @__PURE__ */ jsx34("br", {}),
-      "Cualquier l\xEDnea que ingrese, que no contenga ning\xFAn c\xF3digo de art\xEDculo, ser\xE1 considerada como t\xEDtulo de grupo."
-    ] })
-  }
-};
-
-// src/app/routes/_admin.settings.product_list.$type/components/loading.tsx
-import { Box as Box10, Grid as Grid6, GridItem as GridItem6, Text as Text2 } from "@chakra-ui/react";
-import { jsx as jsx35, jsxs as jsxs23 } from "react/jsx-runtime";
-var Loading3 = (props) => {
-  let { typeSettings } = props;
-  return /* @__PURE__ */ jsx35(
-    Box10,
-    {
-      width: "full",
-      sx: {
-        mt: 8,
-        mb: 4
-      },
-      children: /* @__PURE__ */ jsxs23(
-        Grid6,
-        {
-          templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
-          alignItems: "start",
-          gap: 4,
-          children: [
-            /* @__PURE__ */ jsx35(GridItem6, { children: /* @__PURE__ */ jsx35(FormTextareaSkeleton, { height: "380px" }) }),
-            /* @__PURE__ */ jsx35(GridItem6, { children: /* @__PURE__ */ jsx35(Text2, { fontSize: "sm", children: typeSettings.description }) }),
-            /* @__PURE__ */ jsx35(GridItem6, { children: /* @__PURE__ */ jsx35(FormInputSkeleton, {}) }),
-            /* @__PURE__ */ jsx35(GridItem6, { children: /* @__PURE__ */ jsx35(FormInputSkeleton, {}) })
-          ]
-        }
-      )
-    }
-  );
-};
-
-// src/app/routes/_admin.settings.product_list.$type/components/success.tsx
-import { Box as Box11, Grid as Grid7, GridItem as GridItem7, Text as Text3, useToast as useToast4 } from "@chakra-ui/react";
-import { yupResolver as yupResolver4 } from "@hookform/resolvers/yup";
-import { useForm as useForm4 } from "react-hook-form";
-
-// src/app/components/form_elements/ControlledTextarea.tsx
-import {
-  FormControl as FormControl5,
-  FormHelperText as FormHelperText4,
-  FormLabel as FormLabel4,
-  Textarea
-} from "@chakra-ui/react";
-import { useController as useController5 } from "react-hook-form";
-import { jsx as jsx36, jsxs as jsxs24 } from "react/jsx-runtime";
-var ControlledTextarea = (props) => {
-  let { fieldProps, formControlProps, formControlInnerProps, control } = props, { label, helperText, icon } = formControlInnerProps || {}, {
-    field: { ref, onChange, value },
-    fieldState: { invalid },
-    formState: { errors }
-  } = useController5({
-    name: fieldProps.name,
-    control
-  });
-  return /* @__PURE__ */ jsxs24(FormControl5, { ...formControlProps, isInvalid: invalid, children: [
-    label != null && /* @__PURE__ */ jsx36(
-      FormLabel4,
-      {
-        htmlFor: fieldProps.name,
-        sx: fieldProps.variant === "flushed" ? { fontSize: "sm", mb: 0 } : {},
-        children: label
-      }
-    ),
-    /* @__PURE__ */ jsx36(Textarea, { ...fieldProps, onChange, value, ref }),
-    helperText != null && /* @__PURE__ */ jsx36(FormHelperText4, { children: helperText })
-  ] });
-};
-
-// src/app/routes/_admin.settings.product_list.$type/validation.ts
-import * as yup5 from "yup";
-var yupValidationSchema = yup5.object({
-  list: yup5.string().required("Debe ingresar al menos un c\xF3digo de art\xEDculo")
-}).required();
-
-// src/app/routes/_admin.settings.product_list.$type/components/success.tsx
-import { jsx as jsx37, jsxs as jsxs25 } from "react/jsx-runtime";
-var Success4 = (props) => {
-  let { stateData, typeSettings } = props, app = useAppResources(), toast = useToast4(), {
-    handleSubmit,
-    control,
-    reset,
-    setError,
-    formState: { errors, isSubmitting, isSubmitSuccessful }
-  } = useForm4({
-    defaultValues: {
-      list: stateData?.join(`\r
-`) || ""
-    },
-    resolver: yupResolver4(yupValidationSchema)
-  }), disableForm = isSubmitSuccessful || isSubmitting;
-  return /* @__PURE__ */ jsx37("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
-    let input = { data: dataUnsafe.list.split(`
-`) }, result = await typeSettings.api.post(input, app);
-    await promiseBasedToast({
-      toast,
-      result,
-      messages: {
-        success: { title: LIST_UPDATED },
-        error: { title: AN_ERROR_OCCURRED },
-        loading: { title: LIST_UPDATING }
-      }
-    }).then(() => {
-      app.navigate(URL_SETTINGS_PATH);
-    }).catch((e) => {
-      setError("root", { message: e });
-    });
-  }), children: /* @__PURE__ */ jsxs25(Box11, { children: [
-    /* @__PURE__ */ jsx37(FormErrors, { errors }),
-    /* @__PURE__ */ jsx37(CommonCard, { children: /* @__PURE__ */ jsxs25(
-      Grid7,
-      {
-        templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
-        alignItems: "start",
-        gap: 4,
-        children: [
-          /* @__PURE__ */ jsx37(GridItem7, { children: /* @__PURE__ */ jsx37(
-            ControlledTextarea,
-            {
-              fieldProps: {
-                name: "list",
-                id: "list",
-                rows: 20,
-                fontSize: "sm"
-              },
-              formControlProps: {
-                isDisabled: disableForm
-              },
-              control
-            }
-          ) }),
-          /* @__PURE__ */ jsx37(GridItem7, { children: /* @__PURE__ */ jsx37(Text3, { fontSize: "sm", children: typeSettings.description }) })
-        ]
-      }
-    ) }),
-    /* @__PURE__ */ jsx37(CommonCard, { children: /* @__PURE__ */ jsx37(SettingsFormsButtons, { isLoading: disableForm }) })
-  ] }) });
-};
-
-// src/app/routes/_admin.settings.product_list.$type/components/index.tsx
-import { jsx as jsx38 } from "react/jsx-runtime";
-var FormLists = (props) => {
-  let { typeSettings } = props, { state, retry } = typeSettings.api.getAll();
-  return state.map({
-    loading: (_13) => /* @__PURE__ */ jsx38(Loading3, { typeSettings }),
-    error: ({ error }) => /* @__PURE__ */ jsx38(
-      ApiErrors,
-      {
-        error,
-        retry,
-        cancelAndNavigateTo: URL_SETTINGS_PATH
-      }
-    ),
-    success: (state2) => /* @__PURE__ */ jsx38(Success4, { stateData: state2.data, typeSettings })
-  });
-};
-
-// src/app/routes/_admin.settings.product_list.$type/route.tsx
-import { Fragment as Fragment12, jsx as jsx39, jsxs as jsxs26 } from "react/jsx-runtime";
-function Lists() {
-  let navigate = useNavigate7(), { type } = useParams3(), typeSettings = settings2[type];
-  return type != null && typeSettings != null ? /* @__PURE__ */ jsxs26(Fragment12, { children: [
-    /* @__PURE__ */ jsx39(
-      SettingsFormHeading,
-      {
-        title: typeSettings.title,
-        returnButton: {
-          buttonProps: {
-            onClick: () => {
-              navigate(URL_SETTINGS_PATH);
-            }
-          }
-        }
-      }
-    ),
-    /* @__PURE__ */ jsx39(FormLists, { typeSettings })
-  ] }) : /* @__PURE__ */ jsx39(
-    CommonErrors,
-    {
-      error: INVALID_LIST_TYPE,
-      buttonProps: {
-        label: BACK_TO_SETTINGS,
-        colorScheme: "green",
-        onClick: () => {
-          navigate(URL_SETTINGS_PATH);
-        }
-      }
-    }
-  );
-}
-
-// src/app/routes/_admin.settings.users.$type._index/route.tsx
-var route_exports5 = {};
-__export(route_exports5, {
-  default: () => Lists2
-});
-import { useNavigate as useNavigate8, useParams as useParams4 } from "@remix-run/react";
-import AccountPlusIcon from "mdi-react/AccountPlusIcon.js";
-
-// src/app/routes/_admin.settings.users.$type._index/components/loading.tsx
-import { Box as Box12, Grid as Grid8, GridItem as GridItem8 } from "@chakra-ui/react";
-import { jsx as jsx40, jsxs as jsxs27 } from "react/jsx-runtime";
-var Loading4 = () => /* @__PURE__ */ jsx40(
-  Box12,
-  {
-    width: "full",
-    sx: {
-      mt: 8,
-      mb: 4
-    },
-    children: /* @__PURE__ */ jsxs27(Grid8, { templateColumns: "1fr", gap: { base: 2, md: 4 }, children: [
-      /* @__PURE__ */ jsx40(GridItem8, { children: /* @__PURE__ */ jsx40(FormInputSkeleton, {}) }),
-      /* @__PURE__ */ jsx40(GridItem8, { children: /* @__PURE__ */ jsx40(FormInputSkeleton, {}) }),
-      /* @__PURE__ */ jsx40(GridItem8, { children: /* @__PURE__ */ jsx40(FormTextareaSkeleton, { height: "400px" }) }),
-      /* @__PURE__ */ jsx40(GridItem8, { children: /* @__PURE__ */ jsx40(FormInputSkeleton, {}) })
-    ] })
-  }
-);
-
-// src/app/routes/_admin.settings.users.$type._index/components/success.tsx
-import { useMemo as useMemo4, useRef as useRef6, useState as useState10 } from "react";
-
-// src/code.client/hooks/useSearchField.ts
-import _6 from "lodash";
-import { useState as useState8 } from "react";
-function useSearchField(data, fieldsToFilter) {
-  let [isFiltering, setIsFiltering] = useState8(!1), [filteredData, setFilteredData] = useState8(data);
-  return { filteredData, handleSearchInputChange: (query) => {
-    if (setIsFiltering(query != null && query !== ""), _6.isArray(data)) {
-      let filterApplied = [...data];
-      query != null && Array.isArray(data) && (filterApplied = _6.filter(data, (obj) => _6.some(fieldsToFilter, (prop) => String(_6.get(obj, prop)).toLowerCase().includes(query.toLowerCase())))), setFilteredData(filterApplied);
-      return;
-    } else if (_6.isObject(data)) {
-      let filterApplied = { ...data };
-      query != null && _6.forEach(data, (array2, key) => {
-        let filteredArray = _6.filter(array2, (obj) => _6.some(fieldsToFilter, (prop) => String(_6.get(obj, prop)).toLowerCase().includes(query.toLowerCase())));
-        filterApplied[key] = filteredArray;
-      }), setFilteredData(filterApplied);
-      return;
-    }
-    setFilteredData(data);
-  }, isFiltering };
-}
-
-// src/app/routes/_admin.settings.users.$type._index/components/success.tsx
-import {
-  Alert as Alert4,
-  AlertDescription as AlertDescription3,
-  AlertIcon as AlertIcon3,
-  Box as Box13,
-  Flex as Flex2,
-  Grid as Grid9,
-  GridItem as GridItem9,
-  HStack as HStack8,
-  Icon as Icon6,
-  IconButton as IconButton4,
-  Table,
-  Tbody,
-  Td,
-  Th,
-  Thead,
-  Tr,
-  useDisclosure,
-  useToast as useToast5
-} from "@chakra-ui/react";
-import AccountCancelIcon2 from "mdi-react/AccountCancelIcon.js";
-import AccountCheckIcon from "mdi-react/AccountCheckIcon.js";
-import PencilIcon from "mdi-react/PencilIcon.js";
-import TrashIcon from "mdi-react/TrashIcon.js";
-
-// src/app/components/DeleteDialog.tsx
-import { useRef as useRef4 } from "react";
-import {
-  AlertDialog,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
-  Button as Button6
-} from "@chakra-ui/react";
-import { jsx as jsx41, jsxs as jsxs28 } from "react/jsx-runtime";
-var DeleteDialog = ({
-  isOpen,
-  onClose,
-  handleDeletion,
-  message
-}) => {
-  let cancelRef = useRef4();
-  return /* @__PURE__ */ jsx41(
-    AlertDialog,
-    {
-      isOpen,
-      leastDestructiveRef: cancelRef,
-      onClose,
-      motionPreset: "slideInBottom",
-      isCentered: !0,
-      children: /* @__PURE__ */ jsx41(AlertDialogOverlay, { children: /* @__PURE__ */ jsxs28(AlertDialogContent, { children: [
-        /* @__PURE__ */ jsx41(AlertDialogHeader, { fontSize: "lg", fontWeight: "bold", children: message.title }),
-        /* @__PURE__ */ jsx41(AlertDialogBody, { children: message.body }),
-        /* @__PURE__ */ jsxs28(AlertDialogFooter, { children: [
-          /* @__PURE__ */ jsx41(Button6, { ref: cancelRef, onClick: onClose, children: CANCEL }),
-          /* @__PURE__ */ jsx41(Button6, { colorScheme: "red", onClick: handleDeletion, ml: 3, children: DELETE })
-        ] })
-      ] }) })
-    }
-  );
-};
-
-// src/code.client/hooks/usePagination.ts
-import { useMemo as useMemo3 } from "react";
-var DOTS_LEFT = "{left}", DOTS_RIGHT = "{right}", range = (start, end) => {
-  let length = end - start + 1;
-  return Array.from({ length }, (_13, idx) => idx + start);
-}, usePagination = ({ totalCount, pageSize, siblingCount = 1, currentPage }) => useMemo3(() => {
-  let totalPageCount = Math.ceil(totalCount / pageSize);
-  if (siblingCount + 5 >= totalPageCount)
-    return range(1, totalPageCount);
-  let leftSiblingIndex = Math.max(currentPage - siblingCount, 1), rightSiblingIndex = Math.min(currentPage + siblingCount, totalPageCount), shouldShowLeftDots = leftSiblingIndex > 2, shouldShowRightDots = rightSiblingIndex < totalPageCount - 2, firstPageIndex = 1, lastPageIndex = totalPageCount;
-  if (!shouldShowLeftDots && shouldShowRightDots) {
-    let leftItemCount = 3 + 2 * siblingCount;
-    return [...range(1, leftItemCount), DOTS_LEFT, totalPageCount];
-  }
-  if (shouldShowLeftDots && !shouldShowRightDots) {
-    let rightItemCount = 3 + 2 * siblingCount, rightRange = range(totalPageCount - rightItemCount + 1, totalPageCount);
-    return [firstPageIndex, DOTS_RIGHT, ...rightRange];
-  }
-  if (shouldShowLeftDots && shouldShowRightDots) {
-    let middleRange = range(leftSiblingIndex, rightSiblingIndex);
-    return [firstPageIndex, DOTS_LEFT, ...middleRange, DOTS_RIGHT, lastPageIndex];
-  }
-}, [totalCount, pageSize, siblingCount, currentPage]);
-
-// src/app/components/Pagination.tsx
-import { Button as Button7, HStack as HStack7, Icon as Icon4, IconButton as IconButton3, VStack as VStack2 } from "@chakra-ui/react";
-import ChevronLeftIcon2 from "mdi-react/ChevronLeftIcon.js";
-import ChevronRightIcon from "mdi-react/ChevronRightIcon.js";
-import DotsHorizontalIcon from "mdi-react/DotsHorizontalIcon.js";
-import { jsx as jsx42, jsxs as jsxs29 } from "react/jsx-runtime";
-var Pagination = (props) => {
-  let {
-    onPageChange,
-    totalCount,
-    siblingCount = 1,
-    currentPage,
-    pageSize
-  } = props, paginationRange = usePagination({
-    currentPage,
-    totalCount,
-    siblingCount,
-    pageSize
-  });
-  if (!paginationRange || currentPage === 0 || paginationRange.length < 2)
-    return null;
-  let onNext = () => {
-    onPageChange(currentPage + 1);
-  }, onPrevious = () => {
-    onPageChange(currentPage - 1);
-  }, lastPage = paginationRange[paginationRange.length - 1];
-  return /* @__PURE__ */ jsxs29(VStack2, { children: [
-    /* @__PURE__ */ jsx42(HStack7, { spacing: 1, wrap: "wrap", justifyContent: "center", children: paginationRange.map((pageNumber) => pageNumber === DOTS_LEFT || pageNumber === DOTS_RIGHT ? /* @__PURE__ */ jsx42(
-      Icon4,
-      {
-        as: DotsHorizontalIcon,
-        boxSize: 3
-      },
-      `page-${pageNumber}`
-    ) : /* @__PURE__ */ jsx42(
-      Button7,
-      {
-        colorScheme: pageNumber === currentPage ? "blue" : "gray",
-        size: { base: "sm", md: "md" },
-        onClick: () => onPageChange(pageNumber),
-        children: pageNumber
-      },
-      `button-${pageNumber}`
-    )) }),
-    /* @__PURE__ */ jsxs29(HStack7, { children: [
-      /* @__PURE__ */ jsx42(
-        IconButton3,
-        {
-          "aria-label": PREVIOUS,
-          size: { base: "sm", md: "md" },
-          onClick: onPrevious,
-          isDisabled: currentPage === 1,
-          children: /* @__PURE__ */ jsx42(Icon4, { as: ChevronLeftIcon2 })
-        }
-      ),
-      /* @__PURE__ */ jsx42(
-        IconButton3,
-        {
-          "aria-label": NEXT,
-          size: { base: "sm", md: "md" },
-          onClick: onNext,
-          isDisabled: currentPage === lastPage,
-          children: /* @__PURE__ */ jsx42(Icon4, { as: ChevronRightIcon })
-        }
-      )
-    ] })
-  ] });
-};
-
-// src/app/components/SearchField.tsx
-import { useRef as useRef5, useState as useState9 } from "react";
-import {
-  Icon as Icon5,
-  Input as Input2,
-  InputGroup as InputGroup2,
-  InputLeftElement,
-  InputRightElement as InputRightElement2
-} from "@chakra-ui/react";
-import CloseIcon from "mdi-react/CloseIcon.js";
-import MagnifyIcon from "mdi-react/MagnifyIcon.js";
-import { jsx as jsx43, jsxs as jsxs30 } from "react/jsx-runtime";
-var SearchField = ({
-  handleSearchInputChange,
-  inputProps
-}) => {
-  let [searchValue, setSearchValue] = useState9(null), inputRef = useRef5(null), inputChangeRef = useRef5(), handleSearchReset = () => {
-    setSearchValue(null), handleSearchInputChange(), inputChangeRef.current && clearTimeout(inputChangeRef.current), inputRef.current && inputRef.current.focus();
-  };
-  return /* @__PURE__ */ jsxs30(InputGroup2, { children: [
-    /* @__PURE__ */ jsx43(InputLeftElement, { pointerEvents: "none", children: /* @__PURE__ */ jsx43(Icon5, { as: MagnifyIcon, boxSize: 4 }) }),
-    /* @__PURE__ */ jsx43(
-      Input2,
-      {
-        ref: inputRef,
-        type: "text",
-        name: "filter",
-        placeholder: FILTER_PLACEHOLDER,
-        value: searchValue ?? "",
-        autoCapitalize: "off",
-        onChange: (e) => {
-          setSearchValue(e.target.value), inputChangeRef.current && clearTimeout(inputChangeRef.current), inputChangeRef.current = setTimeout(() => {
-            handleSearchInputChange(e.target.value);
-          }, 500);
-        },
-        ...inputProps
-      }
-    ),
-    searchValue !== "" && searchValue != null ? /* @__PURE__ */ jsx43(InputRightElement2, { cursor: "pointer", children: /* @__PURE__ */ jsx43(Icon5, { as: CloseIcon, onClick: handleSearchReset }) }) : /* @__PURE__ */ jsx43(InputRightElement2, {})
-  ] });
-};
-
-// src/app/components/TextWordBreak.tsx
-import { Text as Text4 } from "@chakra-ui/react";
-import { jsx as jsx44 } from "react/jsx-runtime";
-var TextWordBreak = ({
-  children,
-  breakType,
-  props
-}) => /* @__PURE__ */ jsx44(
-  Text4,
-  {
-    ...props,
-    sx: {
-      whiteSpace: "normal",
-      wordBreak: breakType ?? "break-all"
-    },
-    children
-  }
-);
-
-// src/app/routes/_admin.settings.users.$type._index/components/success.tsx
-import { Fragment as Fragment13, jsx as jsx45, jsxs as jsxs31 } from "react/jsx-runtime";
-var Success5 = (props) => {
-  let { stateData, retry, typeSettings } = props, app = useAppResources(), { isOpen, onOpen, onClose } = useDisclosure(), toast = useToast5(), selectedUser = useRef6(null), { filteredData, handleSearchInputChange, isFiltering } = useSearchField(stateData, [
-    "screen_name",
-    "username"
-  ]), [currentPage, setCurrentPage] = useState10(1), PageSize = 10, currentTableData = useMemo4(() => {
-    let firstPageIndex = (currentPage - 1) * PageSize, lastPageIndex = firstPageIndex + PageSize;
-    return filteredData.slice(firstPageIndex, lastPageIndex);
-  }, [currentPage, filteredData]), handleDeleteDialog = (id, username) => () => {
-    selectedUser.current = { id, username }, onOpen();
-  }, handleEdit = (id) => () => {
-    app.navigate(pathParamsToUrl(typeSettings.editButtonNavigateTo, { id }));
-  };
-  return /* @__PURE__ */ jsxs31(Fragment13, { children: [
-    /* @__PURE__ */ jsx45(
-      DeleteDialog,
-      {
-        isOpen,
-        onClose,
-        handleDeletion: async () => {
-          if (selectedUser.current != null) {
-            let { id, username } = selectedUser.current;
-            selectedUser.current = null;
-            let result = await typeSettings.api.delete(id, { username }, app), finalResult = await promiseBasedToast({
-              toast,
-              result,
-              messages: {
-                success: { title: USER_DELETED },
-                error: { title: AN_ERROR_OCCURRED },
-                loading: { title: USER_DELETING }
-              }
-            }).then(() => {
-              stateData.splice(
-                stateData.findIndex((object12) => object12.id === id),
-                1
-              ), handleSearchInputChange();
-            }).catch((e) => {
-            });
-            onClose();
-          }
-        },
-        message: {
-          title: USER_DELETE,
-          body: USER_DELETE_CONFIRM
-        }
-      }
-    ),
-    /* @__PURE__ */ jsxs31(CommonCard, { children: [
-      /* @__PURE__ */ jsx45(Box13, { sx: { pb: 4 }, children: /* @__PURE__ */ jsx45(SearchField, { handleSearchInputChange }) }),
-      /* @__PURE__ */ jsx45(Box13, { children: /* @__PURE__ */ jsxs31(Table, { variant: "grayOverCard", size: "md", children: [
-        /* @__PURE__ */ jsx45(Thead, { children: /* @__PURE__ */ jsx45(Tr, { children: /* @__PURE__ */ jsx45(
-          Th,
-          {
-            sx: {
-              p: { base: 2, md: 4 }
-            },
-            children: /* @__PURE__ */ jsxs31(
-              Grid9,
-              {
-                templateColumns: {
-                  base: "3fr 1fr 2fr",
-                  md: "3fr 3fr 1fr 2fr"
-                },
-                gap: { base: 2, md: 4 },
-                children: [
-                  /* @__PURE__ */ jsx45(GridItem9, { children: "Nombre completo" }),
-                  /* @__PURE__ */ jsx45(GridItem9, { sx: { display: { base: "none", md: "block" } }, children: "Nombre de usuario" }),
-                  /* @__PURE__ */ jsx45(GridItem9, { textAlign: "center", children: "Estado" }),
-                  /* @__PURE__ */ jsx45(GridItem9, {})
-                ]
-              }
-            )
-          }
-        ) }) }),
-        /* @__PURE__ */ jsx45(Tbody, { children: currentTableData.length > 0 ? currentTableData.map((user) => /* @__PURE__ */ jsx45(Tr, { children: /* @__PURE__ */ jsx45(
-          Td,
-          {
-            sx: {
-              p: { base: 2, md: 4 }
-            },
-            children: /* @__PURE__ */ jsxs31(
-              Grid9,
-              {
-                templateColumns: {
-                  base: "3fr 1fr 2fr",
-                  md: "3fr 3fr 1fr 2fr"
-                },
-                gap: { base: 2, md: 4 },
-                alignItems: "center",
-                children: [
-                  /* @__PURE__ */ jsx45(GridItem9, { children: /* @__PURE__ */ jsx45(TextWordBreak, { breakType: "normal", children: user.screen_name }) }),
-                  /* @__PURE__ */ jsx45(
-                    GridItem9,
-                    {
-                      sx: { display: { base: "none", md: "block" } },
-                      children: /* @__PURE__ */ jsx45(TextWordBreak, { breakType: "normal", children: user.username })
-                    }
-                  ),
-                  /* @__PURE__ */ jsx45(GridItem9, { textAlign: "center", children: /* @__PURE__ */ jsx45(
-                    Icon6,
-                    {
-                      as: user.habilitado_en_dxt && user.usuario_tango_existe && user.habilitado_en_tango === !0 ? AccountCheckIcon : AccountCancelIcon2,
-                      boxSize: 6,
-                      color: resolveUserStatusColor(user)
-                    }
-                  ) }),
-                  /* @__PURE__ */ jsx45(GridItem9, { children: /* @__PURE__ */ jsxs31(HStack8, { justifyContent: "center", children: [
-                    /* @__PURE__ */ jsx45(
-                      IconButton4,
-                      {
-                        "aria-label": "Eliminar",
-                        size: "sm",
-                        colorScheme: "red",
-                        onClick: handleDeleteDialog(
-                          user.id,
-                          user.username
-                        ),
-                        children: /* @__PURE__ */ jsx45(Icon6, { as: TrashIcon, boxSize: 4 })
-                      }
-                    ),
-                    /* @__PURE__ */ jsx45(
-                      IconButton4,
-                      {
-                        "aria-label": "Editar",
-                        size: "sm",
-                        colorScheme: "blue",
-                        onClick: handleEdit(user.id),
-                        children: /* @__PURE__ */ jsx45(Icon6, { as: PencilIcon, boxSize: 4 })
-                      }
-                    )
-                  ] }) })
-                ]
-              }
-            )
-          }
-        ) }, `row_${user.id}`)) : /* @__PURE__ */ jsx45(Tr, { children: /* @__PURE__ */ jsx45(Td, { children: /* @__PURE__ */ jsxs31(Alert4, { status: "info", children: [
-          /* @__PURE__ */ jsx45(AlertIcon3, {}),
-          /* @__PURE__ */ jsx45(AlertDescription3, { children: isFiltering ? FILTER_NO_RESULTS : NO_USERS })
-        ] }) }) }) })
-      ] }) }),
-      /* @__PURE__ */ jsx45(Flex2, { sx: { pt: 4, justifyContent: "center" }, children: /* @__PURE__ */ jsx45(
-        Pagination,
-        {
-          currentPage,
-          totalCount: filteredData.length,
-          pageSize: PageSize,
-          onPageChange: (page) => setCurrentPage(page)
-        }
-      ) })
-    ] })
-  ] });
-};
-
-// src/app/routes/_admin.settings.users.$type._index/components/index.tsx
-import { jsx as jsx46 } from "react/jsx-runtime";
-var ListsUsers = (props) => {
-  let { typeSettings } = props, { state, retry } = typeSettings.api.getAll();
-  return state.map({
-    loading: (_13) => /* @__PURE__ */ jsx46(Loading4, {}),
-    error: ({ error }) => /* @__PURE__ */ jsx46(
-      ApiErrors,
-      {
-        error,
-        retry,
-        cancelAndNavigateTo: URL_SETTINGS_PATH
-      }
-    ),
-    success: (state2) => /* @__PURE__ */ jsx46(
-      Success5,
-      {
-        stateData: state2.data,
-        retry,
-        typeSettings
-      }
-    )
-  });
-};
-
-// src/app/routes/_admin.settings.users.$type._index/route.tsx
-import { Fragment as Fragment14, jsx as jsx47, jsxs as jsxs32 } from "react/jsx-runtime";
-function Lists2() {
-  let navigate = useNavigate8(), { type } = useParams4(), typeSettings = settings[type];
-  return type != null && typeSettings != null ? /* @__PURE__ */ jsxs32(Fragment14, { children: [
-    /* @__PURE__ */ jsx47(
-      SettingsFormHeading,
-      {
-        title: typeSettings.titles.common,
-        returnButton: {
-          buttonProps: {
-            onClick: () => {
-              navigate(URL_SETTINGS_PATH);
-            }
-          }
-        },
-        actionButton: {
-          label: typeSettings.titles.create,
-          icon: AccountPlusIcon,
-          buttonProps: {
-            onClick: () => {
-              typeSettings.actionButtonNavigateTo != null && navigate(typeSettings.actionButtonNavigateTo);
-            }
-          }
-        }
-      }
-    ),
-    /* @__PURE__ */ jsx47(ListsUsers, { typeSettings })
-  ] }) : /* @__PURE__ */ jsx47(
-    CommonErrors,
-    {
-      error: INVALID_LIST_TYPE,
-      buttonProps: {
-        label: BACK_TO_SETTINGS,
-        colorScheme: "green",
-        onClick: () => {
-          navigate(URL_SETTINGS_PATH);
-        }
-      }
-    }
-  );
-}
-
 // src/app/routes/api.pedido.$id_pedido.start_update.ts
-var api_pedido_id_pedido_start_update_exports = {};
-__export(api_pedido_id_pedido_start_update_exports, {
-  action: () => action4,
-  loader: () => loader5
-});
-async function loader5({ request, params }) {
+async function loader2({ request, params }) {
   return await startOrderUpdateEndpoint.get(request, params);
 }
-var action4 = unimplementedApiResponse;
+var action = unimplementedApiResponse;
 
 // src/app/routes/_admin.settings.users.vendors.add/route.tsx
 var route_exports6 = {};
@@ -9111,13 +10508,13 @@ __export(route_exports6, {
 import { useNavigate as useNavigate9 } from "@remix-run/react";
 
 // src/app/routes/_admin.settings.users.vendors.add/components/success.tsx
-import { useEffect as useEffect9 } from "react";
+import { useEffect as useEffect10 } from "react";
 import {
   Box as Box14,
   Divider as Divider6,
   Grid as Grid10,
   GridItem as GridItem10,
-  Heading as Heading6,
+  Heading as Heading7,
   HStack as HStack9,
   Stack as Stack8,
   useToast as useToast6
@@ -9145,8 +10542,8 @@ var useCustomValidationSchema4 = () => {
 // src/app/routes/_admin.settings.users.vendors.add/components/success.tsx
 import { jsx as jsx48, jsxs as jsxs33 } from "react/jsx-runtime";
 var Success6 = (props) => {
-  let { typeSettings } = props, app = useAppResources(), toast = useToast6(), { yupValidationSchema: yupValidationSchema6, passwordStatus } = useCustomValidationSchema4(), { state: statePerfiles, result: resultPerfiles } = useTangoList({
-    url: API_TANGO_PERFIL,
+  let { typeSettings } = props, app = useAppResources(), toast = useToast6(), { yupValidationSchema: yupValidationSchema5, passwordStatus } = useCustomValidationSchema4(), { state: statePerfiles, result: resultPerfiles } = useTangoList({
+    endpoint: API_TANGO_PERFIL_GET_ALL,
     fieldsMap: {
       label: "name",
       value: "id"
@@ -9160,6 +10557,11 @@ var Success6 = (props) => {
     formState: { errors, isSubmitting, isSubmitSuccessful }
   } = useForm5({
     defaultValues: {
+      username: "",
+      password: "",
+      email: "",
+      tango_id: 0,
+      perfil_facturacion_id: 0,
       habilitado_en_dxt: !0,
       puede_crear_pedido: !0,
       puede_editar_pedido: !0,
@@ -9171,28 +10573,29 @@ var Success6 = (props) => {
       aprobar_pedido_al_crear: !1,
       dia_de_entrega: 30
     },
-    resolver: yupResolver5(yupValidationSchema6)
+    resolver: yupResolver5(yupValidationSchema5)
   }), watchPuedeAnularPedido = watch("puede_anular_pedido");
-  useEffect9(() => {
+  useEffect10(() => {
     watchPuedeAnularPedido === !1 && resetField("borrar_pedido_al_anular", { defaultValue: !1 });
   }, [watchPuedeAnularPedido]);
   let disableForm = isSubmitSuccessful || isSubmitting;
   return /* @__PURE__ */ jsx48("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
     let { ...data } = dataUnsafe;
     data.email === "" && delete data.email;
-    let input = data, result = await typeSettings.api.post(input, app);
-    await promiseBasedToast({
-      toast,
-      result,
-      messages: {
-        success: { title: USER_CREATED },
-        error: { title: AN_ERROR_OCCURRED },
-        loading: { title: USER_CREATING }
+    let input = data;
+    (await typeSettings.api.post(input, app)).map({
+      success: (_14) => {
+        toast({
+          title: USER_CREATED,
+          status: "success"
+        }), app.navigate(URL_SETTINGS_VENDORS_PATH);
+      },
+      error: (e) => {
+        toast({
+          title: AN_ERROR_OCCURRED,
+          status: "error"
+        }), setError("root", { message: e.info.error_description });
       }
-    }).then(() => {
-      app.navigate(URL_SETTINGS_VENDORS_PATH);
-    }).catch((e) => {
-      setError("root", { message: e });
     });
   }), children: /* @__PURE__ */ jsxs33(Box14, { children: [
     /* @__PURE__ */ jsx48(FormErrors, { errors }),
@@ -9203,7 +10606,7 @@ var Success6 = (props) => {
         alignItems: "start",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx48(GridItem10, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx48(Heading6, { size: "sm", textTransform: "uppercase", children: "Informaci\xF3n del Vendedor" }) }),
+          /* @__PURE__ */ jsx48(GridItem10, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx48(Heading7, { size: "sm", textTransform: "uppercase", children: "Informaci\xF3n del Vendedor" }) }),
           /* @__PURE__ */ jsxs33(GridItem10, { colSpan: { md: 2 }, children: [
             /* @__PURE__ */ jsx48(
               ControlledSelect,
@@ -9251,6 +10654,13 @@ var Success6 = (props) => {
           /* @__PURE__ */ jsx48(GridItem10, { children: /* @__PURE__ */ jsx48(
             PasswordWithStatus,
             {
+              fieldProps: {
+                name: "password",
+                id: "password"
+              },
+              formControlInnerProps: {
+                label: "Contrase\xF1a"
+              },
               passwordStatus,
               disableForm,
               control
@@ -9301,7 +10711,7 @@ var Success6 = (props) => {
             statePerfiles instanceof FetchStateError && /* @__PURE__ */ jsx48(InlineError, { error: statePerfiles.errorOrNull().error })
           ] }),
           /* @__PURE__ */ jsx48(GridItem10, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx48(Divider6, {}) }),
-          /* @__PURE__ */ jsx48(GridItem10, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx48(Heading6, { size: "sm", textTransform: "uppercase", children: "Estado" }) }),
+          /* @__PURE__ */ jsx48(GridItem10, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx48(Heading7, { size: "sm", textTransform: "uppercase", children: "Estado" }) }),
           /* @__PURE__ */ jsx48(GridItem10, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx48(
             ControlledRadio,
             {
@@ -9328,7 +10738,7 @@ var Success6 = (props) => {
             }
           ) }),
           /* @__PURE__ */ jsx48(GridItem10, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx48(Divider6, {}) }),
-          /* @__PURE__ */ jsx48(GridItem10, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx48(Heading6, { size: "sm", textTransform: "uppercase", children: "Comunicaci\xF3n" }) }),
+          /* @__PURE__ */ jsx48(GridItem10, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx48(Heading7, { size: "sm", textTransform: "uppercase", children: "Comunicaci\xF3n" }) }),
           /* @__PURE__ */ jsx48(GridItem10, { children: /* @__PURE__ */ jsx48(
             ControlledSwitch,
             {
@@ -9356,7 +10766,7 @@ var Success6 = (props) => {
         alignItems: "start",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx48(GridItem10, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx48(Heading6, { size: "sm", textTransform: "uppercase", children: "Pedidos" }) }),
+          /* @__PURE__ */ jsx48(GridItem10, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx48(Heading7, { size: "sm", textTransform: "uppercase", children: "Pedidos" }) }),
           /* @__PURE__ */ jsx48(GridItem10, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxs33(Stack8, { spacing: 4, direction: { base: "column" }, children: [
             /* @__PURE__ */ jsx48(HStack9, { spacing: 4, children: /* @__PURE__ */ jsx48(
               ControlledSwitch,
@@ -9551,22 +10961,55 @@ function Add2() {
 // src/app/routes/api.draft.$id_pedido.start_update.ts
 var api_draft_id_pedido_start_update_exports = {};
 __export(api_draft_id_pedido_start_update_exports, {
-  action: () => action5,
-  loader: () => loader6
+  action: () => action2,
+  loader: () => loader3
 });
-async function loader6({ request, params }) {
+async function loader3({ request, params }) {
   return await startDraftUpdateEndpoint.get(request, params);
 }
-var action5 = unimplementedApiResponse;
+var action2 = unimplementedApiResponse;
+
+// src/app/routes/api.pedido.$id_pedido.start_draft.ts
+var api_pedido_id_pedido_start_draft_exports = {};
+__export(api_pedido_id_pedido_start_draft_exports, {
+  action: () => action3,
+  loader: () => loader4
+});
+async function loader4({ request, params }) {
+  return await startNewDraftFromExistingOrderEndpoint.get(request, params);
+}
+var action3 = unimplementedApiResponse;
+
+// src/app/routes/api.pedido.$id_pedido.start_order.ts
+var api_pedido_id_pedido_start_order_exports = {};
+__export(api_pedido_id_pedido_start_order_exports, {
+  action: () => action4,
+  loader: () => loader5
+});
+async function loader5({ request, params }) {
+  return await startNewOrderFromExistingOrderEndpoint.get(request, params);
+}
+var action4 = unimplementedApiResponse;
 
 // src/app/routes/api.draft.$id_pedido.start_draft.ts
 var api_draft_id_pedido_start_draft_exports = {};
 __export(api_draft_id_pedido_start_draft_exports, {
+  action: () => action5,
+  loader: () => loader6
+});
+async function loader6({ request, params }) {
+  return await startNewDraftFromExistingDraftEndpoint.get(request, params);
+}
+var action5 = unimplementedApiResponse;
+
+// src/app/routes/api.draft.$id_pedido.start_order.ts
+var api_draft_id_pedido_start_order_exports = {};
+__export(api_draft_id_pedido_start_order_exports, {
   action: () => action6,
   loader: () => loader7
 });
 async function loader7({ request, params }) {
-  return await startNewDraftFromExistingDraftEndpoint.get(request, params);
+  return await startNewOrderFromExistingDraftEndpoint.get(request, params);
 }
 var action6 = unimplementedApiResponse;
 
@@ -9606,36 +11049,6 @@ var AdminRootController = class extends AuthenticatedRootController {
       throw new DXTException(101003 /* ADMIN_ROLE_REQUIRED */);
   }
 }, adminRootController = new AdminRootController();
-
-// src/code.server/infrastucture/dxt/articulo/dxt_articulo_print_list.repository.ts
-var DXTArticuloPrintListRepository = class extends DXTArticuloListRepository {
-  constructor() {
-    super({
-      mainTable: DXT_ARTICULO_PRINT_LIST_TABLE,
-      tableDependencies: [ARTICULO_TABLE]
-    });
-    this.mainColumns = [`${DXT_ARTICULO_PRINT_LIST_TABLE}.*`], this.articuloColumns = [ARTICULO_ID_FIELD].map((c) => `${ARTICULO_TABLE}.${c}`);
-  }
-  async getIdsWithParams(paramsToReturn) {
-    let cacheKey = `ids_${paramsToReturn?.join(".")}`, resultFromCache = await this.cache.getMetadata(cacheKey);
-    if (resultFromCache != null)
-      return resultFromCache;
-    let { mainTable } = this.config, rawData = await (await this.getCompany())(mainTable).select(...this.mainColumns, ...this.articuloColumns).innerJoin(ARTICULO_TABLE, `${mainTable}.${DXT_LIST_ARTICULO_CODE_FIELD}`, `${ARTICULO_TABLE}.${ARTICULO_CODE_FIELD}`).orderBy(DXT_LIST_ARTICULO_ID_FIELD);
-    if (rawData == null)
-      throw new DXTException(11e3 /* NOT_FOUND */);
-    let data = rawData.map((m) => this.toArticuloIdResult(m, paramsToReturn));
-    return await this.cache.setMetadata(cacheKey, data), data;
-  }
-  toArticuloIdResult(m, paramsToReturn) {
-    let { [ARTICULO_ID_FIELD]: id_articulo } = m, params = strToDXTArticuloListParams(m.params);
-    if (paramsToReturn.length == 0)
-      return params != null ? [id_articulo, params] : id_articulo;
-    let filteredParamsEntries = params == null ? null : Object.entries(params).filter(
-      ([key, _13]) => paramsToReturn.includes(key)
-    );
-    return filteredParamsEntries != null && filteredParamsEntries.length > 0 ? [id_articulo, Object.fromEntries(filteredParamsEntries)] : id_articulo;
-  }
-}, dxtArticuloPrintListRepository = new DXTArticuloPrintListRepository();
 
 // src/domain/dxt/articulo/value_objects/VOArticuloListRecords.ts
 var VOArticuloListRecords = class extends ValueObject {
@@ -9709,18 +11122,20 @@ __export(route_exports7, {
   default: () => OrdersAdd
 });
 import { useParams as useParams5 } from "@remix-run/react";
+import { Container } from "@chakra-ui/react";
 
-// src/app/pages/orders_add/index.tsx
+// src/app/pages/orders_edit/index.tsx
 import { useNavigate as useNavigate11 } from "@remix-run/react";
 
 // src/api-client/pedido/paths.ts
-var API_PEDIDO_GET_ALL = apiPath("/pedido"), API_PEDIDO_GET_ALL_ROWS = apiPath("/pedido/renglones"), API_PEDIDO_START_NEW = apiPath("/pedido/start_new/:client"), API_PEDIDO_CREATE = apiPath("/pedido"), API_PEDIDO_UPDATE = apiPath("/pedido/:id_pedido"), API_BORRADOR_GET_ALL = apiPath("/draft"), API_BORRADOR_GET_ALL_ROWS = apiPath("/draft/renglones"), API_BORRADOR_START_NEW = apiPath("/draft/start_new/:client"), API_BORRADOR_CREATE = apiPath("/draft/:id_pedido"), API_BORRADOR_UPDATE = apiPath("/draft/:id_pedido");
+var API_PEDIDO_GET_ALL = apiEndpoint("/pedido", "GET"), API_PEDIDO_GET_ALL_ROWS = apiEndpoint("/pedido/renglones", "GET"), API_PEDIDO_START_NEW = apiEndpoint("/pedido/start_new/:id_cliente", "GET"), API_PEDIDO_START_DRAFT = apiEndpoint("/pedido/:id_pedido/start_draft", "GET"), API_PEDIDO_START_ORDER = apiEndpoint("/pedido/:id_pedido/start_order", "GET"), API_PEDIDO_START_UPDATE = apiEndpoint("/pedido/:id_pedido/start_update", "GET"), API_PEDIDO_CREATE = apiEndpoint("/pedido", "POST"), API_PEDIDO_UPDATE = apiEndpoint("/pedido/:id_pedido", "PATCH"), API_PEDIDO_DELETE = apiEndpoint("/pedido/:id_pedido", "DELETE"), API_BORRADOR_GET_ALL = apiEndpoint("/draft", "GET"), API_BORRADOR_GET_ALL_ROWS = apiEndpoint("/draft/renglones", "GET"), API_BORRADOR_START_NEW = apiEndpoint("/draft/start_new/:id_cliente", "GET"), API_BORRADOR_START_DRAFT = apiEndpoint("/draft/:id_pedido/start_draft", "GET"), API_BORRADOR_START_ORDER = apiEndpoint("/draft/:id_pedido/start_order", "GET"), API_BORRADOR_START_UPDATE = apiEndpoint("/draft/:id_pedido/start_update", "GET"), API_BORRADOR_CREATE = apiEndpoint("/draft", "POST"), API_BORRADOR_UPDATE = apiEndpoint("/draft/:id_pedido", "PATCH"), API_BORRADOR_DELETE = apiEndpoint("/draft/:id_pedido", "DELETE");
 
-// src/app/pages/orders_add/components/loading.tsx
+// src/app/pages/orders_edit/components/loading.tsx
 import { Fragment as Fragment16, jsx as jsx51 } from "react/jsx-runtime";
 var Loading5 = () => /* @__PURE__ */ jsx51(Fragment16, { children: "Loading Skeletons here" });
 
-// src/app/pages/orders_add/components/success.tsx
+// src/app/pages/orders_edit/components/success.tsx
+import { useState as useState14 } from "react";
 import { Box as Box19, useToast as useToast7 } from "@chakra-ui/react";
 import { yupResolver as yupResolver6 } from "@hookform/resolvers/yup";
 import { format as format2 } from "date-fns";
@@ -9730,17 +11145,30 @@ import { FormProvider, useForm as useForm7 } from "react-hook-form";
 // src/api-client/pedido/requests.ts
 var createOrderRequest = async (input, app) => await dxtApiRequest(
   {
-    url: API_PEDIDO_CREATE,
+    ...API_PEDIDO_CREATE,
     data: input,
-    method: "POST",
     silent: !0
   },
   app
 ), createDraftRequest = async (input, app) => await dxtApiRequest(
   {
-    url: API_BORRADOR_CREATE,
+    ...API_BORRADOR_CREATE,
     data: input,
-    method: "POST",
+    silent: !0
+  },
+  app
+);
+var deleteOrderRequest = async (id_pedido, app) => await dxtApiRequest(
+  {
+    ...API_PEDIDO_DELETE,
+    pathParams: { id_pedido },
+    silent: !0
+  },
+  app
+), deleteDraftRequest = async (id_pedido, app) => await dxtApiRequest(
+  {
+    ...API_BORRADOR_DELETE,
+    pathParams: { id_pedido },
     silent: !0
   },
   app
@@ -9748,10 +11176,11 @@ var createOrderRequest = async (input, app) => await dxtApiRequest(
 
 // src/app/components/orders/OrdersAddNav.tsx
 import { useNavigate as useNavigate10 } from "@remix-run/react";
-import { Box as Box15, Flex as Flex3, HStack as HStack10, useColorModeValue as useColorModeValue2 } from "@chakra-ui/react";
+import { Box as Box15, Flex as Flex4, HStack as HStack10, useColorModeValue as useColorModeValue2 } from "@chakra-ui/react";
 import FormatListCheckboxIcon from "mdi-react/FormatListCheckboxIcon.js";
+import PlaylistCheckIcon from "mdi-react/PlaylistCheckIcon.js";
 import PlaylistEditIcon from "mdi-react/PlaylistEditIcon.js";
-import PlusIcon from "mdi-react/PlusIcon.js";
+import SendIcon from "mdi-react/SendIcon.js";
 import { useFormContext } from "react-hook-form";
 import { Fragment as Fragment17, jsx as jsx52, jsxs as jsxs35 } from "react/jsx-runtime";
 var OrdersAddNav = (props) => {
@@ -9760,6 +11189,7 @@ var OrdersAddNav = (props) => {
     isDisabled,
     handleCreatePedido,
     handleCreateDraft,
+    setConvertToDraft,
     ...searchFieldProps
   } = props;
   return /* @__PURE__ */ jsx52(Fragment17, { children: /* @__PURE__ */ jsx52(
@@ -9772,33 +11202,9 @@ var OrdersAddNav = (props) => {
         zIndex: 1e3,
         top: 0
       },
-      children: /* @__PURE__ */ jsxs35(Flex3, { h: 16, alignItems: "center", justifyContent: "space-between", children: [
+      children: /* @__PURE__ */ jsxs35(Flex4, { h: 16, alignItems: "center", justifyContent: "space-between", children: [
         /* @__PURE__ */ jsxs35(HStack10, { spacing: { base: 2, sm: 3 }, alignItems: "center", children: [
-          !isDraft && /* @__PURE__ */ jsx52(
-            ResponsiveIconButton,
-            {
-              icon: PlusIcon,
-              text: CREATE_ORDER,
-              sharedProps: {
-                size: "sm",
-                fontWeight: "400",
-                colorScheme: "orange",
-                isDisabled,
-                onClick: () => {
-                  handleSubmit((data) => {
-                    handleCreatePedido(data);
-                  })();
-                }
-              },
-              iconProps: {
-                boxSize: {
-                  base: 5,
-                  md: 4
-                }
-              }
-            }
-          ),
-          /* @__PURE__ */ jsx52(
+          isDraft ? /* @__PURE__ */ jsx52(Fragment17, { children: /* @__PURE__ */ jsx52(
             ResponsiveIconButton,
             {
               icon: PlaylistEditIcon,
@@ -9821,7 +11227,54 @@ var OrdersAddNav = (props) => {
                 }
               }
             }
-          ),
+          ) }) : /* @__PURE__ */ jsxs35(Fragment17, { children: [
+            /* @__PURE__ */ jsx52(
+              ResponsiveIconButton,
+              {
+                icon: SendIcon,
+                text: SEND_ORDER,
+                sharedProps: {
+                  size: "sm",
+                  fontWeight: "400",
+                  colorScheme: "orange",
+                  isDisabled,
+                  onClick: () => {
+                    handleSubmit((data) => {
+                      handleCreatePedido(data);
+                    })();
+                  }
+                },
+                iconProps: {
+                  boxSize: {
+                    base: 5,
+                    md: 4
+                  }
+                }
+              }
+            ),
+            /* @__PURE__ */ jsx52(
+              ResponsiveIconButton,
+              {
+                icon: PlaylistCheckIcon,
+                text: CONVERT_TO_DRAFT,
+                sharedProps: {
+                  size: "sm",
+                  fontWeight: "400",
+                  colorScheme: "green",
+                  isDisabled,
+                  onClick: () => {
+                    setConvertToDraft(!0);
+                  }
+                },
+                iconProps: {
+                  boxSize: {
+                    base: 5,
+                    md: 4
+                  }
+                }
+              }
+            )
+          ] }),
           /* @__PURE__ */ jsx52(
             ResponsiveIconButton,
             {
@@ -9843,7 +11296,7 @@ var OrdersAddNav = (props) => {
           )
         ] }),
         /* @__PURE__ */ jsx52(
-          Flex3,
+          Flex4,
           {
             alignItems: "center",
             sx: {
@@ -9857,25 +11310,39 @@ var OrdersAddNav = (props) => {
   ) });
 };
 
-// src/app/pages/orders_add/validation.ts
+// src/app/pages/orders_edit/validation.ts
 import * as yup7 from "yup";
-var yupValidationSchema2 = yup7.object({
-  fecha_alta: yup7.date().typeError("Ingrese una fecha de alta v\xE1lida").required("Ingrese una fecha de alta v\xE1lida"),
-  fecha_entrega: yup7.date().typeError("Ingrese una fecha de entrega v\xE1lida").required("Ingrese una fecha de alta v\xE1lida"),
-  id_condicion: yup7.number().required("Seleccione la condici\xF3n de venta"),
-  id_asiento: yup7.number().required("Seleccione el tipo de asiento"),
-  id_transporte: yup7.number().required("Seleccione el transporte"),
-  id_talonario: yup7.number().required("Seleccione el talonario"),
-  id_deposito: yup7.number().required("Seleccione el dep\xF3sito"),
-  bonificacion: yup7.number().required("Ingrese bonificaci\xF3n").typeError("Ingrese una bonificaci\xF3n v\xE1lida").min(0, "La bonificaci\xF3n debe encontrarse entre 0 y 100%").max(100, "La bonificaci\xF3n debe encontrarse entre 0 y 100%"),
-  comentarios: yup7.string(),
-  quantities: yup7.array().of(yup7.number()).test("at-least-one-quantity", "Ingrese al menos una cantidad", function(value) {
-    return !value || value.length === 0 ? !1 : value.some((quantity) => quantity && quantity > 0);
-  }).required("Ingrese al menos una cantidad")
-}).required();
+import { parse, isDate } from "date-fns";
+function parseDateString(value, originalValue) {
+  return isDate(originalValue) ? originalValue : parse(originalValue, "yyyy-MM-dd", /* @__PURE__ */ new Date());
+}
+var useCustomValidationSchema5 = (isDraft) => {
+  let baseValidationSchema = yup7.object({
+    fecha_alta: yup7.date().transform(parseDateString).typeError("Ingrese una fecha de alta v\xE1lida").required("Ingrese una fecha de alta v\xE1lida"),
+    fecha_entrega: yup7.date().transform(parseDateString).min(
+      yup7.ref("fecha_alta"),
+      "La fecha de entrega no puede ser anterior a la fecha de alta"
+    ).typeError("Ingrese una fecha de entrega v\xE1lida").required("Ingrese una fecha de alta v\xE1lida"),
+    id_condicion: yup7.number().required("Seleccione la condici\xF3n de venta"),
+    id_asiento: yup7.number().required("Seleccione el tipo de asiento"),
+    id_transporte: yup7.number().required("Seleccione el transporte"),
+    id_talonario: yup7.number().required("Seleccione el talonario"),
+    id_deposito: yup7.number().required("Seleccione el dep\xF3sito"),
+    id_direccion: yup7.number().required("Seleccione una direcci\xF3n"),
+    bonificacion: yup7.number().required("Ingrese bonificaci\xF3n").typeError("Ingrese una bonificaci\xF3n v\xE1lida").min(0, "La bonificaci\xF3n debe encontrarse entre 0 y 100%").max(100, "La bonificaci\xF3n debe encontrarse entre 0 y 100%"),
+    quantities: yup7.array().of(yup7.number()).test("at-least-one-quantity", "Ingrese al menos una cantidad", function(value) {
+      return !value || value.length === 0 ? !1 : value.some((quantity) => quantity != null && quantity > 0);
+    }).required("Ingrese al menos una cantidad"),
+    comentarios: yup7.string().default("").max(COMENTARIOS_MAX_LENGTH, "Los comentarios no pueden superar los ${max} caracteres"),
+    descripcion: yup7.string().default("").max(DESCRIPCION_MAX_LENGTH, "La descripci\xF3n no puede superar los ${max} caracteres")
+  }).required(), draftValidationSchema = yup7.object({
+    descripcion: yup7.string().required("Ingrese una descripci\xF3n").max(DESCRIPCION_MAX_LENGTH, "La descripci\xF3n no puede superar los ${max} caracteres")
+  });
+  return isDraft ? { yupValidationSchema: baseValidationSchema.concat(draftValidationSchema) } : { yupValidationSchema: baseValidationSchema };
+};
 
-// src/app/pages/orders_add/components/OrderInfo.tsx
-import { useEffect as useEffect11 } from "react";
+// src/app/pages/orders_edit/components/OrderInfo.tsx
+import { useEffect as useEffect12 } from "react";
 
 // src/code.client/utils/events.ts
 import Nanobus2 from "nanobus";
@@ -9904,20 +11371,20 @@ var calculateBonificacion = (price, bonificacion) => price - price * bonificacio
   }), total;
 };
 
-// src/app/pages/orders_add/components/OrderInfo.tsx
+// src/app/pages/orders_edit/components/OrderInfo.tsx
 import {
   Box as Box17,
   Collapse,
   Grid as Grid11,
   GridItem as GridItem11,
-  Heading as Heading8,
+  Heading as Heading9,
   useDisclosure as useDisclosure3
 } from "@chakra-ui/react";
 import { useFormContext as useFormContext2, useWatch } from "react-hook-form";
 
 // src/app/components/form_elements/ControlledDatePicker.tsx
 import {
-  Flex as Flex5,
+  Flex as Flex6,
   FormControl as FormControl6,
   FormHelperText as FormHelperText5,
   FormLabel as FormLabel5,
@@ -9954,7 +11421,7 @@ import { useCallback as useCallback2, useMemo as useMemo6 } from "react";
 import {
   Box as Box16,
   Divider as Divider7,
-  Heading as Heading7,
+  Heading as Heading8,
   HStack as HStack11,
   SimpleGrid,
   Stack as Stack9,
@@ -10185,7 +11652,7 @@ var CalendarPanel = ({
                 }
               ),
               /* @__PURE__ */ jsxs37(
-                Heading7,
+                Heading8,
                 {
                   size: "sm",
                   minWidth: "5rem",
@@ -10258,7 +11725,7 @@ var CalendarPanel = ({
 };
 
 // src/app/components/chakra-dayzed-datepicker/single.tsx
-import React4, { useEffect as useEffect10, useRef as useRef7, useState as useState12 } from "react";
+import React4, { useEffect as useEffect11, useRef as useRef7, useState as useState12 } from "react";
 import {
   Button as Button10,
   Input as Input3,
@@ -10270,7 +11737,7 @@ import {
   Portal,
   useDisclosure as useDisclosure2
 } from "@chakra-ui/react";
-import { format, parse, startOfDay } from "date-fns";
+import { format, parse as parse2, startOfDay } from "date-fns";
 import FocusLock from "react-focus-lock";
 
 // src/app/components/chakra-dayzed-datepicker/components/calendarIcon.tsx
@@ -10301,6 +11768,7 @@ var DefaultConfigs = {
     name,
     disabled,
     onDateChange,
+    isReadOnly,
     id,
     minDate,
     maxDate,
@@ -10313,7 +11781,7 @@ var DefaultConfigs = {
     propsConfigs,
     closeOnSelect,
     children
-  } = mergedProps, [dateInView, setDateInView] = useState12(selectedDate), [offset, setOffset] = useState12(0), inputChangeRef = useRef7(), { onOpen, onClose, isOpen } = useDisclosure2({ defaultIsOpen }), Icon12 = mergedProps.triggerVariant === "input" && mergedProps.triggerIcon !== void 0 ? mergedProps.triggerIcon : /* @__PURE__ */ jsx57(CalendarIcon, {}), datepickerConfigs = {
+  } = mergedProps, [dateInView, setDateInView] = useState12(selectedDate), [offset, setOffset] = useState12(0), inputChangeRef = useRef7(), { onOpen, onClose, isOpen } = useDisclosure2({ defaultIsOpen }), Icon13 = mergedProps.triggerVariant === "input" && mergedProps.triggerIcon !== void 0 ? mergedProps.triggerIcon : /* @__PURE__ */ jsx57(CalendarIcon, {}), datepickerConfigs = {
     ...DefaultConfigs,
     ...configs
   }, [tempInput, setInputVal] = useState12(
@@ -10327,7 +11795,7 @@ var DefaultConfigs = {
     }
   }, handleInputChange = (event) => {
     setInputVal(event.target.value), inputChangeRef.current && clearTimeout(inputChangeRef.current), inputChangeRef.current = setTimeout(() => {
-      let newDate = parse(
+      let newDate = parse2(
         event.target.value,
         datepickerConfigs.dateFormat,
         /* @__PURE__ */ new Date()
@@ -10339,7 +11807,7 @@ var DefaultConfigs = {
       disabledDates?.has(startOfDay(newDate).getTime()) !== !0 && onDateChange(newDate);
     }, 500);
   }, PopoverContentWrapper = usePortal === !0 ? Portal : React4.Fragment;
-  return useEffect10(() => {
+  return useEffect11(() => {
     selectedDate && setInputVal(format(selectedDate, datepickerConfigs.dateFormat));
   }, [selectedDate, datepickerConfigs.dateFormat]), /* @__PURE__ */ jsxs38(
     Popover,
@@ -10390,10 +11858,10 @@ var DefaultConfigs = {
               marginRight: "5px",
               zIndex: 1,
               type: "button",
-              disabled,
+              isDisabled: disabled === !0 || isReadOnly,
               padding: "8px",
               ...propsConfigs?.triggerIconBtnProps,
-              children: Icon12
+              children: Icon13
             }
           ) })
         ] }) : null,
@@ -10440,7 +11908,7 @@ var DefaultConfigs = {
 import { jsx as jsx58, jsxs as jsxs39 } from "react/jsx-runtime";
 var ControlledDatePicker = (props) => {
   let { fieldProps, formControlProps, formControlInnerProps, control } = props, containerBgColor = useColorModeValue3("gray.50", "gray.800"), {
-    field: { ref, onChange, value },
+    field: { ref: ref3, onChange, value },
     fieldState: { invalid },
     formState: { errors }
   } = useController6({
@@ -10449,7 +11917,7 @@ var ControlledDatePicker = (props) => {
   }), { label, helperText } = formControlInnerProps || {};
   return /* @__PURE__ */ jsxs39(FormControl6, { ...formControlProps, isInvalid: invalid, children: [
     label != null && /* @__PURE__ */ jsx58(FormLabel5, { htmlFor: `popover-trigger-${fieldProps.id}`, children: label }),
-    /* @__PURE__ */ jsx58(Flex5, { gap: "1rem", alignItems: "center", children: /* @__PURE__ */ jsx58(
+    /* @__PURE__ */ jsx58(Flex6, { gap: "1rem", alignItems: "center", children: /* @__PURE__ */ jsx58(
       SingleDatepicker,
       {
         ...fieldProps,
@@ -10497,7 +11965,7 @@ var ControlledDatePicker = (props) => {
 };
 
 // src/app/components/TextPrice.tsx
-import { Text as Text5 } from "@chakra-ui/react";
+import { Text as Text6 } from "@chakra-ui/react";
 import { Fragment as Fragment20, jsx as jsx59 } from "react/jsx-runtime";
 function formatNumber(num) {
   return num.toLocaleString("en-US", {
@@ -10505,12 +11973,12 @@ function formatNumber(num) {
     maximumFractionDigits: 2
   });
 }
-var TextSpecialPrice = (textProps) => /* @__PURE__ */ jsx59(Text5, { textAlign: "right", ...textProps, children: "Especial" }), TextPrice = ({ precio, moneda, textProps }) => /* @__PURE__ */ jsx59(Text5, { textAlign: "right", ...textProps, children: TextPricePlain(precio, moneda) }), TextPriceNative = ({ precio, moneda }) => /* @__PURE__ */ jsx59(Fragment20, { children: TextPricePlain(precio, moneda) }), TextPricePlain = (precio, moneda) => `${moneda != null && moneda + " "}${formatNumber(precio)}`;
+var TextSpecialPrice = (textProps) => /* @__PURE__ */ jsx59(Text6, { textAlign: "right", ...textProps, children: "Especial" }), TextPrice = ({ precio, moneda, textProps }) => /* @__PURE__ */ jsx59(Text6, { textAlign: "right", ...textProps, children: TextPricePlain(precio, moneda) }), TextPriceNative = ({ precio, moneda }) => /* @__PURE__ */ jsx59(Fragment20, { children: TextPricePlain(precio, moneda) }), TextPricePlain = (precio, moneda) => `${moneda != null && moneda + " "}${formatNumber(precio)}`;
 
-// src/app/pages/orders_add/components/OrderInfo.tsx
+// src/app/pages/orders_edit/components/OrderInfo.tsx
 import { Fragment as Fragment21, jsx as jsx60, jsxs as jsxs40 } from "react/jsx-runtime";
 var OrderTotal = ({ prices }) => {
-  let { control } = useFormContext2(), quantitiesWatch = useWatch({
+  let isCustomer = useAppResources().authState.isCustomer(), { control } = useFormContext2(), quantitiesWatch = useWatch({
     control,
     name: "quantities"
   }), bonificacionWatch = useWatch({
@@ -10518,9 +11986,9 @@ var OrderTotal = ({ prices }) => {
     name: "bonificacion"
   }), total = calculateTotals(quantitiesWatch, prices, bonificacionWatch);
   return /* @__PURE__ */ jsxs40(Fragment21, { children: [
-    /* @__PURE__ */ jsxs40(Heading8, { textTransform: "uppercase", size: "xs", children: [
+    /* @__PURE__ */ jsxs40(Heading9, { textTransform: "uppercase", size: "xs", children: [
       "Total (Sin IVA)",
-      bonificacionWatch > 0 && ` - Bonif. ${bonificacionWatch}%`
+      !isCustomer && bonificacionWatch > 0 && ` - Bonif. ${bonificacionWatch}%`
     ] }),
     /* @__PURE__ */ jsx60(
       TextPrice,
@@ -10537,14 +12005,15 @@ var OrderTotal = ({ prices }) => {
     )
   ] });
 }, OrderInfo = (props) => {
-  let { cabecera, disableForm, prices } = props, { isOpen, onToggle } = useDisclosure3({
+  let { isDraft, cabecera, disableForm, prices } = props, isCustomer = useAppResources().authState.isCustomer(), { isOpen, onToggle } = useDisclosure3({
     defaultIsOpen: !0
   }), {
     control,
     reset,
+    watch,
     formState: { isSubmitted, isSubmitting }
-  } = useFormContext2();
-  useEffect11(() => {
+  } = useFormContext2(), fecha_altaWatch = watch("fecha_alta");
+  useEffect12(() => {
     let handleDetailsToggle = () => {
       isOpen && onToggle();
     };
@@ -10571,247 +12040,326 @@ var OrderTotal = ({ prices }) => {
   }), depositoOptions = buildSelectOptions({
     data: cabecera.depositos,
     fieldsMap
+  }), direccionesOptions = buildSelectOptions({
+    data: cabecera.direcciones,
+    fieldsMap: {
+      label: ["name", "calle_numero"],
+      value: "id",
+      selected: "habitual"
+    }
   });
-  return /* @__PURE__ */ jsx60(Fragment21, { children: /* @__PURE__ */ jsx60(Box17, { children: /* @__PURE__ */ jsxs40(
-    CommonCard,
-    {
-      cardProps: { variant: "filled" },
-      cardBodyProps: {
-        p: 0
-      },
-      children: [
-        /* @__PURE__ */ jsxs40(
+  return /* @__PURE__ */ jsx60(Fragment21, { children: /* @__PURE__ */ jsxs40(Box17, { children: [
+    isDraft && /* @__PURE__ */ jsx60(
+      CommonCard,
+      {
+        cardProps: { variant: "filled" },
+        cardBodyProps: {
+          p: 0
+        },
+        children: /* @__PURE__ */ jsxs40(
           Grid11,
           {
-            templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
+            templateColumns: "1fr",
             alignItems: "center",
             gap: 4,
-            onClick: onToggle,
-            cursor: "pointer",
             sx: { p: 4 },
             children: [
-              /* @__PURE__ */ jsxs40(GridItem11, { children: [
-                /* @__PURE__ */ jsx60(Heading8, { size: "xs", children: "Cliente:" }),
-                /* @__PURE__ */ jsx60(Heading8, { size: "md", textTransform: "uppercase", sx: { mt: 1 }, children: cabecera.nombre_cliente })
-              ] }),
-              /* @__PURE__ */ jsx60(GridItem11, { textAlign: { md: "end" }, children: /* @__PURE__ */ jsx60(OrderTotal, { prices }) })
-            ]
-          }
-        ),
-        /* @__PURE__ */ jsx60(Collapse, { in: isOpen, style: { overflow: "inherit" }, children: /* @__PURE__ */ jsxs40(
-          Grid11,
-          {
-            templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
-            alignItems: "center",
-            gap: 4,
-            sx: { p: 4, pt: 0 },
-            children: [
-              /* @__PURE__ */ jsx60(GridItem11, { children: /* @__PURE__ */ jsx60(
-                ControlledDatePicker,
-                {
-                  fieldProps: {
-                    name: "fecha_alta",
-                    id: "fecha_alta",
-                    minDate: new Date((/* @__PURE__ */ new Date()).setHours(0, 0, 0, 0))
-                  },
-                  formControlProps: {
-                    isDisabled: disableForm
-                  },
-                  formControlInnerProps: {
-                    label: "Alta"
-                  },
-                  control
-                }
-              ) }),
-              /* @__PURE__ */ jsx60(GridItem11, { children: /* @__PURE__ */ jsx60(
-                ControlledDatePicker,
-                {
-                  fieldProps: {
-                    name: "fecha_entrega",
-                    id: "fecha_entrega",
-                    minDate: new Date((/* @__PURE__ */ new Date()).setHours(0, 0, 0, 0))
-                  },
-                  formControlProps: {
-                    isDisabled: disableForm
-                  },
-                  formControlInnerProps: {
-                    label: "Entrega"
-                  },
-                  control
-                }
-              ) }),
-              /* @__PURE__ */ jsx60(GridItem11, { children: /* @__PURE__ */ jsx60(
-                ControlledSelect,
-                {
-                  fieldProps: {
-                    name: "id_condicion",
-                    id: "id_condicion",
-                    placeholder: "Seleccione una condici\xF3n",
-                    options: condicionVentaOptions,
-                    noOptionsMessage(obj) {
-                      return "No hay condiciones disponibles";
-                    },
-                    selectedOptionStyle: "check"
-                  },
-                  formControlProps: {
-                    isDisabled: disableForm
-                  },
-                  formControlInnerProps: {
-                    label: "Condici\xF3n de venta"
-                  },
-                  control
-                }
-              ) }),
-              /* @__PURE__ */ jsx60(GridItem11, { children: /* @__PURE__ */ jsx60(
-                ControlledSelect,
-                {
-                  fieldProps: {
-                    name: "id_asiento",
-                    id: "id_asiento",
-                    placeholder: "Seleccione un tipo de asiento",
-                    options: tipoAsientoOptions,
-                    noOptionsMessage(obj) {
-                      return "No hay tipos disponibles";
-                    },
-                    selectedOptionStyle: "check"
-                  },
-                  formControlProps: {
-                    isDisabled: disableForm
-                  },
-                  formControlInnerProps: {
-                    label: "Tipo de asiento"
-                  },
-                  control
-                }
-              ) }),
-              /* @__PURE__ */ jsx60(GridItem11, { children: /* @__PURE__ */ jsx60(
-                ControlledSelect,
-                {
-                  fieldProps: {
-                    name: "id_transporte",
-                    id: "id_transporte",
-                    placeholder: "Seleccione un transporte",
-                    options: transporteOptions,
-                    noOptionsMessage(obj) {
-                      return "No hay transportes disponibles";
-                    },
-                    selectedOptionStyle: "check"
-                  },
-                  formControlProps: {
-                    isDisabled: disableForm
-                  },
-                  formControlInnerProps: {
-                    label: "Transporte"
-                  },
-                  control
-                }
-              ) }),
-              /* @__PURE__ */ jsx60(GridItem11, { children: /* @__PURE__ */ jsx60(
-                ControlledSelect,
-                {
-                  fieldProps: {
-                    name: "id_talonario",
-                    id: "id_talonario",
-                    placeholder: "Seleccione un talonario",
-                    options: talonarioOptions,
-                    noOptionsMessage(obj) {
-                      return "No hay talonarios disponibles";
-                    },
-                    selectedOptionStyle: "check"
-                  },
-                  formControlProps: {
-                    isDisabled: disableForm
-                  },
-                  formControlInnerProps: {
-                    label: "Talonario"
-                  },
-                  control
-                }
-              ) }),
-              /* @__PURE__ */ jsx60(GridItem11, { children: /* @__PURE__ */ jsx60(
-                ControlledSelect,
-                {
-                  fieldProps: {
-                    name: "id_deposito",
-                    id: "id_deposito",
-                    placeholder: "Seleccione un dep\xF3sito",
-                    options: depositoOptions,
-                    noOptionsMessage(obj) {
-                      return "No hay dep\xF3sitos disponibles";
-                    },
-                    selectedOptionStyle: "check"
-                  },
-                  formControlProps: {
-                    isDisabled: disableForm
-                  },
-                  formControlInnerProps: {
-                    label: "Dep\xF3sito"
-                  },
-                  control
-                }
-              ) }),
+              /* @__PURE__ */ jsx60(GridItem11, { children: /* @__PURE__ */ jsx60(Heading9, { size: "sm", textTransform: "uppercase", children: "Descripci\xF3n del borrador" }) }),
               /* @__PURE__ */ jsx60(GridItem11, { children: /* @__PURE__ */ jsx60(
                 ControlledInput,
                 {
                   fieldProps: {
-                    name: "bonificacion",
-                    id: "bonificacion",
-                    type: "number",
-                    inputMode: "decimal",
-                    min: 0,
-                    max: 100,
-                    htmlSize: 5,
-                    maxLength: 5,
-                    width: "auto",
-                    textAlign: "right",
-                    onKeyDown: (e) => {
-                      /^(,|-|\+)$/.test(e.key) && e.preventDefault();
-                    },
-                    onFocus: (e) => {
-                      e.target.select();
-                    },
-                    onChange: (e) => {
-                      if (e.target.value === "")
-                        return;
-                      let parsedValue = parseFloat(e.target.value);
-                      parsedValue || (e.target.value = "0"), parsedValue < 0 && (e.target.value = "0"), parsedValue > 100 && (e.target.value = "100");
-                    }
+                    name: "descripcion",
+                    id: "descripcion",
+                    maxLength: DESCRIPCION_MAX_LENGTH
                   },
                   formControlProps: {
                     isDisabled: disableForm
-                  },
-                  formControlInnerProps: {
-                    label: "Bonificaci\xF3n (%)"
-                  },
-                  control
-                }
-              ) }),
-              /* @__PURE__ */ jsx60(GridItem11, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx60(
-                ControlledTextarea,
-                {
-                  fieldProps: {
-                    name: "comentarios",
-                    id: "comentarios"
-                  },
-                  formControlProps: {
-                    isDisabled: disableForm
-                  },
-                  formControlInnerProps: {
-                    label: "Comentario"
                   },
                   control
                 }
               ) })
             ]
           }
-        ) })
-      ]
-    }
-  ) }) });
+        )
+      }
+    ),
+    /* @__PURE__ */ jsxs40(
+      CommonCard,
+      {
+        cardProps: { variant: "filled" },
+        cardBodyProps: {
+          p: 0
+        },
+        children: [
+          /* @__PURE__ */ jsxs40(
+            Grid11,
+            {
+              templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
+              alignItems: "center",
+              gap: 4,
+              onClick: onToggle,
+              cursor: "pointer",
+              sx: { p: 4 },
+              children: [
+                /* @__PURE__ */ jsxs40(GridItem11, { children: [
+                  /* @__PURE__ */ jsx60(Heading9, { size: "xs", children: "Cliente:" }),
+                  /* @__PURE__ */ jsx60(Heading9, { size: "md", textTransform: "uppercase", sx: { mt: 1 }, children: cabecera.nombre_cliente })
+                ] }),
+                /* @__PURE__ */ jsx60(GridItem11, { textAlign: { md: "end" }, children: /* @__PURE__ */ jsx60(OrderTotal, { prices }) })
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsx60(Collapse, { in: isOpen, style: { overflow: "inherit" }, children: /* @__PURE__ */ jsxs40(
+            Grid11,
+            {
+              templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
+              alignItems: "center",
+              gap: 4,
+              sx: { p: 4, pt: 0 },
+              children: [
+                !isDraft && (!isCustomer || isCustomer && cabecera.fecha_alta_editable) && /* @__PURE__ */ jsx60(GridItem11, { children: /* @__PURE__ */ jsx60(
+                  ControlledDatePicker,
+                  {
+                    fieldProps: {
+                      name: "fecha_alta",
+                      id: "fecha_alta",
+                      minDate: new Date((/* @__PURE__ */ new Date()).setHours(0, 0, 0, 0)),
+                      isReadOnly: !cabecera.fecha_alta_editable
+                    },
+                    formControlProps: {
+                      isDisabled: disableForm,
+                      isReadOnly: !cabecera.fecha_alta_editable
+                    },
+                    formControlInnerProps: {
+                      label: "Alta"
+                    },
+                    control
+                  }
+                ) }),
+                !isDraft && (!isCustomer || isCustomer && cabecera.fecha_entrega_editable) && /* @__PURE__ */ jsx60(GridItem11, { children: /* @__PURE__ */ jsx60(
+                  ControlledDatePicker,
+                  {
+                    fieldProps: {
+                      name: "fecha_entrega",
+                      id: "fecha_entrega",
+                      minDate: new Date(fecha_altaWatch.setHours(0, 0, 0, 0)),
+                      isReadOnly: !cabecera.fecha_entrega_editable
+                    },
+                    formControlProps: {
+                      isDisabled: disableForm,
+                      isReadOnly: !cabecera.fecha_entrega_editable
+                    },
+                    formControlInnerProps: {
+                      label: "Entrega"
+                    },
+                    control
+                  }
+                ) }),
+                (!isCustomer || isCustomer && cabecera.condicion_editable) && /* @__PURE__ */ jsx60(GridItem11, { children: /* @__PURE__ */ jsx60(
+                  ControlledSelect,
+                  {
+                    fieldProps: {
+                      name: "id_condicion",
+                      id: "id_condicion",
+                      placeholder: "Seleccione una condici\xF3n",
+                      options: condicionVentaOptions,
+                      noOptionsMessage(obj) {
+                        return "No hay condiciones disponibles";
+                      },
+                      selectedOptionStyle: "check",
+                      isSearchable: cabecera.condicion_editable
+                    },
+                    formControlProps: {
+                      isDisabled: disableForm
+                    },
+                    formControlInnerProps: {
+                      label: "Condici\xF3n de venta"
+                    },
+                    control
+                  }
+                ) }),
+                (!isCustomer || isCustomer && cabecera.asiento_editable) && /* @__PURE__ */ jsx60(GridItem11, { children: /* @__PURE__ */ jsx60(
+                  ControlledSelect,
+                  {
+                    fieldProps: {
+                      name: "id_asiento",
+                      id: "id_asiento",
+                      placeholder: "Seleccione un tipo de asiento",
+                      options: tipoAsientoOptions,
+                      noOptionsMessage(obj) {
+                        return "No hay tipos disponibles";
+                      },
+                      selectedOptionStyle: "check",
+                      isSearchable: cabecera.asiento_editable
+                    },
+                    formControlProps: {
+                      isDisabled: disableForm
+                    },
+                    formControlInnerProps: {
+                      label: "Tipo de asiento"
+                    },
+                    control
+                  }
+                ) }),
+                (!isCustomer || isCustomer && cabecera.transporte_editable) && /* @__PURE__ */ jsx60(GridItem11, { children: /* @__PURE__ */ jsx60(
+                  ControlledSelect,
+                  {
+                    fieldProps: {
+                      name: "id_transporte",
+                      id: "id_transporte",
+                      placeholder: "Seleccione un transporte",
+                      options: transporteOptions,
+                      noOptionsMessage(obj) {
+                        return "No hay transportes disponibles";
+                      },
+                      selectedOptionStyle: "check",
+                      isSearchable: cabecera.transporte_editable
+                    },
+                    formControlProps: {
+                      isDisabled: disableForm
+                    },
+                    formControlInnerProps: {
+                      label: "Transporte"
+                    },
+                    control
+                  }
+                ) }),
+                (!isCustomer || isCustomer && cabecera.talonario_editable) && /* @__PURE__ */ jsx60(GridItem11, { children: /* @__PURE__ */ jsx60(
+                  ControlledSelect,
+                  {
+                    fieldProps: {
+                      name: "id_talonario",
+                      id: "id_talonario",
+                      placeholder: "Seleccione un talonario",
+                      options: talonarioOptions,
+                      noOptionsMessage(obj) {
+                        return "No hay talonarios disponibles";
+                      },
+                      selectedOptionStyle: "check",
+                      isSearchable: cabecera.talonario_editable
+                    },
+                    formControlProps: {
+                      isDisabled: disableForm
+                    },
+                    formControlInnerProps: {
+                      label: "Talonario"
+                    },
+                    control
+                  }
+                ) }),
+                (!isCustomer || isCustomer && cabecera.deposito_editable) && /* @__PURE__ */ jsx60(GridItem11, { children: /* @__PURE__ */ jsx60(
+                  ControlledSelect,
+                  {
+                    fieldProps: {
+                      name: "id_deposito",
+                      id: "id_deposito",
+                      placeholder: "Seleccione un dep\xF3sito",
+                      options: depositoOptions,
+                      noOptionsMessage(obj) {
+                        return "No hay dep\xF3sitos disponibles";
+                      },
+                      selectedOptionStyle: "check",
+                      isSearchable: cabecera.deposito_editable
+                    },
+                    formControlProps: {
+                      isDisabled: disableForm
+                    },
+                    formControlInnerProps: {
+                      label: "Dep\xF3sito"
+                    },
+                    control
+                  }
+                ) }),
+                (!isCustomer || isCustomer && cabecera.direccion_editable) && /* @__PURE__ */ jsx60(GridItem11, { children: /* @__PURE__ */ jsx60(
+                  ControlledSelect,
+                  {
+                    fieldProps: {
+                      name: "id_direccion",
+                      id: "id_direccion",
+                      placeholder: "Seleccione una direcci\xF3n",
+                      options: direccionesOptions,
+                      noOptionsMessage(obj) {
+                        return "No hay direcciones disponibles";
+                      },
+                      selectedOptionStyle: "check",
+                      isSearchable: cabecera.direccion_editable
+                    },
+                    formControlProps: {
+                      isDisabled: disableForm
+                    },
+                    formControlInnerProps: {
+                      label: "Direcci\xF3n"
+                    },
+                    control
+                  }
+                ) }),
+                (!isCustomer || isCustomer && cabecera.bonificacion_editable) && /* @__PURE__ */ jsx60(GridItem11, { children: /* @__PURE__ */ jsx60(
+                  ControlledInput,
+                  {
+                    fieldProps: {
+                      name: "bonificacion",
+                      id: "bonificacion",
+                      type: "number",
+                      inputMode: "decimal",
+                      min: 0,
+                      max: 100,
+                      htmlSize: 5,
+                      maxLength: 5,
+                      width: "auto",
+                      textAlign: "right",
+                      onKeyDown: (e) => {
+                        /^(,|-|\+)$/.test(e.key) && e.preventDefault();
+                      },
+                      onFocus: (e) => {
+                        e.target.select();
+                      },
+                      onChange: (e) => {
+                        if (e.target.value === "")
+                          return;
+                        let parsedValue = parseFloat(e.target.value);
+                        parsedValue || (e.target.value = "0"), parsedValue < 0 && (e.target.value = "0"), parsedValue > 100 && (e.target.value = "100");
+                      },
+                      isReadOnly: !cabecera.bonificacion_editable
+                    },
+                    formControlProps: {
+                      isDisabled: disableForm
+                    },
+                    formControlInnerProps: {
+                      label: "Bonificaci\xF3n (%)"
+                    },
+                    control
+                  }
+                ) }),
+                /* @__PURE__ */ jsx60(GridItem11, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx60(
+                  ControlledTextarea,
+                  {
+                    fieldProps: {
+                      name: "comentarios",
+                      id: "comentarios",
+                      maxLength: COMENTARIOS_MAX_LENGTH,
+                      rows: 3
+                    },
+                    formControlProps: {
+                      isDisabled: disableForm
+                    },
+                    formControlInnerProps: {
+                      label: "Comentario"
+                    },
+                    control
+                  }
+                ) })
+              ]
+            }
+          ) })
+        ]
+      }
+    )
+  ] }) });
 };
 
-// src/app/pages/orders_add/components/ProductsTable.tsx
-import React5, { useEffect as useEffect12, useState as useState13 } from "react";
+// src/app/pages/orders_edit/components/ProductsTable.tsx
+import React5, { useEffect as useEffect13, useState as useState13 } from "react";
 import {
   Accordion,
   AccordionButton,
@@ -10821,16 +12369,16 @@ import {
   AlertIcon as AlertIcon4,
   Badge as Badge3,
   Box as Box18,
-  Heading as Heading9
+  Heading as Heading10
 } from "@chakra-ui/react";
 import _8 from "lodash";
 import { useFormContext as useFormContext5, useWatch as useWatch4 } from "react-hook-form";
 
-// src/app/pages/orders_add/components/ProductsList.tsx
-import { useColorModeValue as useColorModeValue5, AccordionPanel } from "@chakra-ui/react";
+// src/app/pages/orders_edit/components/ProductsList.tsx
+import { AccordionPanel, useColorModeValue as useColorModeValue5 } from "@chakra-ui/react";
 import { useFormContext as useFormContext4, useWatch as useWatch3 } from "react-hook-form";
 
-// src/app/pages/orders_add/components/ProductRow.tsx
+// src/app/pages/orders_edit/components/ProductRow.tsx
 import { useColorModeValue as useColorModeValue4 } from "@chakra-ui/react";
 import { useFormContext as useFormContext3, useWatch as useWatch2 } from "react-hook-form";
 import { jsx as jsx61, jsxs as jsxs41 } from "react/jsx-runtime";
@@ -10848,8 +12396,11 @@ var ProductsRow = (props) => {
     control,
     register,
     formState: { isSubmitted, isSubmitting }
-  } = useFormContext3(), precioBonificacion = calculateBonificacion(precio, bonificacion ?? bonificacionGlobal), productSum = useWatch2({ control, name: `quantities.${id}` }) * precioBonificacion, inputFieldProps = {
-    type: "number",
+  } = useFormContext3(), precioBonificacion = calculateBonificacion(
+    precio,
+    bonificacion ?? bonificacionGlobal
+  ), productSum = useWatch2({ control, name: `quantities.${id}` }) * precioBonificacion, inputFieldProps = {
+    type: "string",
     min: 0,
     inputMode: "tel",
     size: 5,
@@ -10865,8 +12416,9 @@ var ProductsRow = (props) => {
       borderColor: inputBorderColor,
       backgroundColor: inputBackgroundColor
     },
-    disabled: !1
+    disabled: !1,
     //isSubmitted || isSubmitting
+    autoComplete: "off"
   };
   return /* @__PURE__ */ jsxs41(
     "div",
@@ -10888,7 +12440,7 @@ var ProductsRow = (props) => {
   );
 };
 
-// src/app/pages/orders_add/components/ProductsList.tsx
+// src/app/pages/orders_edit/components/ProductsList.tsx
 import { jsx as jsx62, jsxs as jsxs42 } from "react/jsx-runtime";
 function ProductsList({
   articulos
@@ -10903,8 +12455,8 @@ function ProductsList({
   return /* @__PURE__ */ jsxs42(AccordionPanel, { sx: { p: 4, pt: 0 }, children: [
     /* @__PURE__ */ jsxs42("div", { className: "grid heading", style: { backgroundColor: `${rowColor}` }, children: [
       /* @__PURE__ */ jsx62("div", { className: "hidden-on-base", children: /* @__PURE__ */ jsx62("strong", { children: "Art\xEDculo" }) }),
-      /* @__PURE__ */ jsx62("div", { className: "text-right hidden-on-base", children: /* @__PURE__ */ jsx62("strong", { children: "Precio" }) }),
-      /* @__PURE__ */ jsx62("div", { className: "text-right", children: /* @__PURE__ */ jsx62("strong", { children: "Precio bonificado" }) }),
+      /* @__PURE__ */ jsx62("div", { className: "text-right hidden-on-base", children: /* @__PURE__ */ jsx62("strong", { children: "Lista" }) }),
+      /* @__PURE__ */ jsx62("div", { className: "text-right", children: /* @__PURE__ */ jsx62("strong", { children: "Bonificado" }) }),
       /* @__PURE__ */ jsx62("div", { className: "text-center", children: /* @__PURE__ */ jsx62("strong", { children: "Cantidad" }) }),
       /* @__PURE__ */ jsx62("div", { className: "text-right", children: /* @__PURE__ */ jsx62("strong", { children: "Subtotal" }) })
     ] }),
@@ -10919,7 +12471,7 @@ function ProductsList({
   ] });
 }
 
-// src/app/pages/orders_add/components/ProductsTable.tsx
+// src/app/pages/orders_edit/components/ProductsTable.tsx
 import { jsx as jsx63, jsxs as jsxs43 } from "react/jsx-runtime";
 var CategoryAccordionButton = (props) => {
   let { control } = useFormContext5(), { categoryName, articulos } = props, bonificacionWatch = useWatch4({ control, name: "bonificacion" }), categorySum;
@@ -10944,7 +12496,7 @@ var CategoryAccordionButton = (props) => {
       children: [
         /* @__PURE__ */ jsx63(AccordionIcon, { sx: { me: 2 } }),
         /* @__PURE__ */ jsx63(Box18, { as: "span", flex: "1", textAlign: "left", children: /* @__PURE__ */ jsx63(
-          Heading9,
+          Heading10,
           {
             size: ["sm", "md"],
             sx: {
@@ -10964,20 +12516,20 @@ var CategoryAccordionButton = (props) => {
       (value) => Array.isArray(value) && value.length > 0
     )
   );
-  return useEffect12(() => {
+  return useEffect13(() => {
     setIndex(isFiltering ? _8.range(totalCategories) : null);
-  }, [isFiltering]), useEffect12(() => {
+  }, [isFiltering]), useEffect13(() => {
     index != null && eventBus2.emit("togglePedidoCategory");
   }, [index]), filledUpCategories.length ? /* @__PURE__ */ jsx63(
     Accordion,
     {
-      allowMultiple: !0,
+      allowToggle: !0,
       reduceMotion: !0,
       ...totalCategories === 1 ? { defaultIndex: [0] } : {},
       ...index != null && { index },
       onChange: setIndex,
       children: _8.map(filteredProducts, (articulos, categoria) => {
-        let categoryName = categoria === "_" ? "Varios" : categoria;
+        let categoryName = categoria === ARTICLE_GROUP_NO_NAME ? PEDIDO_ARTICLE_GROUP_NO_NAME : categoria;
         return articulos.length ? /* @__PURE__ */ jsx63(
           AccordionItem,
           {
@@ -11016,10 +12568,12 @@ var CategoryAccordionButton = (props) => {
   ] });
 };
 
-// src/app/pages/orders_add/components/success.tsx
+// src/app/pages/orders_edit/components/success.tsx
 import { Fragment as Fragment22, jsx as jsx64, jsxs as jsxs44 } from "react/jsx-runtime";
 var Success7 = (props) => {
-  let { isDraft, pedidoState } = props, app = useAppResources(), toast = useToast7(), quantities = [], prices = {};
+  let { isDraft, pedidoState } = props, [convertToDraft, setConvertToDraft] = useState14(!1), app = useAppResources(), toast = useToast7(), { yupValidationSchema: yupValidationSchema5 } = useCustomValidationSchema5(
+    isDraft || convertToDraft
+  ), quantities = [], prices = {};
   _9.forOwn(pedidoState.articulos, (articulos) => {
     articulos.forEach((product) => {
       prices[product.id] = {
@@ -11038,9 +12592,12 @@ var Success7 = (props) => {
       id_deposito: getSelectedValue(pedidoState.cabecera.depositos) ?? void 0,
       id_talonario: getSelectedValue(pedidoState.cabecera.talonarios) ?? void 0,
       id_asiento: getSelectedValue(pedidoState.cabecera.asientos) ?? void 0,
-      quantities
+      id_direccion: getSelectedValue(pedidoState.cabecera.direcciones, "habitual") ?? void 0,
+      quantities,
+      descripcion: "",
+      comentarios: ""
     },
-    resolver: yupResolver6(yupValidationSchema2)
+    resolver: yupResolver6(yupValidationSchema5)
   }), {
     handleSubmit,
     setError,
@@ -11054,25 +12611,34 @@ var Success7 = (props) => {
       });
     }), renglones;
   }, handleCreatePedido = async (dataUnsafe) => {
-    let renglones = quantitiesToRenglones(dataUnsafe.quantities), { quantities: _quantities, ...data } = dataUnsafe, input = {
+    let renglones = quantitiesToRenglones(dataUnsafe.quantities), {
+      quantities: _quantities,
+      descripcion: _descripcion,
+      ...data
+    } = dataUnsafe, input = {
       ...data,
       fecha_alta: format2(data.fecha_alta, DATE_FORMAT_API),
       fecha_entrega: format2(data.fecha_entrega, DATE_FORMAT_API),
       id_cliente: pedidoState.cabecera.id_cliente,
       renglones
-    }, result = await createOrderRequest(input, app);
-    await promiseBasedToast({
-      toast,
-      result,
-      messages: {
-        success: { title: ORDER_CREATED.replace("{{numero_pedido}}", "123") },
-        error: { title: AN_ERROR_OCCURRED },
-        loading: { title: ORDER_CREATING }
+    };
+    (await createOrderRequest(input, app)).map({
+      success: (state) => {
+        toast({
+          title: ORDER_CREATED,
+          description: ORDER_CREATED_NUMBER.replace(
+            "{{numero_pedido}}",
+            state.data.numero_pedido
+          ),
+          status: "success"
+        }), app.navigate(URL_PEDIDOS_PATH);
+      },
+      error: (e) => {
+        toast({
+          title: AN_ERROR_OCCURRED,
+          status: "error"
+        }), setError("root", { message: e.info.error_description });
       }
-    }).then(() => {
-      app.navigate(URL_PEDIDOS_PATH);
-    }).catch((e) => {
-      setError("root", { message: e });
     });
   }, handleCreateDraft = async (dataUnsafe) => {
     let renglones = quantitiesToRenglones(dataUnsafe.quantities), {
@@ -11084,19 +12650,24 @@ var Success7 = (props) => {
       ...data,
       id_cliente: pedidoState.cabecera.id_cliente,
       renglones
-    }, result = await createDraftRequest(input, app);
-    await promiseBasedToast({
-      toast,
-      result,
-      messages: {
-        success: { title: DRAFT_CREATED.replace("{{numero_pedido}}", "123") },
-        error: { title: AN_ERROR_OCCURRED },
-        loading: { title: DRAFT_CREATING }
+    };
+    (await createDraftRequest(input, app)).map({
+      success: (state) => {
+        toast({
+          title: DRAFT_CREATED,
+          description: DRAFT_CREATED_NUMBER.replace(
+            "{{numero_pedido}}",
+            state.data.numero_pedido
+          ),
+          status: "success"
+        }), app.navigate(URL_BORRADORES_PATH);
+      },
+      error: (e) => {
+        toast({
+          title: AN_ERROR_OCCURRED,
+          status: "error"
+        }), setError("root", { message: e.info.error_description });
       }
-    }).then(() => {
-      app.navigate(URL_PEDIDOS_PATH);
-    }).catch((e) => {
-      setError("root", { message: e });
     });
   }, {
     filteredData: filteredProducts,
@@ -11107,8 +12678,9 @@ var Success7 = (props) => {
     /* @__PURE__ */ jsx64(
       OrdersAddNav,
       {
-        isDraft,
+        isDraft: isDraft || convertToDraft,
         isDisabled: disableForm,
+        setConvertToDraft,
         handleSearchInputChange,
         handleCreatePedido,
         handleCreateDraft
@@ -11119,6 +12691,7 @@ var Success7 = (props) => {
       /* @__PURE__ */ jsx64(
         OrderInfo,
         {
+          isDraft: isDraft || convertToDraft,
           cabecera: pedidoState.cabecera,
           disableForm,
           prices
@@ -11137,49 +12710,35 @@ var Success7 = (props) => {
   ] }) }) });
 };
 
-// src/app/pages/orders_add/index.tsx
+// src/app/pages/orders_edit/index.tsx
 import { jsx as jsx65 } from "react/jsx-runtime";
 var OrdersAddPage = (props) => {
-  let { client, draft } = props, navigate = useNavigate11();
-  if (client != null && integerValidator(client)) {
-    let { state, retry } = useDXTApiFetch({
-      url: draft ? API_BORRADOR_START_NEW : API_PEDIDO_START_NEW,
-      pathParams: { client },
-      silent: !0
-    });
-    return state.map({
-      loading: (_13) => /* @__PURE__ */ jsx65(Loading5, {}),
-      error: ({ error }) => /* @__PURE__ */ jsx65(
-        ApiErrors,
-        {
-          error,
-          retry,
-          cancelAndNavigateTo: draft ? URL_BORRADORES_PATH : URL_PEDIDOS_PATH
-        }
-      ),
-      success: (state2) => /* @__PURE__ */ jsx65(Success7, { pedidoState: state2.data, isDraft: draft })
-    });
-  }
-  return /* @__PURE__ */ jsx65(
-    CommonErrors,
-    {
-      error: CLIENT_NOT_FOUND,
-      buttonProps: {
-        label: BACK_TO_PEDIDOS,
-        colorScheme: "green",
-        onClick: () => {
-          navigate(URL_PEDIDOS_PATH);
-        }
+  let { client, draft } = props, navigate = useNavigate11(), { state, retry } = useDXTApiFetch({
+    ...draft ? API_BORRADOR_START_NEW : API_PEDIDO_START_NEW,
+    pathParams: {
+      id_cliente: client != null && integerValidator(client) ? client : ""
+    },
+    silent: !0
+  });
+  return state.map({
+    loading: (_14) => /* @__PURE__ */ jsx65(Loading5, {}),
+    error: ({ error }) => /* @__PURE__ */ jsx65(
+      ApiErrors,
+      {
+        error,
+        retry,
+        cancelAndNavigateTo: draft ? URL_BORRADORES_PATH : URL_PEDIDOS_PATH
       }
-    }
-  );
+    ),
+    success: (state2) => /* @__PURE__ */ jsx65(Success7, { pedidoState: state2.data, isDraft: draft })
+  });
 };
 
 // src/app/routes/_authorized.drafts.$client.add/route.tsx
 import { jsx as jsx66 } from "react/jsx-runtime";
 function OrdersAdd() {
   let { client } = useParams5();
-  return /* @__PURE__ */ jsx66(OrdersAddPage, { client, draft: !0 });
+  return /* @__PURE__ */ jsx66(Container, { maxW: "6xl", sx: { my: 4 }, children: /* @__PURE__ */ jsx66(OrdersAddPage, { client, draft: !0 }) });
 }
 
 // src/app/routes/_authorized.orders.$client.add/route.tsx
@@ -11188,10 +12747,11 @@ __export(route_exports8, {
   default: () => OrdersAdd2
 });
 import { useParams as useParams6 } from "@remix-run/react";
+import { Container as Container2 } from "@chakra-ui/react";
 import { jsx as jsx67 } from "react/jsx-runtime";
 function OrdersAdd2() {
   let { client } = useParams6();
-  return /* @__PURE__ */ jsx67(OrdersAddPage, { client, draft: !1 });
+  return /* @__PURE__ */ jsx67(Container2, { maxW: "6xl", sx: { my: 4 }, children: /* @__PURE__ */ jsx67(OrdersAddPage, { client, draft: !1 }) });
 }
 
 // src/app/routes/api.dictionary.active_company.ts
@@ -11280,7 +12840,7 @@ var updateUserInputSchema = {
 }, validateDeleteUserInput = (input) => validateInput(deleteUserInputSchema, input);
 
 // src/domain/dxt/inputs/cliente.ts
-var updateClienteInputSchema = updateUserInputSchema, createClienteInputSchema = createUserInputSchema, validateUpdateClienteInput = (input) => validateInput(updateClienteInputSchema, input), validateInsertClienteInput = (input) => validateInput(createClienteInputSchema, input);
+var updateClienteInputSchema = updateUserInputSchema, createClienteInputSchema = createUserInputSchema, validateUpdateClienteInput = (input) => validateInput(updateClienteInputSchema, input), validateCreateClienteInput = (input) => validateInput(createClienteInputSchema, input);
 
 // src/domain/dxt/inputs/vendedor.ts
 var updateVendedorInputSchema = updateUserInputSchema, createVendedorInputSchema = createUserInputSchema, validateUpdateVendedorInput = (input) => validateInput(updateVendedorInputSchema, input), validateCreateVendedorInput = (input) => validateInput(createVendedorInputSchema, input);
@@ -11326,7 +12886,7 @@ var dxtClienteGetAllEndpoint = createDXTUserGetAllEndpoint(dxtClienteRepository)
   async (req) => clienteToSafeOutput(await dxtClienteRepository.getById(req.validated.params.id_cliente))
 ), dxtClienteCreateEndpoint = createApiEndpoint(
   adminRootController,
-  { validation: { body: validateInsertClienteInput } },
+  { validation: { body: validateCreateClienteInput } },
   async (req) => clienteToSafeOutput(await dxtClienteRepository.create(req.validated.body))
 ), dxtClienteUpdateEndpoint = createApiEndpoint(
   adminRootController,
@@ -11384,6 +12944,19 @@ var dxtClienteGetAllEndpoint = createDXTUserGetAllEndpoint(dxtClienteRepository)
       throw new DXTException(0 /* UNEXPECTED_ERROR */, "dxtVendedorGetCustomersEndpoint");
     return await clienteRepository.getAllByVendor(tangoId);
   }
+), dxtUsuarioGetAuxiliaresEndpoint = createApiEndpoint(
+  authenticatedRootController,
+  void 0,
+  async (req) => {
+    let { user } = req.auth, [perfiles, listas] = await Promise.all([
+      perfilRepository.getAll(),
+      listaRepository.getAll()
+    ]);
+    return {
+      listas,
+      perfiles
+    };
+  }
 );
 
 // src/app/routes/api.dxt.vendedor.$id_vendedor.ts
@@ -11400,11 +12973,139 @@ async function action11({ request, params }) {
 // src/app/routes/_authorized.change_password/route.tsx
 var route_exports9 = {};
 __export(route_exports9, {
-  default: () => ChangePassword
+  default: () => Tango
 });
-import { Fragment as Fragment23, jsx as jsx68 } from "react/jsx-runtime";
-function ChangePassword() {
-  return /* @__PURE__ */ jsx68(Fragment23, { children: "Change password" });
+import { useNavigate as useNavigate12 } from "@remix-run/react";
+import { Container as Container3 } from "@chakra-ui/react";
+
+// src/app/routes/_authorized.change_password/components/success.tsx
+import { Box as Box20, Grid as Grid12, GridItem as GridItem12, useToast as useToast8 } from "@chakra-ui/react";
+import { yupResolver as yupResolver7 } from "@hookform/resolvers/yup";
+import { useForm as useForm8 } from "react-hook-form";
+
+// src/app/routes/_authorized.change_password/validation.ts
+import { useState as useState15 } from "react";
+import * as yup8 from "yup";
+import _10 from "lodash";
+var useCustomValidationSchema6 = () => {
+  let [passwordStatus, setPasswordStatus] = useState15(null);
+  return { yupValidationSchema: yup8.object({
+    old_password: yup8.string().required("Ingrese su contase\xF1a actual"),
+    new_password: yup8.string().required("Ingrese su nueva contrase\xF1a").test("password", "Formato de contrase\xF1a no v\xE1lido", (v) => {
+      if (v != "" && v != null) {
+        let newPasswordStatus = dxtPasswordStatus(v);
+        return _10.isEqual(passwordStatus, newPasswordStatus) || setPasswordStatus(newPasswordStatus), yupVOValidation(VODXTPassword, v);
+      }
+      return !0;
+    }),
+    new_password_repeat: yup8.string().required("Repita su nueva contrase\xF1a").oneOf([yup8.ref("new_password")], "Las contrase\xF1as deben coincidir")
+  }).required(), passwordStatus };
+};
+
+// src/app/routes/_authorized.change_password/components/success.tsx
+import { jsx as jsx68, jsxs as jsxs45 } from "react/jsx-runtime";
+var ChangePassword = () => {
+  let app = useAppResources(), toast = useToast8(), { yupValidationSchema: yupValidationSchema5, passwordStatus } = useCustomValidationSchema6(), {
+    handleSubmit,
+    control,
+    reset,
+    setError,
+    formState: { errors, isSubmitting, isSubmitSuccessful }
+  } = useForm8({
+    defaultValues: {
+      old_password: "",
+      new_password: "",
+      new_password_repeat: ""
+    },
+    resolver: yupResolver7(yupValidationSchema5)
+  }), disableForm = isSubmitSuccessful || isSubmitting;
+  return /* @__PURE__ */ jsx68("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
+    let { new_password_repeat: _new_password_repeat, ...data } = dataUnsafe;
+    (await authChangePasswordRequest(data, app)).map({
+      success: (successState) => {
+        toast({
+          title: PASSWORD_CHANGED,
+          status: "success"
+        }), app.authDispatch(new AuthActionRefreshAll(successState.data.user)), app.navigate(URL_MAIN_PATH);
+      },
+      error: (e) => {
+        toast({
+          title: AN_ERROR_OCCURRED,
+          status: "error"
+        }), setError("root", { message: e.info.error_description });
+      }
+    });
+  }), children: /* @__PURE__ */ jsxs45(Box20, { children: [
+    /* @__PURE__ */ jsx68(FormErrors, { errors }),
+    /* @__PURE__ */ jsx68(CommonCard, { children: /* @__PURE__ */ jsxs45(Grid12, { templateColumns: "1fr", alignItems: "start", gap: 4, children: [
+      /* @__PURE__ */ jsx68(GridItem12, { children: /* @__PURE__ */ jsx68(
+        PasswordWithStatus,
+        {
+          fieldProps: {
+            name: "old_password",
+            id: "old_password"
+          },
+          formControlInnerProps: {
+            label: "Contrase\xF1a Actual"
+          },
+          disableForm,
+          control
+        }
+      ) }),
+      /* @__PURE__ */ jsx68(GridItem12, { children: /* @__PURE__ */ jsx68(
+        PasswordWithStatus,
+        {
+          fieldProps: {
+            name: "new_password",
+            id: "new_password"
+          },
+          formControlInnerProps: {
+            label: "Nueva contrase\xF1a"
+          },
+          passwordStatus,
+          disableForm,
+          control
+        }
+      ) }),
+      /* @__PURE__ */ jsx68(GridItem12, { children: /* @__PURE__ */ jsx68(
+        PasswordWithStatus,
+        {
+          fieldProps: {
+            name: "new_password_repeat",
+            id: "new_password_repeat"
+          },
+          formControlInnerProps: {
+            label: "Confirmar nueva contrase\xF1a"
+          },
+          disableForm,
+          control
+        }
+      ) })
+    ] }) }),
+    /* @__PURE__ */ jsx68(CommonCard, { children: /* @__PURE__ */ jsx68(SettingsFormsButtons, { isLoading: disableForm }) })
+  ] }) });
+};
+
+// src/app/routes/_authorized.change_password/route.tsx
+import { jsx as jsx69, jsxs as jsxs46 } from "react/jsx-runtime";
+function Tango() {
+  let navigate = useNavigate12();
+  return /* @__PURE__ */ jsxs46(Container3, { maxW: "2xl", sx: { my: 4 }, children: [
+    /* @__PURE__ */ jsx69(
+      SettingsFormHeading,
+      {
+        title: CHANGE_PASSWORD,
+        returnButton: {
+          buttonProps: {
+            onClick: () => {
+              navigate(URL_MAIN_PATH);
+            }
+          }
+        }
+      }
+    ),
+    /* @__PURE__ */ jsx69(ChangePassword, {})
+  ] });
 }
 
 // src/app/routes/api.dxt.articulo.print_list.ts
@@ -11449,54 +13150,63 @@ async function action14({ request, params }) {
   return await dxtArticuloSetEditListEndpoint.post(request, params);
 }
 
+// src/app/routes/api.dxt.usuario.auxiliares.ts
+var api_dxt_usuario_auxiliares_exports = {};
+__export(api_dxt_usuario_auxiliares_exports, {
+  action: () => action15,
+  loader: () => loader16
+});
+var loader16 = async (o) => await dxtUsuarioGetAuxiliaresEndpoint.get(o.request, o.params), action15 = unimplementedApiResponse;
+
 // src/app/routes/_authorized.drafts._index/route.tsx
 var route_exports10 = {};
 __export(route_exports10, {
   default: () => OrdersList
 });
+import { Container as Container4 } from "@chakra-ui/react";
 
 // src/app/pages/orders/components/loading.tsx
-import { Box as Box20, Grid as Grid12, GridItem as GridItem12 } from "@chakra-ui/react";
-import { jsx as jsx69, jsxs as jsxs45 } from "react/jsx-runtime";
-var Loading6 = () => /* @__PURE__ */ jsx69(
-  Box20,
+import { Box as Box21, Grid as Grid13, GridItem as GridItem13 } from "@chakra-ui/react";
+import { jsx as jsx70, jsxs as jsxs47 } from "react/jsx-runtime";
+var Loading6 = () => /* @__PURE__ */ jsx70(
+  Box21,
   {
     width: "full",
     sx: {
       mt: 8,
       mb: 4
     },
-    children: /* @__PURE__ */ jsxs45(Grid12, { templateColumns: "1fr", alignItems: "center", gap: 4, children: [
-      /* @__PURE__ */ jsx69(GridItem12, { children: /* @__PURE__ */ jsx69(FormInputSkeleton, {}) }),
-      /* @__PURE__ */ jsx69(GridItem12, { children: /* @__PURE__ */ jsx69(FormTextareaSkeleton, { height: "120px" }) }),
-      /* @__PURE__ */ jsx69(GridItem12, { children: /* @__PURE__ */ jsx69(FormTextareaSkeleton, { height: "120px" }) }),
-      /* @__PURE__ */ jsx69(GridItem12, { children: /* @__PURE__ */ jsx69(FormTextareaSkeleton, { height: "120px" }) }),
-      /* @__PURE__ */ jsx69(GridItem12, { children: /* @__PURE__ */ jsx69(FormTextareaSkeleton, { height: "120px" }) }),
-      /* @__PURE__ */ jsx69(GridItem12, { children: /* @__PURE__ */ jsx69(FormTextareaSkeleton, { height: "120px" }) }),
-      /* @__PURE__ */ jsx69(GridItem12, { children: /* @__PURE__ */ jsx69(FormTextareaSkeleton, { height: "120px" }) })
+    children: /* @__PURE__ */ jsxs47(Grid13, { templateColumns: "1fr", alignItems: "center", gap: 4, children: [
+      /* @__PURE__ */ jsx70(GridItem13, { children: /* @__PURE__ */ jsx70(FormInputSkeleton, {}) }),
+      /* @__PURE__ */ jsx70(GridItem13, { children: /* @__PURE__ */ jsx70(FormTextareaSkeleton, { height: "120px" }) }),
+      /* @__PURE__ */ jsx70(GridItem13, { children: /* @__PURE__ */ jsx70(FormTextareaSkeleton, { height: "120px" }) }),
+      /* @__PURE__ */ jsx70(GridItem13, { children: /* @__PURE__ */ jsx70(FormTextareaSkeleton, { height: "120px" }) }),
+      /* @__PURE__ */ jsx70(GridItem13, { children: /* @__PURE__ */ jsx70(FormTextareaSkeleton, { height: "120px" }) }),
+      /* @__PURE__ */ jsx70(GridItem13, { children: /* @__PURE__ */ jsx70(FormTextareaSkeleton, { height: "120px" }) }),
+      /* @__PURE__ */ jsx70(GridItem13, { children: /* @__PURE__ */ jsx70(FormTextareaSkeleton, { height: "120px" }) })
     ] })
   }
 );
 
 // src/app/components/orders/OrdersNav.tsx
-import { useEffect as useEffect13, useRef as useRef9, useState as useState14 } from "react";
+import { useEffect as useEffect14, useRef as useRef10, useState as useState16 } from "react";
 import {
-  Box as Box22,
-  Flex as Flex6,
+  Box as Box23,
+  Flex as Flex7,
   HStack as HStack12,
   Tag,
   TagLabel,
   useColorModeValue as useColorModeValue7,
   useDisclosure as useDisclosure4
 } from "@chakra-ui/react";
-import _11 from "lodash";
-import PlusIcon2 from "mdi-react/PlusIcon.js";
+import _12 from "lodash";
+import PlusIcon from "mdi-react/PlusIcon.js";
 import PrinterIcon from "mdi-react/PrinterIcon.js";
 
 // src/app/components/orders/ClientsListModal.tsx
-import { useRef as useRef8 } from "react";
+import { useRef as useRef9 } from "react";
 import {
-  Box as Box21,
+  Box as Box22,
   Link,
   List,
   ListIcon,
@@ -11510,51 +13220,48 @@ import {
   Skeleton as Skeleton2,
   VStack as VStack4
 } from "@chakra-ui/react";
-import _10 from "lodash";
+import _11 from "lodash";
 import AccountCancelIcon3 from "mdi-react/AccountCancelIcon.js";
 import AccountCheckIcon2 from "mdi-react/AccountCheckIcon.js";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { FixedSizeList as FixedSizeList2 } from "react-window";
-import { Fragment as Fragment24, jsx as jsx70, jsxs as jsxs46 } from "react/jsx-runtime";
+import { Fragment as Fragment23, jsx as jsx71, jsxs as jsxs48 } from "react/jsx-runtime";
 var ClientsListModal = (props) => {
-  let { isDraft, isOpen, onClose } = props, stateDataSortened = useRef8(), { state, retry } = useDXTApiFetch({
-    url: API_DXT_VENDOR_CUSTOMERS,
-    silent: !0
-  }), SearchableList = () => {
+  let { isDraft, isOpen, onClose } = props, stateDataSortened = useRef9(), { state, retry } = useGetDXTVendorCustomers(), SearchableList = () => {
     let { filteredData, handleSearchInputChange } = useSearchField(stateDataSortened.current ?? [], ["screen_name"]), itemHeight = 30, Row = ({
       style,
       index,
       data
     }) => {
       let client = data?.[index];
-      return client != null ? /* @__PURE__ */ jsx70(Fragment24, { children: /* @__PURE__ */ jsx70(ListItem2, { style, children: client.habilitado ? /* @__PURE__ */ jsx70(
+      return client != null ? /* @__PURE__ */ jsx71(Fragment23, { children: /* @__PURE__ */ jsx71(ListItem2, { style, children: client.habilitado ? /* @__PURE__ */ jsx71(
         Link,
         {
           href: pathParamsToUrl(isDraft ? URL_BORRADORES_ADD_PATH : URL_PEDIDOS_ADD_PATH, {
             client: client.id
           }),
-          children: /* @__PURE__ */ jsxs46(Box21, { children: [
-            /* @__PURE__ */ jsx70(ListIcon, { as: AccountCheckIcon2, color: "green.400" }),
+          children: /* @__PURE__ */ jsxs48(Box22, { children: [
+            /* @__PURE__ */ jsx71(ListIcon, { as: AccountCheckIcon2, color: "green.400" }),
             client.screen_name
           ] })
         }
-      ) : /* @__PURE__ */ jsxs46(
-        Box21,
+      ) : /* @__PURE__ */ jsxs48(
+        Box22,
         {
           color: "gray.400",
           sx: {
             cursor: "not-allowed"
           },
           children: [
-            /* @__PURE__ */ jsx70(ListIcon, { as: AccountCancelIcon3, color: "red.400" }),
+            /* @__PURE__ */ jsx71(ListIcon, { as: AccountCancelIcon3, color: "red.400" }),
             client.screen_name
           ]
         }
-      ) }, client.id) }) : /* @__PURE__ */ jsx70(Fragment24, {});
+      ) }, client.id) }) : /* @__PURE__ */ jsx71(Fragment23, {});
     };
-    return /* @__PURE__ */ jsxs46(Fragment24, { children: [
-      /* @__PURE__ */ jsx70(Box21, { sx: { pb: 4 }, children: /* @__PURE__ */ jsx70(SearchField, { handleSearchInputChange }) }),
-      /* @__PURE__ */ jsx70(AutoSizer, { children: ({ height, width }) => /* @__PURE__ */ jsx70(
+    return /* @__PURE__ */ jsxs48(Fragment23, { children: [
+      /* @__PURE__ */ jsx71(Box22, { sx: { pb: 4 }, children: /* @__PURE__ */ jsx71(SearchField, { handleSearchInputChange }) }),
+      /* @__PURE__ */ jsx71(AutoSizer, { children: ({ height, width }) => /* @__PURE__ */ jsx71(
         FixedSizeList2,
         {
           height: height - 60,
@@ -11568,7 +13275,7 @@ var ClientsListModal = (props) => {
       ) })
     ] });
   };
-  return /* @__PURE__ */ jsxs46(
+  return /* @__PURE__ */ jsxs48(
     Modal2,
     {
       isCentered: !0,
@@ -11577,22 +13284,22 @@ var ClientsListModal = (props) => {
       scrollBehavior: "inside",
       size: { base: "full", sm: "md", md: "lg" },
       children: [
-        /* @__PURE__ */ jsx70(ModalOverlay2, {}),
-        /* @__PURE__ */ jsxs46(
+        /* @__PURE__ */ jsx71(ModalOverlay2, {}),
+        /* @__PURE__ */ jsxs48(
           ModalContent2,
           {
             sx: {
               maxHeight: "auto"
             },
             children: [
-              /* @__PURE__ */ jsx70(ModalHeader2, { children: "Seleccione el cliente" }),
-              /* @__PURE__ */ jsx70(ModalCloseButton2, {}),
-              /* @__PURE__ */ jsx70(ModalBody2, { minHeight: { base: "auto", sm: "420px !important" }, children: state.map({
-                loading: (_13) => /* @__PURE__ */ jsxs46(VStack4, { spacing: 4, children: [
-                  /* @__PURE__ */ jsx70(Skeleton2, { width: "full", height: "36px", borderRadius: "md" }),
-                  /* @__PURE__ */ jsx70(Skeleton2, { width: "full", height: "250px", borderRadius: "md" })
+              /* @__PURE__ */ jsx71(ModalHeader2, { children: "Seleccione el cliente" }),
+              /* @__PURE__ */ jsx71(ModalCloseButton2, {}),
+              /* @__PURE__ */ jsx71(ModalBody2, { minHeight: { base: "auto", sm: "420px !important" }, children: state.map({
+                loading: (_14) => /* @__PURE__ */ jsxs48(VStack4, { spacing: 4, children: [
+                  /* @__PURE__ */ jsx71(Skeleton2, { width: "full", height: "36px", borderRadius: "md" }),
+                  /* @__PURE__ */ jsx71(Skeleton2, { width: "full", height: "250px", borderRadius: "md" })
                 ] }),
-                error: ({ error }) => /* @__PURE__ */ jsx70(
+                error: ({ error }) => /* @__PURE__ */ jsx71(
                   ApiErrors,
                   {
                     error,
@@ -11600,7 +13307,7 @@ var ClientsListModal = (props) => {
                     cancelAndNavigateTo: URL_SETTINGS_PATH
                   }
                 ),
-                success: (state2) => (stateDataSortened.current = _10.sortBy(state2.data, ["screen_name"]), /* @__PURE__ */ jsx70(SearchableList, {}))
+                success: (state2) => (stateDataSortened.current = _11.sortBy(state2.data, ["screen_name"]), /* @__PURE__ */ jsx71(SearchableList, {}))
               }) })
             ]
           }
@@ -11623,43 +13330,43 @@ import {
 
 // src/app/components/orders/PrintModalLoading.tsx
 import { VStack as VStack5 } from "@chakra-ui/react";
-import { jsx as jsx71, jsxs as jsxs47 } from "react/jsx-runtime";
-var PrintModalLoading = () => /* @__PURE__ */ jsxs47(VStack5, { spacing: 4, children: [
-  /* @__PURE__ */ jsx71(FormInputSkeleton, {}),
-  /* @__PURE__ */ jsx71(FormInputSkeleton, {})
+import { jsx as jsx72, jsxs as jsxs49 } from "react/jsx-runtime";
+var PrintModalLoading = () => /* @__PURE__ */ jsxs49(VStack5, { spacing: 4, children: [
+  /* @__PURE__ */ jsx72(FormInputSkeleton, {}),
+  /* @__PURE__ */ jsx72(FormInputSkeleton, {})
 ] });
 
 // src/app/components/orders/PrintModal.tsx
-import { jsx as jsx72, jsxs as jsxs48 } from "react/jsx-runtime";
+import { jsx as jsx73, jsxs as jsxs50 } from "react/jsx-runtime";
 var PrintModalClient = lazy(() => Promise.resolve().then(() => __toESM(require_PrintModal(), 1))), PrintModal = (props) => {
   let { pedidos, renglones, isOpen, onClose } = props;
-  return /* @__PURE__ */ jsxs48(Modal3, { isCentered: !0, isOpen, onClose, children: [
-    /* @__PURE__ */ jsx72(ModalOverlay3, {}),
-    /* @__PURE__ */ jsxs48(ModalContent3, { children: [
-      /* @__PURE__ */ jsx72(ModalHeader3, { children: "Impresi\xF3n de pedidos" }),
-      /* @__PURE__ */ jsx72(ModalCloseButton3, {}),
-      /* @__PURE__ */ jsx72(ModalBody3, { children: /* @__PURE__ */ jsx72(Suspense, { fallback: /* @__PURE__ */ jsx72(PrintModalLoading, {}), children: /* @__PURE__ */ jsx72(PrintModalClient, { pedidos, renglones }) }) })
+  return /* @__PURE__ */ jsxs50(Modal3, { isCentered: !0, isOpen, onClose, children: [
+    /* @__PURE__ */ jsx73(ModalOverlay3, {}),
+    /* @__PURE__ */ jsxs50(ModalContent3, { children: [
+      /* @__PURE__ */ jsx73(ModalHeader3, { children: "Impresi\xF3n de pedidos" }),
+      /* @__PURE__ */ jsx73(ModalCloseButton3, {}),
+      /* @__PURE__ */ jsx73(ModalBody3, { children: /* @__PURE__ */ jsx73(Suspense, { fallback: /* @__PURE__ */ jsx73(PrintModalLoading, {}), children: /* @__PURE__ */ jsx73(PrintModalClient, { pedidos, renglones }) }) })
     ] })
   ] });
 };
 
 // src/app/components/orders/OrdersNav.tsx
-import { Fragment as Fragment25, jsx as jsx73, jsxs as jsxs49 } from "react/jsx-runtime";
+import { Fragment as Fragment24, jsx as jsx74, jsxs as jsxs51 } from "react/jsx-runtime";
 var OrdersNav = ({
   isDraft,
   pedidos,
   stateRenglones,
   handleSearchInputChange
 }) => {
-  let app = useAppResources(), [create, setCreate] = useState14(!1), [print, setPrint] = useState14(!1), { isOpen, onOpen, onClose } = useDisclosure4(), {
+  let app = useAppResources(), [create, setCreate] = useState16(!1), [print, setPrint] = useState16(!1), { isOpen, onOpen, onClose } = useDisclosure4(), {
     isOpen: printIsOpen,
     onOpen: printOnOpen,
     onClose: printOnClose
-  } = useDisclosure4(), [selectedPedidos, setSelectedPedidos] = useState14([]), selectedPedidosAndRenglones = useRef9({
+  } = useDisclosure4(), [selectedPedidos, setSelectedPedidos] = useState16([]), selectedPedidosAndRenglones = useRef10({
     pedidos: [],
     renglones: {}
   });
-  useEffect13(() => {
+  useEffect14(() => {
     let handleSetUnsetEvent = ({
       id,
       checked
@@ -11672,11 +13379,9 @@ var OrdersNav = ({
   }, []);
   let handleCreate = () => {
     if (app.authState.isCustomer()) {
-      let client = app.authState.getUserId();
-      client != null && app.navigate(pathParamsToUrl(
-        isDraft ? URL_BORRADORES_ADD_PATH : URL_PEDIDOS_ADD_PATH,
-        { client }
-      ));
+      app.navigate(
+        isDraft ? URL_BORRADORES_CUSTOMER_ADD_PATH : URL_PEDIDOS_CUSTOMER_ADD_PATH
+      );
       return;
     }
     setCreate(!0), onOpen();
@@ -11686,16 +13391,16 @@ var OrdersNav = ({
   }, handlePrint = () => {
     selectedPedidosAndRenglones.current.pedidos = pedidos.filter(
       (pedido) => selectedPedidos.includes(pedido.id)
-    ), Array.isArray(selectedPedidosAndRenglones.current.pedidos) && selectedPedidosAndRenglones.current.pedidos.length > 0 && stateRenglones.isSuccess() && (selectedPedidosAndRenglones.current.renglones = _11.pick(
+    ), Array.isArray(selectedPedidosAndRenglones.current.pedidos) && selectedPedidosAndRenglones.current.pedidos.length > 0 && stateRenglones.isSuccess() && (selectedPedidosAndRenglones.current.renglones = _12.pick(
       stateRenglones.data,
       selectedPedidos
     )), setPrint(!0), printOnOpen();
   }, handlePrintOnClose = () => {
     printOnClose(), setPrint(!1);
   }, selectedInfo = selectedPedidos.length <= 0 ? void 0 : selectedPedidos.length == 1 ? `1 ${SELECTED_S}` : `${selectedPedidos.length} ${SELECTED_P}`;
-  return /* @__PURE__ */ jsxs49(Fragment25, { children: [
-    /* @__PURE__ */ jsx73(
-      Box22,
+  return /* @__PURE__ */ jsxs51(Fragment24, { children: [
+    /* @__PURE__ */ jsx74(
+      Box23,
       {
         bg: useColorModeValue7("white", "blue.900"),
         sx: {
@@ -11704,12 +13409,12 @@ var OrdersNav = ({
           zIndex: 1e3,
           top: 0
         },
-        children: /* @__PURE__ */ jsxs49(Flex6, { h: 16, alignItems: "center", justifyContent: "space-between", children: [
-          /* @__PURE__ */ jsxs49(HStack12, { spacing: { base: 2, sm: 3 }, alignItems: "center", children: [
-            (app.authState.isVendor() || app.authState.isCustomer()) && /* @__PURE__ */ jsx73(Fragment25, { children: /* @__PURE__ */ jsx73(
+        children: /* @__PURE__ */ jsxs51(Flex7, { h: 16, alignItems: "center", justifyContent: "space-between", children: [
+          /* @__PURE__ */ jsxs51(HStack12, { spacing: { base: 2, sm: 3 }, alignItems: "center", children: [
+            (app.authState.isVendor() || app.authState.isCustomer()) && /* @__PURE__ */ jsx74(Fragment24, { children: /* @__PURE__ */ jsx74(
               ResponsiveIconButton,
               {
-                icon: PlusIcon2,
+                icon: PlusIcon,
                 text: isDraft ? CREATE_DRAFT : CREATE_ORDER,
                 sharedProps: {
                   size: "sm",
@@ -11727,7 +13432,7 @@ var OrdersNav = ({
                 }
               }
             ) }),
-            !isDraft && /* @__PURE__ */ jsx73(
+            !isDraft && /* @__PURE__ */ jsx74(
               ResponsiveIconButton,
               {
                 icon: PrinterIcon,
@@ -11747,8 +13452,8 @@ var OrdersNav = ({
                 }
               }
             ),
-            selectedInfo != null && /* @__PURE__ */ jsxs49(Fragment25, { children: [
-              /* @__PURE__ */ jsx73(
+            selectedInfo != null && /* @__PURE__ */ jsxs51(Fragment24, { children: [
+              /* @__PURE__ */ jsx74(
                 Tag,
                 {
                   display: { base: "none", sm: "inherited" },
@@ -11757,10 +13462,10 @@ var OrdersNav = ({
                   size: "md",
                   variant: "solid",
                   colorScheme: "blue",
-                  children: /* @__PURE__ */ jsx73(TagLabel, { marginX: 1, children: selectedInfo })
+                  children: /* @__PURE__ */ jsx74(TagLabel, { marginX: 1, children: selectedInfo })
                 }
               ),
-              /* @__PURE__ */ jsx73(
+              /* @__PURE__ */ jsx74(
                 Tag,
                 {
                   display: { base: "inherited", sm: "none" },
@@ -11769,12 +13474,12 @@ var OrdersNav = ({
                   size: "md",
                   variant: "solid",
                   colorScheme: "blue",
-                  children: /* @__PURE__ */ jsx73(TagLabel, { marginX: 1, children: selectedPedidos.length })
+                  children: /* @__PURE__ */ jsx74(TagLabel, { marginX: 1, children: selectedPedidos.length })
                 }
               )
             ] })
           ] }),
-          /* @__PURE__ */ jsx73(Flex6, { alignItems: "center", marginLeft: 4, children: /* @__PURE__ */ jsx73(HStack12, { spacing: { base: 2, md: 4 }, children: /* @__PURE__ */ jsx73(Box22, { children: /* @__PURE__ */ jsx73(
+          /* @__PURE__ */ jsx74(Flex7, { alignItems: "center", marginLeft: 4, children: /* @__PURE__ */ jsx74(HStack12, { spacing: { base: 2, md: 4 }, children: /* @__PURE__ */ jsx74(Box23, { children: /* @__PURE__ */ jsx74(
             SearchField,
             {
               handleSearchInputChange
@@ -11783,8 +13488,15 @@ var OrdersNav = ({
         ] })
       }
     ),
-    create && /* @__PURE__ */ jsx73(ClientsListModal, { isDraft, isOpen, onClose: handleOnClose }),
-    print && /* @__PURE__ */ jsx73(
+    create && /* @__PURE__ */ jsx74(
+      ClientsListModal,
+      {
+        isDraft,
+        isOpen,
+        onClose: handleOnClose
+      }
+    ),
+    print && /* @__PURE__ */ jsx74(
       PrintModal,
       {
         isOpen: printIsOpen,
@@ -11805,25 +13517,26 @@ import {
   TableContainer as TableContainer2,
   Tbody as Tbody3,
   Td as Td4,
-  Tr as Tr4
+  Tr as Tr4,
+  useDisclosure as useDisclosure5,
+  useToast as useToast9
 } from "@chakra-ui/react";
 
 // src/app/pages/orders/components/PedidoList/Pedido.tsx
-import { useEffect as useEffect14, useMemo as useMemo7, useRef as useRef10, useState as useState15 } from "react";
+import { useEffect as useEffect15, useMemo as useMemo7, useRef as useRef11, useState as useState17 } from "react";
 import {
   Alert as Alert8,
   AlertDescription as AlertDescription6,
   AlertIcon as AlertIcon7,
-  Box as Box25,
+  Box as Box26,
   Checkbox,
-  Grid as Grid15,
-  GridItem as GridItem15,
-  Heading as Heading11,
+  Grid as Grid16,
+  GridItem as GridItem16,
+  Heading as Heading12,
   Td as Td3,
-  Text as Text8,
+  Text as Text9,
   Tr as Tr3,
-  useColorModeValue as useColorModeValue8,
-  useToken
+  useColorModeValue as useColorModeValue8
 } from "@chakra-ui/react";
 
 // src/app/components/BadgePedidosEstado.tsx
@@ -11855,14 +13568,60 @@ function getEstadoPedidoColor(estado, suffix) {
 }
 
 // src/app/components/BadgePedidosEstado.tsx
-import { jsx as jsx74 } from "react/jsx-runtime";
+import { jsx as jsx75 } from "react/jsx-runtime";
 var BadgePedidosEstado = ({ estado }) => {
   let name = getEstadoPedidoText(estado), colorScheme = getEstadoPedidoColor(estado);
-  return /* @__PURE__ */ jsx74(Badge4, { fontSize: "1em", variant: "solid", colorScheme, lineHeight: "1.5em", children: name });
+  return /* @__PURE__ */ jsx75(Badge4, { fontSize: "1em", variant: "solid", colorScheme, lineHeight: "1.5em", children: name });
+};
+
+// src/app/pages/orders/components/PedidoList/PedidoMenu.tsx
+import {
+  IconButton as IconButton5,
+  Menu,
+  MenuButton,
+  MenuDivider,
+  MenuItem,
+  MenuList,
+  Portal as Portal2
+} from "@chakra-ui/react";
+import DotsVerticalIcon from "mdi-react/DotsVerticalIcon.js";
+import { Fragment as Fragment25, jsx as jsx76, jsxs as jsxs52 } from "react/jsx-runtime";
+var PedidoMenu = ({ app, draft, pedido, onDelete }) => {
+  let user = app.authState.userInfo, isAdmin = user.role == 2 /* admin */, canDeleteOrder = user.puede_anular_pedido, deleteWhenCancel = draft || user.borrar_pedido_al_anular;
+  return /* @__PURE__ */ jsxs52(Menu, { isLazy: !0, id: "menu", children: [
+    /* @__PURE__ */ jsx76(
+      MenuButton,
+      {
+        as: IconButton5,
+        size: "sm",
+        "aria-label": OPTIONS,
+        icon: /* @__PURE__ */ jsx76(DotsVerticalIcon, {}),
+        variant: "outline",
+        colorScheme: "white"
+      }
+    ),
+    /* @__PURE__ */ jsx76(Portal2, { children: /* @__PURE__ */ jsxs52(MenuList, { rootProps: { zIndex: 2e3 }, children: [
+      !isAdmin && /* @__PURE__ */ jsxs52(Fragment25, { children: [
+        /* @__PURE__ */ jsx76(MenuItem, { onClick: () => {
+          app.navigate(
+            pathParamsToUrl(URL_PEDIDOS_EDIT_PATH, { id: pedido.id })
+          );
+        }, children: PEDIDO_MENU_MODIFY }),
+        /* @__PURE__ */ jsx76(MenuItem, { onClick: () => {
+        }, children: PEDIDO_MENU_DUPLICATE }),
+        /* @__PURE__ */ jsx76(MenuItem, { onClick: () => {
+        }, children: draft ? PEDIDO_MENU_CREATE_ORDER : PEDIDO_MENU_CREATE_DRAFT }),
+        draft && /* @__PURE__ */ jsx76(MenuItem, { onClick: () => {
+        }, children: PEDIDO_MENU_CONVERT_DRAFT_TO_ORDER }),
+        canDeleteOrder && /* @__PURE__ */ jsx76(MenuDivider, {})
+      ] }),
+      canDeleteOrder && /* @__PURE__ */ jsx76(MenuItem, { onClick: () => onDelete(pedido.id), children: deleteWhenCancel ? PEDIDO_MENU_DELETE : PEDIDO_MENU_CANCEL })
+    ] }) })
+  ] });
 };
 
 // src/app/pages/orders/components/PedidoList/Renglones.tsx
-import { Box as Box24 } from "@chakra-ui/react";
+import { Box as Box25 } from "@chakra-ui/react";
 
 // src/app/pages/orders/components/PedidoList/RenglonesEmpty.tsx
 import {
@@ -11870,59 +13629,59 @@ import {
   AlertDescription as AlertDescription4,
   AlertIcon as AlertIcon5
 } from "@chakra-ui/react";
-import { jsx as jsx75, jsxs as jsxs50 } from "react/jsx-runtime";
-var RenglonesEmpty = () => /* @__PURE__ */ jsxs50(Alert6, { status: "warning", children: [
-  /* @__PURE__ */ jsx75(AlertIcon5, {}),
-  /* @__PURE__ */ jsx75(AlertDescription4, { children: "El pedido no cuenta con productos." })
+import { jsx as jsx77, jsxs as jsxs53 } from "react/jsx-runtime";
+var RenglonesEmpty = () => /* @__PURE__ */ jsxs53(Alert6, { status: "warning", children: [
+  /* @__PURE__ */ jsx77(AlertIcon5, {}),
+  /* @__PURE__ */ jsx77(AlertDescription4, { children: "El pedido no cuenta con productos." })
 ] });
 
 // src/app/pages/orders/components/PedidoList/RenglonesError.tsx
 import { Alert as Alert7, AlertDescription as AlertDescription5, AlertIcon as AlertIcon6 } from "@chakra-ui/react";
-import { jsx as jsx76, jsxs as jsxs51 } from "react/jsx-runtime";
-var RenglonesError = () => /* @__PURE__ */ jsxs51(Alert7, { status: "error", children: [
-  /* @__PURE__ */ jsx76(AlertIcon6, {}),
-  /* @__PURE__ */ jsx76(AlertDescription5, { children: "Ocurri\xF3 un error al cargar los detalles del pedido." })
+import { jsx as jsx78, jsxs as jsxs54 } from "react/jsx-runtime";
+var RenglonesError = () => /* @__PURE__ */ jsxs54(Alert7, { status: "error", children: [
+  /* @__PURE__ */ jsx78(AlertIcon6, {}),
+  /* @__PURE__ */ jsx78(AlertDescription5, { children: "Ocurri\xF3 un error al cargar los detalles del pedido." })
 ] });
 
 // src/app/pages/orders/components/PedidoList/RenglonesLoading.tsx
-import { Box as Box23, Grid as Grid13, GridItem as GridItem13 } from "@chakra-ui/react";
-import { jsx as jsx77, jsxs as jsxs52 } from "react/jsx-runtime";
-var RenglonesLoading = () => /* @__PURE__ */ jsx77(
-  Box23,
+import { Box as Box24, Grid as Grid14, GridItem as GridItem14 } from "@chakra-ui/react";
+import { jsx as jsx79, jsxs as jsxs55 } from "react/jsx-runtime";
+var RenglonesLoading = () => /* @__PURE__ */ jsx79(
+  Box24,
   {
     width: "full",
     sx: {
       mt: 8,
       mb: 4
     },
-    children: /* @__PURE__ */ jsxs52(Grid13, { templateColumns: "1fr", alignItems: "center", gap: 2, children: [
-      /* @__PURE__ */ jsx77(GridItem13, { children: /* @__PURE__ */ jsx77(FormInputSkeleton, { height: "20px" }) }),
-      /* @__PURE__ */ jsx77(GridItem13, { children: /* @__PURE__ */ jsx77(FormInputSkeleton, { height: "20px" }) }),
-      /* @__PURE__ */ jsx77(GridItem13, { children: /* @__PURE__ */ jsx77(FormInputSkeleton, { height: "20px" }) }),
-      /* @__PURE__ */ jsx77(GridItem13, { children: /* @__PURE__ */ jsx77(FormInputSkeleton, { height: "20px" }) })
+    children: /* @__PURE__ */ jsxs55(Grid14, { templateColumns: "1fr", alignItems: "center", gap: 2, children: [
+      /* @__PURE__ */ jsx79(GridItem14, { children: /* @__PURE__ */ jsx79(FormInputSkeleton, { height: "20px" }) }),
+      /* @__PURE__ */ jsx79(GridItem14, { children: /* @__PURE__ */ jsx79(FormInputSkeleton, { height: "20px" }) }),
+      /* @__PURE__ */ jsx79(GridItem14, { children: /* @__PURE__ */ jsx79(FormInputSkeleton, { height: "20px" }) }),
+      /* @__PURE__ */ jsx79(GridItem14, { children: /* @__PURE__ */ jsx79(FormInputSkeleton, { height: "20px" }) })
     ] })
   }
 );
 
 // src/app/pages/orders/components/PedidoList/RenglonesPedido.tsx
 import {
-  Grid as Grid14,
-  GridItem as GridItem14,
-  Heading as Heading10,
+  Grid as Grid15,
+  GridItem as GridItem15,
+  Heading as Heading11,
   Table as Table2,
   TableContainer,
   Tbody as Tbody2,
   Td as Td2,
-  Text as Text7,
+  Text as Text8,
   Th as Th2,
   Thead as Thead2,
   Tr as Tr2
 } from "@chakra-ui/react";
-import { jsx as jsx78, jsxs as jsxs53 } from "react/jsx-runtime";
+import { jsx as jsx80, jsxs as jsxs56 } from "react/jsx-runtime";
 var RenglonesPedido = ({
   nro_pedido,
   renglones
-}) => /* @__PURE__ */ jsx78(TableContainer, { sx: { p: 0, m: 0 }, children: /* @__PURE__ */ jsxs53(
+}) => /* @__PURE__ */ jsx80(TableContainer, { sx: { p: 0, m: 0 }, children: /* @__PURE__ */ jsxs56(
   Table2,
   {
     variant: "stripedHoverOverCard",
@@ -11930,21 +13689,21 @@ var RenglonesPedido = ({
     size: "sm",
     borderWidth: "1px",
     children: [
-      /* @__PURE__ */ jsx78(Thead2, { children: /* @__PURE__ */ jsx78(Tr2, { children: /* @__PURE__ */ jsx78(Th2, { sx: { py: 2 }, children: /* @__PURE__ */ jsxs53(
-        Grid14,
+      /* @__PURE__ */ jsx80(Thead2, { children: /* @__PURE__ */ jsx80(Tr2, { children: /* @__PURE__ */ jsx80(Th2, { sx: { py: 2 }, children: /* @__PURE__ */ jsxs56(
+        Grid15,
         {
           templateColumns: { base: "1fr 1fr 1fr", md: "4fr 1fr 1fr 1fr" },
           gap: 6,
           children: [
-            /* @__PURE__ */ jsx78(GridItem14, { children: /* @__PURE__ */ jsx78(Heading10, { fontSize: { base: "xs", md: "sm" }, children: "Art\xEDculo" }) }),
-            /* @__PURE__ */ jsx78(
-              GridItem14,
+            /* @__PURE__ */ jsx80(GridItem15, { children: /* @__PURE__ */ jsx80(Heading11, { fontSize: { base: "xs", md: "sm" }, children: "Art\xEDculo" }) }),
+            /* @__PURE__ */ jsx80(
+              GridItem15,
               {
                 sx: {
                   display: { base: "none", md: "block" }
                 },
-                children: /* @__PURE__ */ jsx78(
-                  Heading10,
+                children: /* @__PURE__ */ jsx80(
+                  Heading11,
                   {
                     fontSize: { base: "xs", md: "sm" },
                     textAlign: "center",
@@ -11953,16 +13712,16 @@ var RenglonesPedido = ({
                 )
               }
             ),
-            /* @__PURE__ */ jsx78(GridItem14, { children: /* @__PURE__ */ jsx78(
-              Heading10,
+            /* @__PURE__ */ jsx80(GridItem15, { children: /* @__PURE__ */ jsx80(
+              Heading11,
               {
                 fontSize: { base: "xs", md: "sm" },
                 textAlign: "center",
                 children: "Cantidad"
               }
             ) }),
-            /* @__PURE__ */ jsx78(GridItem14, { children: /* @__PURE__ */ jsx78(
-              Heading10,
+            /* @__PURE__ */ jsx80(GridItem15, { children: /* @__PURE__ */ jsx80(
+              Heading11,
               {
                 fontSize: { base: "xs", md: "sm" },
                 textAlign: "center",
@@ -11972,7 +13731,7 @@ var RenglonesPedido = ({
           ]
         }
       ) }) }) }),
-      /* @__PURE__ */ jsx78(Tbody2, { children: renglones.map(
+      /* @__PURE__ */ jsx80(Tbody2, { children: renglones.map(
         ({
           id_articulo,
           nombre_articulo,
@@ -11981,8 +13740,8 @@ var RenglonesPedido = ({
           precio,
           cantidad,
           subtotal
-        }, index) => /* @__PURE__ */ jsx78(Tr2, { children: /* @__PURE__ */ jsx78(Td2, { children: /* @__PURE__ */ jsxs53(
-          Grid14,
+        }, index) => /* @__PURE__ */ jsx80(Tr2, { children: /* @__PURE__ */ jsx80(Td2, { children: /* @__PURE__ */ jsxs56(
+          Grid15,
           {
             templateColumns: {
               base: "1fr 1fr 1fr",
@@ -11990,22 +13749,22 @@ var RenglonesPedido = ({
             },
             gap: 6,
             children: [
-              /* @__PURE__ */ jsx78(GridItem14, { children: /* @__PURE__ */ jsx78(TextWordBreak, { children: formatNombreArticulo(
+              /* @__PURE__ */ jsx80(GridItem15, { children: /* @__PURE__ */ jsx80(TextWordBreak, { children: formatNombreArticulo(
                 nombre_articulo,
                 id_articulo,
                 descripcion_adicional
               ) }) }),
-              /* @__PURE__ */ jsx78(
-                GridItem14,
+              /* @__PURE__ */ jsx80(
+                GridItem15,
                 {
                   sx: {
                     display: { base: "none", md: "block" }
                   },
-                  children: /* @__PURE__ */ jsx78(TextPrice, { precio, moneda: "$" })
+                  children: /* @__PURE__ */ jsx80(TextPrice, { precio, moneda: "$" })
                 }
               ),
-              /* @__PURE__ */ jsx78(GridItem14, { children: /* @__PURE__ */ jsx78(Text7, { textAlign: "center", children: cantidad }) }),
-              /* @__PURE__ */ jsx78(GridItem14, { children: /* @__PURE__ */ jsx78(TextPrice, { precio: subtotal, moneda: "$" }) })
+              /* @__PURE__ */ jsx80(GridItem15, { children: /* @__PURE__ */ jsx80(Text8, { textAlign: "center", children: cantidad }) }),
+              /* @__PURE__ */ jsx80(GridItem15, { children: /* @__PURE__ */ jsx80(TextPrice, { precio: subtotal, moneda: "$" }) })
             ]
           }
         ) }) }, `details-${nro_pedido}-${index}`)
@@ -12015,103 +13774,46 @@ var RenglonesPedido = ({
 ) });
 
 // src/app/pages/orders/components/PedidoList/Renglones.tsx
-import { jsx as jsx79 } from "react/jsx-runtime";
-var Renglones = ({ wasOpen, pedido, stateRenglones }) => /* @__PURE__ */ jsx79(Box24, { sx: { mt: 6 }, children: wasOpen && stateRenglones.map({
-  loading: (_13) => /* @__PURE__ */ jsx79(RenglonesLoading, {}),
-  error: (_13) => /* @__PURE__ */ jsx79(RenglonesError, {}),
+import { jsx as jsx81 } from "react/jsx-runtime";
+var Renglones = ({ wasOpen, pedido, stateRenglones }) => /* @__PURE__ */ jsx81(Box25, { sx: { mt: 6 }, children: wasOpen && stateRenglones.map({
+  loading: (_14) => /* @__PURE__ */ jsx81(RenglonesLoading, {}),
+  error: (_14) => /* @__PURE__ */ jsx81(RenglonesError, {}),
   success: (state) => {
     let { id, numero_pedido } = pedido, renglones = state.data?.[id];
-    return Array.isArray(renglones) ? /* @__PURE__ */ jsx79(
+    return Array.isArray(renglones) ? /* @__PURE__ */ jsx81(
       RenglonesPedido,
       {
         nro_pedido: numero_pedido,
         renglones
       }
-    ) : /* @__PURE__ */ jsx79(RenglonesEmpty, {});
+    ) : /* @__PURE__ */ jsx81(RenglonesEmpty, {});
   }
 }) });
 
-// src/app/pages/orders/components/PedidoList/PedidoMenu.tsx
-import {
-  IconButton as IconButton5,
-  Menu,
-  MenuButton,
-  MenuDivider,
-  MenuItem,
-  MenuList
-} from "@chakra-ui/react";
-import LightningBolt from "mdi-react/LightningBoltIcon.js";
-import { Fragment as Fragment26, jsx as jsx80, jsxs as jsxs54 } from "react/jsx-runtime";
-var PedidoMenu = ({
-  user,
-  draft,
-  pedido
-}) => {
-  let isAdmin = user.role == 2 /* admin */, canDeleteOrder = user.puede_anular_pedido, deleteWhenCancel = user.borrar_pedido_al_anular;
-  return /* @__PURE__ */ jsxs54(Menu, { isLazy: !0, id: "menu", children: [
-    /* @__PURE__ */ jsx80(
-      MenuButton,
-      {
-        as: IconButton5,
-        size: "sm",
-        "aria-label": OPTIONS,
-        icon: /* @__PURE__ */ jsx80(LightningBolt, {}),
-        colorScheme: "blue",
-        variant: "solid"
-      }
-    ),
-    /* @__PURE__ */ jsxs54(MenuList, { rootProps: { zIndex: 2e3 }, children: [
-      !isAdmin && /* @__PURE__ */ jsxs54(Fragment26, { children: [
-        /* @__PURE__ */ jsx80(
-          MenuItem,
-          {
-            onClick: () => {
-            },
-            children: PEDIDO_MENU_MODIFY
-          }
-        ),
-        /* @__PURE__ */ jsx80(
-          MenuItem,
-          {
-            onClick: () => {
-            },
-            children: PEDIDO_MENU_DUPLICATE
-          }
-        ),
-        /* @__PURE__ */ jsx80(
-          MenuItem,
-          {
-            onClick: () => {
-            },
-            children: draft ? PEDIDO_MENU_CREATE_ORDER : PEDIDO_MENU_CREATE_DRAFT
-          }
-        ),
-        canDeleteOrder && /* @__PURE__ */ jsx80(MenuDivider, {})
-      ] }),
-      canDeleteOrder && /* @__PURE__ */ jsx80(
-        MenuItem,
-        {
-          onClick: () => {
-          },
-          children: deleteWhenCancel ? PEDIDO_MENU_DELETE : PEDIDO_MENU_CANCEL
-        }
-      )
-    ] })
-  ] });
-};
+// src/code.client/pedido/utils/calculateRealOrderStatus.ts
+function calculateRealOrderStatus(pedido, stateRenglones) {
+  return stateRenglones.isSuccess() ? realOrderStatus(
+    pedido,
+    stateRenglones.data[pedido.id]
+  ) : pedido.estado;
+}
 
 // src/app/pages/orders/components/PedidoList/Pedido.tsx
-import { Fragment as Fragment27, jsx as jsx81, jsxs as jsxs55 } from "react/jsx-runtime";
+import { Fragment as Fragment26, jsx as jsx82, jsxs as jsxs57 } from "react/jsx-runtime";
 var Pedido = ({
   index,
-  user,
+  app,
   draft,
   pedido,
   stateRenglones,
+  onDelete,
   isHidden
 }) => {
-  let [isOpen, setIsOpen] = useState15(!1), [checked, setChecked] = useState15(!1), checkboxBorderColor = useColorModeValue8("gray.800", "white"), [chakraBlue] = useToken("colors", ["blue.500"]), wasOpen = useRef10(!1), renglonesComponent = useMemo7(
-    () => /* @__PURE__ */ jsx81(
+  let [isOpen, setIsOpen] = useState17(!1), [checked, setChecked] = useState17(!1), checkboxBorderColor = useColorModeValue8("gray.800", "white"), wasOpen = useRef11(!1), realOrderStatus2 = calculateRealOrderStatus(
+    pedido,
+    stateRenglones
+  ), renglonesComponent = useMemo7(
+    () => /* @__PURE__ */ jsx82(
       Renglones,
       {
         wasOpen: wasOpen.current,
@@ -12126,7 +13828,7 @@ var Pedido = ({
   }, handleCheckboxChange = (checked2, id2) => {
     setChecked(!!checked2), eventBus2.emit("setUnsetSelectedPedido", { id: id2, checked: checked2 });
   };
-  useEffect14(() => {
+  useEffect15(() => {
     let handleEvent = ({ id: id2 }) => {
       pedido.id !== id2 && setIsOpen(!1);
     };
@@ -12137,7 +13839,6 @@ var Pedido = ({
   let {
     id,
     numero_pedido,
-    estado,
     fecha_alta,
     fecha_entrega,
     codigo_cliente,
@@ -12149,8 +13850,8 @@ var Pedido = ({
     total,
     descuento,
     comentarios
-  } = pedido, showComments = !draft && comentarios != null && comentarios.length > 0;
-  return /* @__PURE__ */ jsx81(
+  } = pedido, estado = realOrderStatus2, showComments = !draft && comentarios != null && comentarios.length > 0;
+  return /* @__PURE__ */ jsx82(
     Tr3,
     {
       sx: {
@@ -12158,7 +13859,7 @@ var Pedido = ({
           display: "none"
         }
       },
-      children: /* @__PURE__ */ jsxs55(
+      children: /* @__PURE__ */ jsxs57(
         Td3,
         {
           sx: {
@@ -12169,8 +13870,8 @@ var Pedido = ({
             borderTopColor: `${draft ? "blue.500 !important" : getEstadoPedidoColor(estado, ".500 !important")}`
           },
           children: [
-            /* @__PURE__ */ jsxs55(
-              Box25,
+            /* @__PURE__ */ jsxs57(
+              Box26,
               {
                 display: "flex",
                 sx: {
@@ -12180,42 +13881,35 @@ var Pedido = ({
                 },
                 flexDirection: "column",
                 children: [
-                  /* @__PURE__ */ jsx81(PedidoMenu, { draft, pedido, user }),
-                  !draft && /* @__PURE__ */ jsx81(
-                    Box25,
+                  /* @__PURE__ */ jsx82(
+                    PedidoMenu,
                     {
-                      display: "flex",
-                      width: 8,
-                      height: 8,
-                      justifyContent: "center",
-                      backgroundColor: checked ? "blue.500" : "white",
+                      app,
+                      draft,
+                      pedido,
+                      onDelete
+                    }
+                  ),
+                  !draft && /* @__PURE__ */ jsx82(
+                    Checkbox,
+                    {
+                      size: "xl",
+                      colorScheme: "blue",
                       sx: {
-                        marginTop: 2,
-                        borderRadius: 6,
-                        borderWidth: 2,
+                        mt: 2,
+                        borderWidth: 0,
                         borderColor: checkboxBorderColor
                       },
-                      children: /* @__PURE__ */ jsx81(
-                        Checkbox,
-                        {
-                          size: "lg",
-                          colorScheme: "blue",
-                          sx: {
-                            borderWidth: 0,
-                            borderColor: "#ff000000"
-                          },
-                          onChange: (e) => {
-                            handleCheckboxChange(e.target.checked, id);
-                          }
-                        }
-                      )
+                      onChange: (e) => {
+                        handleCheckboxChange(e.target.checked, id);
+                      }
                     }
                   )
                 ]
               }
             ),
-            /* @__PURE__ */ jsxs55(
-              Grid15,
+            /* @__PURE__ */ jsxs57(
+              Grid16,
               {
                 templateColumns: {
                   base: "repeat(2, 1fr)",
@@ -12229,42 +13923,42 @@ var Pedido = ({
                   handleToggleDetails();
                 },
                 children: [
-                  draft ? /* @__PURE__ */ jsx81(Fragment27, { children: /* @__PURE__ */ jsxs55(GridItem15, { colSpan: { base: 2, md: 4 }, children: [
-                    /* @__PURE__ */ jsx81(Heading11, { size: "sm", children: "Comentarios" }),
-                    /* @__PURE__ */ jsx81(Text8, { paddingRight: 10, sx: { whiteSpace: "pre-line" }, children: comentarios })
-                  ] }) }) : /* @__PURE__ */ jsxs55(Fragment27, { children: [
-                    /* @__PURE__ */ jsxs55(GridItem15, { children: [
-                      /* @__PURE__ */ jsx81(Heading11, { size: "sm", children: "Pedido" }),
-                      /* @__PURE__ */ jsx81(Text8, { children: numero_pedido })
+                  draft ? /* @__PURE__ */ jsx82(Fragment26, { children: /* @__PURE__ */ jsxs57(GridItem16, { colSpan: { base: 2, md: 4 }, children: [
+                    /* @__PURE__ */ jsx82(Heading12, { size: "sm", children: "Comentarios" }),
+                    /* @__PURE__ */ jsx82(Text9, { paddingRight: 10, sx: { whiteSpace: "pre-line" }, children: comentarios })
+                  ] }) }) : /* @__PURE__ */ jsxs57(Fragment26, { children: [
+                    /* @__PURE__ */ jsxs57(GridItem16, { children: [
+                      /* @__PURE__ */ jsx82(Heading12, { size: "sm", children: "Pedido" }),
+                      /* @__PURE__ */ jsx82(Text9, { children: numero_pedido })
                     ] }),
-                    /* @__PURE__ */ jsxs55(GridItem15, { children: [
-                      /* @__PURE__ */ jsx81(Heading11, { size: "sm", children: "Estado" }),
-                      /* @__PURE__ */ jsx81(BadgePedidosEstado, { estado })
+                    /* @__PURE__ */ jsxs57(GridItem16, { children: [
+                      /* @__PURE__ */ jsx82(Heading12, { size: "sm", children: "Estado" }),
+                      /* @__PURE__ */ jsx82(BadgePedidosEstado, { estado })
                     ] }),
-                    /* @__PURE__ */ jsxs55(GridItem15, { children: [
-                      /* @__PURE__ */ jsx81(Heading11, { size: "sm", children: "Emisi\xF3n" }),
-                      /* @__PURE__ */ jsx81(Text8, { children: dateToLocale(fecha_alta) })
+                    /* @__PURE__ */ jsxs57(GridItem16, { children: [
+                      /* @__PURE__ */ jsx82(Heading12, { size: "sm", children: "Emisi\xF3n" }),
+                      /* @__PURE__ */ jsx82(Text9, { children: dateToLocale(fecha_alta) })
                     ] }),
-                    /* @__PURE__ */ jsxs55(GridItem15, { children: [
-                      /* @__PURE__ */ jsx81(Heading11, { size: "sm", children: "Entrega" }),
-                      /* @__PURE__ */ jsx81(Text8, { children: dateToLocale(fecha_entrega) })
+                    /* @__PURE__ */ jsxs57(GridItem16, { children: [
+                      /* @__PURE__ */ jsx82(Heading12, { size: "sm", children: "Entrega" }),
+                      /* @__PURE__ */ jsx82(Text9, { children: dateToLocale(fecha_entrega) })
                     ] })
                   ] }),
-                  /* @__PURE__ */ jsxs55(GridItem15, { children: [
-                    /* @__PURE__ */ jsx81(Heading11, { size: "sm", children: "Cliente" }),
-                    /* @__PURE__ */ jsx81(TextWordBreak, { children: formatCliente(codigo_cliente, nombre_cliente) })
+                  /* @__PURE__ */ jsxs57(GridItem16, { children: [
+                    /* @__PURE__ */ jsx82(Heading12, { size: "sm", children: "Cliente" }),
+                    /* @__PURE__ */ jsx82(TextWordBreak, { children: formatCliente(codigo_cliente, nombre_cliente) })
                   ] }),
-                  /* @__PURE__ */ jsxs55(GridItem15, { children: [
-                    /* @__PURE__ */ jsx81(Heading11, { size: "sm", children: "Vendedor" }),
-                    /* @__PURE__ */ jsx81(TextWordBreak, { children: formatAuxiliares(codigo_vendedor, nombre_vendedor) })
+                  /* @__PURE__ */ jsxs57(GridItem16, { children: [
+                    /* @__PURE__ */ jsx82(Heading12, { size: "sm", children: "Vendedor" }),
+                    /* @__PURE__ */ jsx82(TextWordBreak, { children: formatAuxiliares(codigo_vendedor, nombre_vendedor) })
                   ] }),
-                  /* @__PURE__ */ jsxs55(GridItem15, { children: [
-                    /* @__PURE__ */ jsx81(Heading11, { size: "sm", children: "Transporte" }),
-                    /* @__PURE__ */ jsx81(TextWordBreak, { children: formatAuxiliares(codigo_transporte, nombre_transporte) })
+                  /* @__PURE__ */ jsxs57(GridItem16, { children: [
+                    /* @__PURE__ */ jsx82(Heading12, { size: "sm", children: "Transporte" }),
+                    /* @__PURE__ */ jsx82(TextWordBreak, { children: formatAuxiliares(codigo_transporte, nombre_transporte) })
                   ] }),
-                  /* @__PURE__ */ jsxs55(GridItem15, { children: [
-                    /* @__PURE__ */ jsxs55(
-                      Heading11,
+                  /* @__PURE__ */ jsxs57(GridItem16, { children: [
+                    /* @__PURE__ */ jsxs57(
+                      Heading12,
                       {
                         size: "md",
                         sx: {
@@ -12273,42 +13967,42 @@ var Pedido = ({
                         },
                         children: [
                           "Total",
-                          descuento != null && /* @__PURE__ */ jsxs55(Fragment27, { children: [
+                          descuento != null && /* @__PURE__ */ jsxs57(Fragment26, { children: [
                             " ",
                             `-${descuento}%`
                           ] })
                         ]
                       }
                     ),
-                    /* @__PURE__ */ jsx81(
-                      Heading11,
+                    /* @__PURE__ */ jsx82(
+                      Heading12,
                       {
                         size: "md",
                         sx: {
                           fontWeight: "bolder",
                           color: estado === 2 /* APROBADO */ && "green.400"
                         },
-                        children: /* @__PURE__ */ jsx81(TextPriceNative, { precio: total, moneda: "$" })
+                        children: /* @__PURE__ */ jsx82(TextPriceNative, { precio: total, moneda: "$" })
                       }
                     )
                   ] }),
-                  showComments && /* @__PURE__ */ jsx81(
-                    GridItem15,
+                  showComments && /* @__PURE__ */ jsx82(
+                    GridItem16,
                     {
                       colSpan: {
                         base: 2,
                         md: 4
                       },
-                      children: /* @__PURE__ */ jsxs55(Alert8, { status: "info", children: [
-                        /* @__PURE__ */ jsx81(AlertIcon7, {}),
-                        /* @__PURE__ */ jsx81(AlertDescription6, { children: comentarios })
+                      children: /* @__PURE__ */ jsxs57(Alert8, { status: "info", children: [
+                        /* @__PURE__ */ jsx82(AlertIcon7, {}),
+                        /* @__PURE__ */ jsx82(AlertDescription6, { children: comentarios })
                       ] })
                     }
                   )
                 ]
               }
             ),
-            /* @__PURE__ */ jsx81(Box25, { children: /* @__PURE__ */ jsx81(Box25, { sx: { display: isOpen ? "block" : "none" }, children: renglonesComponent }) }, `pedido-details-${index}`)
+            /* @__PURE__ */ jsx82(Box26, { children: /* @__PURE__ */ jsx82(Box26, { sx: { display: isOpen ? "block" : "none" }, children: renglonesComponent }) }, `pedido-details-${index}`)
           ]
         }
       )
@@ -12317,45 +14011,84 @@ var Pedido = ({
 };
 
 // src/app/pages/orders/components/PedidoList/index.tsx
-import { jsx as jsx82, jsxs as jsxs56 } from "react/jsx-runtime";
+import { useRef as useRef12 } from "react";
+import { jsx as jsx83, jsxs as jsxs58 } from "react/jsx-runtime";
 function PedidoList(props) {
-  let user = useAuth().state.userOrThrow(), { draft, unfilteredPedidos, filteredPedidos, isFiltering, stateRenglones } = props;
-  return /* @__PURE__ */ jsx82(TableContainer2, { sx: { p: 0, m: 0 }, children: /* @__PURE__ */ jsx82(
-    Table3,
-    {
-      variant: "stripedOverCard",
-      colorScheme: "gray",
-      size: "md",
-      sx: {
-        borderCollapse: "separate",
-        borderSpacing: "0 1rem"
-      },
-      children: /* @__PURE__ */ jsxs56(Tbody3, { children: [
-        unfilteredPedidos.map((pedido, index) => /* @__PURE__ */ jsx82(
-          Pedido,
-          {
-            index,
-            draft,
-            user,
-            pedido,
-            stateRenglones,
-            isHidden: isFiltering && !filteredPedidos.includes(pedido)
-          },
-          `pedido-${pedido.id}`
-        )),
-        !filteredPedidos.length && /* @__PURE__ */ jsx82(Tr4, { children: /* @__PURE__ */ jsx82(Td4, { children: /* @__PURE__ */ jsxs56(Alert9, { status: "info", children: [
-          /* @__PURE__ */ jsx82(AlertIcon8, {}),
-          /* @__PURE__ */ jsx82(AlertDescription7, { children: isFiltering ? FILTER_NO_RESULTS : draft ? NO_BORRADORES : NO_PEDIDOS })
-        ] }) }) })
-      ] })
+  let app = useAppResources(), deleteOrder = app.authState.userInfo.borrar_pedido_al_anular.valueOf(), { draft, unfilteredPedidos, filteredPedidos, isFiltering, stateRenglones, reloadData } = props, toast = useToast9(), deleteDialogDisclouse = useDisclosure5(), { isOpen: isDeleteDialogOpen, onOpen: onDeleteDialogOpen, onClose: onDeleteDialogClose } = deleteDialogDisclouse, orderIdToDelete = useRef12(null), handleDeleteRequest = (orderId) => {
+    orderIdToDelete.current = orderId, onDeleteDialogOpen();
+  }, handleDeleteConfirmation = async () => {
+    let orderId = orderIdToDelete.current;
+    if (orderId != null) {
+      let result = draft ? await deleteDraftRequest(orderId, app) : await deleteOrderRequest(orderId, app);
+      result.map({
+        success: (_14) => {
+          toast({
+            title: draft ? PEDIDO_DRAFT_DELETED : deleteOrder ? PEDIDO_ORDER_DELETED : PEDIDO_ORDER_CANCELED,
+            status: "success"
+          });
+        },
+        error: (e) => {
+          toast({
+            title: AN_ERROR_OCCURRED,
+            status: "error"
+          });
+        }
+      }), result.isSuccess() && await reloadData(), onDeleteDialogClose();
     }
-  ) });
+  };
+  return /* @__PURE__ */ jsxs58(TableContainer2, { sx: { p: 0, m: 0 }, children: [
+    /* @__PURE__ */ jsx83(
+      Table3,
+      {
+        variant: "stripedOverCard",
+        colorScheme: "gray",
+        size: "md",
+        sx: {
+          borderCollapse: "separate",
+          borderSpacing: "0 1rem"
+        },
+        children: /* @__PURE__ */ jsxs58(Tbody3, { children: [
+          unfilteredPedidos.map((pedido, index) => /* @__PURE__ */ jsx83(
+            Pedido,
+            {
+              index,
+              draft,
+              app,
+              pedido,
+              stateRenglones,
+              onDelete: handleDeleteRequest,
+              isHidden: isFiltering && !filteredPedidos.includes(pedido)
+            },
+            `pedido-${pedido.id}`
+          )),
+          !filteredPedidos.length && /* @__PURE__ */ jsx83(Tr4, { children: /* @__PURE__ */ jsx83(Td4, { children: /* @__PURE__ */ jsxs58(Alert9, { status: "info", children: [
+            /* @__PURE__ */ jsx83(AlertIcon8, {}),
+            /* @__PURE__ */ jsx83(AlertDescription7, { children: isFiltering ? FILTER_NO_RESULTS : draft ? NO_BORRADORES : NO_PEDIDOS })
+          ] }) }) })
+        ] })
+      }
+    ),
+    /* @__PURE__ */ jsx83(
+      DeleteDialog,
+      {
+        isOpen: isDeleteDialogOpen,
+        onClose: onDeleteDialogClose,
+        handleDeletion: handleDeleteConfirmation,
+        message: {
+          title: draft ? PEDIDO_DELETE_DRAFT : deleteOrder ? PEDIDO_DELETE_ORDER : PEDIDO_CANCEL_ORDER,
+          body: draft ? PEDIDO_DELETE_DRAFT_CONFIRM : deleteOrder ? PEDIDO_DELETE_ORDER_CONFIRM : PEDIDO_CANCEL_ORDER_CONFIRM
+        }
+      }
+    )
+  ] });
 }
 
 // src/app/pages/orders/components/success.tsx
-import { Fragment as Fragment28, jsx as jsx83, jsxs as jsxs57 } from "react/jsx-runtime";
+import { Fragment as Fragment27, jsx as jsx84, jsxs as jsxs59 } from "react/jsx-runtime";
 var Success8 = (props) => {
-  let { showDrafts, pedidos } = props, user = useAuth().state.userOrThrow(), isAdmin = user.role == 2 /* admin */, isVendor = user.role == 1 /* vendor */, isCustomer = user.role == 0 /* customer */, {
+  let { showDrafts, pedidos, reloadData } = props, user = useAuth().state.userOrThrow(), isAdmin = user.role == 2 /* admin */, isVendor = user.role == 1 /* vendor */, isCustomer = user.role == 0 /* customer */;
+  console.log(pedidos.length);
+  let {
     filteredData: filteredPedidos,
     handleSearchInputChange,
     isFiltering
@@ -12365,14 +14098,14 @@ var Success8 = (props) => {
     ...isCustomer ? [] : ["codigo_cliente", "nombre_cliente"],
     ...isAdmin ? ["codigo_vendedor", "nombre_vendedor"] : []
   ]), { state: stateRenglones } = useDXTApiFetch({
-    url: showDrafts ? API_BORRADOR_GET_ALL_ROWS : API_PEDIDO_GET_ALL_ROWS,
+    ...showDrafts ? API_BORRADOR_GET_ALL_ROWS : API_PEDIDO_GET_ALL_ROWS,
     silent: !0,
     transformResponse: (data) => (Object.values(data).forEach((rows) => {
       Array.isArray(rows) && rows.sort((a, b) => a.renglon - b.renglon);
     }), data)
   });
-  return /* @__PURE__ */ jsxs57(Fragment28, { children: [
-    /* @__PURE__ */ jsx83(
+  return /* @__PURE__ */ jsxs59(Fragment27, { children: [
+    /* @__PURE__ */ jsx84(
       OrdersNav,
       {
         isDraft: showDrafts,
@@ -12381,29 +14114,30 @@ var Success8 = (props) => {
         handleSearchInputChange
       }
     ),
-    /* @__PURE__ */ jsx83(
+    /* @__PURE__ */ jsx84(
       PedidoList,
       {
         draft: showDrafts,
         stateRenglones,
         unfilteredPedidos: pedidos,
         filteredPedidos,
-        isFiltering
+        isFiltering,
+        reloadData
       }
     )
   ] });
 };
 
 // src/app/pages/orders/index.tsx
-import { jsx as jsx84 } from "react/jsx-runtime";
+import { jsx as jsx85 } from "react/jsx-runtime";
 var OrdersPage = (props) => {
-  let showDrafts = props.showDrafts === !0, { state, retry } = useDXTApiFetch({
-    url: showDrafts ? API_BORRADOR_GET_ALL : API_PEDIDO_GET_ALL,
+  let showDrafts = props.showDrafts === !0, { state, retry, reload } = useDXTApiFetch({
+    ...showDrafts ? API_BORRADOR_GET_ALL : API_PEDIDO_GET_ALL,
     silent: !0
   });
   return state.map({
-    loading: (_13) => /* @__PURE__ */ jsx84(Loading6, {}),
-    error: ({ error }) => /* @__PURE__ */ jsx84(
+    loading: (_14) => /* @__PURE__ */ jsx85(Loading6, {}),
+    error: ({ error }) => /* @__PURE__ */ jsx85(
       ApiErrors,
       {
         error,
@@ -12411,14 +14145,17 @@ var OrdersPage = (props) => {
         cancelAndNavigateTo: URL_PEDIDOS_PATH
       }
     ),
-    success: (state2) => /* @__PURE__ */ jsx84(Success8, { showDrafts, pedidos: state2.data })
+    success: (state2) => /* @__PURE__ */ jsx85(Success8, { showDrafts, pedidos: state2.data, reloadData: reload })
   });
 };
 
 // src/app/routes/_authorized.drafts._index/route.tsx
-import { jsx as jsx85 } from "react/jsx-runtime";
+import { jsx as jsx86, jsxs as jsxs60 } from "react/jsx-runtime";
 function OrdersList() {
-  return /* @__PURE__ */ jsx85(OrdersPage, { showDrafts: !0 });
+  return /* @__PURE__ */ jsxs60(Container4, { maxW: "6xl", sx: { my: 4 }, children: [
+    /* @__PURE__ */ jsx86(OrdersPage, { showDrafts: !0 }),
+    ";"
+  ] });
 }
 
 // src/app/routes/_authorized.orders._index/route.tsx
@@ -12426,27 +14163,28 @@ var route_exports11 = {};
 __export(route_exports11, {
   default: () => OrdersList2
 });
-import { jsx as jsx86 } from "react/jsx-runtime";
+import { Container as Container5 } from "@chakra-ui/react";
+import { jsx as jsx87 } from "react/jsx-runtime";
 function OrdersList2() {
-  return /* @__PURE__ */ jsx86(OrdersPage, {});
+  return /* @__PURE__ */ jsx87(Container5, { maxW: "6xl", sx: { my: 4 }, children: /* @__PURE__ */ jsx87(OrdersPage, {}) });
 }
 
 // src/app/routes/api.dxt.vendedor.cliente.ts
 var api_dxt_vendedor_cliente_exports = {};
 __export(api_dxt_vendedor_cliente_exports, {
-  action: () => action15,
-  loader: () => loader16
+  action: () => action16,
+  loader: () => loader17
 });
-async function loader16({ request, params }) {
+async function loader17({ request, params }) {
   return await dxtVendedorGetCustomersEndpoint.get(request, params);
 }
-var action15 = unimplementedApiResponse;
+var action16 = unimplementedApiResponse;
 
 // src/app/routes/api.settings.config_file.ts
 var api_settings_config_file_exports = {};
 __export(api_settings_config_file_exports, {
-  action: () => action16,
-  loader: () => loader17
+  action: () => action17,
+  loader: () => loader18
 });
 
 // src/code.server/api/settings/endpoints/getProgramConfigFile.ts
@@ -12457,49 +14195,48 @@ var getProgramConfigFileEndpoint = createApiEndpoint(
 );
 
 // src/app/routes/api.settings.config_file.ts
-async function loader17({ request, params }) {
+async function loader18({ request, params }) {
   return await getProgramConfigFileEndpoint.get(request, params);
 }
-var action16 = unimplementedApiResponse;
+var action17 = unimplementedApiResponse;
 
 // src/app/routes/_admin.settings.company/route.tsx
 var route_exports12 = {};
 __export(route_exports12, {
   default: () => Company
 });
-import { useNavigate as useNavigate12 } from "@remix-run/react";
+import { useNavigate as useNavigate13 } from "@remix-run/react";
 
 // src/app/routes/_admin.settings.company/components/success.tsx
-import { useEffect as useEffect15 } from "react";
-import { Box as Box26, Grid as Grid16, GridItem as GridItem16, useToast as useToast8 } from "@chakra-ui/react";
-import { yupResolver as yupResolver7 } from "@hookform/resolvers/yup";
-import { useForm as useForm8 } from "react-hook-form";
+import { useEffect as useEffect16 } from "react";
+import { Box as Box27, Grid as Grid17, GridItem as GridItem17, useToast as useToast10 } from "@chakra-ui/react";
+import { yupResolver as yupResolver8 } from "@hookform/resolvers/yup";
+import { useForm as useForm9 } from "react-hook-form";
 
 // src/api-client/company/paths.ts
-var API_DICTIONARY = apiPath("/dictionary"), API_ACTIVE_COMPANY = apiPath("/dictionary/active_company");
+var API_DICTIONARY_GET_ALL = apiEndpoint("/dictionary", "GET"), API_ACTIVE_COMPANY_UPDATE = apiEndpoint("/dictionary/active_company", "POST");
 
 // src/api-client/company/requests.tsx
 var companyUpdateRequest = async (input, app) => await dxtApiRequest(
   {
-    url: API_ACTIVE_COMPANY,
+    ...API_ACTIVE_COMPANY_UPDATE,
     params: input,
-    method: "POST",
     silent: !0
   },
   app
 );
 
 // src/app/routes/_admin.settings.company/validation.ts
-import * as yup8 from "yup";
-var yupValidationSchema3 = yup8.object({
-  company: yup8.string().required("Seleccione una empresa activa")
+import * as yup9 from "yup";
+var yupValidationSchema2 = yup9.object({
+  company: yup9.string().required("Seleccione una empresa activa")
 }).required();
 
 // src/app/routes/_admin.settings.company/components/success.tsx
-import { jsx as jsx87, jsxs as jsxs58 } from "react/jsx-runtime";
+import { jsx as jsx88, jsxs as jsxs61 } from "react/jsx-runtime";
 var Success9 = () => {
-  let app = useAppResources(), toast = useToast8(), { state: stateDictionary, result: resultDictionary } = useTangoList({
-    url: API_DICTIONARY,
+  let app = useAppResources(), toast = useToast10(), { state: stateDictionary, result: resultDictionary } = useTangoList({
+    endpoint: API_DICTIONARY_GET_ALL,
     fieldsMap: {
       label: "name",
       value: "db_name",
@@ -12511,13 +14248,13 @@ var Success9 = () => {
     reset,
     setError,
     formState: { errors, isSubmitting, isSubmitSuccessful }
-  } = useForm8({
+  } = useForm9({
     defaultValues: {
       company: ""
     },
-    resolver: yupResolver7(yupValidationSchema3)
+    resolver: yupResolver8(yupValidationSchema2)
   }), disableForm = isSubmitSuccessful || isSubmitting;
-  return useEffect15(() => {
+  return useEffect16(() => {
     if (stateDictionary instanceof FetchStateSuccess) {
       let selectedIndex = resultDictionary.findIndex(
         (x) => x.selected === !0
@@ -12526,34 +14263,35 @@ var Success9 = () => {
         company: resultDictionary[selectedIndex].value
       });
     }
-  }, [stateDictionary]), /* @__PURE__ */ jsx87("form", { noValidate: !0, onSubmit: handleSubmit(async (data) => {
+  }, [stateDictionary]), /* @__PURE__ */ jsx88("form", { noValidate: !0, onSubmit: handleSubmit(async (data) => {
     let input = {
       company: data.company
-    }, result = await companyUpdateRequest(input, app);
-    await promiseBasedToast({
-      toast,
-      result,
-      messages: {
-        success: { title: COMPANY_UPDATED },
-        error: { title: AN_ERROR_OCCURRED },
-        loading: { title: COMPANY_UPDATING }
+    };
+    (await companyUpdateRequest(input, app)).map({
+      success: (_14) => {
+        toast({
+          title: COMPANY_UPDATED,
+          status: "success"
+        }), app.navigate(URL_SETTINGS_PATH);
+      },
+      error: (e) => {
+        toast({
+          title: AN_ERROR_OCCURRED,
+          status: "error"
+        }), setError("root", { message: e.info.error_description });
       }
-    }).then(() => {
-      app.navigate(URL_SETTINGS_PATH);
-    }).catch((e) => {
-      setError("root", { message: e });
     });
-  }), children: /* @__PURE__ */ jsxs58(Box26, { children: [
-    /* @__PURE__ */ jsx87(FormErrors, { errors }),
-    /* @__PURE__ */ jsx87(CommonCard, { children: /* @__PURE__ */ jsxs58(
-      Grid16,
+  }), children: /* @__PURE__ */ jsxs61(Box27, { children: [
+    /* @__PURE__ */ jsx88(FormErrors, { errors }),
+    /* @__PURE__ */ jsx88(CommonCard, { children: /* @__PURE__ */ jsxs61(
+      Grid17,
       {
         templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
         alignItems: "start",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsxs58(GridItem16, { children: [
-            /* @__PURE__ */ jsx87(
+          /* @__PURE__ */ jsxs61(GridItem17, { children: [
+            /* @__PURE__ */ jsx88(
               ControlledSelect,
               {
                 fieldProps: {
@@ -12575,26 +14313,26 @@ var Success9 = () => {
                 control
               }
             ),
-            stateDictionary instanceof FetchStateError && /* @__PURE__ */ jsx87(InlineError, { error: stateDictionary.errorOrNull().error })
+            stateDictionary instanceof FetchStateError && /* @__PURE__ */ jsx88(InlineError, { error: stateDictionary.errorOrNull().error })
           ] }),
-          /* @__PURE__ */ jsx87(GridItem16, {})
+          /* @__PURE__ */ jsx88(GridItem17, {})
         ]
       }
     ) }),
-    /* @__PURE__ */ jsx87(CommonCard, { children: /* @__PURE__ */ jsx87(SettingsFormsButtons, { isLoading: disableForm }) })
+    /* @__PURE__ */ jsx88(CommonCard, { children: /* @__PURE__ */ jsx88(SettingsFormsButtons, { isLoading: disableForm }) })
   ] }) });
 };
 
 // src/app/routes/_admin.settings.company/components/index.tsx
-import { jsx as jsx88 } from "react/jsx-runtime";
-var FormCompany = () => /* @__PURE__ */ jsx88(Success9, {});
+import { jsx as jsx89 } from "react/jsx-runtime";
+var FormCompany = () => /* @__PURE__ */ jsx89(Success9, {});
 
 // src/app/routes/_admin.settings.company/route.tsx
-import { Fragment as Fragment29, jsx as jsx89, jsxs as jsxs59 } from "react/jsx-runtime";
+import { Fragment as Fragment28, jsx as jsx90, jsxs as jsxs62 } from "react/jsx-runtime";
 function Company() {
-  let navigate = useNavigate12();
-  return /* @__PURE__ */ jsxs59(Fragment29, { children: [
-    /* @__PURE__ */ jsx89(
+  let navigate = useNavigate13();
+  return /* @__PURE__ */ jsxs62(Fragment28, { children: [
+    /* @__PURE__ */ jsx90(
       SettingsFormHeading,
       {
         title: COMPANY,
@@ -12607,7 +14345,7 @@ function Company() {
         }
       }
     ),
-    /* @__PURE__ */ jsx89(FormCompany, {})
+    /* @__PURE__ */ jsx90(FormCompany, {})
   ] });
 }
 
@@ -12618,67 +14356,71 @@ __export(route_exports13, {
 });
 
 // src/api-client/admin/paths.ts
-var API_ADMIN_STATUS = apiPath("/admin/status");
+var API_ADMIN_STATUS = apiEndpoint("/admin/status", "GET");
 
 // src/app/routes/_admin.settings._index/components/loading.tsx
 import { Skeleton as Skeleton3, VStack as VStack6 } from "@chakra-ui/react";
-import { Fragment as Fragment30, jsx as jsx90, jsxs as jsxs60 } from "react/jsx-runtime";
-var Loading7 = () => /* @__PURE__ */ jsx90(Fragment30, { children: /* @__PURE__ */ jsxs60(VStack6, { spacing: 4, width: "full", children: [
-  /* @__PURE__ */ jsx90(Skeleton3, { width: "full", height: "70px", borderRadius: "md" }),
-  /* @__PURE__ */ jsx90(Skeleton3, { width: "full", height: "70px", borderRadius: "md" }),
-  /* @__PURE__ */ jsx90(Skeleton3, { width: "full", height: "120px", borderRadius: "md" }),
-  /* @__PURE__ */ jsx90(Skeleton3, { width: "full", height: "70px", borderRadius: "md" })
+import { Fragment as Fragment29, jsx as jsx91, jsxs as jsxs63 } from "react/jsx-runtime";
+var Loading7 = () => /* @__PURE__ */ jsx91(Fragment29, { children: /* @__PURE__ */ jsxs63(VStack6, { spacing: 4, width: "full", children: [
+  /* @__PURE__ */ jsx91(Skeleton3, { width: "full", height: "70px", borderRadius: "md" }),
+  /* @__PURE__ */ jsx91(Skeleton3, { width: "full", height: "70px", borderRadius: "md" }),
+  /* @__PURE__ */ jsx91(Skeleton3, { width: "full", height: "120px", borderRadius: "md" }),
+  /* @__PURE__ */ jsx91(Skeleton3, { width: "full", height: "70px", borderRadius: "md" })
 ] }) });
 
 // src/app/routes/_admin.settings._index/components/success.tsx
-import { useNavigate as useNavigate13 } from "@remix-run/react";
-import { Box as Box27, Card as Card3, CardBody as CardBody3, Grid as Grid18, GridItem as GridItem18, VStack as VStack7 } from "@chakra-ui/react";
+import { useNavigate as useNavigate14 } from "@remix-run/react";
+import { Box as Box28, Card as Card3, CardBody as CardBody3, Grid as Grid19, GridItem as GridItem19, VStack as VStack7 } from "@chakra-ui/react";
 
 // src/app/components/SettingsListButton.tsx
 import { Button as Button11 } from "@chakra-ui/react";
 
 // src/app/components/SettingsListItem.tsx
 import {
+  Badge as Badge5,
   Card as Card2,
   CardBody as CardBody2,
-  Grid as Grid17,
-  GridItem as GridItem17,
-  Heading as Heading12,
+  Grid as Grid18,
+  GridItem as GridItem18,
+  Heading as Heading13,
   HStack as HStack13,
-  Icon as Icon8
+  Icon as Icon9
 } from "@chakra-ui/react";
 import CheckCircleIcon from "mdi-react/CheckCircleIcon.js";
 import CloseCircleIcon from "mdi-react/CloseCircleIcon.js";
-import { jsx as jsx91, jsxs as jsxs61 } from "react/jsx-runtime";
+import { jsx as jsx92, jsxs as jsxs64 } from "react/jsx-runtime";
 var SettingsListItem = (props) => {
   let { status, title, status_text, actionButtonState, actionButtonOnClick } = props, color = status === 1 /* success */ ? "green" : "red";
-  return /* @__PURE__ */ jsx91(Card2, { children: /* @__PURE__ */ jsx91(CardBody2, { children: /* @__PURE__ */ jsxs61(
-    Grid17,
+  return /* @__PURE__ */ jsx92(Card2, { children: /* @__PURE__ */ jsx92(CardBody2, { children: /* @__PURE__ */ jsxs64(
+    Grid18,
     {
       templateColumns: { base: "1fr", md: "6fr 1fr" },
       alignItems: "center",
       gap: 4,
       children: [
-        /* @__PURE__ */ jsx91(GridItem17, { children: /* @__PURE__ */ jsxs61(HStack13, { justifyContent: "start", children: [
-          status != null && (status === 1 /* success */ ? /* @__PURE__ */ jsx91(Icon8, { as: CheckCircleIcon, color: "green.500", boxSize: 8 }) : /* @__PURE__ */ jsx91(Icon8, { as: CloseCircleIcon, color: "red.500", boxSize: 8 })),
-          /* @__PURE__ */ jsxs61("div", { children: [
-            /* @__PURE__ */ jsx91(Heading12, { size: "md", textTransform: "uppercase", children: title }),
-            status_text != null && /* @__PURE__ */ jsx91(
-              Card2,
+        /* @__PURE__ */ jsx92(GridItem18, { children: /* @__PURE__ */ jsxs64(HStack13, { justifyContent: "start", children: [
+          status != null && (status === 1 /* success */ ? /* @__PURE__ */ jsx92(Icon9, { as: CheckCircleIcon, color: "green.500", boxSize: 8 }) : /* @__PURE__ */ jsx92(Icon9, { as: CloseCircleIcon, color: "red.500", boxSize: 8 })),
+          /* @__PURE__ */ jsxs64("div", { children: [
+            /* @__PURE__ */ jsx92(Heading13, { size: "md", textTransform: "uppercase", children: title }),
+            status_text != null && /* @__PURE__ */ jsx92(
+              Badge5,
               {
                 variant: "outline",
-                boxShadow: 0,
-                borderColor: color,
-                color,
-                p: 1,
                 colorScheme: color,
+                fontSize: "medium",
+                fontWeight: "normal",
+                textTransform: "none",
+                sx: {
+                  mt: 1,
+                  whiteSpace: "wrap"
+                },
                 children: status_text.split(`
-`).map((line) => /* @__PURE__ */ jsx91("p", { style: { minHeight: 10 }, children: line }))
+`).map((line, key) => /* @__PURE__ */ jsx92("p", { style: { minHeight: 10 }, children: line }, `text-${key}`))
               }
             )
           ] })
         ] }) }),
-        /* @__PURE__ */ jsx91(GridItem17, { textAlign: { base: "end", md: "start" }, children: /* @__PURE__ */ jsx91(
+        /* @__PURE__ */ jsx92(GridItem18, { textAlign: { base: "end", md: "start" }, children: /* @__PURE__ */ jsx92(
           SettingsListButton,
           {
             buttonState: actionButtonState,
@@ -12693,10 +14435,10 @@ var SettingsListItem = (props) => {
 };
 
 // src/app/components/SettingsListButton.tsx
-import { jsx as jsx92 } from "react/jsx-runtime";
+import { jsx as jsx93 } from "react/jsx-runtime";
 var SettingsListButton = (props) => {
   let { buttonState, onClick, children, fullWidth } = props;
-  return /* @__PURE__ */ jsx92(
+  return /* @__PURE__ */ jsx93(
     Button11,
     {
       onClick,
@@ -12712,13 +14454,13 @@ var SettingsListButton = (props) => {
 };
 
 // src/app/routes/_admin.settings._index/components/success.tsx
-import { Fragment as Fragment31, jsx as jsx93, jsxs as jsxs62 } from "react/jsx-runtime";
+import { Fragment as Fragment30, jsx as jsx94, jsxs as jsxs65 } from "react/jsx-runtime";
 var Success10 = (props) => {
-  let { stateData } = props, navigate = useNavigate13(), configSuccessful = stateData.dictionary_ok && stateData.company_ok, errorText = stateData.company_error != null ? `${stateData.company_error}${stateData.company_error_details != null ? `
+  let { stateData } = props, navigate = useNavigate14(), configSuccessful = stateData.dictionary_ok && stateData.company_ok, errorText = stateData.company_error != null ? `${stateData.company_error}${stateData.company_error_details != null ? `
 
 ${stateData.company_error_details}` : ""}` : void 0;
-  return /* @__PURE__ */ jsx93(Fragment31, { children: /* @__PURE__ */ jsxs62(VStack7, { spacing: 4, width: "full", children: [
-    /* @__PURE__ */ jsx93(Box27, { width: "full", children: /* @__PURE__ */ jsx93(
+  return /* @__PURE__ */ jsx94(Fragment30, { children: /* @__PURE__ */ jsxs65(VStack7, { spacing: 4, width: "full", children: [
+    /* @__PURE__ */ jsx94(Box28, { width: "full", children: /* @__PURE__ */ jsx94(
       SettingsListItem,
       {
         title: TANGO_CONNECTION,
@@ -12730,7 +14472,7 @@ ${stateData.company_error_details}` : ""}` : void 0;
         }
       }
     ) }),
-    /* @__PURE__ */ jsx93(Box27, { width: "full", children: /* @__PURE__ */ jsx93(
+    /* @__PURE__ */ jsx94(Box28, { width: "full", children: /* @__PURE__ */ jsx94(
       SettingsListItem,
       {
         title: COMPANY,
@@ -12742,13 +14484,13 @@ ${stateData.company_error_details}` : ""}` : void 0;
         }
       }
     ) }),
-    /* @__PURE__ */ jsx93(Box27, { width: "full", children: /* @__PURE__ */ jsx93(Card3, { children: /* @__PURE__ */ jsx93(CardBody3, { children: /* @__PURE__ */ jsxs62(
-      Grid18,
+    /* @__PURE__ */ jsx94(Box28, { width: "full", children: /* @__PURE__ */ jsx94(Card3, { children: /* @__PURE__ */ jsx94(CardBody3, { children: /* @__PURE__ */ jsxs65(
+      Grid19,
       {
         templateColumns: { base: "1fr", sm: "repeat(2,1fr)" },
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx93(GridItem18, { textAlign: "center", children: /* @__PURE__ */ jsx93(
+          /* @__PURE__ */ jsx94(GridItem19, { textAlign: "center", children: /* @__PURE__ */ jsx94(
             SettingsListButton,
             {
               fullWidth: !0,
@@ -12759,7 +14501,7 @@ ${stateData.company_error_details}` : ""}` : void 0;
               children: CLIENTS_ADMIN
             }
           ) }),
-          /* @__PURE__ */ jsx93(GridItem18, { textAlign: "center", children: /* @__PURE__ */ jsx93(
+          /* @__PURE__ */ jsx94(GridItem19, { textAlign: "center", children: /* @__PURE__ */ jsx94(
             SettingsListButton,
             {
               fullWidth: !0,
@@ -12770,7 +14512,7 @@ ${stateData.company_error_details}` : ""}` : void 0;
               children: SELLERS_ADMIN
             }
           ) }),
-          /* @__PURE__ */ jsx93(GridItem18, { textAlign: "center", children: /* @__PURE__ */ jsx93(
+          /* @__PURE__ */ jsx94(GridItem19, { textAlign: "center", children: /* @__PURE__ */ jsx94(
             SettingsListButton,
             {
               fullWidth: !0,
@@ -12781,7 +14523,7 @@ ${stateData.company_error_details}` : ""}` : void 0;
               children: PRODUCT_EDIT_LIST
             }
           ) }),
-          /* @__PURE__ */ jsx93(GridItem18, { textAlign: "center", children: /* @__PURE__ */ jsx93(
+          /* @__PURE__ */ jsx94(GridItem19, { textAlign: "center", children: /* @__PURE__ */ jsx94(
             SettingsListButton,
             {
               fullWidth: !0,
@@ -12795,7 +14537,7 @@ ${stateData.company_error_details}` : ""}` : void 0;
         ]
       }
     ) }) }) }),
-    /* @__PURE__ */ jsx93(Box27, { width: "full", children: /* @__PURE__ */ jsx93(
+    /* @__PURE__ */ jsx94(Box28, { width: "full", children: /* @__PURE__ */ jsx94(
       SettingsListItem,
       {
         title: VARIOUS_SETTINGS,
@@ -12809,61 +14551,83 @@ ${stateData.company_error_details}` : ""}` : void 0;
 };
 
 // src/app/routes/_admin.settings._index/components/index.tsx
-import { Fragment as Fragment32, jsx as jsx94 } from "react/jsx-runtime";
+import { Fragment as Fragment31, jsx as jsx95 } from "react/jsx-runtime";
 var SettingsHome = () => {
   let { state, retry } = useDXTApiFetch({
-    url: API_ADMIN_STATUS,
+    ...API_ADMIN_STATUS,
     silent: !0
   });
-  return /* @__PURE__ */ jsx94(Fragment32, { children: state.map({
-    loading: (_13) => /* @__PURE__ */ jsx94(Loading7, {}),
-    error: ({ error }) => /* @__PURE__ */ jsx94(ApiErrors, { error, retry }),
-    success: (state2) => /* @__PURE__ */ jsx94(Success10, { stateData: state2.data })
+  return /* @__PURE__ */ jsx95(Fragment31, { children: state.map({
+    loading: (_14) => /* @__PURE__ */ jsx95(Loading7, {}),
+    error: ({ error }) => /* @__PURE__ */ jsx95(ApiErrors, { error, retry }),
+    success: (state2) => /* @__PURE__ */ jsx95(Success10, { stateData: state2.data })
   }) });
 };
 
 // src/app/routes/_admin.settings._index/route.tsx
-import { jsx as jsx95 } from "react/jsx-runtime";
+import { jsx as jsx96 } from "react/jsx-runtime";
 function Settings() {
-  return /* @__PURE__ */ jsx95(SettingsHome, {});
+  return /* @__PURE__ */ jsx96(SettingsHome, {});
+}
+
+// src/app/routes/_authorized.drafts.add/route.tsx
+var route_exports14 = {};
+__export(route_exports14, {
+  default: () => OrdersAdd3
+});
+import { Container as Container6 } from "@chakra-ui/react";
+import { jsx as jsx97 } from "react/jsx-runtime";
+function OrdersAdd3() {
+  return /* @__PURE__ */ jsx97(Container6, { maxW: "6xl", sx: { my: 4 }, children: /* @__PURE__ */ jsx97(OrdersAddPage, { draft: !0 }) });
+}
+
+// src/app/routes/_authorized.orders.add/route.tsx
+var route_exports15 = {};
+__export(route_exports15, {
+  default: () => OrdersAdd4
+});
+import { Container as Container7 } from "@chakra-ui/react";
+import { jsx as jsx98 } from "react/jsx-runtime";
+function OrdersAdd4() {
+  return /* @__PURE__ */ jsx98(Container7, { maxW: "6xl", sx: { my: 4 }, children: /* @__PURE__ */ jsx98(OrdersAddPage, { draft: !1 }) });
 }
 
 // src/app/routes/_admin.settings.tango/route.tsx
-var route_exports14 = {};
-__export(route_exports14, {
-  default: () => Tango
+var route_exports16 = {};
+__export(route_exports16, {
+  default: () => Tango2
 });
-import { useNavigate as useNavigate14 } from "@remix-run/react";
+import { useNavigate as useNavigate15 } from "@remix-run/react";
 
 // src/api-client/settings/paths.ts
-var API_SETTINGS_DB = apiPath("/settings/db"), API_SETTINGS_MISC = apiPath("/settings/misc");
+var API_SETTINGS_DB = apiEndpoint("/settings/db", "GET"), API_SETTINGS_DB_SET = apiEndpoint("/settings/db", "POST"), API_SETTINGS_MISC = apiEndpoint("/settings/misc", "GET"), API_SETTINGS_MISC_SET = apiEndpoint("/settings/misc", "POST");
 
 // src/app/routes/_admin.settings.tango/components/loading.tsx
-import { Box as Box28, Grid as Grid19, GridItem as GridItem19 } from "@chakra-ui/react";
-import { jsx as jsx96, jsxs as jsxs63 } from "react/jsx-runtime";
-var Loading8 = () => /* @__PURE__ */ jsx96(
-  Box28,
+import { Box as Box29, Grid as Grid20, GridItem as GridItem20 } from "@chakra-ui/react";
+import { jsx as jsx99, jsxs as jsxs66 } from "react/jsx-runtime";
+var Loading8 = () => /* @__PURE__ */ jsx99(
+  Box29,
   {
     width: "full",
     sx: {
       mt: 8,
       mb: 4
     },
-    children: /* @__PURE__ */ jsxs63(
-      Grid19,
+    children: /* @__PURE__ */ jsxs66(
+      Grid20,
       {
         templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
         alignItems: "center",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx96(GridItem19, { children: /* @__PURE__ */ jsx96(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx96(GridItem19, { children: /* @__PURE__ */ jsx96(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx96(GridItem19, { children: /* @__PURE__ */ jsx96(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx96(GridItem19, { children: /* @__PURE__ */ jsx96(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx96(GridItem19, { children: /* @__PURE__ */ jsx96(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx96(GridItem19, { children: /* @__PURE__ */ jsx96(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx96(GridItem19, { children: /* @__PURE__ */ jsx96(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx96(GridItem19, { children: /* @__PURE__ */ jsx96(FormInputSkeleton, {}) })
+          /* @__PURE__ */ jsx99(GridItem20, { children: /* @__PURE__ */ jsx99(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx99(GridItem20, { children: /* @__PURE__ */ jsx99(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx99(GridItem20, { children: /* @__PURE__ */ jsx99(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx99(GridItem20, { children: /* @__PURE__ */ jsx99(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx99(GridItem20, { children: /* @__PURE__ */ jsx99(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx99(GridItem20, { children: /* @__PURE__ */ jsx99(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx99(GridItem20, { children: /* @__PURE__ */ jsx99(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx99(GridItem20, { children: /* @__PURE__ */ jsx99(FormInputSkeleton, {}) })
         ]
       }
     )
@@ -12871,46 +14635,44 @@ var Loading8 = () => /* @__PURE__ */ jsx96(
 );
 
 // src/app/routes/_admin.settings.tango/components/success.tsx
-import { Box as Box29, Grid as Grid20, GridItem as GridItem20, useToast as useToast9 } from "@chakra-ui/react";
-import { yupResolver as yupResolver8 } from "@hookform/resolvers/yup";
-import { useForm as useForm9 } from "react-hook-form";
+import { Box as Box30, Grid as Grid21, GridItem as GridItem21, useToast as useToast11 } from "@chakra-ui/react";
+import { yupResolver as yupResolver9 } from "@hookform/resolvers/yup";
+import { useForm as useForm10 } from "react-hook-form";
 
 // src/api-client/settings/requests.ts
 var settingsDBUpdateRequest = async (input, app) => await dxtApiRequest(
   {
-    url: API_SETTINGS_DB,
+    ...API_SETTINGS_DB_SET,
     data: input,
-    method: "POST",
     silent: !0
   },
   app
 ), settingsMiscUpdateRequest = async (input, app) => await dxtApiRequest(
   {
-    url: API_SETTINGS_MISC,
+    ...API_SETTINGS_MISC_SET,
     data: input,
-    method: "POST",
     silent: !0
   },
   app
 );
 
 // src/app/routes/_admin.settings.tango/validation.ts
-import * as yup9 from "yup";
-var yupValidationSchema4 = yup9.object({
-  db_host: yup9.string().required("Ingrese el host de la base de datos"),
-  db_port: yup9.number().required("Ingrese un puerto").typeError("Ingrese un n\xFAmero de puerto v\xE1lido").test(
+import * as yup10 from "yup";
+var yupValidationSchema3 = yup10.object({
+  db_host: yup10.string().required("Ingrese el host de la base de datos"),
+  db_port: yup10.number().required("Ingrese un puerto").typeError("Ingrese un n\xFAmero de puerto v\xE1lido").test(
     "is-port",
     "Ingrese un puerto v\xE1lido",
     (v) => yupVOValidation(VOTCPPort, v)
   ),
-  db_user: yup9.string().required("Ingrese el usuario de la base de datos"),
-  db_password: yup9.string().required("Ingrese la contrase\xF1a de la base de datos"),
-  tango_dictionary: yup9.string().required("Ingrese el diccionario base de Tango").test(
+  db_user: yup10.string().required("Ingrese el usuario de la base de datos"),
+  db_password: yup10.string().required("Ingrese la contrase\xF1a de la base de datos"),
+  tango_dictionary: yup10.string().required("Ingrese el diccionario base de Tango").test(
     "mssql-db-name",
     "Ingrese un nombre de Diccionario base v\xE1lido",
     (v) => yupVOValidation(VOMSSqlDBName, v)
   ),
-  db_connection_timeout_seconds: yup9.number().min(
+  db_connection_timeout_seconds: yup10.number().min(
     0,
     `El tiempo de espera debe ser mayor a ${0} segundos`
   ).max(
@@ -12922,43 +14684,43 @@ var yupValidationSchema4 = yup9.object({
 }).required();
 
 // src/app/routes/_admin.settings.tango/components/success.tsx
-import { jsx as jsx97, jsxs as jsxs64 } from "react/jsx-runtime";
+import { jsx as jsx100, jsxs as jsxs67 } from "react/jsx-runtime";
 var Success11 = (props) => {
-  let { stateData } = props, app = useAppResources(), toast = useToast9(), {
+  let { stateData } = props, app = useAppResources(), toast = useToast11(), {
     handleSubmit,
     control,
     reset,
     setError,
     formState: { errors, isSubmitting, isSubmitSuccessful }
-  } = useForm9({
+  } = useForm10({
     defaultValues: stateData,
-    resolver: yupResolver8(yupValidationSchema4)
+    resolver: yupResolver9(yupValidationSchema3)
   }), disableForm = isSubmitSuccessful || isSubmitting;
-  return /* @__PURE__ */ jsx97("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
-    let result = await settingsDBUpdateRequest(dataUnsafe, app);
-    await promiseBasedToast({
-      toast,
-      result,
-      messages: {
-        success: { title: TANGO_CONNECTION_UPDATED },
-        error: { title: AN_ERROR_OCCURRED },
-        loading: { title: TANGO_CONNECTION_UPDATING }
+  return /* @__PURE__ */ jsx100("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
+    (await settingsDBUpdateRequest(dataUnsafe, app)).map({
+      success: (_14) => {
+        toast({
+          title: TANGO_CONNECTION_UPDATED,
+          status: "success"
+        }), app.navigate(URL_SETTINGS_PATH);
+      },
+      error: (e) => {
+        toast({
+          title: AN_ERROR_OCCURRED,
+          status: "error"
+        }), setError("root", { message: e.info.error_description });
       }
-    }).then(() => {
-      app.navigate(URL_SETTINGS_PATH);
-    }).catch((e) => {
-      setError("root", { message: e });
     });
-  }), children: /* @__PURE__ */ jsxs64(Box29, { children: [
-    /* @__PURE__ */ jsx97(FormErrors, { errors }),
-    /* @__PURE__ */ jsx97(CommonCard, { children: /* @__PURE__ */ jsxs64(
-      Grid20,
+  }), children: /* @__PURE__ */ jsxs67(Box30, { children: [
+    /* @__PURE__ */ jsx100(FormErrors, { errors }),
+    /* @__PURE__ */ jsx100(CommonCard, { children: /* @__PURE__ */ jsxs67(
+      Grid21,
       {
         templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
         alignItems: "start",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx97(GridItem20, { children: /* @__PURE__ */ jsx97(
+          /* @__PURE__ */ jsx100(GridItem21, { children: /* @__PURE__ */ jsx100(
             ControlledInput,
             {
               fieldProps: {
@@ -12975,7 +14737,7 @@ var Success11 = (props) => {
               control
             }
           ) }),
-          /* @__PURE__ */ jsx97(GridItem20, { children: /* @__PURE__ */ jsx97(
+          /* @__PURE__ */ jsx100(GridItem21, { children: /* @__PURE__ */ jsx100(
             ControlledInput,
             {
               fieldProps: {
@@ -12995,7 +14757,7 @@ var Success11 = (props) => {
               control
             }
           ) }),
-          /* @__PURE__ */ jsx97(GridItem20, { children: /* @__PURE__ */ jsx97(
+          /* @__PURE__ */ jsx100(GridItem21, { children: /* @__PURE__ */ jsx100(
             ControlledInput,
             {
               fieldProps: {
@@ -13012,7 +14774,7 @@ var Success11 = (props) => {
               control
             }
           ) }),
-          /* @__PURE__ */ jsx97(GridItem20, { children: /* @__PURE__ */ jsx97(
+          /* @__PURE__ */ jsx100(GridItem21, { children: /* @__PURE__ */ jsx100(
             ControlledInput,
             {
               fieldProps: {
@@ -13029,7 +14791,7 @@ var Success11 = (props) => {
               control
             }
           ) }),
-          /* @__PURE__ */ jsx97(GridItem20, { children: /* @__PURE__ */ jsx97(
+          /* @__PURE__ */ jsx100(GridItem21, { children: /* @__PURE__ */ jsx100(
             ControlledInput,
             {
               fieldProps: {
@@ -13046,7 +14808,7 @@ var Success11 = (props) => {
               control
             }
           ) }),
-          /* @__PURE__ */ jsx97(GridItem20, { children: /* @__PURE__ */ jsx97(
+          /* @__PURE__ */ jsx100(GridItem21, { children: /* @__PURE__ */ jsx100(
             ControlledInput,
             {
               fieldProps: {
@@ -13070,20 +14832,20 @@ var Success11 = (props) => {
         ]
       }
     ) }),
-    /* @__PURE__ */ jsx97(CommonCard, { children: /* @__PURE__ */ jsx97(SettingsFormsButtons, { isLoading: disableForm }) })
+    /* @__PURE__ */ jsx100(CommonCard, { children: /* @__PURE__ */ jsx100(SettingsFormsButtons, { isLoading: disableForm }) })
   ] }) });
 };
 
 // src/app/routes/_admin.settings.tango/components/index.tsx
-import { jsx as jsx98 } from "react/jsx-runtime";
+import { jsx as jsx101 } from "react/jsx-runtime";
 var FormTango = () => {
   let { state, retry } = useDXTApiFetch({
-    url: API_SETTINGS_DB,
+    ...API_SETTINGS_DB,
     silent: !0
   });
   return state.map({
-    loading: (_13) => /* @__PURE__ */ jsx98(Loading8, {}),
-    error: ({ error }) => /* @__PURE__ */ jsx98(
+    loading: (_14) => /* @__PURE__ */ jsx101(Loading8, {}),
+    error: ({ error }) => /* @__PURE__ */ jsx101(
       ApiErrors,
       {
         error,
@@ -13091,16 +14853,16 @@ var FormTango = () => {
         cancelAndNavigateTo: URL_SETTINGS_PATH
       }
     ),
-    success: (state2) => /* @__PURE__ */ jsx98(Success11, { stateData: state2.data })
+    success: (state2) => /* @__PURE__ */ jsx101(Success11, { stateData: state2.data })
   });
 };
 
 // src/app/routes/_admin.settings.tango/route.tsx
-import { Fragment as Fragment33, jsx as jsx99, jsxs as jsxs65 } from "react/jsx-runtime";
-function Tango() {
-  let navigate = useNavigate14();
-  return /* @__PURE__ */ jsxs65(Fragment33, { children: [
-    /* @__PURE__ */ jsx99(
+import { Fragment as Fragment32, jsx as jsx102, jsxs as jsxs68 } from "react/jsx-runtime";
+function Tango2() {
+  let navigate = useNavigate15();
+  return /* @__PURE__ */ jsxs68(Fragment32, { children: [
+    /* @__PURE__ */ jsx102(
       SettingsFormHeading,
       {
         title: TANGO_CONNECTION,
@@ -13113,18 +14875,18 @@ function Tango() {
         }
       }
     ),
-    /* @__PURE__ */ jsx99(FormTango, {})
+    /* @__PURE__ */ jsx102(FormTango, {})
   ] });
 }
 
 // src/app/routes/api.pedido.$id_pedido.ts
 var api_pedido_id_pedido_exports = {};
 __export(api_pedido_id_pedido_exports, {
-  action: () => action17,
-  loader: () => loader18
+  action: () => action18,
+  loader: () => loader19
 });
-var loader18 = unimplementedApiResponse;
-async function action17({ request, params }) {
+var loader19 = unimplementedApiResponse;
+async function action18({ request, params }) {
   return await mapEndpoint(request, params, {
     delete: cancelOrderEndpoint,
     patch: updateOrderEndpoint
@@ -13132,45 +14894,45 @@ async function action17({ request, params }) {
 }
 
 // src/app/routes/_admin.settings.misc/route.tsx
-var route_exports15 = {};
-__export(route_exports15, {
+var route_exports17 = {};
+__export(route_exports17, {
   default: () => Misc
 });
-import { useNavigate as useNavigate15 } from "@remix-run/react";
+import { useNavigate as useNavigate16 } from "@remix-run/react";
 
 // src/app/routes/_admin.settings.misc/components/loading.tsx
-import { Box as Box30, Divider as Divider8, Grid as Grid21, GridItem as GridItem21 } from "@chakra-ui/react";
-import { jsx as jsx100, jsxs as jsxs66 } from "react/jsx-runtime";
-var Loading9 = () => /* @__PURE__ */ jsx100(
-  Box30,
+import { Box as Box31, Divider as Divider8, Grid as Grid22, GridItem as GridItem22 } from "@chakra-ui/react";
+import { jsx as jsx103, jsxs as jsxs69 } from "react/jsx-runtime";
+var Loading9 = () => /* @__PURE__ */ jsx103(
+  Box31,
   {
     width: "full",
     sx: {
       mt: 8,
       mb: 4
     },
-    children: /* @__PURE__ */ jsxs66(
-      Grid21,
+    children: /* @__PURE__ */ jsxs69(
+      Grid22,
       {
         templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
         alignItems: "center",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx100(GridItem21, { children: /* @__PURE__ */ jsx100(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx100(GridItem21, { children: /* @__PURE__ */ jsx100(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx100(GridItem21, { children: /* @__PURE__ */ jsx100(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx100(GridItem21, { children: /* @__PURE__ */ jsx100(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx100(GridItem21, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx100(Divider8, {}) }),
-          /* @__PURE__ */ jsx100(GridItem21, { children: /* @__PURE__ */ jsx100(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx100(GridItem21, { children: /* @__PURE__ */ jsx100(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx100(GridItem21, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx100(Divider8, {}) }),
-          /* @__PURE__ */ jsx100(GridItem21, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx100(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx100(GridItem21, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx100(FormTextareaSkeleton, {}) }),
-          /* @__PURE__ */ jsx100(GridItem21, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx100(Divider8, {}) }),
-          /* @__PURE__ */ jsx100(GridItem21, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx100(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx100(GridItem21, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx100(FormTextareaSkeleton, {}) }),
-          /* @__PURE__ */ jsx100(GridItem21, { children: /* @__PURE__ */ jsx100(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx100(GridItem21, { children: /* @__PURE__ */ jsx100(FormInputSkeleton, {}) })
+          /* @__PURE__ */ jsx103(GridItem22, { children: /* @__PURE__ */ jsx103(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx103(GridItem22, { children: /* @__PURE__ */ jsx103(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx103(GridItem22, { children: /* @__PURE__ */ jsx103(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx103(GridItem22, { children: /* @__PURE__ */ jsx103(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx103(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx103(Divider8, {}) }),
+          /* @__PURE__ */ jsx103(GridItem22, { children: /* @__PURE__ */ jsx103(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx103(GridItem22, { children: /* @__PURE__ */ jsx103(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx103(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx103(Divider8, {}) }),
+          /* @__PURE__ */ jsx103(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx103(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx103(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx103(FormTextareaSkeleton, {}) }),
+          /* @__PURE__ */ jsx103(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx103(Divider8, {}) }),
+          /* @__PURE__ */ jsx103(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx103(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx103(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx103(FormTextareaSkeleton, {}) }),
+          /* @__PURE__ */ jsx103(GridItem22, { children: /* @__PURE__ */ jsx103(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx103(GridItem22, { children: /* @__PURE__ */ jsx103(FormInputSkeleton, {}) })
         ]
       }
     )
@@ -13179,112 +14941,111 @@ var Loading9 = () => /* @__PURE__ */ jsx100(
 
 // src/app/routes/_admin.settings.misc/components/success.tsx
 import {
-  Box as Box31,
+  Box as Box32,
   Divider as Divider9,
-  Grid as Grid22,
-  GridItem as GridItem22,
-  Heading as Heading13,
-  useToast as useToast10
+  Grid as Grid23,
+  GridItem as GridItem23,
+  Heading as Heading14,
+  useToast as useToast12
 } from "@chakra-ui/react";
-import { yupResolver as yupResolver9 } from "@hookform/resolvers/yup";
-import { useForm as useForm10 } from "react-hook-form";
+import { yupResolver as yupResolver10 } from "@hookform/resolvers/yup";
+import { useForm as useForm11 } from "react-hook-form";
 
 // src/app/components/form_elements/ControlledCheckbox.tsx
 import {
   Checkbox as Checkbox2,
-  Flex as Flex7,
+  Flex as Flex8,
   FormControl as FormControl7,
   FormHelperText as FormHelperText6
 } from "@chakra-ui/react";
 import { useController as useController7 } from "react-hook-form";
-import { jsx as jsx101, jsxs as jsxs67 } from "react/jsx-runtime";
+import { jsx as jsx104, jsxs as jsxs70 } from "react/jsx-runtime";
 var ControlledCheckbox = (props) => {
   let { fieldProps, formControlProps, formControlInnerProps, control } = props, { name } = fieldProps, { text, helperText, helperAction } = formControlInnerProps || {}, {
-    field: { ref, onChange, value },
+    field: { ref: ref3, onChange, value },
     fieldState: { invalid },
     formState: { errors }
   } = useController7({
     name: fieldProps.name,
     control
   });
-  return /* @__PURE__ */ jsxs67(FormControl7, { ...formControlProps, isInvalid: invalid, ref, children: [
-    /* @__PURE__ */ jsxs67(Flex7, { alignItems: "center", children: [
-      /* @__PURE__ */ jsx101(Checkbox2, { ...fieldProps, onChange, isChecked: value, children: text }),
+  return /* @__PURE__ */ jsxs70(FormControl7, { ...formControlProps, isInvalid: invalid, ref: ref3, children: [
+    /* @__PURE__ */ jsxs70(Flex8, { alignItems: "center", children: [
+      /* @__PURE__ */ jsx104(Checkbox2, { ...fieldProps, onChange, isChecked: value, children: text }),
       helperAction
     ] }),
-    helperText != null && /* @__PURE__ */ jsx101(FormHelperText6, { children: helperText })
+    helperText != null && /* @__PURE__ */ jsx104(FormHelperText6, { children: helperText })
   ] });
 };
 
 // src/app/routes/_admin.settings.misc/validation.ts
-import * as yup10 from "yup";
-var yupValidationSchema5 = yup10.object({
-  smtp_host: yup10.string().required("Ingrese el host SMTP").test(
+import * as yup11 from "yup";
+var yupValidationSchema4 = yup11.object({
+  smtp_host: yup11.string().required("Ingrese el host SMTP").test(
     "valid-host",
     "Ingrese un host SMTP v\xE1lido",
     (v) => yupVOValidation(VOHost, v)
   ),
-  smtp_username: yup10.string().required("Ingrese el usuario SMTP"),
-  smtp_password: yup10.string().required("Ingrese la contrase\xF1a SMTP"),
-  smtp_port: yup10.number().required("Ingrese el puerto SMTP").typeError("Ingrese un n\xFAmero de puerto SMTP v\xE1lido").test(
+  smtp_username: yup11.string().required("Ingrese el usuario SMTP"),
+  smtp_password: yup11.string().required("Ingrese la contrase\xF1a SMTP"),
+  smtp_port: yup11.number().required("Ingrese el puerto SMTP").typeError("Ingrese un n\xFAmero de puerto SMTP v\xE1lido").test(
     "is-port",
     "Ingrese un puerto SMTP v\xE1lido",
     (v) => yupVOValidation(VOTCPPort, v)
   ),
-  smtp_use_tls: yup10.boolean().required(),
-  auth_expiration_days: yup10.number().min(
+  smtp_use_tls: yup11.boolean().required(),
+  auth_expiration_days: yup11.number().min(
     1,
     `El tiempo de espera debe ser mayor a ${1}`
   ).max(
     365,
     `El tiempo de espera debe ser menor a ${365}`
   ).required("Ingrese el tiempo de espera para logout").typeError("Ingrese el tiempo de espera para logout"),
-  admin_email: yup10.string().required("Ingrese el correo electr\xF3nico del Administrador").email("Ingrese un correo electr\xF3nico v\xE1lido"),
-  user_warning_message_title: yup10.string().required("Ingrese el t\xEDtulo del mensaje de advertencia"),
-  user_warning_message_content: yup10.string().required("Ingrese el contenido del mensaje de advertencia"),
-  user_disabled_message_title: yup10.string().required("Ingrese el t\xEDtulo del mensaje de inhabilitaci\xF3n"),
-  user_disabled_message_content: yup10.string().required("Ingrese el contenido del mensaje de inhabilitaci\xF3n")
+  admin_email: yup11.string().required("Ingrese el correo electr\xF3nico del Administrador").email("Ingrese un correo electr\xF3nico v\xE1lido"),
+  user_warning_message_title: yup11.string().required("Ingrese el t\xEDtulo del mensaje de advertencia"),
+  user_warning_message_content: yup11.string().required("Ingrese el contenido del mensaje de advertencia"),
+  user_disabled_message_title: yup11.string().required("Ingrese el t\xEDtulo del mensaje de inhabilitaci\xF3n"),
+  user_disabled_message_content: yup11.string().required("Ingrese el contenido del mensaje de inhabilitaci\xF3n")
 }).required();
 
 // src/app/routes/_admin.settings.misc/components/success.tsx
-import { jsx as jsx102, jsxs as jsxs68 } from "react/jsx-runtime";
+import { jsx as jsx105, jsxs as jsxs71 } from "react/jsx-runtime";
 var Success12 = (props) => {
-  let { stateData } = props, app = useAppResources(), toast = useToast10(), {
+  let { stateData } = props, app = useAppResources(), toast = useToast12(), {
     handleSubmit,
     control,
     reset,
     setError,
     formState: { errors, isSubmitting, isSubmitSuccessful }
-  } = useForm10({
+  } = useForm11({
     defaultValues: stateData,
-    resolver: yupResolver9(yupValidationSchema5)
+    resolver: yupResolver10(yupValidationSchema4)
   }), disableForm = isSubmitSuccessful || isSubmitting;
-  return /* @__PURE__ */ jsx102("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
-    let result = await settingsMiscUpdateRequest(dataUnsafe, app);
-    await promiseBasedToast({
-      toast,
-      result,
-      messages: {
-        success: { title: VARIOUS_SETTINGS_UPDATED },
-        error: { title: AN_ERROR_OCCURRED },
-        loading: { title: VARIOUS_SETTINGS_UPDATING }
+  return /* @__PURE__ */ jsx105("form", { noValidate: !0, onSubmit: handleSubmit(async (dataUnsafe) => {
+    (await settingsMiscUpdateRequest(dataUnsafe, app)).map({
+      success: (_14) => {
+        toast({
+          title: VARIOUS_SETTINGS_UPDATED,
+          status: "success"
+        }), app.navigate(URL_SETTINGS_PATH);
+      },
+      error: (e) => {
+        toast({
+          title: AN_ERROR_OCCURRED
+        }), setError("root", { message: e.info.error_description });
       }
-    }).then(() => {
-      app.navigate(URL_SETTINGS_PATH);
-    }).catch((e) => {
-      setError("root", { message: e });
     });
-  }), children: /* @__PURE__ */ jsxs68(Box31, { children: [
-    /* @__PURE__ */ jsx102(FormErrors, { errors }),
-    /* @__PURE__ */ jsx102(CommonCard, { children: /* @__PURE__ */ jsxs68(
-      Grid22,
+  }), children: /* @__PURE__ */ jsxs71(Box32, { children: [
+    /* @__PURE__ */ jsx105(FormErrors, { errors }),
+    /* @__PURE__ */ jsx105(CommonCard, { children: /* @__PURE__ */ jsxs71(
+      Grid23,
       {
         templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
         alignItems: "start",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx102(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx102(Heading13, { size: "sm", textTransform: "uppercase", children: "Servidor de Correos" }) }),
-          /* @__PURE__ */ jsx102(GridItem22, { children: /* @__PURE__ */ jsx102(
+          /* @__PURE__ */ jsx105(GridItem23, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx105(Heading14, { size: "sm", textTransform: "uppercase", children: "Servidor de Correos" }) }),
+          /* @__PURE__ */ jsx105(GridItem23, { children: /* @__PURE__ */ jsx105(
             ControlledInput,
             {
               fieldProps: {
@@ -13302,7 +15063,7 @@ var Success12 = (props) => {
               control
             }
           ) }),
-          /* @__PURE__ */ jsx102(GridItem22, { children: /* @__PURE__ */ jsx102(
+          /* @__PURE__ */ jsx105(GridItem23, { children: /* @__PURE__ */ jsx105(
             ControlledInput,
             {
               fieldProps: {
@@ -13320,7 +15081,7 @@ var Success12 = (props) => {
               control
             }
           ) }),
-          /* @__PURE__ */ jsx102(GridItem22, { children: /* @__PURE__ */ jsx102(
+          /* @__PURE__ */ jsx105(GridItem23, { children: /* @__PURE__ */ jsx105(
             ControlledInput,
             {
               fieldProps: {
@@ -13338,7 +15099,7 @@ var Success12 = (props) => {
               control
             }
           ) }),
-          /* @__PURE__ */ jsx102(GridItem22, { children: /* @__PURE__ */ jsx102(
+          /* @__PURE__ */ jsx105(GridItem23, { children: /* @__PURE__ */ jsx105(
             ControlledInput,
             {
               fieldProps: {
@@ -13360,7 +15121,7 @@ var Success12 = (props) => {
               control
             }
           ) }),
-          /* @__PURE__ */ jsx102(GridItem22, { children: /* @__PURE__ */ jsx102(
+          /* @__PURE__ */ jsx105(GridItem23, { children: /* @__PURE__ */ jsx105(
             ControlledCheckbox,
             {
               control,
@@ -13373,8 +15134,8 @@ var Success12 = (props) => {
               }
             }
           ) }),
-          /* @__PURE__ */ jsx102(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx102(Divider9, {}) }),
-          /* @__PURE__ */ jsx102(GridItem22, { children: /* @__PURE__ */ jsx102(
+          /* @__PURE__ */ jsx105(GridItem23, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx105(Divider9, {}) }),
+          /* @__PURE__ */ jsx105(GridItem23, { children: /* @__PURE__ */ jsx105(
             ControlledInput,
             {
               fieldProps: {
@@ -13397,7 +15158,7 @@ var Success12 = (props) => {
               control
             }
           ) }),
-          /* @__PURE__ */ jsx102(GridItem22, { children: /* @__PURE__ */ jsx102(
+          /* @__PURE__ */ jsx105(GridItem23, { children: /* @__PURE__ */ jsx105(
             ControlledInput,
             {
               fieldProps: {
@@ -13421,15 +15182,15 @@ var Success12 = (props) => {
         ]
       }
     ) }),
-    /* @__PURE__ */ jsx102(CommonCard, { children: /* @__PURE__ */ jsxs68(
-      Grid22,
+    /* @__PURE__ */ jsx105(CommonCard, { children: /* @__PURE__ */ jsxs71(
+      Grid23,
       {
         templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
         alignItems: "start",
         gap: 4,
         children: [
-          /* @__PURE__ */ jsx102(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx102(Heading13, { size: "sm", textTransform: "uppercase", children: "Mensajes" }) }),
-          /* @__PURE__ */ jsx102(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx102(
+          /* @__PURE__ */ jsx105(GridItem23, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx105(Heading14, { size: "sm", textTransform: "uppercase", children: "Mensajes" }) }),
+          /* @__PURE__ */ jsx105(GridItem23, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx105(
             ControlledInput,
             {
               fieldProps: {
@@ -13447,8 +15208,8 @@ var Success12 = (props) => {
               control
             }
           ) }),
-          /* @__PURE__ */ jsx102(GridItem22, { colSpan: { md: 2 }, children: "Contenido del mensaje de advertencia" }),
-          /* @__PURE__ */ jsx102(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx102(
+          /* @__PURE__ */ jsx105(GridItem23, { colSpan: { md: 2 }, children: "Contenido del mensaje de advertencia" }),
+          /* @__PURE__ */ jsx105(GridItem23, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx105(
             ControlledTextarea,
             {
               fieldProps: {
@@ -13462,8 +15223,8 @@ var Success12 = (props) => {
               control
             }
           ) }),
-          /* @__PURE__ */ jsx102(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx102(Divider9, {}) }),
-          /* @__PURE__ */ jsx102(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx102(
+          /* @__PURE__ */ jsx105(GridItem23, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx105(Divider9, {}) }),
+          /* @__PURE__ */ jsx105(GridItem23, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx105(
             ControlledInput,
             {
               fieldProps: {
@@ -13481,8 +15242,8 @@ var Success12 = (props) => {
               control
             }
           ) }),
-          /* @__PURE__ */ jsx102(GridItem22, { colSpan: { md: 2 }, children: "Contenido del mensaje de inhabilitaci\xF3n" }),
-          /* @__PURE__ */ jsx102(GridItem22, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx102(
+          /* @__PURE__ */ jsx105(GridItem23, { colSpan: { md: 2 }, children: "Contenido del mensaje de inhabilitaci\xF3n" }),
+          /* @__PURE__ */ jsx105(GridItem23, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx105(
             ControlledTextarea,
             {
               fieldProps: {
@@ -13499,20 +15260,20 @@ var Success12 = (props) => {
         ]
       }
     ) }),
-    /* @__PURE__ */ jsx102(CommonCard, { children: /* @__PURE__ */ jsx102(SettingsFormsButtons, { isLoading: disableForm }) })
+    /* @__PURE__ */ jsx105(CommonCard, { children: /* @__PURE__ */ jsx105(SettingsFormsButtons, { isLoading: disableForm }) })
   ] }) });
 };
 
 // src/app/routes/_admin.settings.misc/components/index.tsx
-import { jsx as jsx103 } from "react/jsx-runtime";
+import { jsx as jsx106 } from "react/jsx-runtime";
 var FormMisc = () => {
   let { state, retry } = useDXTApiFetch({
-    url: API_SETTINGS_MISC,
+    ...API_SETTINGS_MISC,
     silent: !0
   });
   return state.map({
-    loading: (_13) => /* @__PURE__ */ jsx103(Loading9, {}),
-    error: ({ error }) => /* @__PURE__ */ jsx103(
+    loading: (_14) => /* @__PURE__ */ jsx106(Loading9, {}),
+    error: ({ error }) => /* @__PURE__ */ jsx106(
       ApiErrors,
       {
         error,
@@ -13520,16 +15281,16 @@ var FormMisc = () => {
         cancelAndNavigateTo: URL_SETTINGS_PATH
       }
     ),
-    success: (state2) => /* @__PURE__ */ jsx103(Success12, { stateData: state2.data })
+    success: (state2) => /* @__PURE__ */ jsx106(Success12, { stateData: state2.data })
   });
 };
 
 // src/app/routes/_admin.settings.misc/route.tsx
-import { Fragment as Fragment34, jsx as jsx104, jsxs as jsxs69 } from "react/jsx-runtime";
+import { Fragment as Fragment33, jsx as jsx107, jsxs as jsxs72 } from "react/jsx-runtime";
 function Misc() {
-  let navigate = useNavigate15();
-  return /* @__PURE__ */ jsxs69(Fragment34, { children: [
-    /* @__PURE__ */ jsx104(
+  let navigate = useNavigate16();
+  return /* @__PURE__ */ jsxs72(Fragment33, { children: [
+    /* @__PURE__ */ jsx107(
       SettingsFormHeading,
       {
         title: VARIOUS_SETTINGS,
@@ -13542,18 +15303,18 @@ function Misc() {
         }
       }
     ),
-    /* @__PURE__ */ jsx104(FormMisc, {})
+    /* @__PURE__ */ jsx107(FormMisc, {})
   ] });
 }
 
 // src/app/routes/api.draft.$id_pedido.ts
 var api_draft_id_pedido_exports = {};
 __export(api_draft_id_pedido_exports, {
-  action: () => action18,
-  loader: () => loader19
+  action: () => action19,
+  loader: () => loader20
 });
-var loader19 = unimplementedApiResponse;
-async function action18({ request, params }) {
+var loader20 = unimplementedApiResponse;
+async function action19({ request, params }) {
   return await mapEndpoint(request, params, {
     delete: cancelDraftEndpoint,
     patch: updateDraftEndpoint
@@ -13563,30 +15324,52 @@ async function action18({ request, params }) {
 // src/app/routes/api.pedido.renglones.ts
 var api_pedido_renglones_exports = {};
 __export(api_pedido_renglones_exports, {
-  action: () => action19,
-  loader: () => loader20
-});
-async function loader20({ request, params }) {
-  return await getOrderRowsEndpoint.run(request, params);
-}
-var action19 = unimplementedApiResponse;
-
-// src/app/routes/api.pedido.start_new.ts
-var api_pedido_start_new_exports = {};
-__export(api_pedido_start_new_exports, {
   action: () => action20,
   loader: () => loader21
 });
 async function loader21({ request, params }) {
-  return await startNewOrderEndpoint.get(request, params);
+  return await getOrderRowsEndpoint.run(request, params);
 }
 var action20 = unimplementedApiResponse;
 
-// src/app/routes/api.tango.auxiliares.ts
-var api_tango_auxiliares_exports = {};
-__export(api_tango_auxiliares_exports, {
+// src/app/routes/api.pedido.start_new.ts
+var api_pedido_start_new_exports = {};
+__export(api_pedido_start_new_exports, {
   action: () => action21,
   loader: () => loader22
+});
+async function loader22({ request, params }) {
+  return await startNewOrderEndpoint.get(request, params);
+}
+var action21 = unimplementedApiResponse;
+
+// src/app/routes/api.draft.renglones.ts
+var api_draft_renglones_exports = {};
+__export(api_draft_renglones_exports, {
+  action: () => action22,
+  loader: () => loader23
+});
+async function loader23({ request, params }) {
+  return await getDraftRowsEndpoint.run(request, params);
+}
+var action22 = unimplementedApiResponse;
+
+// src/app/routes/api.draft.start_new.ts
+var api_draft_start_new_exports = {};
+__export(api_draft_start_new_exports, {
+  action: () => action23,
+  loader: () => loader24
+});
+async function loader24({ request, params }) {
+  return await startNewDraftEndpoint.get(request, params);
+}
+var action23 = unimplementedApiResponse;
+
+// src/app/routes/api.tango.vendedor.ts
+var api_tango_vendedor_exports = {};
+__export(api_tango_vendedor_exports, {
+  action: () => action24,
+  loader: () => loader25
 });
 
 // src/code.server/api/company/utils.ts
@@ -13619,53 +15402,16 @@ function createCompanyGetAllEndpoint(controller, repository) {
   );
 }
 
-// src/code.server/api/tango/endpoints/index.ts
+// src/code.server/api/user/endpoints/index.ts
 var tangoClienteGetAllEndpoint = createCompanyGetAllEndpoint(
   adminRootController,
   clienteRepository
 ), tangoVendedorGetAllEndpoint = createCompanyGetAllEndpoint(
   adminRootController,
   vendedorRepository
-), tangoPerfilGetAllEndpoint = createCompanyGetAllEndpoint(
-  authenticatedRootController,
-  perfilRepository
-), auxiliaresGetAllEndpoint = createApiEndpoint(
-  authenticatedRootController,
-  void 0,
-  async (req) => await getAuxiliares()
 );
 
-// src/app/routes/api.tango.auxiliares.ts
-var loader22 = async (o) => await auxiliaresGetAllEndpoint.get(o.request, o.params), action21 = unimplementedApiResponse;
-
-// src/app/routes/api.draft.renglones.ts
-var api_draft_renglones_exports = {};
-__export(api_draft_renglones_exports, {
-  action: () => action22,
-  loader: () => loader23
-});
-async function loader23({ request, params }) {
-  return await getDraftRowsEndpoint.run(request, params);
-}
-var action22 = unimplementedApiResponse;
-
-// src/app/routes/api.draft.start_new.ts
-var api_draft_start_new_exports = {};
-__export(api_draft_start_new_exports, {
-  action: () => action23,
-  loader: () => loader24
-});
-var loader24 = unimplementedApiResponse;
-async function action23({ request, params }) {
-  return await startNewDraftEndpoint.post(request, params);
-}
-
 // src/app/routes/api.tango.vendedor.ts
-var api_tango_vendedor_exports = {};
-__export(api_tango_vendedor_exports, {
-  action: () => action24,
-  loader: () => loader25
-});
 var loader25 = async (o) => await tangoVendedorGetAllEndpoint.get(o.request, o.params), action24 = unimplementedApiResponse;
 
 // src/app/routes/api.auth.password.ts
@@ -13677,8 +15423,24 @@ __export(api_auth_password_exports, {
 
 // src/domain/auth/inputs/change_password.input.ts
 var changePasswordInputValidationSchema = {
-  password: (v) => new VODXTPassword(v)
-}, validateChangePasswordInput = (input) => validateInput(changePasswordInputValidationSchema, input);
+  old_password: (v) => new VODXTPassword(v),
+  new_password: (v) => new VODXTPassword(v)
+}, validateChangePasswordInput = (input) => validateInput(
+  changePasswordInputValidationSchema,
+  input
+);
+
+// src/code.server/api/auth/utils/index.ts
+async function authPrivateResultToPublic(auth) {
+  let {
+    auth_token,
+    user
+  } = auth;
+  return {
+    auth_token,
+    user: await user.toPublicInfo()
+  };
+}
 
 // src/code.server/api/auth/endpoints/change_password.ts
 var authChangePasswordEndpoint = createApiEndpoint(
@@ -13691,12 +15453,14 @@ var authChangePasswordEndpoint = createApiEndpoint(
   },
   /* *************************************************************************************************************** */
   async (req) => {
-    let { password } = req.validated.body, { user } = req.auth;
+    let { old_password, new_password } = req.validated.body, { user, auth_token } = req.auth;
     return await authService.changePassword(
-      user.role.valueOf(),
-      user.id.valueOf(),
-      password
-    ), { ok: !0 };
+      user,
+      old_password,
+      new_password
+    ), authPrivateResultToPublic(
+      await authService.connect(auth_token)
+    );
   }
   /* *************************************************************************************************************** */
 );
@@ -13796,20 +15560,6 @@ __export(api_admin_status_exports, {
   loader: () => loader29
 });
 
-// src/code.server/infrastucture/company/company.repository.ts
-var CompanyRepository = class extends CompanyProvider {
-  constructor() {
-    super({
-      mainTable: TANGO_PARAMETROS_TABLE,
-      mainIdField: TANGO_PARAMETROS_ID_FIELD,
-      columns: [TANGO_PARAMETROS_ID_FIELD]
-    });
-  }
-  toResult(m) {
-    return tangoParametrosModelMapper(m);
-  }
-}, companyRepository = new CompanyRepository();
-
 // src/code.server/api/admin/endpoints/getStatus.ts
 var getAdminStatusEndpoint = createApiEndpoint(
   adminRootController,
@@ -13821,16 +15571,16 @@ var getAdminStatusEndpoint = createApiEndpoint(
     try {
       companies = await dictionaryRepository.getCompanies();
     } catch (e) {
-      companies = null, dictionary_ok = !1, dictionary_error = exceptionToDXTErrorInfo(e).error, isDXTException(e, 200001 /* TANGO_DB_ACCESS_ERROR */) && (tangoError = e);
+      companies = null, dictionary_ok = !1, dictionary_error = exceptionToDXTErrorInfo(e).error_description, isDXTException(e, 200001 /* TANGO_DB_ACCESS_ERROR */) && (tangoError = e);
     }
     try {
       if (tangoError != null)
         throw tangoError;
-      await companyRepository.getCompany();
+      await tangoRepository.getCompany();
     } catch (e) {
       company_ok = !1;
       let errorInfo = exceptionToDXTErrorInfo(e);
-      company_error = errorInfo.error, company_error_details = errorInfo.extra;
+      company_error = errorInfo.error_description, company_error_details = errorInfo.extra;
     }
     let { admin_password_hash, ...misc } = miscSettings;
     return {
@@ -13861,18 +15611,6 @@ __export(api_auth_connect_exports, {
   action: () => action29,
   loader: () => loader30
 });
-
-// src/code.server/api/auth/utils/index.ts
-async function authPrivateResultToPublic(auth) {
-  let {
-    auth_token,
-    user
-  } = auth;
-  return {
-    auth_token,
-    user: await user.toPublicInfo()
-  };
-}
 
 // src/code.server/api/auth/endpoints/connect.ts
 var authConnectEndpoint = createApiEndpoint(
@@ -13906,6 +15644,17 @@ __export(api_tango_perfil_exports, {
   action: () => action31,
   loader: () => loader32
 });
+
+// src/code.server/api/auxiliar/endpoints/index.ts
+var tangoPerfilGetAllEndpoint = createCompanyGetAllEndpoint(
+  authenticatedRootController,
+  perfilRepository
+), tangoListaDePreciosAllEndpoint = createCompanyGetAllEndpoint(
+  authenticatedRootController,
+  listaRepository
+);
+
+// src/app/routes/api.tango.perfil.ts
 var loader32 = async (o) => await tangoPerfilGetAllEndpoint.get(o.request, o.params), action31 = unimplementedApiResponse;
 
 // src/app/routes/api.auth.logout.ts
@@ -13962,7 +15711,7 @@ var getDBSettingsEndpoint = createApiEndpoint(
 );
 
 // src/code.server/api/settings/endpoints/updateDB.ts
-import _12 from "lodash";
+import _13 from "lodash";
 var updateDBSettingsEndpoint = createApiEndpoint(
   adminRootController,
   {
@@ -13974,7 +15723,7 @@ var updateDBSettingsEndpoint = createApiEndpoint(
     let { body } = req.validated, oldSettings = await settingsService.getDBSettings(), newSettings = {
       ...body,
       tango_active_company: oldSettings.tango_active_company
-    }, { db_connection_timeout_seconds: oldTimeout, tango_active_company: oldCompany, ...oldRemainingData } = oldSettings, { db_connection_timeout_seconds: newTimeout, tango_active_company: ignoredCompany, ...newRemainingData } = newSettings, thereIsANewDictionary = !_12.isEqual(oldRemainingData, newRemainingData), newCompany = thereIsANewDictionary ? "" : oldCompany, finalSettings = {
+    }, { db_connection_timeout_seconds: oldTimeout, tango_active_company: oldCompany, ...oldRemainingData } = oldSettings, { db_connection_timeout_seconds: newTimeout, tango_active_company: ignoredCompany, ...newRemainingData } = newSettings, thereIsANewDictionary = !_13.isEqual(oldRemainingData, newRemainingData), newCompany = thereIsANewDictionary ? "" : oldCompany, finalSettings = {
       ...body,
       tango_active_company: newCompany
     }, finalSettingsDTO = new StoredDBSettingsDTO(finalSettings), thereIsANewCompany = oldCompany !== newCompany, passiveDBChanges = oldTimeout !== newTimeout && !thereIsANewDictionary && !thereIsANewCompany, anyChange = passiveDBChanges || thereIsANewDictionary || thereIsANewCompany;
@@ -14002,11 +15751,19 @@ async function action34({ request, params }) {
   return await updateDBSettingsEndpoint.post(request, params);
 }
 
+// src/app/routes/api.tango.lista.ts
+var api_tango_lista_exports = {};
+__export(api_tango_lista_exports, {
+  action: () => action35,
+  loader: () => loader36
+});
+var loader36 = async (o) => await tangoListaDePreciosAllEndpoint.get(o.request, o.params), action35 = unimplementedApiResponse;
+
 // src/app/routes/api.auth.login.ts
 var api_auth_login_exports = {};
 __export(api_auth_login_exports, {
-  action: () => action35,
-  loader: () => loader36
+  action: () => action36,
+  loader: () => loader37
 });
 
 // src/domain/auth/inputs/login_user.input.ts
@@ -14032,16 +15789,16 @@ var authLoginEndpoint = createApiEndpoint(
 );
 
 // src/app/routes/api.auth.login.ts
-var loader36 = unimplementedApiResponse;
-async function action35({ request, params }) {
+var loader37 = unimplementedApiResponse;
+async function action36({ request, params }) {
   return await authLoginEndpoint.post(request, params);
 }
 
 // src/app/routes/api.dictionary.ts
 var api_dictionary_exports = {};
 __export(api_dictionary_exports, {
-  action: () => action36,
-  loader: () => loader37
+  action: () => action37,
+  loader: () => loader38
 });
 
 // src/code.server/api/dictionary/endpoints/getCompanies.ts
@@ -14052,36 +15809,33 @@ var getCompaniesEndpoint = createApiEndpoint(
 );
 
 // src/app/routes/api.dictionary.ts
-async function loader37({ request, params }) {
+async function loader38({ request, params }) {
   return await getCompaniesEndpoint.get(request, params);
 }
-var action36 = unimplementedApiResponse;
+var action37 = unimplementedApiResponse;
 
 // src/app/routes/_authorized/route.tsx
-var route_exports16 = {};
-__export(route_exports16, {
+var route_exports18 = {};
+__export(route_exports18, {
   default: () => AuthorizedLayout
 });
 import { Outlet as Outlet2 } from "@remix-run/react";
 
 // src/code.client/auth/AuthGuard.tsx
-import { useEffect as useEffect16 } from "react";
-import { useLocation as useLocation2, useNavigate as useNavigate16 } from "@remix-run/react";
-import { Fragment as Fragment35, jsx as jsx105 } from "react/jsx-runtime";
+import { useEffect as useEffect17 } from "react";
+import { useLocation as useLocation2, useNavigate as useNavigate17 } from "@remix-run/react";
+import { Fragment as Fragment34, jsx as jsx108 } from "react/jsx-runtime";
 var AuthGuard = (props) => {
-  let { children } = props, { state: authState, dispatch: authDispatch } = useAuth(), navigate = useNavigate16(), location = useLocation2();
-  if (useEffect16(() => {
+  let { children } = props, { state: authState, dispatch: authDispatch } = useAuth(), navigate = useNavigate17(), location = useLocation2();
+  if (useEffect17(() => {
     if (authState instanceof AuthStateLoggedIn) {
       authDispatch(new AuthActionRefreshAll(authState.userInfo));
       return;
     }
     authState.isDisconnectedAndNotRedirecting() && redirectLoginWithReturnUrl(navigate);
   }, [location, authState.constructor.name]), authState.isLoggedIn())
-    return /* @__PURE__ */ jsx105(Fragment35, { children });
+    return /* @__PURE__ */ jsx108(Fragment34, { children });
 };
-
-// src/app/routes/_authorized/route.tsx
-import { Container } from "@chakra-ui/react";
 
 // src/code.client/hooks/useHydrated.ts
 import { useSyncExternalStore } from "react";
@@ -14098,16 +15852,16 @@ function useHydrated() {
 }
 
 // src/app/components/ClientOnly.tsx
-import { Fragment as Fragment36, jsx as jsx106 } from "react/jsx-runtime";
+import { Fragment as Fragment35, jsx as jsx109 } from "react/jsx-runtime";
 function ClientOnly({ children, fallback = null }) {
-  return useHydrated() ? /* @__PURE__ */ jsx106(Fragment36, { children }) : /* @__PURE__ */ jsx106(Fragment36, { children: fallback });
+  return useHydrated() ? /* @__PURE__ */ jsx109(Fragment35, { children }) : /* @__PURE__ */ jsx109(Fragment35, { children: fallback });
 }
 
 // src/app/components/Navbar.tsx
-import { useNavigate as useNavigate17 } from "@remix-run/react";
+import { useNavigate as useNavigate18 } from "@remix-run/react";
 import {
-  Box as Box32,
-  Flex as Flex9,
+  Box as Box33,
+  Flex as Flex10,
   HStack as HStack14,
   IconButton as IconButton7,
   Menu as Menu2,
@@ -14115,7 +15869,7 @@ import {
   MenuDivider as MenuDivider2,
   MenuItem as MenuItem2,
   MenuList as MenuList2,
-  Text as Text9,
+  Text as Text10,
   useColorModeValue as useColorModeValue10
 } from "@chakra-ui/react";
 import MenuIcon from "mdi-react/MenuIcon.js";
@@ -14136,20 +15890,20 @@ function getUserRoleText(role) {
 }
 
 // src/app/components/ColorModeSelector.tsx
-import { Icon as Icon9, IconButton as IconButton6, useColorMode } from "@chakra-ui/react";
+import { Icon as Icon10, IconButton as IconButton6, useColorMode } from "@chakra-ui/react";
 import MoonWaningCrescentIcon from "mdi-react/MoonWaningCrescentIcon.js";
 import WeatherSunnyIcon from "mdi-react/WeatherSunnyIcon.js";
-import { jsx as jsx107 } from "react/jsx-runtime";
+import { jsx as jsx110 } from "react/jsx-runtime";
 var ColorModeSelector = () => {
   let { colorMode, toggleColorMode } = useColorMode();
-  return /* @__PURE__ */ jsx107(
+  return /* @__PURE__ */ jsx110(
     IconButton6,
     {
       "aria-label": CHANGE_COLOR_MODE,
       onClick: toggleColorMode,
       isRound: !0,
-      icon: /* @__PURE__ */ jsx107(
-        Icon9,
+      icon: /* @__PURE__ */ jsx110(
+        Icon10,
         {
           as: colorMode === "light" ? MoonWaningCrescentIcon : WeatherSunnyIcon
         }
@@ -14160,10 +15914,10 @@ var ColorModeSelector = () => {
 
 // src/app/components/LogoImage.tsx
 import { Image, useColorModeValue as useColorModeValue9 } from "@chakra-ui/react";
-import { jsx as jsx108 } from "react/jsx-runtime";
+import { jsx as jsx111 } from "react/jsx-runtime";
 var LogoImage = (props) => {
   let logo = useColorModeValue9("/logo-light.svg", "/logo-dark.svg");
-  return /* @__PURE__ */ jsx108(Image, { src: logo, ...props });
+  return /* @__PURE__ */ jsx111(Image, { src: logo, ...props });
 };
 
 // src/app/components/SystemMessageToUser.tsx
@@ -14172,12 +15926,12 @@ import {
   AlertDescription as AlertDescription8,
   AlertIcon as AlertIcon9,
   AlertTitle as AlertTitle2,
-  Flex as Flex8
+  Flex as Flex9
 } from "@chakra-ui/react";
-import { jsx as jsx109, jsxs as jsxs70 } from "react/jsx-runtime";
+import { jsx as jsx112, jsxs as jsxs73 } from "react/jsx-runtime";
 var MessageToUser = (props) => {
   let { type, title, content } = props;
-  return /* @__PURE__ */ jsxs70(
+  return /* @__PURE__ */ jsxs73(
     Alert10,
     {
       status: type,
@@ -14185,7 +15939,7 @@ var MessageToUser = (props) => {
         justifyContent: "center"
       },
       children: [
-        /* @__PURE__ */ jsx109(
+        /* @__PURE__ */ jsx112(
           AlertIcon9,
           {
             sx: {
@@ -14193,9 +15947,9 @@ var MessageToUser = (props) => {
             }
           }
         ),
-        /* @__PURE__ */ jsxs70(Flex8, { flexDirection: { base: "column", md: "row" }, children: [
-          /* @__PURE__ */ jsx109(AlertTitle2, { children: title }),
-          /* @__PURE__ */ jsx109(AlertDescription8, { children: content })
+        /* @__PURE__ */ jsxs73(Flex9, { flexDirection: { base: "column", md: "row" }, children: [
+          /* @__PURE__ */ jsx112(AlertTitle2, { children: title }),
+          /* @__PURE__ */ jsx112(AlertDescription8, { children: content })
         ] })
       ]
     }
@@ -14203,31 +15957,31 @@ var MessageToUser = (props) => {
 };
 
 // src/app/components/Navbar.tsx
-import { Fragment as Fragment37, jsx as jsx110, jsxs as jsxs71 } from "react/jsx-runtime";
+import { Fragment as Fragment36, jsx as jsx113, jsxs as jsxs74 } from "react/jsx-runtime";
 var Navbar = () => {
-  let { state: authState, dispatch: authDispatch } = useAuth(), navigate = useNavigate17(), user = authState.userOrNull(), systemMessage = user?.message, userRoleText = user?.role != null ? getUserRoleText(user?.role) : "", _username = user?.screen_name.trim() ?? "", userLabel = authState.isAdmin() ? _username : `${userRoleText} ${_username}`;
-  return /* @__PURE__ */ jsxs71(Fragment37, { children: [
-    /* @__PURE__ */ jsx110(
-      Box32,
+  let { state: authState, dispatch: authDispatch } = useAuth(), navigate = useNavigate18(), user = authState.userOrNull(), systemMessage = user?.message, userRoleText = user?.role != null ? getUserRoleText(user?.role) : "", _username = user?.screen_name.trim() ?? "", userLabel = authState.isAdmin() ? _username : `${userRoleText} ${_username}`;
+  return /* @__PURE__ */ jsxs74(Fragment36, { children: [
+    /* @__PURE__ */ jsx113(
+      Box33,
       {
         bg: useColorModeValue10("gray.100", "gray.900"),
         sx: {
           px: 4
         },
-        children: /* @__PURE__ */ jsxs71(Flex9, { h: 16, alignItems: "center", justifyContent: "space-between", children: [
-          /* @__PURE__ */ jsxs71(HStack14, { spacing: 4, alignItems: "center", children: [
-            /* @__PURE__ */ jsxs71(Menu2, { isLazy: !0, id: "menu", children: [
-              /* @__PURE__ */ jsx110(
+        children: /* @__PURE__ */ jsxs74(Flex10, { h: 16, alignItems: "center", justifyContent: "space-between", children: [
+          /* @__PURE__ */ jsxs74(HStack14, { spacing: 4, alignItems: "center", children: [
+            /* @__PURE__ */ jsxs74(Menu2, { isLazy: !0, id: "menu", children: [
+              /* @__PURE__ */ jsx113(
                 MenuButton2,
                 {
                   as: IconButton7,
                   "aria-label": OPTIONS,
-                  icon: /* @__PURE__ */ jsx110(MenuIcon, {}),
+                  icon: /* @__PURE__ */ jsx113(MenuIcon, {}),
                   variant: "outline"
                 }
               ),
-              /* @__PURE__ */ jsxs71(MenuList2, { rootProps: { zIndex: 2e3 }, children: [
-                /* @__PURE__ */ jsx110(
+              /* @__PURE__ */ jsxs74(MenuList2, { rootProps: { zIndex: 2e3 }, children: [
+                /* @__PURE__ */ jsx113(
                   MenuItem2,
                   {
                     onClick: () => {
@@ -14236,7 +15990,7 @@ var Navbar = () => {
                     children: PEDIDOS
                   }
                 ),
-                !authState.isAdmin() && /* @__PURE__ */ jsx110(
+                !authState.isAdmin() && /* @__PURE__ */ jsx113(
                   MenuItem2,
                   {
                     onClick: () => {
@@ -14245,8 +15999,8 @@ var Navbar = () => {
                     children: BORRADORES
                   }
                 ),
-                /* @__PURE__ */ jsx110(MenuDivider2, {}),
-                authState.isAdmin() && /* @__PURE__ */ jsx110(
+                /* @__PURE__ */ jsx113(MenuDivider2, {}),
+                authState.isAdmin() && /* @__PURE__ */ jsx113(
                   MenuItem2,
                   {
                     onClick: () => {
@@ -14255,7 +16009,7 @@ var Navbar = () => {
                     children: ADMINISTRACION
                   }
                 ),
-                /* @__PURE__ */ jsx110(
+                /* @__PURE__ */ jsx113(
                   MenuItem2,
                   {
                     onClick: () => {
@@ -14264,8 +16018,8 @@ var Navbar = () => {
                     children: CHANGE_PASSWORD
                   }
                 ),
-                /* @__PURE__ */ jsx110(MenuDivider2, {}),
-                /* @__PURE__ */ jsx110(
+                /* @__PURE__ */ jsx113(MenuDivider2, {}),
+                /* @__PURE__ */ jsx113(
                   MenuItem2,
                   {
                     onClick: async () => {
@@ -14276,134 +16030,134 @@ var Navbar = () => {
                 )
               ] })
             ] }),
-            /* @__PURE__ */ jsx110(Box32, { children: /* @__PURE__ */ jsx110(LogoImage, { height: "20px", alt: "" }) })
+            /* @__PURE__ */ jsx113(Box33, { children: /* @__PURE__ */ jsx113(LogoImage, { height: "20px", alt: "" }) })
           ] }),
-          /* @__PURE__ */ jsx110(Flex9, { alignItems: "center", children: /* @__PURE__ */ jsxs71(HStack14, { spacing: 4, children: [
-            /* @__PURE__ */ jsx110(
-              Box32,
+          /* @__PURE__ */ jsx113(Flex10, { alignItems: "center", children: /* @__PURE__ */ jsxs74(HStack14, { spacing: 4, children: [
+            /* @__PURE__ */ jsx113(
+              Box33,
               {
                 display: {
                   base: "none",
                   md: "block"
                 },
-                children: /* @__PURE__ */ jsx110(Text9, { children: userLabel })
+                children: /* @__PURE__ */ jsx113(Text10, { children: userLabel })
               }
             ),
-            /* @__PURE__ */ jsx110(ColorModeSelector, {})
+            /* @__PURE__ */ jsx113(ColorModeSelector, {})
           ] }) })
         ] })
       }
     ),
-    systemMessage != null && systemMessage != null && /* @__PURE__ */ jsx110(MessageToUser, { ...systemMessage }),
-    /* @__PURE__ */ jsx110(Box32, {})
+    systemMessage != null && systemMessage != null && /* @__PURE__ */ jsx113(MessageToUser, { ...systemMessage }),
+    /* @__PURE__ */ jsx113(Box33, {})
   ] });
 };
 
 // src/app/routes/_authorized/route.tsx
-import { jsx as jsx111, jsxs as jsxs72 } from "react/jsx-runtime";
+import { jsx as jsx114, jsxs as jsxs75 } from "react/jsx-runtime";
 function AuthorizedLayout() {
-  return /* @__PURE__ */ jsx111(ClientOnly, { children: /* @__PURE__ */ jsxs72(AuthGuard, { children: [
-    /* @__PURE__ */ jsx111(Navbar, {}),
-    /* @__PURE__ */ jsx111(Container, { maxW: "6xl", sx: { my: 4 }, children: /* @__PURE__ */ jsx111(Outlet2, {}) })
+  return /* @__PURE__ */ jsx114(ClientOnly, { children: /* @__PURE__ */ jsxs75(AuthGuard, { children: [
+    /* @__PURE__ */ jsx114(Navbar, {}),
+    /* @__PURE__ */ jsx114(Outlet2, {})
   ] }) });
 }
 
 // src/app/routes/api.pedido.ts
 var api_pedido_exports = {};
 __export(api_pedido_exports, {
-  action: () => action37,
-  loader: () => loader38
+  action: () => action38,
+  loader: () => loader39
 });
-async function loader38({ request, params }) {
+async function loader39({ request, params }) {
   return await getAllOrdersEndpoint.get(request, params);
 }
-async function action37({ request, params }) {
+async function action38({ request, params }) {
   return await createOrderEndpoint.post(request, params);
 }
 
 // src/app/routes/api.draft.ts
 var api_draft_exports = {};
 __export(api_draft_exports, {
-  action: () => action38,
-  loader: () => loader39
+  action: () => action39,
+  loader: () => loader40
 });
-async function loader39({ request, params }) {
+async function loader40({ request, params }) {
   return await getAllDraftsEndpoint.get(request, params);
 }
-async function action38({ request, params }) {
+async function action39({ request, params }) {
   return await createDraftEndpoint.post(request, params);
 }
 
 // src/app/routes/_admin/route.tsx
-var route_exports17 = {};
-__export(route_exports17, {
+var route_exports19 = {};
+__export(route_exports19, {
   default: () => AdminLayout
 });
 import { Outlet as Outlet3 } from "@remix-run/react";
-import { Container as Container2 } from "@chakra-ui/react";
-import { jsx as jsx112, jsxs as jsxs73 } from "react/jsx-runtime";
+import { Container as Container8 } from "@chakra-ui/react";
+import { jsx as jsx115, jsxs as jsxs76 } from "react/jsx-runtime";
 function AdminLayout() {
-  return /* @__PURE__ */ jsx112(ClientOnly, { children: /* @__PURE__ */ jsxs73(AuthGuard, { children: [
-    /* @__PURE__ */ jsx112(Navbar, {}),
-    /* @__PURE__ */ jsx112(Container2, { maxW: "2xl", sx: { my: 4 }, children: /* @__PURE__ */ jsx112(Outlet3, {}) })
+  return /* @__PURE__ */ jsx115(ClientOnly, { children: /* @__PURE__ */ jsxs76(AuthGuard, { children: [
+    /* @__PURE__ */ jsx115(Navbar, {}),
+    /* @__PURE__ */ jsx115(Container8, { maxW: "2xl", sx: { my: 4 }, children: /* @__PURE__ */ jsx115(Outlet3, {}) })
   ] }) });
 }
 
 // src/app/routes/_index/route.tsx
-var route_exports18 = {};
-__export(route_exports18, {
+var route_exports20 = {};
+__export(route_exports20, {
   default: () => Index
 });
-import { useEffect as useEffect17 } from "react";
+import { useEffect as useEffect18 } from "react";
 import {
   Alert as Alert11,
-  Box as Box34,
+  Box as Box35,
   Button as Button12,
   Card as Card4,
   CardBody as CardBody4,
   CardHeader,
   Center,
-  Container as Container3,
-  Heading as Heading15,
-  Icon as Icon11,
+  Container as Container9,
+  Heading as Heading16,
+  Icon as Icon12,
   InputLeftElement as InputLeftElement2,
   ListItem as ListItem3,
   UnorderedList as UnorderedList2,
   VStack as VStack8
 } from "@chakra-ui/react";
-import { yupResolver as yupResolver10 } from "@hookform/resolvers/yup";
-import * as yup11 from "yup";
+import { yupResolver as yupResolver11 } from "@hookform/resolvers/yup";
+import * as yup12 from "yup";
 import AccountIcon from "mdi-react/AccountIcon.js";
 import LockIcon from "mdi-react/LockIcon.js";
-import { useForm as useForm11 } from "react-hook-form";
+import { useForm as useForm12 } from "react-hook-form";
 
 // src/app/components/MessageToUserAlert.tsx
-import { Box as Box33, Heading as Heading14, Icon as Icon10, Text as Text10 } from "@chakra-ui/react";
+import { Box as Box34, Heading as Heading15, Icon as Icon11, Text as Text11 } from "@chakra-ui/react";
 import WarningIcon from "mdi-react/AlertOutlineIcon.js";
 import ErrorIcon from "mdi-react/CloseOctagonOutlineIcon.js";
 import InfoIcon from "mdi-react/InformationVariantCircleOutlineIcon.js";
-import { jsx as jsx113, jsxs as jsxs74 } from "react/jsx-runtime";
+import { jsx as jsx116, jsxs as jsxs77 } from "react/jsx-runtime";
 var MessageToUserAlert = (props) => {
   let { type, title, content } = props, IconType = {
     info: InfoIcon,
     warning: WarningIcon,
     error: ErrorIcon
   }[type] ?? null;
-  return /* @__PURE__ */ jsxs74(Box33, { textAlign: "center", py: 10, px: 6, children: [
-    IconType != null && /* @__PURE__ */ jsx113(Icon10, { as: IconType, boxSize: 12 }),
-    /* @__PURE__ */ jsx113(Heading14, { as: "h2", size: "xl", mt: 4, mb: 2, children: title }),
-    /* @__PURE__ */ jsx113(Text10, { color: "gray.500", children: content })
+  return /* @__PURE__ */ jsxs77(Box34, { textAlign: "center", py: 10, px: 6, children: [
+    IconType != null && /* @__PURE__ */ jsx116(Icon11, { as: IconType, boxSize: 12 }),
+    /* @__PURE__ */ jsx116(Heading15, { as: "h2", size: "xl", mt: 4, mb: 2, children: title }),
+    /* @__PURE__ */ jsx116(Text11, { color: "gray.500", children: content })
   ] });
 };
 
 // src/app/dialogs/MessageToUserDialog.tsx
 import { useModal as useModal2 } from "react-hooks-async-modal";
-import { jsx as jsx114 } from "react/jsx-runtime";
+import { jsx as jsx117 } from "react/jsx-runtime";
 var MessageToUserDialog = ({
   title,
   message,
   onResolve
-}) => /* @__PURE__ */ jsx114(
+}) => /* @__PURE__ */ jsx117(
   CustomDialog,
   {
     isOpen: !0,
@@ -14423,10 +16177,10 @@ function useMessageToUserDialog() {
 }
 
 // src/app/routes/_index/route.tsx
-import { Fragment as Fragment38, jsx as jsx115, jsxs as jsxs75 } from "react/jsx-runtime";
-var validationSchema = yup11.object({
-  username: yup11.string().required("Ingrese su nombre de usuario").test("test", "Usuario no valido", (v) => yupVOValidation(VOUserName, v)),
-  password: yup11.string().required("Ingrese su contrase\xF1a")
+import { Fragment as Fragment37, jsx as jsx118, jsxs as jsxs78 } from "react/jsx-runtime";
+var validationSchema = yup12.object({
+  username: yup12.string().required("Ingrese su nombre de usuario").test("test", "Usuario no valido", (v) => yupVOValidation(VOUserName, v)),
+  password: yup12.string().required("Ingrese su contrase\xF1a")
 }).required();
 function Index() {
   let { state: authState, dispatch: authDispatch } = useAuth(), dialogCall = useMessageToUserDialog(), {
@@ -14434,12 +16188,12 @@ function Index() {
     control,
     reset,
     formState: { errors, isSubmitting }
-  } = useForm11({
+  } = useForm12({
     defaultValues: {
       username: "",
       password: ""
     },
-    resolver: yupResolver10(validationSchema)
+    resolver: yupResolver11(validationSchema)
   }), onSubmit = async (data) => {
     let dataToSubmit = {
       username: data.username,
@@ -14447,27 +16201,27 @@ function Index() {
     };
     await authDispatch(new AuthActionLogin(dataToSubmit));
   };
-  return useEffect17(() => {
+  return useEffect18(() => {
     if (authState instanceof AuthStateDisconnected) {
       let messageToUser = authState.errorOrNull()?.message_to_user;
       messageToUser != null && dialogCall({
-        message: /* @__PURE__ */ jsx115(MessageToUserAlert, { ...messageToUser })
+        message: /* @__PURE__ */ jsx118(MessageToUserAlert, { ...messageToUser })
       });
     }
-  }, [authState]), /* @__PURE__ */ jsxs75(Fragment38, { children: [
-    /* @__PURE__ */ jsx115(
-      Box34,
+  }, [authState]), /* @__PURE__ */ jsxs78(Fragment37, { children: [
+    /* @__PURE__ */ jsx118(
+      Box35,
       {
         sx: {
           position: "absolute",
           top: 3,
           right: 4
         },
-        children: /* @__PURE__ */ jsx115(ColorModeSelector, {})
+        children: /* @__PURE__ */ jsx118(ColorModeSelector, {})
       }
     ),
-    /* @__PURE__ */ jsx115(
-      Box34,
+    /* @__PURE__ */ jsx118(
+      Box35,
       {
         sx: {
           display: "flex",
@@ -14476,18 +16230,18 @@ function Index() {
           alignItems: "center",
           justifyContent: "center"
         },
-        children: /* @__PURE__ */ jsx115(
-          Container3,
+        children: /* @__PURE__ */ jsx118(
+          Container9,
           {
             maxWidth: "sm",
             sx: {
               alignSelf: "center"
             },
-            children: /* @__PURE__ */ jsxs75(Card4, { children: [
-              /* @__PURE__ */ jsx115(CardHeader, { children: /* @__PURE__ */ jsx115(Center, { children: /* @__PURE__ */ jsx115(LogoImage, { width: "160px", alt: "" }) }) }),
-              /* @__PURE__ */ jsx115(CardBody4, { children: /* @__PURE__ */ jsx115("form", { noValidate: !0, onSubmit: handleSubmit(onSubmit), children: /* @__PURE__ */ jsxs75(VStack8, { spacing: 4, children: [
-                /* @__PURE__ */ jsx115(
-                  Heading15,
+            children: /* @__PURE__ */ jsxs78(Card4, { children: [
+              /* @__PURE__ */ jsx118(CardHeader, { children: /* @__PURE__ */ jsx118(Center, { children: /* @__PURE__ */ jsx118(LogoImage, { width: "160px", alt: "" }) }) }),
+              /* @__PURE__ */ jsx118(CardBody4, { children: /* @__PURE__ */ jsx118("form", { noValidate: !0, onSubmit: handleSubmit(onSubmit), children: /* @__PURE__ */ jsxs78(VStack8, { spacing: 4, children: [
+                /* @__PURE__ */ jsx118(
+                  Heading16,
                   {
                     size: "sm",
                     sx: {
@@ -14497,23 +16251,23 @@ function Index() {
                     children: WELCOME
                   }
                 ),
-                (Object.keys(errors).length || authState.errorOrNull()) && /* @__PURE__ */ jsx115(Box34, { width: "full", children: /* @__PURE__ */ jsx115(Alert11, { status: "error", children: /* @__PURE__ */ jsxs75(
+                (Object.keys(errors).length || authState.errorOrNull()) && /* @__PURE__ */ jsx118(Box35, { width: "full", children: /* @__PURE__ */ jsx118(Alert11, { status: "error", children: /* @__PURE__ */ jsxs78(
                   UnorderedList2,
                   {
                     fontSize: "sm",
                     styleType: "none",
                     sx: { m: 0 },
                     children: [
-                      Object.keys(errors).length && Object.values(errors).map((error, key) => /* @__PURE__ */ jsx115(ListItem3, { children: error.message }, key)),
-                      authState.errorOrNull() && /* @__PURE__ */ jsx115(ListItem3, { children: authState.errorOrNull()?.error }, "api_error")
+                      Object.keys(errors).length && Object.values(errors).map((error, key) => /* @__PURE__ */ jsx118(ListItem3, { children: error.message }, key)),
+                      authState.errorOrNull() && /* @__PURE__ */ jsx118(ListItem3, { children: authState.errorOrNull()?.error_description }, "api_error")
                     ]
                   }
                 ) }) }),
-                /* @__PURE__ */ jsx115(
+                /* @__PURE__ */ jsx118(
                   ControlledInput,
                   {
                     formControlInnerProps: {
-                      icon: /* @__PURE__ */ jsx115(InputLeftElement2, { pointerEvents: "none", children: /* @__PURE__ */ jsx115(Icon11, { as: AccountIcon }) })
+                      icon: /* @__PURE__ */ jsx118(InputLeftElement2, { pointerEvents: "none", children: /* @__PURE__ */ jsx118(Icon12, { as: AccountIcon }) })
                     },
                     fieldProps: {
                       name: "username",
@@ -14528,11 +16282,11 @@ function Index() {
                     control
                   }
                 ),
-                /* @__PURE__ */ jsx115(
+                /* @__PURE__ */ jsx118(
                   ControlledInput,
                   {
                     formControlInnerProps: {
-                      icon: /* @__PURE__ */ jsx115(InputLeftElement2, { pointerEvents: "none", children: /* @__PURE__ */ jsx115(Icon11, { as: LockIcon }) })
+                      icon: /* @__PURE__ */ jsx118(InputLeftElement2, { pointerEvents: "none", children: /* @__PURE__ */ jsx118(Icon12, { as: LockIcon }) })
                     },
                     fieldProps: {
                       name: "password",
@@ -14546,7 +16300,7 @@ function Index() {
                     control
                   }
                 ),
-                /* @__PURE__ */ jsx115(Button12, { type: "submit", width: "full", colorScheme: "blue", isLoading: isSubmitting, children: "Ingresar" })
+                /* @__PURE__ */ jsx118(Button12, { type: "submit", width: "full", colorScheme: "blue", isLoading: isSubmitting, children: "Ingresar" })
               ] }) }) })
             ] })
           }
@@ -14557,10 +16311,10 @@ function Index() {
 }
 
 // server-assets-manifest:@remix-run/dev/assets-manifest
-var assets_manifest_default = { entry: { module: "/build/entry.client-HOYIBDU3.js", imports: ["/build/_shared/chunk-YFUBCQBO.js", "/build/_shared/chunk-DZKJSWIA.js", "/build/_shared/chunk-IS2TAHEU.js", "/build/_shared/chunk-P3O6KQPX.js"] }, routes: { root: { id: "root", parentId: void 0, path: "", index: void 0, caseSensitive: void 0, module: "/build/root-FQFHBFEU.js", imports: ["/build/_shared/chunk-X7PKD636.js"], hasAction: !1, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !0 }, "routes/_admin": { id: "routes/_admin", parentId: "root", path: void 0, index: void 0, caseSensitive: void 0, module: "/build/routes/_admin-AMZON26E.js", imports: ["/build/_shared/chunk-4FXOXCEX.js", "/build/_shared/chunk-CJRJJTGL.js", "/build/_shared/chunk-7FZKV7GZ.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings._index": { id: "routes/_admin.settings._index", parentId: "routes/_admin", path: "settings", index: !0, caseSensitive: void 0, module: "/build/routes/_admin.settings._index-63SCELBY.js", imports: ["/build/_shared/chunk-HTTKQLCQ.js", "/build/_shared/chunk-KWCD7EI4.js", "/build/_shared/chunk-X7PKD636.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.company": { id: "routes/_admin.settings.company", parentId: "routes/_admin", path: "settings/company", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.company-LFZA7ZGM.js", imports: ["/build/_shared/chunk-MVI3E7A7.js", "/build/_shared/chunk-A6SZ6ZPD.js", "/build/_shared/chunk-QUDASFS5.js", "/build/_shared/chunk-6RHVNQC3.js", "/build/_shared/chunk-KCUI5YJN.js", "/build/_shared/chunk-V3AUB7EB.js", "/build/_shared/chunk-ESWUXJEN.js", "/build/_shared/chunk-64TEVNJ7.js", "/build/_shared/chunk-GK4DXTEP.js", "/build/_shared/chunk-LYIQ4MX7.js", "/build/_shared/chunk-5L4DRFTU.js", "/build/_shared/chunk-JH3DW3YR.js", "/build/_shared/chunk-KWCD7EI4.js", "/build/_shared/chunk-X7PKD636.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.misc": { id: "routes/_admin.settings.misc", parentId: "routes/_admin", path: "settings/misc", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.misc-FYTKYEMD.js", imports: ["/build/_shared/chunk-IGWMFNRO.js", "/build/_shared/chunk-QZVSCUY4.js", "/build/_shared/chunk-3E6R7P2Z.js", "/build/_shared/chunk-HTTKQLCQ.js", "/build/_shared/chunk-XMOVTS3H.js", "/build/_shared/chunk-O7SFO4YM.js", "/build/_shared/chunk-V3AUB7EB.js", "/build/_shared/chunk-ESWUXJEN.js", "/build/_shared/chunk-64TEVNJ7.js", "/build/_shared/chunk-LYIQ4MX7.js", "/build/_shared/chunk-5L4DRFTU.js", "/build/_shared/chunk-JH3DW3YR.js", "/build/_shared/chunk-KWCD7EI4.js", "/build/_shared/chunk-X7PKD636.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.product_list.$type": { id: "routes/_admin.settings.product_list.$type", parentId: "routes/_admin", path: "settings/product_list/:type", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.product_list.$type-2BWWOHKN.js", imports: ["/build/_shared/chunk-KI7DJOVI.js", "/build/_shared/chunk-QZVSCUY4.js", "/build/_shared/chunk-3E6R7P2Z.js", "/build/_shared/chunk-6JEONWJD.js", "/build/_shared/chunk-HTTKQLCQ.js", "/build/_shared/chunk-V3AUB7EB.js", "/build/_shared/chunk-ESWUXJEN.js", "/build/_shared/chunk-64TEVNJ7.js", "/build/_shared/chunk-LYIQ4MX7.js", "/build/_shared/chunk-5L4DRFTU.js", "/build/_shared/chunk-JH3DW3YR.js", "/build/_shared/chunk-KWCD7EI4.js", "/build/_shared/chunk-X7PKD636.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.tango": { id: "routes/_admin.settings.tango", parentId: "routes/_admin", path: "settings/tango", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.tango-FWS2QSOQ.js", imports: ["/build/_shared/chunk-IGWMFNRO.js", "/build/_shared/chunk-3E6R7P2Z.js", "/build/_shared/chunk-HTTKQLCQ.js", "/build/_shared/chunk-XMOVTS3H.js", "/build/_shared/chunk-O7SFO4YM.js", "/build/_shared/chunk-V3AUB7EB.js", "/build/_shared/chunk-ESWUXJEN.js", "/build/_shared/chunk-64TEVNJ7.js", "/build/_shared/chunk-LYIQ4MX7.js", "/build/_shared/chunk-5L4DRFTU.js", "/build/_shared/chunk-JH3DW3YR.js", "/build/_shared/chunk-KWCD7EI4.js", "/build/_shared/chunk-X7PKD636.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.$type._index": { id: "routes/_admin.settings.users.$type._index", parentId: "routes/_admin", path: "settings/users/:type", index: !0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.$type._index-YTDHV2MX.js", imports: ["/build/_shared/chunk-UUQUN6O2.js", "/build/_shared/chunk-KJRI7O4Y.js", "/build/_shared/chunk-3E6R7P2Z.js", "/build/_shared/chunk-6JEONWJD.js", "/build/_shared/chunk-HTTKQLCQ.js", "/build/_shared/chunk-EKCBHF5Q.js", "/build/_shared/chunk-SSPXWVUV.js", "/build/_shared/chunk-GK4DXTEP.js", "/build/_shared/chunk-LYIQ4MX7.js", "/build/_shared/chunk-5L4DRFTU.js", "/build/_shared/chunk-JH3DW3YR.js", "/build/_shared/chunk-KWCD7EI4.js", "/build/_shared/chunk-X7PKD636.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.customers.$id.edit": { id: "routes/_admin.settings.users.customers.$id.edit", parentId: "routes/_admin", path: "settings/users/customers/:id/edit", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.customers.$id.edit-LON4UT33.js", imports: ["/build/_shared/chunk-WUJQJI4C.js", "/build/_shared/chunk-3E6R7P2Z.js", "/build/_shared/chunk-6JEONWJD.js", "/build/_shared/chunk-HTTKQLCQ.js", "/build/_shared/chunk-JDPCYXQW.js", "/build/_shared/chunk-MVI3E7A7.js", "/build/_shared/chunk-XMOVTS3H.js", "/build/_shared/chunk-A6SZ6ZPD.js", "/build/_shared/chunk-QUDASFS5.js", "/build/_shared/chunk-6RHVNQC3.js", "/build/_shared/chunk-KCUI5YJN.js", "/build/_shared/chunk-O7SFO4YM.js", "/build/_shared/chunk-V3AUB7EB.js", "/build/_shared/chunk-ESWUXJEN.js", "/build/_shared/chunk-64TEVNJ7.js", "/build/_shared/chunk-EKCBHF5Q.js", "/build/_shared/chunk-SSPXWVUV.js", "/build/_shared/chunk-GK4DXTEP.js", "/build/_shared/chunk-LYIQ4MX7.js", "/build/_shared/chunk-5L4DRFTU.js", "/build/_shared/chunk-JH3DW3YR.js", "/build/_shared/chunk-KWCD7EI4.js", "/build/_shared/chunk-X7PKD636.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.customers.add": { id: "routes/_admin.settings.users.customers.add", parentId: "routes/_admin", path: "settings/users/customers/add", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.customers.add-7WY45JZS.js", imports: ["/build/_shared/chunk-JDPCYXQW.js", "/build/_shared/chunk-MVI3E7A7.js", "/build/_shared/chunk-XMOVTS3H.js", "/build/_shared/chunk-A6SZ6ZPD.js", "/build/_shared/chunk-QUDASFS5.js", "/build/_shared/chunk-6RHVNQC3.js", "/build/_shared/chunk-KCUI5YJN.js", "/build/_shared/chunk-O7SFO4YM.js", "/build/_shared/chunk-V3AUB7EB.js", "/build/_shared/chunk-ESWUXJEN.js", "/build/_shared/chunk-64TEVNJ7.js", "/build/_shared/chunk-EKCBHF5Q.js", "/build/_shared/chunk-SSPXWVUV.js", "/build/_shared/chunk-GK4DXTEP.js", "/build/_shared/chunk-LYIQ4MX7.js", "/build/_shared/chunk-5L4DRFTU.js", "/build/_shared/chunk-JH3DW3YR.js", "/build/_shared/chunk-KWCD7EI4.js", "/build/_shared/chunk-X7PKD636.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.vendors.$id.edit": { id: "routes/_admin.settings.users.vendors.$id.edit", parentId: "routes/_admin", path: "settings/users/vendors/:id/edit", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.vendors.$id.edit-HYYUYWQL.js", imports: ["/build/_shared/chunk-WUJQJI4C.js", "/build/_shared/chunk-3E6R7P2Z.js", "/build/_shared/chunk-6JEONWJD.js", "/build/_shared/chunk-HTTKQLCQ.js", "/build/_shared/chunk-JDPCYXQW.js", "/build/_shared/chunk-MVI3E7A7.js", "/build/_shared/chunk-XMOVTS3H.js", "/build/_shared/chunk-A6SZ6ZPD.js", "/build/_shared/chunk-QUDASFS5.js", "/build/_shared/chunk-6RHVNQC3.js", "/build/_shared/chunk-KCUI5YJN.js", "/build/_shared/chunk-O7SFO4YM.js", "/build/_shared/chunk-V3AUB7EB.js", "/build/_shared/chunk-ESWUXJEN.js", "/build/_shared/chunk-64TEVNJ7.js", "/build/_shared/chunk-EKCBHF5Q.js", "/build/_shared/chunk-SSPXWVUV.js", "/build/_shared/chunk-GK4DXTEP.js", "/build/_shared/chunk-LYIQ4MX7.js", "/build/_shared/chunk-5L4DRFTU.js", "/build/_shared/chunk-JH3DW3YR.js", "/build/_shared/chunk-KWCD7EI4.js", "/build/_shared/chunk-X7PKD636.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.vendors.add": { id: "routes/_admin.settings.users.vendors.add", parentId: "routes/_admin", path: "settings/users/vendors/add", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.vendors.add-R26WBAXI.js", imports: ["/build/_shared/chunk-JDPCYXQW.js", "/build/_shared/chunk-MVI3E7A7.js", "/build/_shared/chunk-XMOVTS3H.js", "/build/_shared/chunk-A6SZ6ZPD.js", "/build/_shared/chunk-QUDASFS5.js", "/build/_shared/chunk-6RHVNQC3.js", "/build/_shared/chunk-KCUI5YJN.js", "/build/_shared/chunk-O7SFO4YM.js", "/build/_shared/chunk-V3AUB7EB.js", "/build/_shared/chunk-ESWUXJEN.js", "/build/_shared/chunk-64TEVNJ7.js", "/build/_shared/chunk-EKCBHF5Q.js", "/build/_shared/chunk-SSPXWVUV.js", "/build/_shared/chunk-GK4DXTEP.js", "/build/_shared/chunk-LYIQ4MX7.js", "/build/_shared/chunk-5L4DRFTU.js", "/build/_shared/chunk-JH3DW3YR.js", "/build/_shared/chunk-KWCD7EI4.js", "/build/_shared/chunk-X7PKD636.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized": { id: "routes/_authorized", parentId: "root", path: void 0, index: void 0, caseSensitive: void 0, module: "/build/routes/_authorized-QH7PJQHO.js", imports: ["/build/_shared/chunk-4FXOXCEX.js", "/build/_shared/chunk-CJRJJTGL.js", "/build/_shared/chunk-7FZKV7GZ.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.change_password": { id: "routes/_authorized.change_password", parentId: "routes/_authorized", path: "change_password", index: void 0, caseSensitive: void 0, module: "/build/routes/_authorized.change_password-GYDGIFTL.js", imports: void 0, hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.drafts.$client.add": { id: "routes/_authorized.drafts.$client.add", parentId: "routes/_authorized", path: "drafts/:client/add", index: void 0, caseSensitive: void 0, module: "/build/routes/_authorized.drafts.$client.add-P7QH2QL7.js", imports: ["/build/_shared/chunk-CEQVCMQT.js", "/build/_shared/chunk-EXONEW77.js", "/build/_shared/chunk-SP4F5HSS.js", "/build/_shared/chunk-QZVSCUY4.js", "/build/_shared/chunk-KJRI7O4Y.js", "/build/_shared/chunk-WUJQJI4C.js", "/build/_shared/chunk-6JEONWJD.js", "/build/_shared/chunk-HTTKQLCQ.js", "/build/_shared/chunk-A6SZ6ZPD.js", "/build/_shared/chunk-QUDASFS5.js", "/build/_shared/chunk-6RHVNQC3.js", "/build/_shared/chunk-KCUI5YJN.js", "/build/_shared/chunk-O7SFO4YM.js", "/build/_shared/chunk-ESWUXJEN.js", "/build/_shared/chunk-64TEVNJ7.js", "/build/_shared/chunk-GK4DXTEP.js", "/build/_shared/chunk-5L4DRFTU.js", "/build/_shared/chunk-JH3DW3YR.js", "/build/_shared/chunk-KWCD7EI4.js", "/build/_shared/chunk-X7PKD636.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.drafts._index": { id: "routes/_authorized.drafts._index", parentId: "routes/_authorized", path: "drafts", index: !0, caseSensitive: void 0, module: "/build/routes/_authorized.drafts._index-YQTPLQIF.js", imports: ["/build/_shared/chunk-UEAODE2I.js", "/build/_shared/chunk-H2HV4GBI.js", "/build/_shared/chunk-EXONEW77.js", "/build/_shared/chunk-SP4F5HSS.js", "/build/_shared/chunk-UUQUN6O2.js", "/build/_shared/chunk-KJRI7O4Y.js", "/build/_shared/chunk-3E6R7P2Z.js", "/build/_shared/chunk-HTTKQLCQ.js", "/build/_shared/chunk-6RHVNQC3.js", "/build/_shared/chunk-KCUI5YJN.js", "/build/_shared/chunk-SSPXWVUV.js", "/build/_shared/chunk-JH3DW3YR.js", "/build/_shared/chunk-KWCD7EI4.js", "/build/_shared/chunk-X7PKD636.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.orders.$client.add": { id: "routes/_authorized.orders.$client.add", parentId: "routes/_authorized", path: "orders/:client/add", index: void 0, caseSensitive: void 0, module: "/build/routes/_authorized.orders.$client.add-ZCVJM6SC.js", imports: ["/build/_shared/chunk-CEQVCMQT.js", "/build/_shared/chunk-EXONEW77.js", "/build/_shared/chunk-SP4F5HSS.js", "/build/_shared/chunk-QZVSCUY4.js", "/build/_shared/chunk-KJRI7O4Y.js", "/build/_shared/chunk-WUJQJI4C.js", "/build/_shared/chunk-6JEONWJD.js", "/build/_shared/chunk-HTTKQLCQ.js", "/build/_shared/chunk-A6SZ6ZPD.js", "/build/_shared/chunk-QUDASFS5.js", "/build/_shared/chunk-6RHVNQC3.js", "/build/_shared/chunk-KCUI5YJN.js", "/build/_shared/chunk-O7SFO4YM.js", "/build/_shared/chunk-ESWUXJEN.js", "/build/_shared/chunk-64TEVNJ7.js", "/build/_shared/chunk-GK4DXTEP.js", "/build/_shared/chunk-5L4DRFTU.js", "/build/_shared/chunk-JH3DW3YR.js", "/build/_shared/chunk-KWCD7EI4.js", "/build/_shared/chunk-X7PKD636.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.orders._index": { id: "routes/_authorized.orders._index", parentId: "routes/_authorized", path: "orders", index: !0, caseSensitive: void 0, module: "/build/routes/_authorized.orders._index-NDVPBIML.js", imports: ["/build/_shared/chunk-UEAODE2I.js", "/build/_shared/chunk-H2HV4GBI.js", "/build/_shared/chunk-EXONEW77.js", "/build/_shared/chunk-SP4F5HSS.js", "/build/_shared/chunk-UUQUN6O2.js", "/build/_shared/chunk-KJRI7O4Y.js", "/build/_shared/chunk-3E6R7P2Z.js", "/build/_shared/chunk-HTTKQLCQ.js", "/build/_shared/chunk-6RHVNQC3.js", "/build/_shared/chunk-KCUI5YJN.js", "/build/_shared/chunk-SSPXWVUV.js", "/build/_shared/chunk-JH3DW3YR.js", "/build/_shared/chunk-KWCD7EI4.js", "/build/_shared/chunk-X7PKD636.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_index": { id: "routes/_index", parentId: "root", path: void 0, index: !0, caseSensitive: void 0, module: "/build/routes/_index-24AS3ND7.js", imports: ["/build/_shared/chunk-CJRJJTGL.js", "/build/_shared/chunk-XMOVTS3H.js", "/build/_shared/chunk-O7SFO4YM.js", "/build/_shared/chunk-64TEVNJ7.js", "/build/_shared/chunk-7FZKV7GZ.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.admin.status": { id: "routes/api.admin.status", parentId: "root", path: "api/admin/status", index: void 0, caseSensitive: void 0, module: "/build/routes/api.admin.status-FRS5P2G5.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.connect": { id: "routes/api.auth.connect", parentId: "root", path: "api/auth/connect", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.connect-W5Z2JFG5.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.login": { id: "routes/api.auth.login", parentId: "root", path: "api/auth/login", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.login-GZAA62GZ.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.logout": { id: "routes/api.auth.logout", parentId: "root", path: "api/auth/logout", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.logout-G5J7MHFJ.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.password": { id: "routes/api.auth.password", parentId: "root", path: "api/auth/password", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.password-VAEKHUHE.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dictionary": { id: "routes/api.dictionary", parentId: "root", path: "api/dictionary", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dictionary-CCSD6TWZ.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dictionary.active_company": { id: "routes/api.dictionary.active_company", parentId: "routes/api.dictionary", path: "active_company", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dictionary.active_company-6Q76BQSE.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.draft": { id: "routes/api.draft", parentId: "root", path: "api/draft", index: void 0, caseSensitive: void 0, module: "/build/routes/api.draft-U46N3CKR.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.draft.$id_pedido": { id: "routes/api.draft.$id_pedido", parentId: "routes/api.draft", path: ":id_pedido", index: void 0, caseSensitive: void 0, module: "/build/routes/api.draft.$id_pedido-PB2MLXKQ.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.draft.$id_pedido.start_draft": { id: "routes/api.draft.$id_pedido.start_draft", parentId: "routes/api.draft.$id_pedido", path: "start_draft", index: void 0, caseSensitive: void 0, module: "/build/routes/api.draft.$id_pedido.start_draft-2DW3EJ5H.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.draft.$id_pedido.start_new_order": { id: "routes/api.draft.$id_pedido.start_new_order", parentId: "routes/api.draft.$id_pedido", path: "start_new_order", index: void 0, caseSensitive: void 0, module: "/build/routes/api.draft.$id_pedido.start_new_order-MO3YHE5C.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.draft.$id_pedido.start_update": { id: "routes/api.draft.$id_pedido.start_update", parentId: "routes/api.draft.$id_pedido", path: "start_update", index: void 0, caseSensitive: void 0, module: "/build/routes/api.draft.$id_pedido.start_update-R5IEQE3K.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.draft.renglones": { id: "routes/api.draft.renglones", parentId: "routes/api.draft", path: "renglones", index: void 0, caseSensitive: void 0, module: "/build/routes/api.draft.renglones-OY2LLFJC.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.draft.start_new": { id: "routes/api.draft.start_new", parentId: "routes/api.draft", path: "start_new", index: void 0, caseSensitive: void 0, module: "/build/routes/api.draft.start_new-FDGCFEUA.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.draft.start_new.$id_cliente": { id: "routes/api.draft.start_new.$id_cliente", parentId: "routes/api.draft.start_new", path: ":id_cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.draft.start_new.$id_cliente-WXXXGHN2.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.articulo.edit_list": { id: "routes/api.dxt.articulo.edit_list", parentId: "root", path: "api/dxt/articulo/edit_list", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.articulo.edit_list-FU2IZVAR.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.articulo.print_list": { id: "routes/api.dxt.articulo.print_list", parentId: "root", path: "api/dxt/articulo/print_list", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.articulo.print_list-HZ3TTIEH.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.articulo.print_list.ids": { id: "routes/api.dxt.articulo.print_list.ids", parentId: "routes/api.dxt.articulo.print_list", path: "ids", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.articulo.print_list.ids-EWN7NFPS.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.cliente": { id: "routes/api.dxt.cliente", parentId: "root", path: "api/dxt/cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.cliente-NZSBSNCI.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.cliente.$id_cliente": { id: "routes/api.dxt.cliente.$id_cliente", parentId: "routes/api.dxt.cliente", path: ":id_cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.cliente.$id_cliente-VFG73GIB.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.vendedor": { id: "routes/api.dxt.vendedor", parentId: "root", path: "api/dxt/vendedor", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.vendedor-ZOD5J5SN.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.vendedor.$id_vendedor": { id: "routes/api.dxt.vendedor.$id_vendedor", parentId: "routes/api.dxt.vendedor", path: ":id_vendedor", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.vendedor.$id_vendedor-77QWCEJN.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.vendedor.cliente": { id: "routes/api.dxt.vendedor.cliente", parentId: "routes/api.dxt.vendedor", path: "cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.vendedor.cliente-LM4FI5TP.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido": { id: "routes/api.pedido", parentId: "root", path: "api/pedido", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido-4DGYT3EG.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.$id_pedido": { id: "routes/api.pedido.$id_pedido", parentId: "routes/api.pedido", path: ":id_pedido", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.$id_pedido-KJETRUGV.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.$id_pedido.start_new_draft": { id: "routes/api.pedido.$id_pedido.start_new_draft", parentId: "routes/api.pedido.$id_pedido", path: "start_new_draft", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.$id_pedido.start_new_draft-65JDVHD4.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.$id_pedido.start_new_order": { id: "routes/api.pedido.$id_pedido.start_new_order", parentId: "routes/api.pedido.$id_pedido", path: "start_new_order", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.$id_pedido.start_new_order-J43IBS6Y.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.$id_pedido.start_update": { id: "routes/api.pedido.$id_pedido.start_update", parentId: "routes/api.pedido.$id_pedido", path: "start_update", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.$id_pedido.start_update-6NIMTD6Q.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.renglones": { id: "routes/api.pedido.renglones", parentId: "routes/api.pedido", path: "renglones", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.renglones-EHFXVNTM.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.start_new": { id: "routes/api.pedido.start_new", parentId: "routes/api.pedido", path: "start_new", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.start_new-I5X4PLAU.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.start_new.$id_cliente": { id: "routes/api.pedido.start_new.$id_cliente", parentId: "routes/api.pedido.start_new", path: ":id_cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.start_new.$id_cliente-7PAACJJD.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.settings.config_file": { id: "routes/api.settings.config_file", parentId: "root", path: "api/settings/config_file", index: void 0, caseSensitive: void 0, module: "/build/routes/api.settings.config_file-TJ6FBNSB.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.settings.db": { id: "routes/api.settings.db", parentId: "root", path: "api/settings/db", index: void 0, caseSensitive: void 0, module: "/build/routes/api.settings.db-C5XU2RGJ.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.settings.misc": { id: "routes/api.settings.misc", parentId: "root", path: "api/settings/misc", index: void 0, caseSensitive: void 0, module: "/build/routes/api.settings.misc-IH3ITAJF.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.auxiliares": { id: "routes/api.tango.auxiliares", parentId: "root", path: "api/tango/auxiliares", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.auxiliares-Z3KMNDLM.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.cliente": { id: "routes/api.tango.cliente", parentId: "root", path: "api/tango/cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.cliente-E7MDEYDM.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.perfil": { id: "routes/api.tango.perfil", parentId: "root", path: "api/tango/perfil", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.perfil-63SMEZ5Y.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.vendedor": { id: "routes/api.tango.vendedor", parentId: "root", path: "api/tango/vendedor", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.vendedor-WKOHEH6Y.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 } }, version: "3f48c70f", hmr: void 0, url: "/build/manifest-3F48C70F.js" };
+var assets_manifest_default = { entry: { module: "/build/entry.client-7VKAAQTY.js", imports: ["/build/_shared/chunk-AKS5FTSF.js", "/build/_shared/chunk-3PZF3L6F.js", "/build/_shared/chunk-P3O6KQPX.js"] }, routes: { root: { id: "root", parentId: void 0, path: "", index: void 0, caseSensitive: void 0, module: "/build/root-DB6SRRFZ.js", imports: ["/build/_shared/chunk-FXMINOMW.js"], hasAction: !1, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !0 }, "routes/_admin": { id: "routes/_admin", parentId: "root", path: void 0, index: void 0, caseSensitive: void 0, module: "/build/routes/_admin-2M6WILLS.js", imports: ["/build/_shared/chunk-CQIWKBAG.js", "/build/_shared/chunk-2CA5LL32.js", "/build/_shared/chunk-DMG3RFNF.js", "/build/_shared/chunk-XMQ6MK6E.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings._index": { id: "routes/_admin.settings._index", parentId: "routes/_admin", path: "settings", index: !0, caseSensitive: void 0, module: "/build/routes/_admin.settings._index-CX3MSDEJ.js", imports: ["/build/_shared/chunk-MJXYRNXN.js", "/build/_shared/chunk-EMOUVUCW.js", "/build/_shared/chunk-FXMINOMW.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.company": { id: "routes/_admin.settings.company", parentId: "routes/_admin", path: "settings/company", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.company-63LPZZ6O.js", imports: ["/build/_shared/chunk-FRRAQ5LB.js", "/build/_shared/chunk-D3JMCNDG.js", "/build/_shared/chunk-HDTBUKLK.js", "/build/_shared/chunk-TX7UJAHI.js", "/build/_shared/chunk-74FFW6IE.js", "/build/_shared/chunk-ZZ5XYL3D.js", "/build/_shared/chunk-WRWUGCP4.js", "/build/_shared/chunk-R3EIFBBN.js", "/build/_shared/chunk-ZOPTXHEJ.js", "/build/_shared/chunk-EMOUVUCW.js", "/build/_shared/chunk-ADLT376Z.js", "/build/_shared/chunk-DVXB4GN2.js", "/build/_shared/chunk-QDTJ5SNF.js", "/build/_shared/chunk-FXMINOMW.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.misc": { id: "routes/_admin.settings.misc", parentId: "routes/_admin", path: "settings/misc", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.misc-FAPOKILL.js", imports: ["/build/_shared/chunk-M6PJQDEO.js", "/build/_shared/chunk-XMOVTS3H.js", "/build/_shared/chunk-3ESF4QSI.js", "/build/_shared/chunk-5BOKODV4.js", "/build/_shared/chunk-ZZ5XYL3D.js", "/build/_shared/chunk-WRWUGCP4.js", "/build/_shared/chunk-R3EIFBBN.js", "/build/_shared/chunk-XAZLMTM6.js", "/build/_shared/chunk-MJXYRNXN.js", "/build/_shared/chunk-EMOUVUCW.js", "/build/_shared/chunk-ADLT376Z.js", "/build/_shared/chunk-DVXB4GN2.js", "/build/_shared/chunk-QDTJ5SNF.js", "/build/_shared/chunk-FXMINOMW.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.product_list.$type": { id: "routes/_admin.settings.product_list.$type", parentId: "routes/_admin", path: "settings/product_list/:type", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.product_list.$type-JQ45VLRE.js", imports: ["/build/_shared/chunk-CTBOINNM.js", "/build/_shared/chunk-GV4MR7RK.js", "/build/_shared/chunk-5BOKODV4.js", "/build/_shared/chunk-ZZ5XYL3D.js", "/build/_shared/chunk-WRWUGCP4.js", "/build/_shared/chunk-R3EIFBBN.js", "/build/_shared/chunk-R65JUTTO.js", "/build/_shared/chunk-XAZLMTM6.js", "/build/_shared/chunk-MJXYRNXN.js", "/build/_shared/chunk-EMOUVUCW.js", "/build/_shared/chunk-ADLT376Z.js", "/build/_shared/chunk-DVXB4GN2.js", "/build/_shared/chunk-QDTJ5SNF.js", "/build/_shared/chunk-FXMINOMW.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.tango": { id: "routes/_admin.settings.tango", parentId: "routes/_admin", path: "settings/tango", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.tango-EE7JUKBL.js", imports: ["/build/_shared/chunk-M6PJQDEO.js", "/build/_shared/chunk-XMOVTS3H.js", "/build/_shared/chunk-3ESF4QSI.js", "/build/_shared/chunk-ZZ5XYL3D.js", "/build/_shared/chunk-WRWUGCP4.js", "/build/_shared/chunk-R3EIFBBN.js", "/build/_shared/chunk-XAZLMTM6.js", "/build/_shared/chunk-MJXYRNXN.js", "/build/_shared/chunk-EMOUVUCW.js", "/build/_shared/chunk-ADLT376Z.js", "/build/_shared/chunk-DVXB4GN2.js", "/build/_shared/chunk-QDTJ5SNF.js", "/build/_shared/chunk-FXMINOMW.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.$type._index": { id: "routes/_admin.settings.users.$type._index", parentId: "routes/_admin", path: "settings/users/:type", index: !0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.$type._index-273MSUNH.js", imports: ["/build/_shared/chunk-NMUZEQCE.js", "/build/_shared/chunk-NWY4V24C.js", "/build/_shared/chunk-RHNYYS4O.js", "/build/_shared/chunk-777ZFYLV.js", "/build/_shared/chunk-ZOPTXHEJ.js", "/build/_shared/chunk-R65JUTTO.js", "/build/_shared/chunk-XAZLMTM6.js", "/build/_shared/chunk-MJXYRNXN.js", "/build/_shared/chunk-EMOUVUCW.js", "/build/_shared/chunk-ADLT376Z.js", "/build/_shared/chunk-DVXB4GN2.js", "/build/_shared/chunk-QDTJ5SNF.js", "/build/_shared/chunk-FXMINOMW.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.customers.$id.edit": { id: "routes/_admin.settings.users.customers.$id.edit", parentId: "routes/_admin", path: "settings/users/customers/:id/edit", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.customers.$id.edit-YCQ6FF3I.js", imports: ["/build/_shared/chunk-4IHA3F5D.js", "/build/_shared/chunk-VOIPNWOC.js", "/build/_shared/chunk-FRRAQ5LB.js", "/build/_shared/chunk-D3JMCNDG.js", "/build/_shared/chunk-HDTBUKLK.js", "/build/_shared/chunk-TX7UJAHI.js", "/build/_shared/chunk-74FFW6IE.js", "/build/_shared/chunk-GSTZNXQ2.js", "/build/_shared/chunk-XMOVTS3H.js", "/build/_shared/chunk-3ESF4QSI.js", "/build/_shared/chunk-ZZ5XYL3D.js", "/build/_shared/chunk-WRWUGCP4.js", "/build/_shared/chunk-R3EIFBBN.js", "/build/_shared/chunk-RHNYYS4O.js", "/build/_shared/chunk-777ZFYLV.js", "/build/_shared/chunk-ZOPTXHEJ.js", "/build/_shared/chunk-R65JUTTO.js", "/build/_shared/chunk-XAZLMTM6.js", "/build/_shared/chunk-MJXYRNXN.js", "/build/_shared/chunk-EMOUVUCW.js", "/build/_shared/chunk-ADLT376Z.js", "/build/_shared/chunk-DVXB4GN2.js", "/build/_shared/chunk-QDTJ5SNF.js", "/build/_shared/chunk-FXMINOMW.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.customers.add": { id: "routes/_admin.settings.users.customers.add", parentId: "routes/_admin", path: "settings/users/customers/add", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.customers.add-ZAXLF5OQ.js", imports: ["/build/_shared/chunk-VOIPNWOC.js", "/build/_shared/chunk-FRRAQ5LB.js", "/build/_shared/chunk-D3JMCNDG.js", "/build/_shared/chunk-HDTBUKLK.js", "/build/_shared/chunk-TX7UJAHI.js", "/build/_shared/chunk-74FFW6IE.js", "/build/_shared/chunk-GSTZNXQ2.js", "/build/_shared/chunk-XMOVTS3H.js", "/build/_shared/chunk-3ESF4QSI.js", "/build/_shared/chunk-ZZ5XYL3D.js", "/build/_shared/chunk-WRWUGCP4.js", "/build/_shared/chunk-R3EIFBBN.js", "/build/_shared/chunk-RHNYYS4O.js", "/build/_shared/chunk-777ZFYLV.js", "/build/_shared/chunk-ZOPTXHEJ.js", "/build/_shared/chunk-EMOUVUCW.js", "/build/_shared/chunk-ADLT376Z.js", "/build/_shared/chunk-DVXB4GN2.js", "/build/_shared/chunk-QDTJ5SNF.js", "/build/_shared/chunk-FXMINOMW.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.vendors.$id.edit": { id: "routes/_admin.settings.users.vendors.$id.edit", parentId: "routes/_admin", path: "settings/users/vendors/:id/edit", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.vendors.$id.edit-66UHT5GU.js", imports: ["/build/_shared/chunk-4IHA3F5D.js", "/build/_shared/chunk-VOIPNWOC.js", "/build/_shared/chunk-FRRAQ5LB.js", "/build/_shared/chunk-D3JMCNDG.js", "/build/_shared/chunk-HDTBUKLK.js", "/build/_shared/chunk-TX7UJAHI.js", "/build/_shared/chunk-74FFW6IE.js", "/build/_shared/chunk-GSTZNXQ2.js", "/build/_shared/chunk-XMOVTS3H.js", "/build/_shared/chunk-3ESF4QSI.js", "/build/_shared/chunk-ZZ5XYL3D.js", "/build/_shared/chunk-WRWUGCP4.js", "/build/_shared/chunk-R3EIFBBN.js", "/build/_shared/chunk-RHNYYS4O.js", "/build/_shared/chunk-777ZFYLV.js", "/build/_shared/chunk-ZOPTXHEJ.js", "/build/_shared/chunk-R65JUTTO.js", "/build/_shared/chunk-XAZLMTM6.js", "/build/_shared/chunk-MJXYRNXN.js", "/build/_shared/chunk-EMOUVUCW.js", "/build/_shared/chunk-ADLT376Z.js", "/build/_shared/chunk-DVXB4GN2.js", "/build/_shared/chunk-QDTJ5SNF.js", "/build/_shared/chunk-FXMINOMW.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_admin.settings.users.vendors.add": { id: "routes/_admin.settings.users.vendors.add", parentId: "routes/_admin", path: "settings/users/vendors/add", index: void 0, caseSensitive: void 0, module: "/build/routes/_admin.settings.users.vendors.add-MPK32JNK.js", imports: ["/build/_shared/chunk-VOIPNWOC.js", "/build/_shared/chunk-FRRAQ5LB.js", "/build/_shared/chunk-D3JMCNDG.js", "/build/_shared/chunk-HDTBUKLK.js", "/build/_shared/chunk-TX7UJAHI.js", "/build/_shared/chunk-74FFW6IE.js", "/build/_shared/chunk-GSTZNXQ2.js", "/build/_shared/chunk-XMOVTS3H.js", "/build/_shared/chunk-3ESF4QSI.js", "/build/_shared/chunk-ZZ5XYL3D.js", "/build/_shared/chunk-WRWUGCP4.js", "/build/_shared/chunk-R3EIFBBN.js", "/build/_shared/chunk-RHNYYS4O.js", "/build/_shared/chunk-777ZFYLV.js", "/build/_shared/chunk-ZOPTXHEJ.js", "/build/_shared/chunk-EMOUVUCW.js", "/build/_shared/chunk-ADLT376Z.js", "/build/_shared/chunk-DVXB4GN2.js", "/build/_shared/chunk-QDTJ5SNF.js", "/build/_shared/chunk-FXMINOMW.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized": { id: "routes/_authorized", parentId: "root", path: void 0, index: void 0, caseSensitive: void 0, module: "/build/routes/_authorized-FNT7ZCQZ.js", imports: ["/build/_shared/chunk-CQIWKBAG.js", "/build/_shared/chunk-2CA5LL32.js", "/build/_shared/chunk-DMG3RFNF.js", "/build/_shared/chunk-XMQ6MK6E.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.change_password": { id: "routes/_authorized.change_password", parentId: "routes/_authorized", path: "change_password", index: void 0, caseSensitive: void 0, module: "/build/routes/_authorized.change_password-ZHLX72AS.js", imports: ["/build/_shared/chunk-GSTZNXQ2.js", "/build/_shared/chunk-XMOVTS3H.js", "/build/_shared/chunk-3ESF4QSI.js", "/build/_shared/chunk-ZZ5XYL3D.js", "/build/_shared/chunk-WRWUGCP4.js", "/build/_shared/chunk-R3EIFBBN.js", "/build/_shared/chunk-ADLT376Z.js", "/build/_shared/chunk-DVXB4GN2.js", "/build/_shared/chunk-QDTJ5SNF.js", "/build/_shared/chunk-FXMINOMW.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.drafts.$client.add": { id: "routes/_authorized.drafts.$client.add", parentId: "routes/_authorized", path: "drafts/:client/add", index: void 0, caseSensitive: void 0, module: "/build/routes/_authorized.drafts.$client.add-4EE6SBIM.js", imports: ["/build/_shared/chunk-ICOU7UPB.js", "/build/_shared/chunk-POKPBQ7V.js", "/build/_shared/chunk-E4E7CG7E.js", "/build/_shared/chunk-4IHA3F5D.js", "/build/_shared/chunk-D3JMCNDG.js", "/build/_shared/chunk-HDTBUKLK.js", "/build/_shared/chunk-TX7UJAHI.js", "/build/_shared/chunk-74FFW6IE.js", "/build/_shared/chunk-3ESF4QSI.js", "/build/_shared/chunk-GV4MR7RK.js", "/build/_shared/chunk-5BOKODV4.js", "/build/_shared/chunk-WRWUGCP4.js", "/build/_shared/chunk-R3EIFBBN.js", "/build/_shared/chunk-NWY4V24C.js", "/build/_shared/chunk-ZOPTXHEJ.js", "/build/_shared/chunk-MJXYRNXN.js", "/build/_shared/chunk-EMOUVUCW.js", "/build/_shared/chunk-DVXB4GN2.js", "/build/_shared/chunk-QDTJ5SNF.js", "/build/_shared/chunk-FXMINOMW.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.drafts._index": { id: "routes/_authorized.drafts._index", parentId: "routes/_authorized", path: "drafts", index: !0, caseSensitive: void 0, module: "/build/routes/_authorized.drafts._index-6XKV2FMD.js", imports: ["/build/_shared/chunk-EF4GCURG.js", "/build/_shared/chunk-E4OBBOOQ.js", "/build/_shared/chunk-POKPBQ7V.js", "/build/_shared/chunk-E4E7CG7E.js", "/build/_shared/chunk-TX7UJAHI.js", "/build/_shared/chunk-74FFW6IE.js", "/build/_shared/chunk-NMUZEQCE.js", "/build/_shared/chunk-NWY4V24C.js", "/build/_shared/chunk-777ZFYLV.js", "/build/_shared/chunk-XAZLMTM6.js", "/build/_shared/chunk-MJXYRNXN.js", "/build/_shared/chunk-EMOUVUCW.js", "/build/_shared/chunk-QDTJ5SNF.js", "/build/_shared/chunk-FXMINOMW.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.drafts.add": { id: "routes/_authorized.drafts.add", parentId: "routes/_authorized", path: "drafts/add", index: void 0, caseSensitive: void 0, module: "/build/routes/_authorized.drafts.add-MOD5NZ2B.js", imports: ["/build/_shared/chunk-ICOU7UPB.js", "/build/_shared/chunk-POKPBQ7V.js", "/build/_shared/chunk-E4E7CG7E.js", "/build/_shared/chunk-4IHA3F5D.js", "/build/_shared/chunk-D3JMCNDG.js", "/build/_shared/chunk-HDTBUKLK.js", "/build/_shared/chunk-TX7UJAHI.js", "/build/_shared/chunk-74FFW6IE.js", "/build/_shared/chunk-3ESF4QSI.js", "/build/_shared/chunk-GV4MR7RK.js", "/build/_shared/chunk-5BOKODV4.js", "/build/_shared/chunk-WRWUGCP4.js", "/build/_shared/chunk-R3EIFBBN.js", "/build/_shared/chunk-NWY4V24C.js", "/build/_shared/chunk-ZOPTXHEJ.js", "/build/_shared/chunk-MJXYRNXN.js", "/build/_shared/chunk-EMOUVUCW.js", "/build/_shared/chunk-DVXB4GN2.js", "/build/_shared/chunk-QDTJ5SNF.js", "/build/_shared/chunk-FXMINOMW.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.orders.$client.add": { id: "routes/_authorized.orders.$client.add", parentId: "routes/_authorized", path: "orders/:client/add", index: void 0, caseSensitive: void 0, module: "/build/routes/_authorized.orders.$client.add-JSVQVOGC.js", imports: ["/build/_shared/chunk-ICOU7UPB.js", "/build/_shared/chunk-POKPBQ7V.js", "/build/_shared/chunk-E4E7CG7E.js", "/build/_shared/chunk-4IHA3F5D.js", "/build/_shared/chunk-D3JMCNDG.js", "/build/_shared/chunk-HDTBUKLK.js", "/build/_shared/chunk-TX7UJAHI.js", "/build/_shared/chunk-74FFW6IE.js", "/build/_shared/chunk-3ESF4QSI.js", "/build/_shared/chunk-GV4MR7RK.js", "/build/_shared/chunk-5BOKODV4.js", "/build/_shared/chunk-WRWUGCP4.js", "/build/_shared/chunk-R3EIFBBN.js", "/build/_shared/chunk-NWY4V24C.js", "/build/_shared/chunk-ZOPTXHEJ.js", "/build/_shared/chunk-MJXYRNXN.js", "/build/_shared/chunk-EMOUVUCW.js", "/build/_shared/chunk-DVXB4GN2.js", "/build/_shared/chunk-QDTJ5SNF.js", "/build/_shared/chunk-FXMINOMW.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.orders._index": { id: "routes/_authorized.orders._index", parentId: "routes/_authorized", path: "orders", index: !0, caseSensitive: void 0, module: "/build/routes/_authorized.orders._index-ITI67GAL.js", imports: ["/build/_shared/chunk-EF4GCURG.js", "/build/_shared/chunk-E4OBBOOQ.js", "/build/_shared/chunk-POKPBQ7V.js", "/build/_shared/chunk-E4E7CG7E.js", "/build/_shared/chunk-TX7UJAHI.js", "/build/_shared/chunk-74FFW6IE.js", "/build/_shared/chunk-NMUZEQCE.js", "/build/_shared/chunk-NWY4V24C.js", "/build/_shared/chunk-777ZFYLV.js", "/build/_shared/chunk-XAZLMTM6.js", "/build/_shared/chunk-MJXYRNXN.js", "/build/_shared/chunk-EMOUVUCW.js", "/build/_shared/chunk-QDTJ5SNF.js", "/build/_shared/chunk-FXMINOMW.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_authorized.orders.add": { id: "routes/_authorized.orders.add", parentId: "routes/_authorized", path: "orders/add", index: void 0, caseSensitive: void 0, module: "/build/routes/_authorized.orders.add-TZ3VUTA6.js", imports: ["/build/_shared/chunk-ICOU7UPB.js", "/build/_shared/chunk-POKPBQ7V.js", "/build/_shared/chunk-E4E7CG7E.js", "/build/_shared/chunk-4IHA3F5D.js", "/build/_shared/chunk-D3JMCNDG.js", "/build/_shared/chunk-HDTBUKLK.js", "/build/_shared/chunk-TX7UJAHI.js", "/build/_shared/chunk-74FFW6IE.js", "/build/_shared/chunk-3ESF4QSI.js", "/build/_shared/chunk-GV4MR7RK.js", "/build/_shared/chunk-5BOKODV4.js", "/build/_shared/chunk-WRWUGCP4.js", "/build/_shared/chunk-R3EIFBBN.js", "/build/_shared/chunk-NWY4V24C.js", "/build/_shared/chunk-ZOPTXHEJ.js", "/build/_shared/chunk-MJXYRNXN.js", "/build/_shared/chunk-EMOUVUCW.js", "/build/_shared/chunk-DVXB4GN2.js", "/build/_shared/chunk-QDTJ5SNF.js", "/build/_shared/chunk-FXMINOMW.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/_index": { id: "routes/_index", parentId: "root", path: void 0, index: !0, caseSensitive: void 0, module: "/build/routes/_index-ZV2WPIUJ.js", imports: ["/build/_shared/chunk-2CA5LL32.js", "/build/_shared/chunk-XMOVTS3H.js", "/build/_shared/chunk-3ESF4QSI.js", "/build/_shared/chunk-R3EIFBBN.js", "/build/_shared/chunk-XMQ6MK6E.js"], hasAction: !1, hasLoader: !1, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.admin.status": { id: "routes/api.admin.status", parentId: "root", path: "api/admin/status", index: void 0, caseSensitive: void 0, module: "/build/routes/api.admin.status-FRS5P2G5.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.connect": { id: "routes/api.auth.connect", parentId: "root", path: "api/auth/connect", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.connect-W5Z2JFG5.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.login": { id: "routes/api.auth.login", parentId: "root", path: "api/auth/login", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.login-GZAA62GZ.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.logout": { id: "routes/api.auth.logout", parentId: "root", path: "api/auth/logout", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.logout-G5J7MHFJ.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.auth.password": { id: "routes/api.auth.password", parentId: "root", path: "api/auth/password", index: void 0, caseSensitive: void 0, module: "/build/routes/api.auth.password-VAEKHUHE.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dictionary": { id: "routes/api.dictionary", parentId: "root", path: "api/dictionary", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dictionary-CCSD6TWZ.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dictionary.active_company": { id: "routes/api.dictionary.active_company", parentId: "routes/api.dictionary", path: "active_company", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dictionary.active_company-6Q76BQSE.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.draft": { id: "routes/api.draft", parentId: "root", path: "api/draft", index: void 0, caseSensitive: void 0, module: "/build/routes/api.draft-U46N3CKR.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.draft.$id_pedido": { id: "routes/api.draft.$id_pedido", parentId: "routes/api.draft", path: ":id_pedido", index: void 0, caseSensitive: void 0, module: "/build/routes/api.draft.$id_pedido-PB2MLXKQ.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.draft.$id_pedido.start_draft": { id: "routes/api.draft.$id_pedido.start_draft", parentId: "routes/api.draft.$id_pedido", path: "start_draft", index: void 0, caseSensitive: void 0, module: "/build/routes/api.draft.$id_pedido.start_draft-2DW3EJ5H.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.draft.$id_pedido.start_order": { id: "routes/api.draft.$id_pedido.start_order", parentId: "routes/api.draft.$id_pedido", path: "start_order", index: void 0, caseSensitive: void 0, module: "/build/routes/api.draft.$id_pedido.start_order-ZUVTCQJE.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.draft.$id_pedido.start_update": { id: "routes/api.draft.$id_pedido.start_update", parentId: "routes/api.draft.$id_pedido", path: "start_update", index: void 0, caseSensitive: void 0, module: "/build/routes/api.draft.$id_pedido.start_update-R5IEQE3K.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.draft.renglones": { id: "routes/api.draft.renglones", parentId: "routes/api.draft", path: "renglones", index: void 0, caseSensitive: void 0, module: "/build/routes/api.draft.renglones-OY2LLFJC.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.draft.start_new": { id: "routes/api.draft.start_new", parentId: "routes/api.draft", path: "start_new", index: void 0, caseSensitive: void 0, module: "/build/routes/api.draft.start_new-FDGCFEUA.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.draft.start_new.$id_cliente": { id: "routes/api.draft.start_new.$id_cliente", parentId: "routes/api.draft.start_new", path: ":id_cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.draft.start_new.$id_cliente-WXXXGHN2.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.articulo.edit_list": { id: "routes/api.dxt.articulo.edit_list", parentId: "root", path: "api/dxt/articulo/edit_list", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.articulo.edit_list-FU2IZVAR.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.articulo.print_list": { id: "routes/api.dxt.articulo.print_list", parentId: "root", path: "api/dxt/articulo/print_list", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.articulo.print_list-HZ3TTIEH.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.articulo.print_list.ids": { id: "routes/api.dxt.articulo.print_list.ids", parentId: "routes/api.dxt.articulo.print_list", path: "ids", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.articulo.print_list.ids-EWN7NFPS.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.cliente": { id: "routes/api.dxt.cliente", parentId: "root", path: "api/dxt/cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.cliente-NZSBSNCI.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.cliente.$id_cliente": { id: "routes/api.dxt.cliente.$id_cliente", parentId: "routes/api.dxt.cliente", path: ":id_cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.cliente.$id_cliente-VFG73GIB.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.usuario.auxiliares": { id: "routes/api.dxt.usuario.auxiliares", parentId: "root", path: "api/dxt/usuario/auxiliares", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.usuario.auxiliares-4VY7BCXW.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.vendedor": { id: "routes/api.dxt.vendedor", parentId: "root", path: "api/dxt/vendedor", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.vendedor-ZOD5J5SN.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.vendedor.$id_vendedor": { id: "routes/api.dxt.vendedor.$id_vendedor", parentId: "routes/api.dxt.vendedor", path: ":id_vendedor", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.vendedor.$id_vendedor-77QWCEJN.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.dxt.vendedor.cliente": { id: "routes/api.dxt.vendedor.cliente", parentId: "routes/api.dxt.vendedor", path: "cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.dxt.vendedor.cliente-LM4FI5TP.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido": { id: "routes/api.pedido", parentId: "root", path: "api/pedido", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido-4DGYT3EG.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.$id_pedido": { id: "routes/api.pedido.$id_pedido", parentId: "routes/api.pedido", path: ":id_pedido", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.$id_pedido-KJETRUGV.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.$id_pedido.start_draft": { id: "routes/api.pedido.$id_pedido.start_draft", parentId: "routes/api.pedido.$id_pedido", path: "start_draft", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.$id_pedido.start_draft-OG2HUL33.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.$id_pedido.start_order": { id: "routes/api.pedido.$id_pedido.start_order", parentId: "routes/api.pedido.$id_pedido", path: "start_order", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.$id_pedido.start_order-7APLRP2A.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.$id_pedido.start_update": { id: "routes/api.pedido.$id_pedido.start_update", parentId: "routes/api.pedido.$id_pedido", path: "start_update", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.$id_pedido.start_update-6NIMTD6Q.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.renglones": { id: "routes/api.pedido.renglones", parentId: "routes/api.pedido", path: "renglones", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.renglones-EHFXVNTM.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.start_new": { id: "routes/api.pedido.start_new", parentId: "routes/api.pedido", path: "start_new", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.start_new-I5X4PLAU.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.pedido.start_new.$id_cliente": { id: "routes/api.pedido.start_new.$id_cliente", parentId: "routes/api.pedido.start_new", path: ":id_cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.pedido.start_new.$id_cliente-7PAACJJD.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.settings.config_file": { id: "routes/api.settings.config_file", parentId: "root", path: "api/settings/config_file", index: void 0, caseSensitive: void 0, module: "/build/routes/api.settings.config_file-TJ6FBNSB.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.settings.db": { id: "routes/api.settings.db", parentId: "root", path: "api/settings/db", index: void 0, caseSensitive: void 0, module: "/build/routes/api.settings.db-C5XU2RGJ.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.settings.misc": { id: "routes/api.settings.misc", parentId: "root", path: "api/settings/misc", index: void 0, caseSensitive: void 0, module: "/build/routes/api.settings.misc-IH3ITAJF.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.cliente": { id: "routes/api.tango.cliente", parentId: "root", path: "api/tango/cliente", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.cliente-E7MDEYDM.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.lista": { id: "routes/api.tango.lista", parentId: "root", path: "api/tango/lista", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.lista-M6NFNJQJ.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.perfil": { id: "routes/api.tango.perfil", parentId: "root", path: "api/tango/perfil", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.perfil-63SMEZ5Y.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 }, "routes/api.tango.vendedor": { id: "routes/api.tango.vendedor", parentId: "root", path: "api/tango/vendedor", index: void 0, caseSensitive: void 0, module: "/build/routes/api.tango.vendedor-WKOHEH6Y.js", imports: void 0, hasAction: !0, hasLoader: !0, hasClientAction: !1, hasClientLoader: !1, hasErrorBoundary: !1 } }, version: "1b13144c", hmr: void 0, url: "/build/manifest-1B13144C.js" };
 
 // server-entry-module:@remix-run/dev/server-build
-var mode3 = "production", assetsBuildDirectory = "public/build", future = { v3_fetcherPersist: !1, v3_relativeSplatPath: !1, v3_throwAbortReason: !1 }, publicPath = "/build/", entry = { module: entry_server_exports }, routes = {
+var mode4 = "production", assetsBuildDirectory = "public/build", future = { v3_fetcherPersist: !1, v3_relativeSplatPath: !1, v3_throwAbortReason: !1, unstable_singleFetch: !1 }, publicPath = "/build/", entry = { module: entry_server_exports }, routes = {
   root: {
     id: "root",
     parentId: void 0,
@@ -14584,30 +16338,6 @@ var mode3 = "production", assetsBuildDirectory = "public/build", future = { v3_f
     index: void 0,
     caseSensitive: void 0,
     module: route_exports2
-  },
-  "routes/api.pedido.$id_pedido.start_new_draft": {
-    id: "routes/api.pedido.$id_pedido.start_new_draft",
-    parentId: "routes/api.pedido.$id_pedido",
-    path: "start_new_draft",
-    index: void 0,
-    caseSensitive: void 0,
-    module: api_pedido_id_pedido_start_new_draft_exports
-  },
-  "routes/api.pedido.$id_pedido.start_new_order": {
-    id: "routes/api.pedido.$id_pedido.start_new_order",
-    parentId: "routes/api.pedido.$id_pedido",
-    path: "start_new_order",
-    index: void 0,
-    caseSensitive: void 0,
-    module: api_pedido_id_pedido_start_new_order_exports
-  },
-  "routes/api.draft.$id_pedido.start_new_order": {
-    id: "routes/api.draft.$id_pedido.start_new_order",
-    parentId: "routes/api.draft.$id_pedido",
-    path: "start_new_order",
-    index: void 0,
-    caseSensitive: void 0,
-    module: api_draft_id_pedido_start_new_order_exports
   },
   "routes/_admin.settings.users.customers.add": {
     id: "routes/_admin.settings.users.customers.add",
@@ -14657,6 +16387,22 @@ var mode3 = "production", assetsBuildDirectory = "public/build", future = { v3_f
     caseSensitive: void 0,
     module: api_draft_id_pedido_start_update_exports
   },
+  "routes/api.pedido.$id_pedido.start_draft": {
+    id: "routes/api.pedido.$id_pedido.start_draft",
+    parentId: "routes/api.pedido.$id_pedido",
+    path: "start_draft",
+    index: void 0,
+    caseSensitive: void 0,
+    module: api_pedido_id_pedido_start_draft_exports
+  },
+  "routes/api.pedido.$id_pedido.start_order": {
+    id: "routes/api.pedido.$id_pedido.start_order",
+    parentId: "routes/api.pedido.$id_pedido",
+    path: "start_order",
+    index: void 0,
+    caseSensitive: void 0,
+    module: api_pedido_id_pedido_start_order_exports
+  },
   "routes/api.draft.$id_pedido.start_draft": {
     id: "routes/api.draft.$id_pedido.start_draft",
     parentId: "routes/api.draft.$id_pedido",
@@ -14664,6 +16410,14 @@ var mode3 = "production", assetsBuildDirectory = "public/build", future = { v3_f
     index: void 0,
     caseSensitive: void 0,
     module: api_draft_id_pedido_start_draft_exports
+  },
+  "routes/api.draft.$id_pedido.start_order": {
+    id: "routes/api.draft.$id_pedido.start_order",
+    parentId: "routes/api.draft.$id_pedido",
+    path: "start_order",
+    index: void 0,
+    caseSensitive: void 0,
+    module: api_draft_id_pedido_start_order_exports
   },
   "routes/api.pedido.start_new.$id_cliente": {
     id: "routes/api.pedido.start_new.$id_cliente",
@@ -14753,6 +16507,14 @@ var mode3 = "production", assetsBuildDirectory = "public/build", future = { v3_f
     caseSensitive: void 0,
     module: api_dxt_articulo_edit_list_exports
   },
+  "routes/api.dxt.usuario.auxiliares": {
+    id: "routes/api.dxt.usuario.auxiliares",
+    parentId: "root",
+    path: "api/dxt/usuario/auxiliares",
+    index: void 0,
+    caseSensitive: void 0,
+    module: api_dxt_usuario_auxiliares_exports
+  },
   "routes/_authorized.drafts._index": {
     id: "routes/_authorized.drafts._index",
     parentId: "routes/_authorized",
@@ -14801,13 +16563,29 @@ var mode3 = "production", assetsBuildDirectory = "public/build", future = { v3_f
     caseSensitive: void 0,
     module: route_exports13
   },
+  "routes/_authorized.drafts.add": {
+    id: "routes/_authorized.drafts.add",
+    parentId: "routes/_authorized",
+    path: "drafts/add",
+    index: void 0,
+    caseSensitive: void 0,
+    module: route_exports14
+  },
+  "routes/_authorized.orders.add": {
+    id: "routes/_authorized.orders.add",
+    parentId: "routes/_authorized",
+    path: "orders/add",
+    index: void 0,
+    caseSensitive: void 0,
+    module: route_exports15
+  },
   "routes/_admin.settings.tango": {
     id: "routes/_admin.settings.tango",
     parentId: "routes/_admin",
     path: "settings/tango",
     index: void 0,
     caseSensitive: void 0,
-    module: route_exports14
+    module: route_exports16
   },
   "routes/api.pedido.$id_pedido": {
     id: "routes/api.pedido.$id_pedido",
@@ -14823,7 +16601,7 @@ var mode3 = "production", assetsBuildDirectory = "public/build", future = { v3_f
     path: "settings/misc",
     index: void 0,
     caseSensitive: void 0,
-    module: route_exports15
+    module: route_exports17
   },
   "routes/api.draft.$id_pedido": {
     id: "routes/api.draft.$id_pedido",
@@ -14848,14 +16626,6 @@ var mode3 = "production", assetsBuildDirectory = "public/build", future = { v3_f
     index: void 0,
     caseSensitive: void 0,
     module: api_pedido_start_new_exports
-  },
-  "routes/api.tango.auxiliares": {
-    id: "routes/api.tango.auxiliares",
-    parentId: "root",
-    path: "api/tango/auxiliares",
-    index: void 0,
-    caseSensitive: void 0,
-    module: api_tango_auxiliares_exports
   },
   "routes/api.draft.renglones": {
     id: "routes/api.draft.renglones",
@@ -14961,6 +16731,14 @@ var mode3 = "production", assetsBuildDirectory = "public/build", future = { v3_f
     caseSensitive: void 0,
     module: api_settings_db_exports
   },
+  "routes/api.tango.lista": {
+    id: "routes/api.tango.lista",
+    parentId: "root",
+    path: "api/tango/lista",
+    index: void 0,
+    caseSensitive: void 0,
+    module: api_tango_lista_exports
+  },
   "routes/api.auth.login": {
     id: "routes/api.auth.login",
     parentId: "root",
@@ -14983,7 +16761,7 @@ var mode3 = "production", assetsBuildDirectory = "public/build", future = { v3_f
     path: void 0,
     index: void 0,
     caseSensitive: void 0,
-    module: route_exports16
+    module: route_exports18
   },
   "routes/api.pedido": {
     id: "routes/api.pedido",
@@ -15007,7 +16785,7 @@ var mode3 = "production", assetsBuildDirectory = "public/build", future = { v3_f
     path: void 0,
     index: void 0,
     caseSensitive: void 0,
-    module: route_exports17
+    module: route_exports19
   },
   "routes/_index": {
     id: "routes/_index",
@@ -15015,7 +16793,7 @@ var mode3 = "production", assetsBuildDirectory = "public/build", future = { v3_f
     path: void 0,
     index: !0,
     caseSensitive: void 0,
-    module: route_exports18
+    module: route_exports20
   }
 };
 export {
@@ -15023,7 +16801,7 @@ export {
   assetsBuildDirectory,
   entry,
   future,
-  mode3 as mode,
+  mode4 as mode,
   publicPath,
   routes
 };

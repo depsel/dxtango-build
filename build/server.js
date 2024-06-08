@@ -9,11 +9,9 @@ import { installGlobals } from "@remix-run/node";
 import { parse as parseINI } from "ini";
 const DEFAULT_PROGRAM_PORT = 3e3;
 function toNumber(raw) {
-  if (raw === void 0)
-    return void 0;
+  if (raw === void 0) return void 0;
   let maybe = Number(raw);
-  if (Number.isNaN(maybe))
-    return void 0;
+  if (Number.isNaN(maybe)) return void 0;
   return maybe;
 }
 async function getPort() {
@@ -22,8 +20,7 @@ async function getPort() {
     const iniFileContent = await readFile(programConfigFilename, { encoding: "utf-8" });
     const settingsInput = parseINI(iniFileContent);
     const port = toNumber(settingsInput?.port);
-    if (port != null)
-      return port;
+    if (port != null) return port;
   } catch (e) {
   }
   return toNumber(process.env.PORT) ?? DEFAULT_PROGRAM_PORT;
