@@ -6605,7 +6605,9 @@ function resolveScreenName(screenNameFields, model, def = NO_NAME) {
   }
   return def;
 }
-function customerTrulyEnabled(habilitado, fechaInhabilitacion) {
+function customerTrulyEnabled(habilitado, vendorExists, fechaInhabilitacion) {
+  if (!habilitado || !vendorExists)
+    return !1;
   let currentTime = now(), year = fechaInhabilitacion?.getUTCFullYear() ?? 0, disableTimestamp = fechaInhabilitacion?.getTime() ?? 0;
   return year <= 1900 || currentTime < disableTimestamp;
 }
@@ -6742,11 +6744,11 @@ var extendedPedidoModelMapper = (m) => {
 
 // src/code.server/infrastucture/user/model_mappers/cliente.model_mappers.ts
 var tangoClienteModelMapper = (m) => {
-  let { [CLIENTE_ID_FIELD]: id, [CLIENTE_CODE_FIELD]: code, HABILITADO: isEnabled, FECHA_INHA: fechaInhabilitacion } = m, screen_name = resolveScreenName(
+  let { [CLIENTE_ID_FIELD]: id, [CLIENTE_CODE_FIELD]: code, HABILITADO: isEnabled, FECHA_INHA: fechaInhabilitacion, [VENDEDOR_ID_FIELD]: vendedor_id } = m, screen_name = resolveScreenName(
     CLIENTE_NAME_COLUMNS,
     m,
     code
-  ), habilitado = customerTrulyEnabled(isEnabled, fechaInhabilitacion);
+  ), vendorExists = vendedor_id != null, habilitado = customerTrulyEnabled(isEnabled, vendorExists, fechaInhabilitacion);
   return {
     id,
     code,
@@ -8118,10 +8120,7 @@ var DXTClienteRepository = class extends DXTUserRepository {
       [VENDEDOR_ID_FIELD]: vendedor_id,
       FECHA_INHA: fechaInhabilitacion,
       ...remaining
-    } = cliente;
-    if (isEnabled !== null && vendedor_id == null)
-      throw new DXTException(200002 /* TANGO_DB_INVALID_DATA */, "DXTClienteRepository.toResultWithRelations (vendedor_id is null)");
-    let habilitado_en_tango = isEnabled != null ? customerTrulyEnabled(isEnabled, fechaInhabilitacion) : null;
+    } = cliente, vendorExists = vendedor_id != null, habilitado_en_tango = isEnabled != null ? customerTrulyEnabled(isEnabled, vendorExists, fechaInhabilitacion) : null;
     return {
       ...this.toResult(remaining),
       role: 0 /* customer */,
