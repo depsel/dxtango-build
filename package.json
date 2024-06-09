@@ -1,19 +1,11 @@
 {
   "name": "dxtango",
-  "version": "0.7.1+405220",
+  "version": "0.7.2+406090",
   "private": true,
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "build": "run-p build:*",
-    "build:remix": "remix build",
-    "build:server": "esbuild --platform=node --format=esm ./server.ts --outdir=./build",
-    "dev": "remix dev --manual",
-    "lint": "eslint ./src",
-    "_lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
-    "start": "node ./build/server.js",
-    "_start": "remix-serve ./build/index.js",
-    "typecheck": "tsc"
+    "start": "node ./build/server.js"
   },
   "dependencies": {
     "@babel/runtime": "^7.24.6",
@@ -69,41 +61,6 @@
     "ua-parser-js": "^1.0.37",
     "validator": "^13.12.0",
     "yup": "^1.4.0"
-  },
-  "devDependencies": {
-    "@eslint/compat": "^1.0.1",
-    "@eslint/js": "^9.3.0",
-    "@remix-run/dev": "^2.9.2",
-    "@remix-run/eslint-config": "^2.9.2",
-    "@trivago/prettier-plugin-sort-imports": "^4.3.0",
-    "@types/compression": "^1.7.5",
-    "@types/express": "^4.17.21",
-    "@types/ini": "^4.1.0",
-    "@types/lodash": "^4.17.4",
-    "@types/md5": "^2.3.5",
-    "@types/multipipe": "^3.0.5",
-    "@types/node": "^20.12.12",
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0",
-    "@types/react-window": "^1.8.8",
-    "@types/tedious": "^4.0.14",
-    "@types/ua-parser-js": "^0.7.39",
-    "@types/validator": "^13.11.10",
-    "autoprefixer": "^10.4.19",
-    "esbuild": "^0.21.4",
-    "eslint": "^9.3.0",
-    "eslint-config-love": "^51.0.1",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-import-resolver-typescript": "^3.6.1",
-    "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-promise": "^6.2.0",
-    "eslint-plugin-react": "^7.34.1",
-    "eslint-plugin-react-hooks": "^4.6.2",
-    "eslint-plugin-unused-imports": "^4.0.0",
-    "npm-run-all": "^4.1.5",
-    "prettier": "^3.2.5",
-    "typescript": "^5.4.5",
-    "typescript-eslint": "^7.10.0"
   },
   "engines": {
     "node": ">=18.0.0"
