@@ -5088,6 +5088,7 @@ var PEDIDO_TABLE = "GVA21", PEDIDO_ID_FIELD = "ID_GVA21", PEDIDO_CODE_FIELD = "N
   "FECHA_ENTR",
   "FECHA_PEDI",
   "HORA",
+  "USUARIO_INGRESO",
   "COMENTARIO",
   "LEYENDA_4",
   "LEYENDA_5",
@@ -6024,7 +6025,7 @@ var DXT_PEDIDO_DRAFT_CLIENTES_TABLE = "dxt_pedido_draft_clientes", DXT_PEDIDO_DR
   CIRCUITO: "ENTERO_TG DEFAULT 1 NULL",
   [DEPOSITO_CODE_FIELD]: "varchar(2) COLLATE Latin1_General_BIN DEFAULT '' NULL",
   [TRANSPORTE_CODE_FIELD]: "varchar(10) COLLATE Latin1_General_BIN DEFAULT '' NULL",
-  COMENTARIO: `varchar(${DESCRIPCION_MAX_LENGTH}) COLLATE Latin1_General_BIN NOT NULL`,
+  COMENTARIO: "varchar(30) COLLATE Latin1_General_BIN DEFAULT '' NULL",
   COMP_STK: "bit DEFAULT 0 NULL",
   [CONDICION_CODE_FIELD]: "ENTERO_TG DEFAULT 0 NULL",
   COTIZ: "DECIMAL_TG DEFAULT 1 NULL",
@@ -6034,11 +6035,11 @@ var DXT_PEDIDO_DRAFT_CLIENTES_TABLE = "dxt_pedido_draft_clientes", DXT_PEDIDO_DR
   FECHA_PEDI: "datetime DEFAULT '1800/01/01' NULL",
   HORA_APRUE: "varchar(4) COLLATE Latin1_General_BIN DEFAULT '' NULL",
   ID_EXTERNO: "varchar(20) COLLATE Latin1_General_BIN DEFAULT '' NULL",
-  LEYENDA_1: "varchar(60) COLLATE Latin1_General_BIN DEFAULT '' NULL",
-  LEYENDA_2: "varchar(60) COLLATE Latin1_General_BIN DEFAULT '' NULL",
-  LEYENDA_3: "varchar(60) COLLATE Latin1_General_BIN DEFAULT '' NULL",
+  LEYENDA_1: `varchar(${LEYENDA_FIELD_LENGTH}) COLLATE Latin1_General_BIN DEFAULT '' NULL`,
+  LEYENDA_2: `varchar(${LEYENDA_FIELD_LENGTH}) COLLATE Latin1_General_BIN DEFAULT '' NULL`,
+  LEYENDA_3: `varchar(${LEYENDA_FIELD_LENGTH}) COLLATE Latin1_General_BIN DEFAULT '' NULL`,
   LEYENDA_4: `varchar(${LEYENDA_FIELD_LENGTH}) COLLATE Latin1_General_BIN DEFAULT '' NULL`,
-  LEYENDA_5: "varchar(60) COLLATE Latin1_General_BIN DEFAULT '' NULL",
+  LEYENDA_5: `varchar(${LEYENDA_FIELD_LENGTH}) COLLATE Latin1_General_BIN DEFAULT '' NULL`,
   MON_CTE: "bit DEFAULT 1 NULL",
   N_LISTA: "ENTERO_TG DEFAULT 0 NULL",
   N_REMITO: "varchar(14) COLLATE Latin1_General_BIN DEFAULT '' NULL",
@@ -6061,7 +6062,7 @@ var DXT_PEDIDO_DRAFT_CLIENTES_TABLE = "dxt_pedido_draft_clientes", DXT_PEDIDO_DR
   NRO_PE_ORI: "varchar(14) COLLATE Latin1_General_BIN DEFAULT '' NULL",
   FECHA_INGRESO: "datetime DEFAULT '1800/01/01' NULL",
   HORA_INGRESO: "varchar(6) COLLATE Modern_Spanish_CI_AI DEFAULT '' NULL",
-  USUARIO_INGRESO: "varchar(120) COLLATE Modern_Spanish_CI_AI DEFAULT '' NULL",
+  USUARIO_INGRESO: `varchar(${DESCRIPCION_MAX_LENGTH}) COLLATE Modern_Spanish_CI_AI  NOT NULL`,
   TERMINAL_INGRESO: "varchar(255) COLLATE Modern_Spanish_CI_AI DEFAULT '' NULL",
   FECHA_ULTIMA_MODIFICACION: "datetime DEFAULT '1800/01/01' NULL",
   HORA_ULTIMA_MODIFICACION: "varchar(6) COLLATE Modern_Spanish_CI_AI DEFAULT '' NULL",
@@ -6098,7 +6099,7 @@ var DXT_PEDIDO_DRAFT_CLIENTES_TABLE = "dxt_pedido_draft_clientes", DXT_PEDIDO_DR
   `CONSTRAINT PK_${draftTableName}_id PRIMARY KEY (${PEDIDO_ID_FIELD})`
 ], dxtPedidoDraftTablePostCommandsSQL = (draftTableName, draftOwnerColumn) => [
   `CREATE INDEX IX_dxt_pedido_draft_code ON ${draftTableName} (${PEDIDO_CODE_FIELD} ASC);`,
-  `CREATE UNIQUE INDEX IX_${draftTableName}_comentario ON ${draftTableName} (${draftOwnerColumn} ASC, COMENTARIO ASC);`,
+  `CREATE UNIQUE INDEX IX_${draftTableName}_comentario ON ${draftTableName} (${draftOwnerColumn} ASC, USUARIO_INGRESO ASC);`,
   `CREATE INDEX IX_dxt_pedido_draft_cliente ON ${draftTableName} (  ${CLIENTE_ID_FIELD} ASC, FECHA_PEDI ASC );`,
   `CREATE INDEX IX_dxt_pedido_draft_vendedor ON ${draftTableName} (  ${VENDEDOR_ID_FIELD} ASC, FECHA_PEDI ASC );`
 ];
@@ -6628,7 +6629,7 @@ var pedidoModelMapper = (m) => {
     LEYENDA_5,
     TOTAL_PEDI,
     PORC_DESC,
-    COMENTARIO: descripcion,
+    USUARIO_INGRESO: descripcion,
     ESTADO
   } = m;
   if (!isAnInteger(id_cliente))
@@ -7691,7 +7692,7 @@ var DXTPedidoDraftRepository = class extends PedidoBaseRepository {
       throw new DXTException(isCustomer ? 200009 /* TANGO_CUSTOMER_NO_LONGER_EXISTS */ : 200010 /* TANGO_VENDOR_NO_LONGER_EXISTS */);
     let data = await this.getOneOrNull(column, tangoId, {
       where: {
-        field: "COMENTARIO",
+        field: "USUARIO_INGRESO",
         value: description
       }
     });
@@ -7703,7 +7704,7 @@ var DXTPedidoDraftRepository = class extends PedidoBaseRepository {
     } = params;
     return {
       ...parentResult,
-      COMENTARIO: descripcion
+      USUARIO_INGRESO: descripcion
     };
   }
   composeInsertRecord(customer, params) {
