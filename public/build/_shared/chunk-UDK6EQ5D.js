@@ -1,0 +1,1 @@
+import{l as n}from"/build/_shared/chunk-DP2TJOZR.js";import{h as r}from"/build/_shared/chunk-P3O6KQPX.js";r();var s=class extends n{constructor(t,e){super(t);this.maxLength=e}validate(t){if(typeof t=="string"){let e=t.trim();if(e!==""&&(this.maxLength==null||e.length<=this.maxLength))return e}this.throwError(t)}};export{s as a};

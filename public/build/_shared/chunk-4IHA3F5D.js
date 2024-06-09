@@ -1,1 +1,0 @@
-import{h as i,i as l}from"/build/_shared/chunk-FXMINOMW.js";import{h as t}from"/build/_shared/chunk-P3O6KQPX.js";t();t();var e=class extends i{constructor(n,o){super(n);this.maxLength=o}validate(n){if(typeof n=="string"){let o=n.trim();if(o!==""&&(this.maxLength==null||o.length<=this.maxLength))return o}this.throwError(n)}};var g=a=>new l(a).valueOf();export{e as a,g as b};

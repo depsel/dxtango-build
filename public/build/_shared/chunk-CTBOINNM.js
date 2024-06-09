@@ -1,1 +1,0 @@
-import{D as t}from"/build/_shared/chunk-FXMINOMW.js";import{h as _}from"/build/_shared/chunk-P3O6KQPX.js";_();var i=t("/dxt/articulo/print_list","GET"),o=t("/dxt/articulo/print_list","POST"),r=t("/dxt/articulo/edit_list","GET"),A=t("/dxt/articulo/edit_list","POST"),P=t("/dxt/articulo/print_list/ids","GET");export{i as a,o as b,r as c,A as d,P as e};

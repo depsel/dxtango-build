@@ -1,0 +1,1 @@
+import{l as o}from"/build/_shared/chunk-DP2TJOZR.js";import{h as n}from"/build/_shared/chunk-P3O6KQPX.js";n();n();function i(t){let r=/^[a-zA-Z0-9_]+$/iu;return typeof t=="string"&&t.length>=2&&t.length<=60&&r.test(t)}var s=class extends o{validate(r){if(typeof r=="string"){let e=r.trim();if(i(e))return e}this.throwError(r)}};export{s as a};

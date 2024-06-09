@@ -1,0 +1,1 @@
+import{rc as n}from"/build/_shared/chunk-DP2TJOZR.js";import{F as o}from"/build/_shared/chunk-3PZF3L6F.js";import{e as r,h as e}from"/build/_shared/chunk-P3O6KQPX.js";e();var i=r(o(),1),a=({error:p})=>(0,i.jsx)(n,{colorScheme:"red",sx:{mt:2,p:2,whiteSpace:"normal"},children:p});export{a};
