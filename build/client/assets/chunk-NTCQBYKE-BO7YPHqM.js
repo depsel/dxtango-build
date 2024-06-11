@@ -1,0 +1,1 @@
+import{f as t,S as o}from"./auth_context-BBDV2-qW.js";import{j as s}from"./emotion-element-43c6fea0.browser.esm-V7CwUVk-.js";var e=t((a,r)=>s.jsx(o,{align:"center",...a,direction:"column",ref:r}));e.displayName="VStack";export{e as V};

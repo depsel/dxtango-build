@@ -1,0 +1,1 @@
+import{f as n,u as r,o as t,a as o,b as m}from"./auth_context-BBDV2-qW.js";import{j as c}from"./emotion-element-43c6fea0.browser.esm-V7CwUVk-.js";var d=n(function(a,s){const e=r("Heading",a),{className:g,...i}=t(a);return c.jsx(o.h2,{ref:s,className:m("chakra-heading",a.className),...i,__css:e})});d.displayName="Heading";export{d as H};

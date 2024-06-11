@@ -1,0 +1,1 @@
+import{P as e}from"./auth_context-BBDV2-qW.js";const n=2,o=60;function i(t){const s=/^[a-zA-Z0-9_]+$/iu;return typeof t=="string"&&t.length>=n&&t.length<=o&&s.test(t)}class E extends e{validate(s){if(typeof s=="string"){const r=s.trim();if(i(r))return r}this.throwError(s)}}export{E as V};
