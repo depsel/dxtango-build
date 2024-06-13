@@ -1,0 +1,1 @@
+import{j as t}from"./auth_context-D8ug2Qcd.js";const T=t("/dxt/articulo/print_list","GET"),I=t("/dxt/articulo/print_list","POST"),i=t("/dxt/articulo/edit_list","GET"),s=t("/dxt/articulo/edit_list","POST"),o=t("/dxt/articulo/print_list/ids","GET");export{I as A,s as a,i as b,T as c,o as d};
