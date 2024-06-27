@@ -13,25 +13,15 @@ import path from "pathe";
 import createCache from "@emotion/cache";
 import { cssBundleHref } from "@remix-run/css-bundle";
 import "@leichtgewicht/ip-codec";
-import React, { useState, useCallback, useEffect, useRef, createContext, useMemo, useContext, memo, Children, Fragment as Fragment$1, lazy, Suspense, useSyncExternalStore } from "react";
+import React, { useState, useCallback, useEffect, useRef, createContext, useMemo, useContext, memo, Children, Fragment as Fragment$1, useSyncExternalStore } from "react";
 import md5 from "md5";
 import _ from "lodash";
 import Nanobus from "nanobus";
 import { useModal, ModalProvider } from "react-hooks-async-modal";
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, createMultiStyleConfigHelpers, defineStyle, defineStyleConfig, extendTheme, useConst, cookieStorageManagerSSR, localStorageManager, ChakraProvider, VStack, Heading, Text, Box, Alert, AlertIcon, AlertDescription, useColorModeValue, Card, CardBody, useBreakpointValue, IconButton, Icon, Flex, Spacer, HStack, Skeleton, Grid, GridItem, Divider, Stack, FormControl, FormLabel, InputGroup, Input, FormHelperText, RadioGroup, Radio, useMultiStyleConfig, useTheme, Switch, UnorderedList, ListItem, InputRightElement, Badge, useToast, useColorMode, AlertTitle, Menu, MenuButton, MenuList, MenuItem, MenuDivider, Avatar, InputLeftElement, Container, SimpleGrid, useDisclosure, Portal, Popover, PopoverTrigger, PopoverAnchor, PopoverContent, PopoverBody, Textarea, Collapse, AccordionPanel, Accordion, AccordionItem, AccordionButton, AccordionIcon, AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogHeader, AlertDialogBody, AlertDialogFooter, Table, Thead, Tr, Th, Tbody, Td, List, Link, ListIcon, Tag, TagLabel, TableContainer, Checkbox, Image, CardHeader, Center } from "@chakra-ui/react";
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, createMultiStyleConfigHelpers, defineStyle, defineStyleConfig, extendTheme, useConst, cookieStorageManagerSSR, localStorageManager, ChakraProvider, VStack, Heading, Text, Box, Alert, AlertIcon, AlertDescription, useColorModeValue, Card, CardBody, useBreakpointValue, IconButton, Icon, Flex, Spacer, HStack, Skeleton, Grid, GridItem, Divider, Stack, FormControl, FormLabel, InputGroup, Input, FormHelperText, RadioGroup, Radio, useMultiStyleConfig, useTheme, Switch, UnorderedList, ListItem, InputRightElement, Badge, useToast, useColorMode, AlertTitle, Menu, MenuButton, MenuList, MenuItem, MenuDivider, Avatar, InputLeftElement, Container, TableContainer, Table, Tbody, Tr, Td, SimpleGrid, useDisclosure, Portal, Popover, PopoverTrigger, PopoverAnchor, PopoverContent, PopoverBody, Textarea, Collapse, AccordionPanel, Accordion, AccordionItem, AccordionButton, AccordionIcon, Thead, Th, List, Link, ListIcon, Tag, TagLabel, Checkbox, LightMode, Image, CardHeader, Center } from "@chakra-ui/react";
 import axios, { AxiosError } from "axios";
-import { inputAnatomy, tableAnatomy, alertAnatomy, cardAnatomy, checkboxAnatomy } from "@chakra-ui/anatomy";
+import { inputAnatomy, tableAnatomy, alertAnatomy, cardAnatomy, checkboxAnatomy, switchAnatomy, radioAnatomy } from "@chakra-ui/anatomy";
 import { mode as mode$1, getColorVar } from "@chakra-ui/theme-tools";
-import * as yup from "yup";
-import ChevronLeftIcon from "mdi-react/ChevronLeftIcon.js";
-import CloseIcon from "mdi-react/CloseIcon.js";
-import { yupResolver } from "@hookform/resolvers/yup";
-import AccountCancelIcon from "mdi-react/AccountCancelIcon.js";
-import { useController, useForm, useFormContext, useWatch, FormProvider } from "react-hook-form";
-import { Select, createFilter, chakraComponents } from "chakra-react-select";
-import { FixedSizeList } from "react-window";
-import EyeOffOutlineIcon from "mdi-react/EyeOffOutlineIcon.js";
-import EyeOutlineIcon from "mdi-react/EyeOutlineIcon.js";
 import envPaths from "env-paths";
 import path$1, { join } from "path";
 import { readFile, mkdir, writeFile, opendir, stat, unlink, open } from "fs/promises";
@@ -40,6 +30,17 @@ import { readFileSync, mkdirSync, writeFileSync } from "fs";
 import knex from "knex";
 import { TYPES } from "tedious";
 import * as crypto from "crypto";
+import ChevronLeftIcon from "mdi-react/ChevronLeftIcon.js";
+import CloseIcon from "mdi-react/CloseIcon.js";
+import { yupResolver } from "@hookform/resolvers/yup";
+import AccountCancelIcon from "mdi-react/AccountCancelIcon.js";
+import CancelIcon from "mdi-react/CancelIcon.js";
+import { useController, useForm, useFormContext, useWatch, FormProvider } from "react-hook-form";
+import { Select, createFilter, chakraComponents } from "chakra-react-select";
+import { FixedSizeList } from "react-window";
+import EyeOffOutlineIcon from "mdi-react/EyeOffOutlineIcon.js";
+import EyeOutlineIcon from "mdi-react/EyeOutlineIcon.js";
+import * as yup from "yup";
 import { isDate, parse as parse$1, format, startOfDay } from "date-fns";
 import AccountCircleIcon from "mdi-react/AccountCircleIcon.js";
 import MenuIcon from "mdi-react/MenuIcon.js";
@@ -50,6 +51,9 @@ import PlaylistCheckIcon from "mdi-react/PlaylistCheckIcon.js";
 import PlaylistEditIcon from "mdi-react/PlaylistEditIcon.js";
 import SendIcon from "mdi-react/SendIcon.js";
 import MagnifyIcon from "mdi-react/MagnifyIcon.js";
+import WarningIcon from "mdi-react/AlertOutlineIcon.js";
+import ErrorIcon from "mdi-react/CloseOctagonOutlineIcon.js";
+import InfoIcon from "mdi-react/InformationVariantCircleOutlineIcon.js";
 import { useDayzed } from "dayzed";
 import FocusLock from "react-focus-lock";
 import AccountPlusIcon from "mdi-react/AccountPlusIcon.js";
@@ -61,14 +65,13 @@ import DotsHorizontalIcon from "mdi-react/DotsHorizontalIcon.js";
 import PlusIcon from "mdi-react/PlusIcon.js";
 import PrinterIcon from "mdi-react/PrinterIcon.js";
 import AutoSizer from "react-virtualized-auto-sizer";
+import StarIcon from "mdi-react/StarIcon.js";
 import DotsVerticalIcon from "mdi-react/DotsVerticalIcon.js";
 import CheckCircleIcon from "mdi-react/CheckCircleIcon.js";
 import CloseCircleIcon from "mdi-react/CloseCircleIcon.js";
+import FileIcon from "mdi-react/FileIcon.js";
 import AccountIcon from "mdi-react/AccountIcon.js";
 import LockIcon from "mdi-react/LockIcon.js";
-import WarningIcon from "mdi-react/AlertOutlineIcon.js";
-import ErrorIcon from "mdi-react/CloseOctagonOutlineIcon.js";
-import InfoIcon from "mdi-react/InformationVariantCircleOutlineIcon.js";
 function isRealObject(value) {
   return typeof value === "object" && !Array.isArray(value) && value !== null;
 }
@@ -331,7 +334,7 @@ var DXTErrorCode = /* @__PURE__ */ ((DXTErrorCode2) => {
   DXTErrorCode2[DXTErrorCode2["FORBIDDEN_ADMIN_USERNAME"] = 10014] = "FORBIDDEN_ADMIN_USERNAME";
   DXTErrorCode2[DXTErrorCode2["NOT_FOUND"] = 11e3] = "NOT_FOUND";
   DXTErrorCode2[DXTErrorCode2["DXT_CUSTOMER_NOT_FOUND"] = 11001] = "DXT_CUSTOMER_NOT_FOUND";
-  DXTErrorCode2[DXTErrorCode2["DXT_VENDOR_NOT_FOUND"] = 11002] = "DXT_VENDOR_NOT_FOUND";
+  DXTErrorCode2[DXTErrorCode2["DXT_SELLER_NOT_FOUND"] = 11002] = "DXT_SELLER_NOT_FOUND";
   DXTErrorCode2[DXTErrorCode2["ORDER_NOT_FOUND"] = 11003] = "ORDER_NOT_FOUND";
   DXTErrorCode2[DXTErrorCode2["DRAFT_NOT_FOUND"] = 11004] = "DRAFT_NOT_FOUND";
   DXTErrorCode2[DXTErrorCode2["NOT_IMPLEMENTED"] = 12e3] = "NOT_IMPLEMENTED";
@@ -339,6 +342,7 @@ var DXTErrorCode = /* @__PURE__ */ ((DXTErrorCode2) => {
   DXTErrorCode2[DXTErrorCode2["CONFLICT"] = 14e3] = "CONFLICT";
   DXTErrorCode2[DXTErrorCode2["DUPLICATED_TABLE_RECORD"] = 14001] = "DUPLICATED_TABLE_RECORD";
   DXTErrorCode2[DXTErrorCode2["DUPLICATED_DRAFT_DESCRIPTION"] = 14002] = "DUPLICATED_DRAFT_DESCRIPTION";
+  DXTErrorCode2[DXTErrorCode2["USERNAME_ALREADY_EXISTS"] = 14003] = "USERNAME_ALREADY_EXISTS";
   DXTErrorCode2[DXTErrorCode2["PAYLOAD_TOO_LARGE"] = 15e3] = "PAYLOAD_TOO_LARGE";
   DXTErrorCode2[DXTErrorCode2["UNPROCESSABLE_ENTITY"] = 16e3] = "UNPROCESSABLE_ENTITY";
   DXTErrorCode2[DXTErrorCode2["UNKNOWN_TRANSPORTE"] = 16001] = "UNKNOWN_TRANSPORTE";
@@ -362,19 +366,19 @@ var DXTErrorCode = /* @__PURE__ */ ((DXTErrorCode2) => {
   DXTErrorCode2[DXTErrorCode2["TANGO_USER_DISABLED"] = 100006] = "TANGO_USER_DISABLED";
   DXTErrorCode2[DXTErrorCode2["FORBIDDEN"] = 101e3] = "FORBIDDEN";
   DXTErrorCode2[DXTErrorCode2["CUSTOMER_ROLE_REQUIRED"] = 101001] = "CUSTOMER_ROLE_REQUIRED";
-  DXTErrorCode2[DXTErrorCode2["VENDOR_ROLE_REQUIRED"] = 101002] = "VENDOR_ROLE_REQUIRED";
+  DXTErrorCode2[DXTErrorCode2["SELLER_ROLE_REQUIRED"] = 101002] = "SELLER_ROLE_REQUIRED";
   DXTErrorCode2[DXTErrorCode2["ADMIN_ROLE_REQUIRED"] = 101003] = "ADMIN_ROLE_REQUIRED";
-  DXTErrorCode2[DXTErrorCode2["CUSTOMER_OR_VENDOR_ROLE_REQUIRED"] = 101004] = "CUSTOMER_OR_VENDOR_ROLE_REQUIRED";
+  DXTErrorCode2[DXTErrorCode2["CUSTOMER_OR_SELLER_ROLE_REQUIRED"] = 101004] = "CUSTOMER_OR_SELLER_ROLE_REQUIRED";
   DXTErrorCode2[DXTErrorCode2["INSUFFICIENT_PRIVILEGES"] = 101005] = "INSUFFICIENT_PRIVILEGES";
-  DXTErrorCode2[DXTErrorCode2["CUSTOMER_DOES_NOT_BELONGS_TO_VENDOR"] = 101006] = "CUSTOMER_DOES_NOT_BELONGS_TO_VENDOR";
-  DXTErrorCode2[DXTErrorCode2["ORDER_DOES_NOT_BELONGS_TO_VENDOR"] = 101007] = "ORDER_DOES_NOT_BELONGS_TO_VENDOR";
+  DXTErrorCode2[DXTErrorCode2["CUSTOMER_DOES_NOT_BELONGS_TO_SELLER"] = 101006] = "CUSTOMER_DOES_NOT_BELONGS_TO_SELLER";
+  DXTErrorCode2[DXTErrorCode2["ORDER_DOES_NOT_BELONGS_TO_SELLER"] = 101007] = "ORDER_DOES_NOT_BELONGS_TO_SELLER";
   DXTErrorCode2[DXTErrorCode2["ORDER_DOES_NOT_BELONGS_TO_CUSTOMER"] = 101008] = "ORDER_DOES_NOT_BELONGS_TO_CUSTOMER";
   DXTErrorCode2[DXTErrorCode2["USER_CANNOT_CREATE_ORDERS"] = 101009] = "USER_CANNOT_CREATE_ORDERS";
   DXTErrorCode2[DXTErrorCode2["USER_CANNOT_UPDATE_ORDERS"] = 101010] = "USER_CANNOT_UPDATE_ORDERS";
   DXTErrorCode2[DXTErrorCode2["USER_CANNOT_CANCEL_ORDERS"] = 101011] = "USER_CANNOT_CANCEL_ORDERS";
   DXTErrorCode2[DXTErrorCode2["USER_CANNOT_DELETE_ORDERS"] = 101012] = "USER_CANNOT_DELETE_ORDERS";
   DXTErrorCode2[DXTErrorCode2["USER_CANNOT_UPDATE_ORDER_IN_CURRENT_STATUS"] = 101013] = "USER_CANNOT_UPDATE_ORDER_IN_CURRENT_STATUS";
-  DXTErrorCode2[DXTErrorCode2["ORDER_CUSTOMER_DOES_NOT_BELONGS_TO_VENDOR"] = 101014] = "ORDER_CUSTOMER_DOES_NOT_BELONGS_TO_VENDOR";
+  DXTErrorCode2[DXTErrorCode2["ORDER_CUSTOMER_DOES_NOT_BELONGS_TO_SELLER"] = 101014] = "ORDER_CUSTOMER_DOES_NOT_BELONGS_TO_SELLER";
   DXTErrorCode2[DXTErrorCode2["USER_CANNOT_DELETE_ORDER_IN_CURRENT_STATUS"] = 101015] = "USER_CANNOT_DELETE_ORDER_IN_CURRENT_STATUS";
   DXTErrorCode2[DXTErrorCode2["USER_CANNOT_CANCEL_ORDER_IN_CURRENT_STATUS"] = 101016] = "USER_CANNOT_CANCEL_ORDER_IN_CURRENT_STATUS";
   DXTErrorCode2[DXTErrorCode2["TANGO_ERROR"] = 2e5] = "TANGO_ERROR";
@@ -387,7 +391,7 @@ var DXTErrorCode = /* @__PURE__ */ ((DXTErrorCode2) => {
   DXTErrorCode2[DXTErrorCode2["TANGO_COMPANY_ACCESS_ERROR"] = 200007] = "TANGO_COMPANY_ACCESS_ERROR";
   DXTErrorCode2[DXTErrorCode2["TANGO_COMPANY_INITIALIZATION_ERROR"] = 200008] = "TANGO_COMPANY_INITIALIZATION_ERROR";
   DXTErrorCode2[DXTErrorCode2["TANGO_CUSTOMER_NO_LONGER_EXISTS"] = 200009] = "TANGO_CUSTOMER_NO_LONGER_EXISTS";
-  DXTErrorCode2[DXTErrorCode2["TANGO_VENDOR_NO_LONGER_EXISTS"] = 200010] = "TANGO_VENDOR_NO_LONGER_EXISTS";
+  DXTErrorCode2[DXTErrorCode2["TANGO_SELLER_NO_LONGER_EXISTS"] = 200010] = "TANGO_SELLER_NO_LONGER_EXISTS";
   DXTErrorCode2[DXTErrorCode2["TANGO_CLIENTE_DB_DATA_ERROR"] = 200011] = "TANGO_CLIENTE_DB_DATA_ERROR";
   DXTErrorCode2[DXTErrorCode2["TANGO_VENDEDOR_DB_DATA_ERROR"] = 200012] = "TANGO_VENDEDOR_DB_DATA_ERROR";
   DXTErrorCode2[DXTErrorCode2["TANGO_PEDIDO_DB_DATA_ERROR"] = 200013] = "TANGO_PEDIDO_DB_DATA_ERROR";
@@ -430,6 +434,7 @@ const _API_ERROR_MESSAGES = /* @__PURE__ */ new Map([
   [14e3, "Conflicto"],
   [14001, "Ya existe un registro con los datos que intenta ingresar"],
   [14002, "Ya existe un borrador con el mismo nombre"],
+  [14003, "El nombre de usuario no está disponible"],
   [15e3, "Paquete de datos demasiado grande"],
   [16e3, "Entidad no procesable"],
   [16001, "El transporte no existe"],
@@ -1250,6 +1255,37 @@ class VOHost extends ValueObject {
     this.throwError(input);
   }
 }
+class VOUUIdV4 extends ValueObject {
+  validate(input) {
+    let value = input;
+    if (typeof value != "string")
+      this.throwError(input);
+    try {
+      if (validator.isUUID(value, 4))
+        return value;
+    } catch (e) {
+    }
+    this.throwError(input);
+  }
+  static random() {
+    return new VOUUIdV4(_randomUUID());
+  }
+}
+function _randomUUID() {
+  let d = (/* @__PURE__ */ new Date()).getTime();
+  let d2 = 0;
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+    let r = Math.random() * 16;
+    if (d > 0) {
+      r = (d + r) % 16 | 0;
+      d = Math.floor(d / 16);
+    } else {
+      r = (d2 + r) % 16 | 0;
+      d2 = Math.floor(d2 / 16);
+    }
+    return (c === "x" ? r : r & 3 | 8).toString(16);
+  });
+}
 function tryVO(toTry, defaultVO) {
   try {
     return toTry();
@@ -1407,7 +1443,7 @@ function deleteAuthStoredData() {
 }
 var UserRole = /* @__PURE__ */ ((UserRole2) => {
   UserRole2[UserRole2["customer"] = 0] = "customer";
-  UserRole2[UserRole2["vendor"] = 1] = "vendor";
+  UserRole2[UserRole2["seller"] = 1] = "seller";
   UserRole2[UserRole2["admin"] = 2] = "admin";
   return UserRole2;
 })(UserRole || {});
@@ -1470,9 +1506,9 @@ class AuthState {
     var _a2;
     return ((_a2 = this.userOrNull()) == null ? void 0 : _a2.role) === UserRole.admin;
   }
-  isVendor() {
+  isSeller() {
     var _a2;
-    return ((_a2 = this.userOrNull()) == null ? void 0 : _a2.role) === UserRole.vendor;
+    return ((_a2 = this.userOrNull()) == null ? void 0 : _a2.role) === UserRole.seller;
   }
   isCustomer() {
     var _a2;
@@ -1794,6 +1830,7 @@ const RETRY = "Reintentar";
 const CANCEL = "Cancelar";
 const BACK = "Regresar";
 const CLOSE = "Cerrar";
+const SAVE = "Guardar";
 const SAVE_DRAFT = "Guardar borrador";
 const UPDATE_DRAFT = "Actualizar borrador";
 const CONVERT_TO_DRAFT = "Convertir en Borrador";
@@ -1812,6 +1849,8 @@ const FILTER_NO_RESULTS = "La búsqueda no produjo resultados";
 const SUMMARY = "Ver resumen";
 const NO_NAME = "Sin nombre";
 const NO_DATE = "Sin fecha";
+const NONE_F = "Ninguna";
+const NONE_M = "Ninguno";
 const NONEXISTENT_PRODUCT = "Artículo inexistente";
 const PASSWORD_TOO_SHORT = "Contraseña muy corta";
 const PASSWORD_TOO_LONG = "Contraseña muy larga";
@@ -1833,7 +1872,7 @@ function appPath(path2) {
 }
 function resolveUserStatusColor(user) {
   const { habilitado_en_dxt, habilitado_en_tango, usuario_tango_existe } = user;
-  return !habilitado_en_dxt ? "grey.500" : habilitado_en_dxt && !usuario_tango_existe ? "red.400" : habilitado_en_dxt && usuario_tango_existe && habilitado_en_tango === false ? "yellow.400" : "green.400";
+  return !habilitado_en_dxt ? "gray.500" : habilitado_en_dxt && !usuario_tango_existe ? "red.400" : habilitado_en_dxt && usuario_tango_existe && habilitado_en_tango === false ? "orange.500" : "green.400";
 }
 function pathParamsToUrl(url, pathParams) {
   if (typeof url === "string" && pathParams != null) {
@@ -1849,18 +1888,23 @@ function getSelectedValue(arrayOfObjects, selected, key) {
   const foundArray = arrayOfObjects.find((arr) => arr[selected ?? "selected"] === true);
   return foundArray == null ? void 0 : foundArray[key ?? "id"];
 }
+function nlToBr(text) {
+  return text.replace(/\n/g, "<br />");
+}
 const URL_ROOT_PATH = "/";
 urlJoin(URL_ROOT_PATH, "auth");
 const URL_AUTH_LOGIN_PATH = appPath("/");
 const URL_AUTH_CHANGE_PASSWORD_PATH = appPath("/change_password");
 const URL_PEDIDOS_PATH = appPath("/orders");
 const URL_BORRADORES_PATH = appPath("/drafts");
+const URL_DOWNLOADS_PATH = appPath("/downloads");
 const URL_MAIN_PATH = URL_PEDIDOS_PATH;
 const URL_PEDIDOS_ADD_PATH = appPath("/orders/:client/add");
 const URL_PEDIDOS_CUSTOMER_ADD_PATH = appPath("/orders/add");
 const URL_PEDIDOS_EDIT_PATH = appPath("/orders/:id/edit");
 const URL_PEDIDOS_COPY_PATH = appPath("/orders/:id/copy");
 const URL_PEDIDOS_CREATE_DRAFT_PATH = appPath("/orders/:id/draft");
+const URL_PEDIDOS_PRINT_PATH = appPath("/orders/print/");
 const URL_BORRADORES_ADD_PATH = appPath("/drafts/:client/add");
 const URL_BORRADORES_CUSTOMER_ADD_PATH = appPath("/drafts/add");
 const URL_BORRADORES_EDIT_PATH = appPath("/drafts/:id/edit");
@@ -1874,9 +1918,9 @@ const URL_SETTINGS_MISC_PATH = appPath("/settings/misc");
 const URL_SETTINGS_CUSTOMERS_PATH = appPath("/settings/users/customers");
 const URL_SETTINGS_CUSTOMERS_ADD_PATH = appPath("/settings/users/customers/add");
 const URL_SETTINGS_CUSTOMERS_EDIT_PATH = appPath("/settings/users/customers/:id/edit");
-const URL_SETTINGS_VENDORS_PATH = appPath("/settings/users/vendors");
-const URL_SETTINGS_VENDORS_ADD_PATH = appPath("/settings/users/vendors/add");
-const URL_SETTINGS_VENDORS_EDIT_PATH = appPath("/settings/users/vendors/:id/edit");
+const URL_SETTINGS_SELLERS_PATH = appPath("/settings/users/sellers");
+const URL_SETTINGS_SELLERS_ADD_PATH = appPath("/settings/users/sellers/add");
+const URL_SETTINGS_SELLERS_EDIT_PATH = appPath("/settings/users/sellers/:id/edit");
 const URL_SETTINGS_ARTICULO_PRINT_LIST = appPath("/settings/product_list/print");
 const URL_SETTINGS_ARTICULO_EDIT_LIST = appPath("/settings/product_list/edit");
 class AuthActionLogout extends AuthAction {
@@ -1935,20 +1979,11 @@ const checkTokenErrorAndRedirect = async (app, status) => {
   if (app.authState && app.authState instanceof AuthStateLoggedIn) {
     await ((_a2 = app.authDispatch) == null ? void 0 : _a2.call(void 0, new AuthActionLogout(true)));
   }
-  redirectLoginWithReturnUrl(app.navigate);
+  redirectLogin(app.navigate);
   return true;
 };
-function redirectLoginWithReturnUrl(navigate) {
-  var _a2;
-  let returnUrl;
-  if (((_a2 = windowOrNull()) == null ? void 0 : _a2.location) != null) {
-    const { pathname, search, hash } = window == null ? void 0 : window.location;
-    returnUrl = `${pathname}${search}${hash}`;
-  } else {
-    returnUrl = null;
-  }
-  const newSearchParams = returnUrl != null ? `?${new URLSearchParams([["returnUrl", returnUrl]]).toString()}` : "";
-  navigate(`${URL_ROOT_PATH}${newSearchParams}`);
+function redirectLogin(navigate) {
+  navigate(`${URL_ROOT_PATH}`);
 }
 function loggedInRedirect(app) {
   if (app.authState instanceof AuthStateLoggedIn) {
@@ -2026,27 +2061,38 @@ function CustomDialog(props) {
     {
       onClose: handleCancel,
       isOpen,
+      scrollBehavior: "inside",
       closeOnOverlayClick: false,
-      size: { base: "sm", sm: "md", md: "lg" },
+      motionPreset: "slideInBottom",
+      ...dialogSize != null ? { size: dialogSize } : { base: "sm", sm: "md", md: "lg" },
       isCentered: true,
       children: [
-        /* @__PURE__ */ jsx(
-          ModalOverlay,
-          {
-            bg: "blackAlpha.300",
-            backdropFilter: "auto",
-            backdropInvert: "80%",
-            backdropBlur: "2px"
-          }
-        ),
+        /* @__PURE__ */ jsx(ModalOverlay, { bg: "blackAlpha.800" }),
         /* @__PURE__ */ jsxs(ModalContent, { children: [
           /* @__PURE__ */ jsx(ModalHeader, { children: dialogTitle ?? "" }),
           /* @__PURE__ */ jsx(ModalCloseButton, {}),
           /* @__PURE__ */ jsx(ModalBody, { children: dialogContents }),
-          /* @__PURE__ */ jsx(ModalFooter, { children: hideButtons != true && /* @__PURE__ */ jsxs(Fragment, { children: [
-            /* @__PURE__ */ jsx(Button, { ref: cancelRef, onClick: handleCancel, variant: "solid", children: handleCancelWording ?? CANCEL }),
-            handleAccept && /* @__PURE__ */ jsx(Button, { variant: "solid", color: "primary", onClick: handleAccept, children: handleAcceptWording ?? RETRY })
-          ] }) })
+          hideButtons != true && /* @__PURE__ */ jsxs(ModalFooter, { children: [
+            /* @__PURE__ */ jsx(
+              Button,
+              {
+                ref: cancelRef,
+                onClick: handleCancel,
+                variant: "ghost",
+                mr: handleAccept ? 3 : void 0,
+                children: handleCancelWording ?? CANCEL
+              }
+            ),
+            handleAccept && /* @__PURE__ */ jsx(
+              Button,
+              {
+                variant: "solid",
+                colorScheme: "blue",
+                onClick: handleAccept,
+                children: handleAcceptWording ?? RETRY
+              }
+            )
+          ] })
         ] })
       ]
     }
@@ -2184,8 +2230,8 @@ const AuthProvider = ({ children, onRetry }) => {
 const useAuth = () => useContext(AuthContext);
 const ServerStyleContext = createContext(null);
 const ClientStyleContext = createContext(null);
-const { definePartsStyle: definePartsStyle$4, defineMultiStyleConfig: defineMultiStyleConfig$4 } = createMultiStyleConfigHelpers(inputAnatomy.keys);
-const inputBaseStyle = definePartsStyle$4((props) => {
+const { definePartsStyle: definePartsStyle$6, defineMultiStyleConfig: defineMultiStyleConfig$6 } = createMultiStyleConfigHelpers(inputAnatomy.keys);
+const inputBaseStyle = definePartsStyle$6((props) => {
   const { theme: theme2 } = props;
   const ec = mode$1("white", "gray.800")(props);
   return {
@@ -2194,7 +2240,7 @@ const inputBaseStyle = definePartsStyle$4((props) => {
     }
   };
 });
-const variantOutlineStyle = definePartsStyle$4((props) => {
+const variantOutlineStyle = definePartsStyle$6((props) => {
   const { theme: theme2 } = props;
   const ec = mode$1("red.500", "red.300")(props);
   return {
@@ -2209,12 +2255,12 @@ const variantOutlineStyle = definePartsStyle$4((props) => {
 const variants = {
   outline: variantOutlineStyle
 };
-const inputTheme = defineMultiStyleConfig$4({
+const inputTheme = defineMultiStyleConfig$6({
   baseStyle: inputBaseStyle,
   variants
 });
-const { definePartsStyle: definePartsStyle$3, defineMultiStyleConfig: defineMultiStyleConfig$3 } = createMultiStyleConfigHelpers(tableAnatomy.keys);
-const variantGray = definePartsStyle$3((props) => {
+const { definePartsStyle: definePartsStyle$5, defineMultiStyleConfig: defineMultiStyleConfig$5 } = createMultiStyleConfigHelpers(tableAnatomy.keys);
+const variantGray = definePartsStyle$5((props) => {
   const { colorScheme: c, colorMode } = props;
   return {
     thead: {
@@ -2235,7 +2281,7 @@ const variantGray = definePartsStyle$3((props) => {
     }
   };
 });
-const variantStripedOverCard = definePartsStyle$3((props) => {
+const variantStripedOverCard = definePartsStyle$5((props) => {
   const { colorScheme: c, colorMode } = props;
   return {
     table: {
@@ -2255,7 +2301,54 @@ const variantStripedOverCard = definePartsStyle$3((props) => {
     }
   };
 });
-const variantStripedOverCardWithHover = definePartsStyle$3((props) => {
+const variantBasicPrintable = definePartsStyle$5((props) => {
+  return {
+    table: {
+      background: "white",
+      thead: {
+        tr: {
+          th: {
+            fontSize: "xs",
+            px: 2,
+            py: 1,
+            borderTop: "1px solid",
+            textTransform: "none",
+            color: "black"
+          }
+        }
+      },
+      tfoot: {
+        tr: {
+          th: {
+            fontSize: "xs",
+            px: 2,
+            py: 1,
+            borderTop: "1px solid",
+            borderBottom: "1px solid",
+            textTransform: "none"
+          }
+        }
+      },
+      tbody: {
+        td: {
+          fontSize: "xs",
+          borderTop: "1px solid",
+          px: 2,
+          py: 1
+        }
+      },
+      "tbody > tr:nth-of-type(even)": {
+        background: `gray.50`,
+        color: `black`
+      },
+      "tbody > tr:nth-of-type(odd)": {
+        background: `white`,
+        color: `black`
+      }
+    }
+  };
+});
+const variantStripedOverCardWithHover = definePartsStyle$5((props) => {
   const { colorScheme: c, colorMode } = props;
   return {
     table: {
@@ -2282,10 +2375,11 @@ const variantStripedOverCardWithHover = definePartsStyle$3((props) => {
     }
   };
 });
-const tableTheme = defineMultiStyleConfig$3({
+const tableTheme = defineMultiStyleConfig$5({
   variants: {
     grayOverCard: variantGray,
     stripedOverCard: variantStripedOverCard,
+    basicPrintable: variantBasicPrintable,
     stripedHoverOverCard: variantStripedOverCardWithHover
   }
 });
@@ -2519,8 +2613,8 @@ const colors = {
     900: "#004d40"
   }
 };
-const { definePartsStyle: definePartsStyle$2, defineMultiStyleConfig: defineMultiStyleConfig$2 } = createMultiStyleConfigHelpers(alertAnatomy.keys);
-const baseStyle$2 = definePartsStyle$2((props) => {
+const { definePartsStyle: definePartsStyle$4, defineMultiStyleConfig: defineMultiStyleConfig$4 } = createMultiStyleConfigHelpers(alertAnatomy.keys);
+const baseStyle$5 = definePartsStyle$4((props) => {
   const { status } = props;
   const successBase = status === "success" && {
     container: {
@@ -2565,9 +2659,9 @@ const baseStyle$2 = definePartsStyle$2((props) => {
     ...infoBase
   };
 });
-const alertTheme = defineMultiStyleConfig$2({ baseStyle: baseStyle$2 });
-const { definePartsStyle: definePartsStyle$1, defineMultiStyleConfig: defineMultiStyleConfig$1 } = createMultiStyleConfigHelpers(cardAnatomy.keys);
-const baseStyle$1 = definePartsStyle$1((props) => {
+const alertTheme = defineMultiStyleConfig$4({ baseStyle: baseStyle$5 });
+const { definePartsStyle: definePartsStyle$3, defineMultiStyleConfig: defineMultiStyleConfig$3 } = createMultiStyleConfigHelpers(cardAnatomy.keys);
+const baseStyle$4 = definePartsStyle$3((props) => {
   const { theme: theme2 } = props;
   const ec = mode$1("brown.50", "gray.700")(props);
   return {
@@ -2576,10 +2670,18 @@ const baseStyle$1 = definePartsStyle$1((props) => {
     }
   };
 });
-const cardTheme = defineMultiStyleConfig$1({ baseStyle: baseStyle$1 });
-const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpers(checkboxAnatomy.keys);
+const cardTheme = defineMultiStyleConfig$3({ baseStyle: baseStyle$4 });
+const { definePartsStyle: definePartsStyle$2, defineMultiStyleConfig: defineMultiStyleConfig$2 } = createMultiStyleConfigHelpers(checkboxAnatomy.keys);
+const baseStyle$3 = definePartsStyle$2((props) => {
+  return {
+    control: {
+      borderColor: mode$1("gray.400", "gray.600")(props)
+      // change the border color
+    }
+  };
+});
 const sizes = {
-  xl: definePartsStyle({
+  xl: definePartsStyle$2({
     control: defineStyle({
       boxSize: 8
     }),
@@ -2589,8 +2691,8 @@ const sizes = {
     })
   })
 };
-const checkboxTheme = defineMultiStyleConfig({ sizes });
-const baseStyle = defineStyle((props) => {
+const checkboxTheme = defineMultiStyleConfig$2({ baseStyle: baseStyle$3, sizes });
+const baseStyle$2 = defineStyle((props) => {
   const { theme: theme2 } = props;
   const ec = mode$1("white", "gray.800")(props);
   return {
@@ -2598,8 +2700,33 @@ const baseStyle = defineStyle((props) => {
   };
 });
 const textareaTheme = defineStyleConfig({
-  baseStyle
+  baseStyle: baseStyle$2
 });
+const { definePartsStyle: definePartsStyle$1, defineMultiStyleConfig: defineMultiStyleConfig$1 } = createMultiStyleConfigHelpers(switchAnatomy.keys);
+const baseStyle$1 = definePartsStyle$1((props) => {
+  return {
+    track: {
+      bg: mode$1("blue.200", "blue.300")(props),
+      _checked: {
+        bg: mode$1("blue.500", "blue.600")(props)
+      },
+      _disabled: {
+        bg: mode$1("gray.400", "gray.500")(props)
+      }
+    }
+  };
+});
+const switchTheme = defineMultiStyleConfig$1({ baseStyle: baseStyle$1 });
+const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpers(radioAnatomy.keys);
+const baseStyle = definePartsStyle((props) => {
+  return {
+    control: {
+      borderColor: mode$1("gray.400", "blue.200")(props)
+      // change the border color
+    }
+  };
+});
+const radioTheme = defineMultiStyleConfig({ baseStyle });
 const config = extendTheme({
   initialColorMode: "light",
   colors,
@@ -2622,6 +2749,8 @@ const config = extendTheme({
     Checkbox: checkboxTheme,
     Alert: alertTheme,
     Card: cardTheme,
+    Switch: switchTheme,
+    Radio: radioTheme,
     FormLabel: {
       baseStyle: {
         marginBottom: "0.25rem"
@@ -2720,7 +2849,7 @@ const RootDocument = withEmotionCache(
     );
   }
 );
-const loader$D = async ({ request }) => {
+const loader$H = async ({ request }) => {
   return request.headers.get("cookie") ?? "";
 };
 const links = () => {
@@ -2763,614 +2892,330 @@ const route0 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   ErrorBoundary,
   default: App,
   links,
-  loader: loader$D,
+  loader: loader$H,
   meta
 }, Symbol.toStringTag, { value: "Module" }));
-apiEndpoint("/dxt/usuario/auxiliares", "GET");
-const _API_DXT_CUSTOMER = "/dxt/cliente";
-const _API_DXT_CUSTOMER_ID = "/dxt/cliente/:id";
-const API_DXT_CUSTOMER_GET_ALL = apiEndpoint(_API_DXT_CUSTOMER, "GET");
-const API_DXT_CUSTOMER_CREATE = apiEndpoint(_API_DXT_CUSTOMER, "POST");
-const API_DXT_CUSTOMER_GET_ONE = apiEndpoint(_API_DXT_CUSTOMER_ID, "GET");
-const API_DXT_CUSTOMER_UPDATE = apiEndpoint(_API_DXT_CUSTOMER_ID, "PATCH");
-const API_DXT_CUSTOMER_DELETE = apiEndpoint(_API_DXT_CUSTOMER_ID, "DELETE");
-const _API_DXT_VENDOR = "/dxt/vendedor";
-const _API_DXT_VENDOR_ID = "/dxt/vendedor/:id";
-const API_DXT_VENDOR_GET_ALL = apiEndpoint(_API_DXT_VENDOR, "GET");
-apiEndpoint(_API_DXT_VENDOR, "POST");
-const API_DXT_VENDOR_GET_ONE = apiEndpoint(_API_DXT_VENDOR_ID, "GET");
-const API_DXT_VENDOR_UPDATE = apiEndpoint(_API_DXT_VENDOR_ID, "PATCH");
-const API_DXT_VENDOR_DELETE = apiEndpoint(_API_DXT_VENDOR_ID, "DELETE");
-const API_DXT_VENDOR_CUSTOMERS = apiEndpoint("/dxt/vendedor/cliente", "GET");
-const customerCreateRequest = async (input, app) => {
-  return await dxtApiRequest(
-    {
-      ...API_DXT_CUSTOMER_CREATE,
-      data: input,
-      silent: true
-    },
-    app
-  );
-};
-const customerUpdateRequest = async (id, input, app) => {
-  return await dxtApiRequest(
-    {
-      ...API_DXT_CUSTOMER_UPDATE,
-      pathParams: { id },
-      data: input,
-      silent: true
-    },
-    app
-  );
-};
-const customerDeleteRequest = async (id, input, app) => await dxtApiRequest(
-  {
-    ...API_DXT_CUSTOMER_DELETE,
-    pathParams: { id },
-    data: input,
-    silent: true
-  },
-  app
-);
-const vendorCreateRequest = async (input, app) => {
-  return await dxtApiRequest(
-    {
-      ...API_DXT_CUSTOMER_CREATE,
-      data: input,
-      silent: true
-    },
-    app
-  );
-};
-const vendorDeleteRequest = async (id, input, app) => await dxtApiRequest(
-  {
-    ...API_DXT_VENDOR_DELETE,
-    pathParams: { id },
-    data: input,
-    silent: true
-  },
-  app
-);
-const vendorUpdateRequest = async (id, input, app) => {
-  return await dxtApiRequest(
-    {
-      ...API_DXT_VENDOR_UPDATE,
-      pathParams: { id },
-      data: input,
-      silent: true
-    },
-    app
-  );
-};
-class FetchState {
-  constructor(originalRequest) {
-    this.originalRequest = originalRequest;
+class ApiEndpoint {
+  constructor(controller, options) {
+    this.controller = controller;
+    this.options = options;
+    this.get = async (req, params) => await this.run(req, { params, method: "GET" });
+    this.post = async (req, params) => await this.run(req, { params, method: "POST" });
+    this.put = async (req, params) => await this.run(req, { params, method: "PUT" });
+    this.patch = async (req, params) => await this.run(req, { params, method: "PATCH" });
+    this.delete = async (req, params) => await this.run(req, { params, method: "DELETE" });
+    jsonPolyfills();
   }
-  mapOrElse(options) {
-    const { loading, success, error, orElse } = options;
-    if (this instanceof FetchStateLoading && loading)
-      return loading(this);
-    if (this instanceof FetchStateSuccess && success)
-      return success(this);
-    if (this instanceof FetchStateError && error)
-      return error(this);
-    return orElse(this);
+  async run(req, options) {
+    var _a2;
+    try {
+      const method = options == null ? void 0 : options.method;
+      if (method && method !== req.method)
+        throw new NotImplementedException();
+      const error = await this._prepareRequest(req, options);
+      if (error)
+        return await this.controller.onError(error, req);
+      await this.controller.onRequest(req);
+      const data = await this.handle(req);
+      const status = ((_a2 = this.options) == null ? void 0 : _a2.status) ?? getDefaultHttpStatusFromMethod(options == null ? void 0 : options.method);
+      return jsonResponse(data, {
+        status
+      });
+    } catch (e) {
+      return await this.controller.onError(e, req);
+    }
   }
-  map(options) {
-    const { loading, success, error } = options;
-    return this.mapOrElse({
-      loading,
-      success,
-      error,
-      orElse: (_2) => {
-        throw Error("Invalid useAxiosFetch state");
+  async _streamToString(stream) {
+    const chunks = Array();
+    for await (const chunk of stream) {
+      if (chunk instanceof Uint8Array)
+        chunks.push(chunk);
+    }
+    return Buffer.concat(chunks).toString("utf8");
+  }
+  async _prepareRequest(req, options) {
+    const urlObject = new URL(req.url);
+    const params = options == null ? void 0 : options.params;
+    req.params = params ?? {};
+    req.urlObject = urlObject;
+    const { searchParams } = urlObject;
+    const queryValues = {};
+    searchParams.forEach((v, k) => {
+      const current = queryValues[k];
+      if (current == null) {
+        queryValues[k] = v;
+        return;
       }
+      if (Array.isArray(current)) {
+        current.push(v);
+      }
+      queryValues[k] = [
+        current,
+        v
+      ];
     });
-  }
-  isLoading() {
-    return this instanceof FetchStateLoading;
-  }
-  isSuccess() {
-    return this instanceof FetchStateSuccess;
-  }
-  isError() {
-    return this instanceof FetchStateError;
-  }
-  errorOrNull() {
-    if (this instanceof FetchStateError)
-      return this.error;
+    req.query = {
+      ...queryValues,
+      ...options == null ? void 0 : options.query
+    };
+    try {
+      let requestBody = req.body != null ? await this._streamToString(req.body) : null;
+      if (typeof requestBody === "string") {
+        requestBody = requestBody.trim();
+        if (requestBody.length === 0)
+          requestBody = "{}";
+      }
+      req.bodyJson = (options == null ? void 0 : options.body) ?? (requestBody != null ? parseJSON(requestBody) : null);
+    } catch (e) {
+      return new BadRequestException("Invalid JSON");
+    }
+    try {
+      req.validated = this._validateAllRequestValues(req);
+    } catch (e) {
+      return e;
+    }
     return null;
   }
-  callIfLoading(func) {
-    return this instanceof FetchStateLoading ? func(this) ?? false : false;
+  _validateAllRequestValues(req) {
+    const { options } = this;
+    if (options == null)
+      return void 0;
+    const { validation } = options;
+    if (validation == null)
+      return void 0;
+    const result = {};
+    const { body, query, params } = validation;
+    if (body != null)
+      result.body = this._validateRequestValue(0, "body", req.bodyJson, body);
+    if (query != null)
+      result.query = this._validateRequestValues(1, req.query, query);
+    if (params != null)
+      result.params = this._validateRequestValues(2, req.params, params);
+    if (result.body === void 0 && result.query === void 0 && result.params === void 0)
+      return void 0;
+    return result;
   }
-  callIfSuccess(func) {
-    return this instanceof FetchStateSuccess ? func(this) ?? false : false;
+  _validateRequestValues(target, values, validators) {
+    const result = {};
+    Object.entries(validators).forEach(([key, validatorFunction]) => {
+      if (typeof validatorFunction !== "function")
+        return;
+      const validatedValue = this._validateRequestValue(target, key, values[key], validatorFunction);
+      result[key] = validatedValue;
+    });
+    return result;
   }
-  callIfError(func) {
-    return this instanceof FetchStateError ? func(this) ?? false : false;
-  }
-}
-class FetchStateLoading extends FetchState {
-  constructor(originalRequest) {
-    super(originalRequest);
-  }
-}
-class FetchStateError extends FetchState {
-  constructor(error, originalRequest) {
-    super(originalRequest);
-    this.error = error;
-  }
-}
-class FetchStateSuccess extends FetchState {
-  constructor(data, originalRequest) {
-    super(originalRequest);
-    this.data = data;
-  }
-}
-function useAxiosFetch(params, ...args) {
-  const [fetchState, setFetchState] = useState(
-    new FetchStateLoading(params)
-  );
-  const retry = async () => {
-    setFetchState(new FetchStateLoading(fetchState.originalRequest));
-    await makeRequest();
-  };
-  const reload = async () => {
-    if (!fetchState.isSuccess()) {
-      setFetchState(new FetchStateLoading(fetchState.originalRequest));
-    }
-    await makeRequest();
-  };
-  const makeRequest = async () => {
-    var _a2;
-    const params2 = fetchState.originalRequest;
+  _validateRequestValue(target, key, value, validatorFunction) {
+    if (typeof validatorFunction !== "function")
+      return void 0;
     try {
-      const response = await axiosRequestPlus(params2);
-      const data = ((_a2 = response == null ? void 0 : response.data) == null ? void 0 : _a2.data) ?? (response == null ? void 0 : response.data);
-      setFetchState(new FetchStateSuccess(data, params2));
-    } catch (err) {
-      if (err instanceof AxiosRequestPlusError) {
-        const axiosError = err;
-        const [errorParser] = args;
-        const parsedError = errorParser ? errorParser(axiosError) : axiosError;
-        const stateError = new FetchStateError(parsedError, params2);
-        setFetchState(stateError);
-      } else {
-        throw err;
+      return validatorFunction(value);
+    } catch (e) {
+      let targetString;
+      switch (target) {
+        case 2:
+          targetString = `Invalid param ${key}`;
+          break;
+        case 0:
+          targetString = `Invalid query value ${key}`;
+          break;
+        default:
+          targetString = `Invalid body`;
+          break;
       }
-    }
-  };
-  useEffect(() => {
-    makeRequest();
-  }, []);
-  return {
-    state: fetchState,
-    reload,
-    retry
-  };
-}
-function useDXTApiFetch(params) {
-  const app = useBasicAppResources();
-  const retryCallback = app.retryCallback;
-  const dxtApiParams = createDXTApiParams(app, params);
-  const { state, retry, reload } = useAxiosFetch(
-    dxtApiParams,
-    (axiosError) => {
-      return exceptionToDXTErrorInfo(axiosError);
-    }
-  );
-  useEffect(() => {
-    (async () => {
-      const isSilent = (params == null ? void 0 : params.silent) ?? false;
-      if (isSilent)
-        return;
-      if (!(state instanceof FetchStateError))
-        return;
-      const stateError = state.error;
-      const isTokenError2 = await checkTokenErrorAndRedirect(app, stateError.status);
-      if (isTokenError2)
-        return;
-      if (retryCallback && await retryCallback({
-        message: stateError.error_description
-      }))
-        retry();
-    })();
-  }, [state]);
-  return {
-    state,
-    retry,
-    reload
-  };
-}
-function useGetAllDXTCustomers() {
-  return useDXTApiFetch({
-    ...API_DXT_CUSTOMER_GET_ALL,
-    silent: true
-  });
-}
-function useGetOneDXTCustomer(id) {
-  return useDXTApiFetch({
-    ...API_DXT_CUSTOMER_GET_ONE,
-    pathParams: { id },
-    silent: true
-  });
-}
-function useGetAllDXTVendors() {
-  return useDXTApiFetch({
-    ...API_DXT_VENDOR_GET_ALL,
-    silent: true
-  });
-}
-function useGetOneDXTVendor(id) {
-  return useDXTApiFetch({
-    ...API_DXT_VENDOR_GET_ONE,
-    pathParams: { id },
-    silent: true
-  });
-}
-function useGetDXTVendorCustomers() {
-  return useDXTApiFetch({
-    ...API_DXT_VENDOR_CUSTOMERS,
-    silent: true
-  });
-}
-const WELCOME = "Bienvenido al sistema de pedidos de Sorbalok Pinturas.";
-const OPTIONS = "Opciones";
-const LOGOUT = "Salir";
-const CHANGE_COLOR_MODE = "Cambiar modo de color";
-const CONFIGURE = "Configurar";
-const TANGO_CONNECTION = "Conexión a Tango";
-const TANGO_CONNECTION_UPDATED = "Conexión a Tango actualizada";
-const COMPANY = "Empresa";
-const COMPANY_UPDATED = "Empresa actualizada";
-const INVALID_LIST_TYPE = "Tipo de lista no válida";
-const BACK_TO_SETTINGS = "Volver a Configuración";
-const BACK_TO_PEDIDOS = "Volver a Pedidos";
-const BACK_TO_BORRADORES = "Volver a Borradores";
-const USER_NOT_FOUND = "Usuario no encontrado";
-const NO_PEDIDOS = "No se encontraron pedidos";
-const NO_BORRADORES = "El usuario no posee borradores";
-const NO_USERS = "No se encontraron usuarios";
-const PEDIDOS = "Pedidos";
-const BORRADORES = "Borradores";
-const ADMINISTRACION = "Administración";
-const CHANGE_PASSWORD = "Cambiar contraseña";
-const SELECTED_S = " seleccionado";
-const SELECTED_P = " seleccionados";
-const USER_CREATED = "Usuario creado";
-const USER_UPDATED = "Usuario actualizado";
-const USER_DELETE = "Eliminar usuario";
-const USER_DELETE_CONFIRM = "¿Está seguro que desea eliminar este usuario? Esta acción no se puede deshacer.";
-const USER_DELETED = "Usuario eliminado";
-const CLIENTS_ADMIN = "Gestión de Clientes";
-const CLIENTS_CREATE = "Crear Cliente";
-const CLIENTS_UPDATE = "Modificar Cliente";
-const CLIENTS_SELECT = "Seleccione un Cliente";
-const CLIENTS_LABEL = "Cliente Tango";
-const CLIENTS_NO_OPTIONS = "No hay clientes disponibles";
-const SELLERS_ADMIN = "Gestión de Vendedores";
-const SELLERS_CREATE = "Crear Vendedor";
-const SELLERS_UPDATE = "Modificar Vendedor";
-const SELLERS_SELECT = "Seleccione un Vendedor";
-const SELLERS_LABEL = "Vendedor Tango";
-const SELLERS_NO_OPTIONS = "No hay vendedores disponibles";
-const PRODUCT_EDIT_LIST = "Lista de artículos para edición";
-const PRODUCT_PRINT_LIST = "Lista de artículos para impresión";
-const VARIOUS_SETTINGS = "Configuraciones Varias";
-const VARIOUS_SETTINGS_UPDATED = "Configuraciones actualizadas";
-const LIST_UPDATED = "Lista actualizada";
-const DATE_FORMAT = "dd/MM/yyyy";
-const DATE_FORMAT_API = "yyyy-MM-dd";
-const DATE_DAY_NAMES_SHORT = ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"];
-const DATE_MONTH_NAMES_SHORT = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-const ORDER_CREATED = "Pedido creado";
-const ORDER_CREATED_NUMBER = "Número de Pedido: {{numero_pedido}}";
-const ORDER_UPDATED = "Pedido actualizado";
-const ORDER_UPDATED_NUMBER = "Número de Pedido: {{numero_pedido}}";
-const DRAFT_CREATED = "Borrador creado";
-const DRAFT_CREATED_NUMBER = "Número de Borrador: {{numero_pedido}}";
-const DRAFT_UPDATED = "Borrador actualizado";
-const DRAFT_UPDATED_NUMBER = "Número de Borrador: {{numero_pedido}}";
-const settings$1 = {
-  customers: {
-    api: {
-      getAll: useGetAllDXTCustomers,
-      getOne: useGetOneDXTCustomer,
-      post: customerCreateRequest,
-      patch: customerUpdateRequest,
-      delete: customerDeleteRequest
-    },
-    userType: "cliente",
-    titles: {
-      common: CLIENTS_ADMIN,
-      create: CLIENTS_CREATE,
-      edit: CLIENTS_UPDATE
-    },
-    actionButtonNavigateTo: URL_SETTINGS_CUSTOMERS_ADD_PATH,
-    cancelButtonNavigateTo: URL_SETTINGS_CUSTOMERS_PATH,
-    editButtonNavigateTo: URL_SETTINGS_CUSTOMERS_EDIT_PATH,
-    tangoRelatedFields: {
-      placeholder: CLIENTS_SELECT,
-      label: CLIENTS_LABEL,
-      empty: CLIENTS_NO_OPTIONS
-    }
-  },
-  vendors: {
-    api: {
-      getAll: useGetAllDXTVendors,
-      getOne: useGetOneDXTVendor,
-      post: vendorCreateRequest,
-      patch: vendorUpdateRequest,
-      delete: vendorDeleteRequest
-    },
-    userType: "vendedor",
-    titles: {
-      common: SELLERS_ADMIN,
-      create: SELLERS_CREATE,
-      edit: SELLERS_UPDATE
-    },
-    actionButtonNavigateTo: URL_SETTINGS_VENDORS_ADD_PATH,
-    cancelButtonNavigateTo: URL_SETTINGS_VENDORS_PATH,
-    editButtonNavigateTo: URL_SETTINGS_VENDORS_EDIT_PATH,
-    tangoRelatedFields: {
-      placeholder: SELLERS_SELECT,
-      label: SELLERS_LABEL,
-      empty: SELLERS_NO_OPTIONS
+      const errorInfo = exceptionToDXTErrorInfo(e);
+      throw new BadRequestException(`${targetString}: ${errorInfo.extra ?? "unknown error"}`);
     }
   }
-};
-const DIAS_DE_ENTREGA_MIN_DAYS = 0;
-const DIAS_DE_ENTREGA_MAX_DAYS = 365;
-const DIAS_DE_ENTREGA_DEFAULT = 30;
-const commonUserValidationSchema = yup.object({
-  tango_id: yup.number().integer().required("Seleccione un cliente de Tango").typeError("Seleccione un cliente de Tango"),
-  username: yup.string().required("Ingrese un nombre de usuario"),
-  email: yup.string().email("Ingrese un correo electrónico válido"),
-  perfil_facturacion_id: yup.number().integer().required("Seleccione un perfil de facturación").typeError("Seleccione un perfil de facturación"),
-  dia_de_entrega: yup.number().integer(
-    `El tiempo de entrega de pedidos debe ser un un número entero entre ${DIAS_DE_ENTREGA_MIN_DAYS} y ${DIAS_DE_ENTREGA_MAX_DAYS}`
-  ).min(
-    DIAS_DE_ENTREGA_MIN_DAYS,
-    `El tiempo de entrega de pedidos debe ser mayor o igual a ${DIAS_DE_ENTREGA_MIN_DAYS} días`
-  ).max(
-    DIAS_DE_ENTREGA_MAX_DAYS,
-    `El tiempo de entrega de pedidos no puede superar los ${DIAS_DE_ENTREGA_MAX_DAYS} días`
-  ).required("Ingrese el número de días para entrega de pedidos").typeError("Ingrese el número de días para entrega de pedidos"),
-  habilitado_en_dxt: yup.boolean().required(),
-  puede_crear_pedido: yup.boolean().required(),
-  puede_editar_pedido: yup.boolean().required(),
-  ver_pedidos_cumplidos: yup.boolean().required(),
-  ver_sin_precio: yup.boolean().required(),
-  mostrar_mensaje_de_advertencia: yup.boolean().required(),
-  puede_anular_pedido: yup.boolean().required(),
-  borrar_pedido_al_anular: yup.boolean().required(),
-  aprobar_pedido_al_crear: yup.boolean().required()
-}).required();
-const CommonErrors = ({ error, buttonProps }) => {
-  return /* @__PURE__ */ jsx(
-    Box,
-    {
-      width: "full",
-      sx: {
-        mt: 6
-      },
-      children: /* @__PURE__ */ jsxs(
-        Alert,
-        {
-          status: "error",
-          variant: "subtle",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          textAlign: "center",
-          height: "200px",
-          children: [
-            /* @__PURE__ */ jsx(AlertIcon, { boxSize: "40px", sx: { mr: 0, mb: 4 } }),
-            /* @__PURE__ */ jsx(AlertDescription, { maxWidth: "sm", children: error }),
-            buttonProps != null && /* @__PURE__ */ jsx(
-              Button,
-              {
-                ...buttonProps,
-                sx: {
-                  mt: 4
-                },
-                children: buttonProps.label
-              }
-            )
-          ]
-        }
-      )
+}
+function createApiEndpoint(controller, options, handler) {
+  return new class extends ApiEndpoint {
+    constructor() {
+      super(
+        controller,
+        options
+      );
+      this.handle = async (req) => await handler(req);
+      handler.bind(this);
     }
-  );
+  }();
+}
+const USER_NAME_MIN_LENGTH = 2;
+const USER_NAME_MAX_LENGTH = 60;
+function isUserName(value) {
+  const re = /^[a-zA-Z0-9_-]+$/iu;
+  return typeof value === "string" && value.length >= USER_NAME_MIN_LENGTH && value.length <= USER_NAME_MAX_LENGTH && re.test(value);
+}
+const dxtUserTableCreationFieldsSQL = {
+  tango_id: `D_ID NOT NULL`,
+  username: `varchar(${USER_NAME_MAX_LENGTH}) NOT NULL`,
+  puede_crear_pedido: `bit NOT NULL`,
+  puede_editar_pedido: `bit NOT NULL`,
+  puede_anular_pedido: `bit NOT NULL`,
+  borrar_pedido_al_anular: `bit NOT NULL`,
+  perfil_facturacion_id: `D_ID NOT NULL`,
+  aprobar_pedido_al_crear: `bit NOT NULL`,
+  ver_pedidos_cumplidos: `bit NOT NULL`,
+  dia_de_entrega: `int NOT NULL`,
+  email: `varchar(${EMAIL_MAX_LENGTH})`,
+  ver_sin_precio: `bit NOT NULL`,
+  mostrar_mensaje_de_advertencia: `bit NOT NULL`,
+  habilitado_en_dxt: `bit NOT NULL`,
+  timestamp_modificacion: `bigint NOT NULL`,
+  id_lista_prioritaria: `D_ID NULL`,
+  bonificacion_lista_prioritaria: `DECIMAL_TG NULL`,
+  universal_id: `uniqueidentifier DEFAULT newid() NOT NULL`
 };
-const CommonCard = (props) => {
-  const { children, cardProps, cardBodyProps } = props;
-  const borderColor = useColorModeValue("gray.200", "white.200");
-  return /* @__PURE__ */ jsx(
-    Card,
-    {
-      boxShadow: "lg",
-      sx: { mb: 4 },
-      borderColor,
-      ...cardProps,
-      children: /* @__PURE__ */ jsx(CardBody, { ...cardBodyProps, children })
-    }
-  );
+const DXT_CLIENTE_TABLE = "dxt_cliente";
+const DXT_CLIENTE_ID_FIELD = "dxt_cliente_id";
+const dxtClienteTableCreationFieldsSQL = {
+  dxt_cliente_id: `int IDENTITY(1,1) NOT NULL`,
+  password_hash: `varchar(${MD5_LENGTH}) NOT NULL`,
+  lista_prioritaria_vendedor: `bit DEFAULT 0 NOT NULL`,
+  ...dxtUserTableCreationFieldsSQL
 };
-const ResponsiveIconButton = (props) => {
-  const { text, icon, iconProps, sharedProps, buttonProps, iconButtonProps } = props;
-  const buttonInjection = useBreakpointValue({
-    base: /* @__PURE__ */ jsx(
-      IconButton,
-      {
-        "aria-label": text,
-        ...sharedProps,
-        ...iconButtonProps,
-        icon: /* @__PURE__ */ jsx(Icon, { as: icon, ...iconProps })
-      }
-    ),
-    md: /* @__PURE__ */ jsx(
-      Button,
-      {
-        ...sharedProps,
-        ...buttonProps,
-        ...icon && { leftIcon: /* @__PURE__ */ jsx(Icon, { as: icon, ...iconProps }) },
-        children: text
-      }
-    )
-  });
-  return /* @__PURE__ */ jsx(Fragment, { children: buttonInjection });
-};
-const SettingsFormHeading = (props) => {
-  const { title, actionButton, returnButton } = props;
-  return /* @__PURE__ */ jsx(CommonCard, { children: /* @__PURE__ */ jsxs(Flex, { direction: "row", alignItems: "center", gap: "2", children: [
-    returnButton && /* @__PURE__ */ jsx(
-      IconButton,
-      {
-        "aria-label": BACK,
-        icon: /* @__PURE__ */ jsx(ChevronLeftIcon, {}),
-        colorScheme: "gray",
-        size: "xs",
-        variant: "outline",
-        ...returnButton.buttonProps
-      }
-    ),
-    /* @__PURE__ */ jsx(Heading, { size: ["sm", "md"], textTransform: "uppercase", children: title }),
-    actionButton && /* @__PURE__ */ jsxs(Fragment, { children: [
-      /* @__PURE__ */ jsx(Spacer, {}),
-      /* @__PURE__ */ jsx(
-        ResponsiveIconButton,
-        {
-          icon: actionButton.icon,
-          text: actionButton.label,
-          sharedProps: {
-            size: "sm",
-            fontWeight: "400",
-            colorScheme: "green",
-            textTransform: "uppercase",
-            ...actionButton.buttonProps
-          },
-          iconProps: {
-            boxSize: {
-              base: 5,
-              md: 4
-            }
-          }
-        }
-      )
-    ] })
-  ] }) });
-};
-const ApiErrors = ({
-  error,
-  retry,
-  cancelAndNavigateTo
-}) => {
-  var _a2, _b2;
-  const navigate = useNavigate();
-  return /* @__PURE__ */ jsxs(Box, { textAlign: "center", py: 10, px: 6, children: [
-    /* @__PURE__ */ jsx(Box, { display: "inline-block", children: /* @__PURE__ */ jsx(
-      Flex,
-      {
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-        bg: "red.500",
-        rounded: "50px",
-        w: "55px",
-        h: "55px",
-        textAlign: "center",
-        children: /* @__PURE__ */ jsx(Icon, { as: CloseIcon, boxSize: "40px", color: "white" })
-      }
-    ) }),
-    !error.message_to_user ? /* @__PURE__ */ jsx(Text, { color: "gray.500", mt: 6, children: error.error_description }) : /* @__PURE__ */ jsxs(Fragment, { children: [
-      /* @__PURE__ */ jsx(Heading, { as: "h2", size: "xl", mt: 6, mb: 2, children: (_a2 = error.message_to_user) == null ? void 0 : _a2.title }),
-      /* @__PURE__ */ jsx(Text, { color: "gray.500", children: (_b2 = error.message_to_user) == null ? void 0 : _b2.content })
-    ] }),
-    /* @__PURE__ */ jsxs(
-      HStack,
-      {
-        sx: {
-          mt: 6
-        },
-        spacing: 4,
-        justifyContent: "center",
-        children: [
-          retry && /* @__PURE__ */ jsx(Button, { onClick: retry, colorScheme: "blue", children: RETRY }),
-          cancelAndNavigateTo != null && /* @__PURE__ */ jsx(
-            Button,
-            {
-              onClick: () => {
-                navigate(cancelAndNavigateTo);
-              },
-              colorScheme: "gray",
-              children: CANCEL
-            }
-          )
-        ]
-      }
-    )
-  ] });
-};
-const FormInputSkeleton = ({ height }) => /* @__PURE__ */ jsx(Skeleton, { width: "full", height: height ?? "36px", borderRadius: "md" });
-const FormTextareaSkeleton = ({ height }) => /* @__PURE__ */ jsx(Skeleton, { width: "full", height: height ?? "80px", borderRadius: "md" });
-const DXTUserEditLoading = () => /* @__PURE__ */ jsx(
-  Box,
-  {
-    width: "full",
-    sx: {
-      mt: 8,
-      mb: 4
-    },
-    children: /* @__PURE__ */ jsxs(
-      Grid,
-      {
-        templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
-        alignItems: "center",
-        gap: 4,
-        children: [
-          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(Divider, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(Divider, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(Divider, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxs(Stack, { spacing: 4, direction: { base: "column" }, children: [
-            /* @__PURE__ */ jsx(HStack, { spacing: 4, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-            /* @__PURE__ */ jsx(HStack, { spacing: 4, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-            /* @__PURE__ */ jsx(HStack, { spacing: 4, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-            /* @__PURE__ */ jsx(HStack, { spacing: 4, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-            /* @__PURE__ */ jsx(HStack, { spacing: 4, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-            /* @__PURE__ */ jsx(HStack, { spacing: 4, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-            /* @__PURE__ */ jsx(HStack, { spacing: 4, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-            /* @__PURE__ */ jsx(HStack, { spacing: 4, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) })
-          ] }) }),
-          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(Divider, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx(GridItem, {}),
-          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) })
-        ]
-      }
-    )
+const dxtClienteTableCreationIndexesSQL = [
+  `CONSTRAINT pk_dxt_cliente_username UNIQUE (username)`,
+  `CONSTRAINT pk_dxt_cliente_id PRIMARY KEY (dxt_cliente_id)`
+];
+const dxtClienteTablePostCommandsSQL = [
+  `CREATE INDEX ix_dxt_cliente_tango_id ON dbo.dxt_cliente (tango_id);`
+];
+const LISTA_TABLE = "GVA10";
+const LISTA_ID_FIELD = "ID_GVA10";
+const LISTA_CODE_FIELD = "NRO_DE_LIS";
+const LISTA_CODE2_FIELD = "N_LISTA";
+const listaModelColumns = [
+  LISTA_ID_FIELD,
+  LISTA_CODE_FIELD,
+  "NOMBRE_LIS",
+  "INCLUY_IMP",
+  "INCLUY_IVA",
+  "HABILITADA"
+];
+const ARTICULO_TABLE = "STA11";
+const ARTICULO_ID_FIELD = "ID_STA11";
+const ARTICULO_CODE_FIELD = "COD_ARTICU";
+const articuloModelColumns = [
+  ARTICULO_ID_FIELD,
+  ARTICULO_CODE_FIELD,
+  "DESCRIPCIO",
+  "DESC_ADIC",
+  "DESCUENTO",
+  "USA_ESC",
+  "PERFIL",
+  "COD_IVA",
+  "COD_S_IVA",
+  "COD_II",
+  "COD_S_II",
+  "ID_MEDIDA_STOCK",
+  "ID_MEDIDA_STOCK_2",
+  "ID_MEDIDA_VENTAS"
+];
+const ARTICULO_NAME_COLUMNS = ["DESCRIPCIO", "DESC_ADIC"];
+const PRECIO_TABLE = "GVA17";
+const PRECIO_ID_FIELD = "ID_GVA17";
+const precioModelColumns = [
+  PRECIO_ID_FIELD,
+  ARTICULO_CODE_FIELD,
+  ARTICULO_ID_FIELD,
+  LISTA_CODE_FIELD,
+  LISTA_ID_FIELD,
+  "PRECIO"
+];
+const CONDICION_TABLE = "GVA01";
+const CONDICION_ID_FIELD = "ID_GVA01";
+const CONDICION_CODE_FIELD = "COND_VTA";
+const condicionModelColumns = [
+  CONDICION_ID_FIELD,
+  CONDICION_CODE_FIELD,
+  LISTA_ID_FIELD,
+  LISTA_CODE_FIELD,
+  "ACEPTA_CONTADO",
+  "PORC_MIN_CONTADO",
+  "ACEPTA_CTA",
+  "OBLIGA_CONTADO",
+  "DESC_COND",
+  "FAC_CREDIT",
+  "PAGO_CF",
+  "APLICA_MORA",
+  "ID_INTERES_POR_MORA",
+  "GENERA_FECHAS_ALTERNATIVAS",
+  "FECHA_VIGENCIA_DESDE",
+  "FECHA_VIGENCIA_HASTA",
+  "CONTADO",
+  "CALCULA_INTERESES",
+  "TIPO_ASIGNACION"
+];
+const TRANSPORTE_TABLE = "GVA24";
+const TRANSPORTE_ID_FIELD = "ID_GVA24";
+const TRANSPORTE_CODE_FIELD = "COD_TRANSP";
+const transporteModelColumns = [
+  TRANSPORTE_CODE_FIELD,
+  TRANSPORTE_ID_FIELD,
+  "CATEG_TRAN",
+  "CUIT_TRANS",
+  "DOM_TRANS",
+  "NOMBRE_TRA",
+  "PORC_RECAR",
+  "COD_POSTAL",
+  "LOCALIDAD",
+  "COD_PROVIN",
+  "TELEFONO",
+  "E_MAIL",
+  "WEB",
+  "COD_GVA18",
+  "ID_GVA18"
+];
+const TRANSPORTE_NAME_COLUMNS = ["NOMBRE_TRA"];
+const VENDEDOR_TABLE = "GVA23";
+const VENDEDOR_ID_FIELD = "ID_GVA23";
+const VENDEDOR_CODE_FIELD = "COD_VENDED";
+const vendedorModelColumns = [
+  VENDEDOR_ID_FIELD,
+  VENDEDOR_CODE_FIELD,
+  "NOMBRE_VEN",
+  "INHABILITA"
+];
+const VENDEDOR_NAME_COLUMNS = ["NOMBRE_VEN"];
+const CLIENTE_TABLE = "GVA14";
+const CLIENTE_ID_FIELD = "ID_GVA14";
+const CLIENTE_CODE_FIELD = "COD_CLIENT";
+const CLIENTE_CODE2_FIELD = "COD_CLIENTE";
+const clienteModelColumns = [
+  CLIENTE_ID_FIELD,
+  CLIENTE_CODE_FIELD,
+  VENDEDOR_ID_FIELD,
+  VENDEDOR_CODE_FIELD,
+  TRANSPORTE_ID_FIELD,
+  TRANSPORTE_CODE_FIELD,
+  CONDICION_ID_FIELD,
+  CONDICION_CODE_FIELD,
+  LISTA_ID_FIELD,
+  "NRO_LISTA",
+  "II_D",
+  "IVA_D",
+  "SOBRE_II",
+  "SOBRE_IVA",
+  "NOM_COM",
+  "RAZON_SOCI",
+  "HABILITADO",
+  "FECHA_INHA",
+  "PORC_DESC"
+];
+const CLIENTE_NAME_COLUMNS = ["RAZON_SOCI", "NOM_COM"];
+const APP_NAME = "DXTango";
+const appPaths = envPaths(APP_NAME.toLowerCase());
+const configPath = appPaths.config;
+const dataPath = appPaths.data;
+appPaths.log;
+appPaths.temp;
+const cachePath = appPaths.cache;
+class DTO {
+  constructor(input) {
+    this.data = this.validate(input);
   }
-);
+}
 class InvalidValidationSchemaException extends ValidationException {
   constructor(schema) {
     super(`Invalid validation schema: ${schema ?? "{}"}`);
@@ -3560,1530 +3405,6 @@ function generateRandomPassword() {
   }
   return newString;
 }
-class VODXTPassword extends ValueObject {
-  validate(value) {
-    if (typeof value === "string" && isDXTPassword(value))
-      return value;
-    this.throwError(value);
-  }
-  static random() {
-    return new VODXTPassword(generateRandomPassword());
-  }
-}
-class VOStrings extends ValueObject {
-  validate(input) {
-    if (typeof input === "string")
-      return [input];
-    if (!Array.isArray(input))
-      this.throwError(input);
-    return input.map((e) => {
-      if (e == null)
-        this.throwError(input);
-      return e.toString();
-    });
-  }
-}
-function yupVOValidation(VO, value) {
-  try {
-    new VO(value);
-    return true;
-  } catch (_2) {
-    return false;
-  }
-}
-const useUpdateUserValidation = () => {
-  const [passwordStatus, setPasswordStatus] = useState(null);
-  const customValidationSchema = yup.object({
-    password: yup.string().test("password", "Formato de contraseña no válido", (v) => {
-      if (v != null && v != "") {
-        let newPasswordStatus = dxtPasswordStatus(v);
-        if (!_.isEqual(passwordStatus, newPasswordStatus))
-          setPasswordStatus(newPasswordStatus);
-        return yupVOValidation(VODXTPassword, v);
-      }
-      setPasswordStatus(null);
-      return true;
-    })
-  }).required();
-  const yupValidationSchema2 = commonUserValidationSchema.concat(customValidationSchema);
-  return { yupValidationSchema: yupValidationSchema2, passwordStatus };
-};
-apiEndpoint("/tango/lista", "GET");
-const API_TANGO_PERFIL_GET_ALL = apiEndpoint("/tango/perfil", "GET");
-const API_TANGO_CLIENTE_GET_ALL = apiEndpoint("/tango/cliente", "GET");
-const API_TANGO_VENDEDOR_GET_ALL = apiEndpoint("/tango/vendedor", "GET");
-function useAppResources() {
-  const result = useBasicAppResources();
-  if (!(result.authState instanceof AuthStateLoggedIn))
-    throw new DXTException(
-      new DXTError(DXTErrorCode.INTERNAL_CLIENT_ERROR, {
-        extra: "AuthState is not AuthStateLoggedIn"
-      })
-    );
-  if (typeof result.authDispatch !== "function")
-    throw new DXTException(
-      new DXTError(DXTErrorCode.INTERNAL_CLIENT_ERROR, {
-        extra: "Invalid authDispath in useAppResources()"
-      })
-    );
-  return result;
-}
-const buildSelectOptions = (props) => {
-  const { data, fieldsMap, disabledIcon } = props;
-  const result = [];
-  data.length && data.forEach((data2) => {
-    const label = Array.isArray(fieldsMap == null ? void 0 : fieldsMap.label) ? fieldsMap.label.map((value) => {
-      return data2[value];
-    }).join(" - ") : data2[(fieldsMap == null ? void 0 : fieldsMap.label) ?? "name"];
-    result.push({
-      label,
-      value: data2[(fieldsMap == null ? void 0 : fieldsMap.value) ?? "id"],
-      ...(fieldsMap == null ? void 0 : fieldsMap.selected) != null && {
-        selected: data2[fieldsMap.selected]
-      },
-      ...(fieldsMap == null ? void 0 : fieldsMap.isEnabled) != null && {
-        isDisabled: !data2[fieldsMap.isEnabled]
-      },
-      ...(fieldsMap == null ? void 0 : fieldsMap.isEnabled) != null && disabledIcon != null && !data2[fieldsMap == null ? void 0 : fieldsMap.isEnabled] && {
-        icon: disabledIcon
-      }
-    });
-  });
-  return result;
-};
-function useTangoList(props) {
-  const { endpoint, params, fieldsMap, disabledIcon } = props;
-  const { state, retry } = useDXTApiFetch({
-    ...endpoint,
-    silent: true,
-    params
-  });
-  const result = state.mapOrElse({
-    success: (state2) => {
-      const data = state2.data;
-      return buildSelectOptions({ data, fieldsMap, disabledIcon });
-    },
-    orElse: () => {
-      return [];
-    }
-  });
-  return { state, result };
-}
-const ControlledInput = (props) => {
-  const { fieldProps, formControlProps, formControlInnerProps, control } = props;
-  const {
-    field: { ref, onChange, value },
-    fieldState: { invalid },
-    formState: { errors }
-  } = useController({
-    name: fieldProps.name,
-    control
-  });
-  const { label, helperText, icon, iconEnding } = formControlInnerProps || {};
-  return /* @__PURE__ */ jsxs(FormControl, { ...formControlProps, isInvalid: invalid, children: [
-    label != null && /* @__PURE__ */ jsx(
-      FormLabel,
-      {
-        htmlFor: fieldProps.name,
-        sx: fieldProps.variant === "flushed" ? { fontSize: "sm", mb: 0 } : {},
-        children: label
-      }
-    ),
-    /* @__PURE__ */ jsxs(InputGroup, { children: [
-      icon,
-      /* @__PURE__ */ jsx(
-        Input,
-        {
-          autoComplete: "off",
-          ...fieldProps,
-          onChange: (e) => {
-            fieldProps.onChange && fieldProps.onChange(e);
-            onChange(e);
-          },
-          value,
-          ref
-        }
-      ),
-      iconEnding
-    ] }),
-    helperText != null && /* @__PURE__ */ jsx(FormHelperText, { children: helperText })
-  ] });
-};
-const ControlledRadio = (props) => {
-  const {
-    fieldProps,
-    formControlProps,
-    formControlInnerProps,
-    stackProps,
-    radioProps,
-    control
-  } = props;
-  const { name } = fieldProps;
-  const { helperText } = formControlInnerProps || {};
-  const {
-    field: { ref, onChange, value },
-    fieldState: { invalid },
-    formState: { errors }
-  } = useController({
-    name: fieldProps.name,
-    control
-  });
-  return /* @__PURE__ */ jsxs(FormControl, { ...formControlProps, isInvalid: invalid, children: [
-    /* @__PURE__ */ jsx(
-      RadioGroup,
-      {
-        ...fieldProps,
-        onChange,
-        value: value.toString(),
-        ref,
-        children: /* @__PURE__ */ jsx(Stack, { direction: "row", spacing: 4, ...stackProps, children: fieldProps.options.map((option, index) => /* @__PURE__ */ jsx(
-          Radio,
-          {
-            value: option.value.toString(),
-            ...radioProps,
-            children: option.label
-          },
-          `${name}-option-${index}`
-        )) })
-      }
-    ),
-    helperText != null && /* @__PURE__ */ jsx(FormHelperText, { children: helperText })
-  ] });
-};
-const isSize = (size) => {
-  const isString = typeof size === "string";
-  return isString && ["sm", "md", "lg"].includes(size);
-};
-const getDefaultSize = (size) => {
-  if (isSize(size)) {
-    return size;
-  }
-  if (size === "xs") {
-    return "sm";
-  }
-  if (size === "xl") {
-    return "lg";
-  }
-  return "md";
-};
-const useSize = (size) => {
-  const chakraTheme = useTheme();
-  const defaultSize = getDefaultSize(
-    chakraTheme.components.Input.defaultProps.size
-  );
-  const definedSize = size ?? defaultSize;
-  const realSize = useBreakpointValue(
-    typeof definedSize === "string" ? [definedSize] : definedSize,
-    {
-      fallback: "md"
-    }
-  ) || defaultSize;
-  return realSize;
-};
-const ChakraReactSelectCustomMenuList = (props) => {
-  var _a2;
-  const {
-    className,
-    cx,
-    innerRef,
-    children,
-    maxHeight,
-    isMulti,
-    innerProps,
-    selectProps: {
-      chakraStyles,
-      size: sizeProp,
-      variant,
-      focusBorderColor,
-      errorBorderColor
-    }
-  } = props;
-  const menuStyles = useMultiStyleConfig("Menu");
-  const size = useSize(sizeProp);
-  const inputStyles = useMultiStyleConfig("Input", {
-    size,
-    variant,
-    focusBorderColor,
-    errorBorderColor
-  });
-  const fieldStyles = inputStyles.field;
-  const initialSx = {
-    ...menuStyles.list,
-    minW: "100%",
-    // maxHeight: `${maxHeight}px`,
-    // overflowY: 'auto',
-    // This is hacky, but it works. May be removed in the future
-    "--input-border-radius": fieldStyles == null ? void 0 : fieldStyles["--input-border-radius"],
-    borderRadius: (fieldStyles == null ? void 0 : fieldStyles.borderRadius) || ((_a2 = menuStyles.list) == null ? void 0 : _a2.borderRadius),
-    position: "relative"
-    // required for offset[Height, Top] > keyboard scroll
-    // WebkitOverflowScrolling: 'touch',
-  };
-  const sx = (chakraStyles == null ? void 0 : chakraStyles.menuList) ? chakraStyles.menuList(initialSx, props) : initialSx;
-  return /* @__PURE__ */ jsx(
-    Box,
-    {
-      role: "listbox",
-      ...innerProps,
-      className: cx(
-        {
-          "menu-list": true,
-          "menu-list--is-multi": isMulti
-        },
-        className
-      ),
-      sx,
-      children
-    }
-  );
-};
-const VirtualizedMenuList = memo(function(props) {
-  const { children, ...restProps } = props;
-  const itemHeight = 35;
-  const { options, maxHeight, getValue } = props;
-  const [value] = getValue();
-  const valueIndexOf = options.indexOf(value);
-  const itemsPerPage = Math.floor(maxHeight / itemHeight);
-  const initialOffset = valueIndexOf > itemsPerPage ? valueIndexOf * itemHeight : 0;
-  const minHeight = Math.min(options.length * itemHeight, maxHeight);
-  return /* @__PURE__ */ jsx(ChakraReactSelectCustomMenuList, { ...props, children: /* @__PURE__ */ jsx(
-    FixedSizeList,
-    {
-      height: minHeight + 2,
-      itemCount: Children.count(children),
-      itemSize: itemHeight,
-      initialScrollOffset: initialOffset,
-      width: "100%",
-      outerRef: props.innerRef,
-      overscanCount: 20,
-      children: ({ index, style }) => /* @__PURE__ */ jsx("div", { style, children: Children.toArray(children)[index] })
-    }
-  ) });
-});
-const ControlledSelect = (props) => {
-  const {
-    fieldProps,
-    formControlProps,
-    formControlInnerProps,
-    control,
-    shouldSort
-  } = props;
-  const { helperText, label } = formControlInnerProps || {};
-  function compareByLabel(a, b) {
-    return a.label.localeCompare(b.label);
-  }
-  if (shouldSort ?? false)
-    fieldProps.options.sort(compareByLabel);
-  const {
-    field: { ref, onChange, value },
-    fieldState: { invalid },
-    formState: { errors }
-  } = useController({
-    name: fieldProps.name,
-    control
-  });
-  return /* @__PURE__ */ jsxs(FormControl, { ...formControlProps, isInvalid: invalid, children: [
-    /* @__PURE__ */ jsx(
-      FormLabel,
-      {
-        sx: fieldProps.variant === "flushed" ? { fontSize: "sm", mb: 0 } : {},
-        children: label
-      }
-    ),
-    /* @__PURE__ */ jsx(
-      Select,
-      {
-        ...fieldProps,
-        ref,
-        value: fieldProps.options.find((option) => option.value === value),
-        filterOption: createFilter({ ignoreAccents: false }),
-        onChange: (newValue, actionMeta) => {
-          return onChange(newValue.value);
-        },
-        useBasicStyles: true,
-        isSearchable: fieldProps.options.length > 10 ? fieldProps.isSearchable : false,
-        instanceId: fieldProps.name,
-        chakraStyles: {
-          option: (provided, state) => {
-            return {
-              ...provided,
-              ...fieldProps.virtualized === true && {
-                fontSize: { base: "xs", sm: "sm", md: "md" }
-              }
-            };
-          }
-        },
-        components: {
-          ...fieldProps.virtualized === true && {
-            MenuList: VirtualizedMenuList
-          },
-          Option: ({ children, ...props2 }) => {
-            if (fieldProps.virtualized === true) {
-              delete props2.innerProps.onMouseMove;
-              delete props2.innerProps.onMouseOver;
-            }
-            const propsData = props2.data;
-            return /* @__PURE__ */ jsxs(chakraComponents.Option, { ...props2, children: [
-              children,
-              " ",
-              propsData.icon != null && propsData.icon
-            ] });
-          }
-        }
-      }
-    ),
-    helperText != null && /* @__PURE__ */ jsx(FormHelperText, { children: helperText })
-  ] });
-};
-const ControlledSwitch = (props) => {
-  const {
-    fieldProps,
-    formControlProps,
-    formControlInnerProps,
-    control,
-    watch
-  } = props;
-  const { label } = formControlInnerProps || {};
-  const {
-    field: { ref, onChange, onBlur, value },
-    fieldState: { invalid },
-    formState: { errors }
-  } = useController({
-    name: fieldProps.name,
-    control
-  });
-  return /* @__PURE__ */ jsxs(
-    FormControl,
-    {
-      display: "flex",
-      alignItems: "center",
-      ...formControlProps,
-      isInvalid: invalid,
-      children: [
-        /* @__PURE__ */ jsx(
-          Switch,
-          {
-            ...fieldProps,
-            ...watch,
-            isChecked: value,
-            onChange: (e) => onChange(e.target.checked),
-            onBlur,
-            ref
-          }
-        ),
-        label != null && /* @__PURE__ */ jsx(
-          FormLabel,
-          {
-            htmlFor: fieldProps.id,
-            sx: { mb: 0, ms: 4 },
-            cursor: "pointer",
-            children: label
-          }
-        )
-      ]
-    }
-  );
-};
-const FormErrors = ({ errors }) => {
-  const formErrorsRef = useRef(null);
-  return Object.keys(errors).length ? /* @__PURE__ */ jsx(
-    Box,
-    {
-      width: "full",
-      sx: {
-        mb: 4
-      },
-      ref: formErrorsRef,
-      children: /* @__PURE__ */ jsx(Alert, { status: "error", variant: "left-accent", sx: { p: 4 }, children: /* @__PURE__ */ jsx(UnorderedList, { fontSize: "sm", styleType: "none", sx: { m: 0 }, children: Object.values(errors).map((error, key) => {
-        var _a2, _b2;
-        return /* @__PURE__ */ jsx(ListItem, { children: ((_a2 = error == null ? void 0 : error.message) == null ? void 0 : _a2.toString()) ?? ((_b2 = error == null ? void 0 : error.root) == null ? void 0 : _b2.message.toString()) }, key);
-      }) }) })
-    }
-  ) : /* @__PURE__ */ jsx(Fragment, {});
-};
-const PasswordWithStatus = (props) => {
-  const {
-    fieldProps,
-    formControlInnerProps,
-    passwordStatus,
-    disableForm,
-    control
-  } = props;
-  const [showPassword, setShowPassword] = useState(false);
-  const handleShowHidePassword = () => {
-    setShowPassword(!showPassword);
-  };
-  const { label, helperText } = formControlInnerProps || {};
-  return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsx(
-      ControlledInput,
-      {
-        fieldProps: {
-          ...fieldProps,
-          type: !showPassword ? "password" : "text"
-        },
-        formControlProps: {
-          isDisabled: disableForm
-        },
-        formControlInnerProps: {
-          label,
-          iconEnding: /* @__PURE__ */ jsx(InputRightElement, { children: /* @__PURE__ */ jsx(
-            Icon,
-            {
-              onClick: handleShowHidePassword,
-              sx: { cursor: "pointer" },
-              as: showPassword ? EyeOffOutlineIcon : EyeOutlineIcon,
-              boxSize: 5
-            }
-          ) })
-        },
-        control
-      }
-    ),
-    passwordStatus != null && /* @__PURE__ */ jsxs(Fragment, { children: [
-      passwordStatus.tooShort && /* @__PURE__ */ jsx(Badge, { colorScheme: "red", children: PASSWORD_TOO_SHORT }),
-      passwordStatus.tooLong && /* @__PURE__ */ jsx(Badge, { colorScheme: "red", children: PASSWORD_TOO_LONG }),
-      passwordStatus.invalidCharsPresent && /* @__PURE__ */ jsx(Badge, { colorScheme: "red", children: PASSWORD_INVALID_CHARS })
-    ] })
-  ] });
-};
-const InlineError = ({ error }) => {
-  return /* @__PURE__ */ jsx(
-    Badge,
-    {
-      colorScheme: "red",
-      sx: {
-        mt: 2,
-        p: 2,
-        whiteSpace: "normal"
-      },
-      children: error
-    }
-  );
-};
-const SettingsFormsButtons = (props) => {
-  const { isLoading, buttonActionText, buttonCancelUrl, hideCancelButton } = props;
-  const navigate = useNavigate();
-  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs(Stack, { direction: { base: "column", md: "row" }, children: [
-    /* @__PURE__ */ jsx(
-      Button,
-      {
-        type: "submit",
-        colorScheme: "blue",
-        width: "full",
-        isLoading,
-        children: buttonActionText ?? UPDATE
-      }
-    ),
-    !hideCancelButton && /* @__PURE__ */ jsx(
-      Button,
-      {
-        type: "button",
-        colorScheme: "gray",
-        width: "full",
-        isLoading,
-        onClick: () => navigate(buttonCancelUrl ?? URL_SETTINGS_PATH),
-        children: CANCEL
-      }
-    )
-  ] }) });
-};
-const DXTUserEditReady = (props) => {
-  var _a2, _b2;
-  const { stateData, typeSettings, returnUrl, title } = props;
-  const updateData = {
-    ...stateData
-  };
-  const app = useAppResources();
-  const toast = useToast();
-  const { yupValidationSchema: yupValidationSchema2, passwordStatus } = useUpdateUserValidation();
-  const { state: statePerfiles, result: resultPerfiles } = useTangoList({
-    endpoint: API_TANGO_PERFIL_GET_ALL,
-    fieldsMap: {
-      label: "name",
-      value: "id"
-    }
-  });
-  const { state: stateRelationship, result: resultRelationship } = useTangoList({
-    endpoint: typeSettings.userType === "cliente" ? API_TANGO_CLIENTE_GET_ALL : API_TANGO_VENDEDOR_GET_ALL,
-    fieldsMap: {
-      label: "screen_name",
-      value: "id",
-      isEnabled: "habilitado"
-    },
-    disabledIcon: /* @__PURE__ */ jsx(Icon, { as: AccountCancelIcon, color: "red.400", ml: 2, boxSize: 5 })
-  });
-  const {
-    handleSubmit,
-    control,
-    resetField,
-    setError,
-    watch,
-    formState: { errors, isSubmitting, isSubmitSuccessful }
-  } = useForm({
-    defaultValues: {
-      username: updateData.username,
-      email: updateData.email ?? "",
-      habilitado_en_dxt: updateData.habilitado_en_dxt,
-      puede_crear_pedido: updateData.puede_crear_pedido,
-      puede_editar_pedido: updateData.puede_anular_pedido,
-      ver_pedidos_cumplidos: updateData.ver_pedidos_cumplidos,
-      ver_sin_precio: updateData.ver_sin_precio,
-      mostrar_mensaje_de_advertencia: updateData.mostrar_mensaje_de_advertencia,
-      puede_anular_pedido: updateData.puede_anular_pedido,
-      borrar_pedido_al_anular: updateData.borrar_pedido_al_anular,
-      aprobar_pedido_al_crear: updateData.aprobar_pedido_al_crear,
-      dia_de_entrega: updateData.dia_de_entrega
-    },
-    resolver: yupResolver(yupValidationSchema2)
-  });
-  const watchPuedeAnularPedido = watch("puede_anular_pedido");
-  useEffect(() => {
-    if (watchPuedeAnularPedido === false)
-      resetField("borrar_pedido_al_anular", { defaultValue: false });
-  }, [watchPuedeAnularPedido]);
-  useEffect(() => {
-    var _a3, _b3;
-    if (stateRelationship instanceof FetchStateSuccess) {
-      const defaultValue = ((_a3 = resultRelationship.find((option) => option.value === updateData.tango_id)) == null ? void 0 : _a3.value) ?? void 0;
-      resetField("tango_id", { defaultValue });
-    }
-    if (statePerfiles instanceof FetchStateSuccess) {
-      const defaultValue = ((_b3 = resultPerfiles.find((option) => option.value === updateData.perfil_facturacion_id)) == null ? void 0 : _b3.value) ?? void 0;
-      resetField("perfil_facturacion_id", { defaultValue });
-    }
-  }, [stateRelationship, statePerfiles]);
-  const disableForm = isSubmitSuccessful || isSubmitting;
-  const onSubmit = async (dataUnsafe) => {
-    const { ...data } = dataUnsafe;
-    if (data.email === "")
-      delete data.email;
-    if (data.password === "")
-      delete data.password;
-    const input = data;
-    const result = await typeSettings.api.patch(updateData.id, input, app);
-    result.map({
-      success: (_2) => {
-        toast({
-          title: USER_UPDATED,
-          status: "success"
-        });
-        app.navigate(returnUrl);
-      },
-      error: (e) => {
-        toast({
-          title: AN_ERROR_OCCURRED,
-          status: "error"
-        });
-        setError("root", { message: e.info.error_description });
-      }
-    });
-  };
-  return /* @__PURE__ */ jsx("form", { noValidate: true, onSubmit: handleSubmit(onSubmit), children: /* @__PURE__ */ jsxs(Box, { children: [
-    /* @__PURE__ */ jsx(FormErrors, { errors }),
-    /* @__PURE__ */ jsx(CommonCard, { children: /* @__PURE__ */ jsxs(
-      Grid,
-      {
-        templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
-        alignItems: "start",
-        gap: 4,
-        children: [
-          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(Heading, { size: "sm", textTransform: "uppercase", children: title }) }),
-          /* @__PURE__ */ jsxs(GridItem, { colSpan: { md: 2 }, children: [
-            /* @__PURE__ */ jsx(
-              ControlledSelect,
-              {
-                fieldProps: {
-                  name: "tango_id",
-                  placeholder: (_a2 = typeSettings.tangoRelatedFields) == null ? void 0 : _a2.placeholder,
-                  options: resultRelationship,
-                  noOptionsMessage(obj) {
-                    var _a3;
-                    return (_a3 = typeSettings.tangoRelatedFields) == null ? void 0 : _a3.empty;
-                  },
-                  isSearchable: true,
-                  selectedOptionStyle: "check",
-                  isLoading: stateRelationship instanceof FetchStateLoading,
-                  virtualized: true
-                },
-                formControlProps: {
-                  isDisabled: disableForm || !(stateRelationship instanceof FetchStateSuccess)
-                },
-                formControlInnerProps: {
-                  label: (_b2 = typeSettings.tangoRelatedFields) == null ? void 0 : _b2.label
-                },
-                control
-              }
-            ),
-            stateRelationship instanceof FetchStateError && /* @__PURE__ */ jsx(InlineError, { error: stateRelationship.errorOrNull().error })
-          ] }),
-          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
-            ControlledInput,
-            {
-              fieldProps: {
-                name: "username",
-                id: "username",
-                type: "text"
-              },
-              formControlProps: {
-                isDisabled: disableForm
-              },
-              formControlInnerProps: {
-                label: "Nombre de Usuario"
-              },
-              control
-            }
-          ) }),
-          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
-            PasswordWithStatus,
-            {
-              fieldProps: {
-                name: "password",
-                id: "password"
-              },
-              formControlInnerProps: {
-                label: "Contraseña"
-              },
-              passwordStatus,
-              disableForm,
-              control
-            }
-          ) }),
-          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
-            ControlledInput,
-            {
-              fieldProps: {
-                name: "email",
-                id: "email",
-                type: "text",
-                inputMode: "email"
-              },
-              formControlProps: {
-                isDisabled: disableForm
-              },
-              formControlInnerProps: {
-                label: "Correo electrónico"
-              },
-              control
-            }
-          ) }),
-          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(Divider, {}) }),
-          /* @__PURE__ */ jsxs(GridItem, { colSpan: { md: 2 }, children: [
-            /* @__PURE__ */ jsx(
-              ControlledSelect,
-              {
-                fieldProps: {
-                  name: "perfil_facturacion_id",
-                  placeholder: "Seleccione un perfil",
-                  options: resultPerfiles,
-                  noOptionsMessage(obj) {
-                    return "No hay perfiles disponibles";
-                  },
-                  isLoading: statePerfiles instanceof FetchStateLoading,
-                  selectedOptionStyle: "check"
-                },
-                formControlProps: {
-                  isDisabled: disableForm || !(statePerfiles instanceof FetchStateSuccess)
-                },
-                control,
-                formControlInnerProps: {
-                  label: "Perfil de facturación"
-                }
-              }
-            ),
-            statePerfiles instanceof FetchStateError && /* @__PURE__ */ jsx(InlineError, { error: statePerfiles.errorOrNull().error })
-          ] }),
-          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(Divider, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(Heading, { size: "sm", textTransform: "uppercase", children: "Estado" }) }),
-          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(
-            ControlledRadio,
-            {
-              fieldProps: {
-                name: "habilitado_en_dxt",
-                options: [
-                  {
-                    value: true,
-                    label: "Establecido en Tango"
-                  },
-                  {
-                    value: false,
-                    label: "Deshabilitado"
-                  }
-                ]
-              },
-              formControlProps: {
-                isDisabled: disableForm
-              },
-              radioProps: {
-                size: { base: "sm", sm: "md" }
-              },
-              control
-            }
-          ) }),
-          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(Divider, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(Heading, { size: "sm", textTransform: "uppercase", children: "Comunicación" }) }),
-          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
-            ControlledSwitch,
-            {
-              fieldProps: {
-                name: "mostrar_mensaje_de_advertencia",
-                id: "mostrar_mensaje_de_advertencia"
-              },
-              formControlProps: {
-                width: "auto",
-                isDisabled: disableForm
-              },
-              formControlInnerProps: {
-                label: "Mostrar mensaje de advertencia"
-              },
-              control
-            }
-          ) })
-        ]
-      }
-    ) }),
-    /* @__PURE__ */ jsx(CommonCard, { children: /* @__PURE__ */ jsxs(
-      Grid,
-      {
-        templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
-        alignItems: "start",
-        gap: 4,
-        children: [
-          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(Heading, { size: "sm", textTransform: "uppercase", children: "Pedidos" }) }),
-          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxs(Stack, { spacing: 4, direction: { base: "column" }, children: [
-            /* @__PURE__ */ jsx(HStack, { spacing: 4, children: /* @__PURE__ */ jsx(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "puede_crear_pedido",
-                  id: "puede_crear_pedido"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Puede crear pedidos"
-                },
-                control
-              }
-            ) }),
-            /* @__PURE__ */ jsx(HStack, { spacing: 4, children: /* @__PURE__ */ jsx(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "puede_editar_pedido",
-                  id: "puede_editar_pedido"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Puede editar pedidos"
-                },
-                control
-              }
-            ) }),
-            /* @__PURE__ */ jsx(HStack, { spacing: 4, children: /* @__PURE__ */ jsx(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "puede_anular_pedido",
-                  id: "puede_anular_pedido"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Puede anular pedidos"
-                },
-                control
-              }
-            ) }),
-            /* @__PURE__ */ jsx(HStack, { spacing: 4, children: /* @__PURE__ */ jsx(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "borrar_pedido_al_anular",
-                  id: "borrar_pedido_al_anular"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Borrar pedido al anular"
-                },
-                control,
-                watch: {
-                  isDisabled: watchPuedeAnularPedido === false,
-                  ...watchPuedeAnularPedido === false && {
-                    isChecked: false
-                  }
-                }
-              }
-            ) }),
-            /* @__PURE__ */ jsx(HStack, { spacing: 4, children: /* @__PURE__ */ jsx(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "aprobar_pedido_al_crear",
-                  id: "aprobar_pedido_al_crear"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Los pedidos se aprueban al crearlos"
-                },
-                control
-              }
-            ) }),
-            /* @__PURE__ */ jsx(HStack, { spacing: 4, children: /* @__PURE__ */ jsx(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "ver_pedidos_cumplidos",
-                  id: "ver_pedidos_cumplidos"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Puede ver los pedidos cumplidos"
-                },
-                control
-              }
-            ) }),
-            /* @__PURE__ */ jsx(HStack, { spacing: 4, children: /* @__PURE__ */ jsx(
-              ControlledSwitch,
-              {
-                fieldProps: {
-                  name: "ver_sin_precio",
-                  id: "ver_sin_precio"
-                },
-                formControlProps: {
-                  width: "auto",
-                  isDisabled: disableForm
-                },
-                formControlInnerProps: {
-                  label: "Puede ver artículos sin precio"
-                },
-                control
-              }
-            ) })
-          ] }) }),
-          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(Divider, {}) }),
-          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
-            ControlledInput,
-            {
-              fieldProps: {
-                name: "dia_de_entrega",
-                id: "dia_de_entrega",
-                type: "number",
-                inputMode: "tel"
-              },
-              formControlProps: {
-                isDisabled: disableForm
-              },
-              formControlInnerProps: {
-                label: "Tiempo de entrega de pedidos",
-                helperText: "Expresado en días"
-              },
-              control
-            }
-          ) }),
-          /* @__PURE__ */ jsx(GridItem, {})
-        ]
-      }
-    ) }),
-    /* @__PURE__ */ jsx(CommonCard, { children: /* @__PURE__ */ jsx(
-      SettingsFormsButtons,
-      {
-        isLoading: disableForm,
-        hideCancelButton: true
-      }
-    ) })
-  ] }) });
-};
-const DXTUserEdit = (props) => {
-  const { typeSettings, id, returnUrl, title } = props;
-  const { state, retry } = typeSettings.api.getOne(id);
-  return state.map({
-    loading: (_2) => /* @__PURE__ */ jsx(DXTUserEditLoading, {}),
-    error: ({ error }) => /* @__PURE__ */ jsx(
-      ApiErrors,
-      {
-        error,
-        retry,
-        cancelAndNavigateTo: URL_SETTINGS_PATH
-      }
-    ),
-    success: (state2) => /* @__PURE__ */ jsx(
-      DXTUserEditReady,
-      {
-        stateData: state2.data,
-        typeSettings,
-        returnUrl,
-        title
-      }
-    )
-  });
-};
-function Edit$1() {
-  const navigate = useNavigate();
-  const { id } = useParams();
-  const typeSettings = settings$1.customers;
-  const idValidated = tryVOValue(() => new VOInteger(id), null);
-  if (idValidated == null) {
-    return /* @__PURE__ */ jsx(
-      CommonErrors,
-      {
-        error: USER_NOT_FOUND,
-        buttonProps: {
-          label: BACK_TO_SETTINGS,
-          colorScheme: "green",
-          onClick: () => {
-            navigate(URL_SETTINGS_PATH);
-          }
-        }
-      }
-    );
-  }
-  return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsx(
-      SettingsFormHeading,
-      {
-        title: typeSettings.titles.edit,
-        returnButton: {
-          buttonProps: {
-            onClick: () => {
-              navigate(URL_SETTINGS_CUSTOMERS_PATH);
-            }
-          }
-        }
-      }
-    ),
-    /* @__PURE__ */ jsx(
-      DXTUserEdit,
-      {
-        typeSettings,
-        id: idValidated,
-        returnUrl: URL_SETTINGS_CUSTOMERS_PATH,
-        title: "Información del Cliente"
-      }
-    )
-  ] });
-}
-const route1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  default: Edit$1
-}, Symbol.toStringTag, { value: "Module" }));
-const integerValidator = (v) => new VOInteger(v).valueOf();
-const stringValidator = (v) => new VONotEmptyString(v).valueOf();
-const optionalStringValidator = (v, def) => v == null ? def : new VOString(v).valueOf();
-function Edit() {
-  const navigate = useNavigate();
-  const { id } = useParams();
-  const typeSettings = settings$1.vendors;
-  const idValidated = tryVOValue(() => new VOInteger(id), null);
-  if (idValidated == null) {
-    return /* @__PURE__ */ jsx(
-      CommonErrors,
-      {
-        error: USER_NOT_FOUND,
-        buttonProps: {
-          label: BACK_TO_SETTINGS,
-          colorScheme: "green",
-          onClick: () => {
-            navigate(URL_SETTINGS_PATH);
-          }
-        }
-      }
-    );
-  }
-  if (integerValidator(id)) {
-    return /* @__PURE__ */ jsxs(Fragment, { children: [
-      /* @__PURE__ */ jsx(
-        SettingsFormHeading,
-        {
-          title: typeSettings.titles.edit,
-          returnButton: {
-            buttonProps: {
-              onClick: () => {
-                navigate(URL_SETTINGS_VENDORS_PATH);
-              }
-            }
-          }
-        }
-      ),
-      /* @__PURE__ */ jsx(
-        DXTUserEdit,
-        {
-          typeSettings,
-          id: idValidated,
-          returnUrl: URL_SETTINGS_VENDORS_PATH,
-          title: "Información del Vendedor"
-        }
-      )
-    ] });
-  }
-}
-const route2 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  default: Edit
-}, Symbol.toStringTag, { value: "Module" }));
-class ApiEndpoint {
-  constructor(controller, options) {
-    this.controller = controller;
-    this.options = options;
-    this.get = async (req, params) => await this.run(req, { params, method: "GET" });
-    this.post = async (req, params) => await this.run(req, { params, method: "POST" });
-    this.put = async (req, params) => await this.run(req, { params, method: "PUT" });
-    this.patch = async (req, params) => await this.run(req, { params, method: "PATCH" });
-    this.delete = async (req, params) => await this.run(req, { params, method: "DELETE" });
-    jsonPolyfills();
-  }
-  async run(req, options) {
-    var _a2;
-    try {
-      const method = options == null ? void 0 : options.method;
-      if (method && method !== req.method)
-        throw new NotImplementedException();
-      const error = await this._prepareRequest(req, options);
-      if (error)
-        return await this.controller.onError(error, req);
-      await this.controller.onRequest(req);
-      const data = await this.handle(req);
-      const status = ((_a2 = this.options) == null ? void 0 : _a2.status) ?? getDefaultHttpStatusFromMethod(options == null ? void 0 : options.method);
-      return jsonResponse(data, {
-        status
-      });
-    } catch (e) {
-      return await this.controller.onError(e, req);
-    }
-  }
-  async _streamToString(stream) {
-    const chunks = Array();
-    for await (const chunk of stream) {
-      if (chunk instanceof Uint8Array)
-        chunks.push(chunk);
-    }
-    return Buffer.concat(chunks).toString("utf8");
-  }
-  async _prepareRequest(req, options) {
-    const urlObject = new URL(req.url);
-    const params = options == null ? void 0 : options.params;
-    req.params = params ?? {};
-    req.urlObject = urlObject;
-    const { searchParams } = urlObject;
-    const queryValues = {};
-    searchParams.forEach((v, k) => {
-      const current = queryValues[k];
-      if (current == null) {
-        queryValues[k] = v;
-        return;
-      }
-      if (Array.isArray(current)) {
-        current.push(v);
-      }
-      queryValues[k] = [
-        current,
-        v
-      ];
-    });
-    req.query = {
-      ...queryValues,
-      ...options == null ? void 0 : options.query
-    };
-    try {
-      let requestBody = req.body != null ? await this._streamToString(req.body) : null;
-      if (typeof requestBody === "string") {
-        requestBody = requestBody.trim();
-        if (requestBody.length === 0)
-          requestBody = "{}";
-      }
-      req.bodyJson = (options == null ? void 0 : options.body) ?? (requestBody != null ? parseJSON(requestBody) : null);
-    } catch (e) {
-      return new BadRequestException("Invalid JSON");
-    }
-    try {
-      req.validated = this._validateAllRequestValues(req);
-    } catch (e) {
-      return e;
-    }
-    return null;
-  }
-  _validateAllRequestValues(req) {
-    const { options } = this;
-    if (options == null)
-      return void 0;
-    const { validation } = options;
-    if (validation == null)
-      return void 0;
-    const result = {};
-    const { body, query, params } = validation;
-    if (body != null)
-      result.body = this._validateRequestValue(0, "body", req.bodyJson, body);
-    if (query != null)
-      result.query = this._validateRequestValues(1, req.query, query);
-    if (params != null)
-      result.params = this._validateRequestValues(2, req.params, params);
-    if (result.body === void 0 && result.query === void 0 && result.params === void 0)
-      return void 0;
-    return result;
-  }
-  _validateRequestValues(target, values, validators) {
-    const result = {};
-    Object.entries(validators).forEach(([key, validatorFunction]) => {
-      if (typeof validatorFunction !== "function")
-        return;
-      const validatedValue = this._validateRequestValue(target, key, values[key], validatorFunction);
-      result[key] = validatedValue;
-    });
-    return result;
-  }
-  _validateRequestValue(target, key, value, validatorFunction) {
-    if (typeof validatorFunction !== "function")
-      return void 0;
-    try {
-      return validatorFunction(value);
-    } catch (e) {
-      let targetString;
-      switch (target) {
-        case 2:
-          targetString = `Invalid param ${key}`;
-          break;
-        case 0:
-          targetString = `Invalid query value ${key}`;
-          break;
-        default:
-          targetString = `Invalid body`;
-          break;
-      }
-      const errorInfo = exceptionToDXTErrorInfo(e);
-      throw new BadRequestException(`${targetString}: ${errorInfo.extra ?? "unknown error"}`);
-    }
-  }
-}
-function createApiEndpoint(controller, options, handler) {
-  return new class extends ApiEndpoint {
-    constructor() {
-      super(
-        controller,
-        options
-      );
-      this.handle = async (req) => await handler(req);
-      handler.bind(this);
-    }
-  }();
-}
-var EstadoPedido = /* @__PURE__ */ ((EstadoPedido2) => {
-  EstadoPedido2[EstadoPedido2["INVALIDO"] = 0] = "INVALIDO";
-  EstadoPedido2[EstadoPedido2["INGRESADO"] = 1] = "INGRESADO";
-  EstadoPedido2[EstadoPedido2["APROBADO"] = 2] = "APROBADO";
-  EstadoPedido2[EstadoPedido2["CUMPLIDO"] = 3] = "CUMPLIDO";
-  EstadoPedido2[EstadoPedido2["CERRADO"] = 4] = "CERRADO";
-  EstadoPedido2[EstadoPedido2["ANULADO"] = 5] = "ANULADO";
-  EstadoPedido2[EstadoPedido2["EN_PROGRESO"] = 100] = "EN_PROGRESO";
-  return EstadoPedido2;
-})(EstadoPedido || {});
-const ARTICULO_TABLE = "STA11";
-const ARTICULO_ID_FIELD = "ID_STA11";
-const ARTICULO_CODE_FIELD = "COD_ARTICU";
-const articuloModelColumns = [
-  ARTICULO_ID_FIELD,
-  ARTICULO_CODE_FIELD,
-  "DESCRIPCIO",
-  "DESC_ADIC",
-  "DESCUENTO",
-  "USA_ESC",
-  "PERFIL",
-  "COD_IVA",
-  "COD_S_IVA",
-  "COD_II",
-  "COD_S_II",
-  "ID_MEDIDA_STOCK",
-  "ID_MEDIDA_STOCK_2",
-  "ID_MEDIDA_VENTAS"
-];
-const ARTICULO_NAME_COLUMNS = ["DESCRIPCIO", "DESC_ADIC"];
-const LISTA_TABLE = "GVA10";
-const LISTA_ID_FIELD = "ID_GVA10";
-const LISTA_CODE_FIELD = "NRO_DE_LIS";
-const LISTA_CODE2_FIELD = "N_LISTA";
-const listaModelColumns = [
-  LISTA_ID_FIELD,
-  LISTA_CODE_FIELD,
-  "NOMBRE_LIS",
-  "INCLUY_IMP",
-  "INCLUY_IVA",
-  "HABILITADA"
-];
-const PRECIO_TABLE = "GVA17";
-const PRECIO_ID_FIELD = "ID_GVA17";
-const precioModelColumns = [
-  PRECIO_ID_FIELD,
-  ARTICULO_CODE_FIELD,
-  ARTICULO_ID_FIELD,
-  LISTA_CODE_FIELD,
-  LISTA_ID_FIELD,
-  "PRECIO"
-];
-const ALICUOTA_TABLE = "GVA41";
-const ALICUOTA_ID_FIELD = "ID_GVA41";
-const ALICUOTA_CODE_FIELD = "COD_ALICUO";
-const alicuotaModelColumns = [
-  ALICUOTA_ID_FIELD,
-  ALICUOTA_CODE_FIELD,
-  "COD_REGIM",
-  "DESCRIPCIO",
-  "IMPORTE",
-  "PORCENTAJE",
-  "PROVINCIA",
-  "GRUPO",
-  "GRUPO_AGIP",
-  "COD_SII",
-  "GRUPO_MAGNITUDES_SUPERADAS_AGIP",
-  "GRUPO_EXENTOS_AGIP",
-  "GRUPO_REGIMEN_GENERAL_AGIP",
-  "PADRON",
-  "GRUPO_PADRON",
-  "COD_GVA18",
-  "ID_GVA18"
-];
-const ASIENTO_TABLE = "GVA25";
-const ASIENTO_ID_FIELD = "ID_GVA25";
-const ASIENTO_CODE_FIELD = "TIPO_ASIEN";
-const asientoModelColumns = [
-  ASIENTO_ID_FIELD,
-  ASIENTO_CODE_FIELD,
-  "RENGLON",
-  "COD_CUENTA",
-  "CONC_ASI",
-  "CONC_MOV",
-  "DEBE",
-  "HABER",
-  "COD_IMPUES"
-];
-const CONDICION_TABLE = "GVA01";
-const CONDICION_ID_FIELD = "ID_GVA01";
-const CONDICION_CODE_FIELD = "COND_VTA";
-const condicionModelColumns = [
-  CONDICION_ID_FIELD,
-  CONDICION_CODE_FIELD,
-  LISTA_ID_FIELD,
-  LISTA_CODE_FIELD,
-  "ACEPTA_CONTADO",
-  "PORC_MIN_CONTADO",
-  "ACEPTA_CTA",
-  "OBLIGA_CONTADO",
-  "DESC_COND",
-  "FAC_CREDIT",
-  "PAGO_CF",
-  "APLICA_MORA",
-  "ID_INTERES_POR_MORA",
-  "GENERA_FECHAS_ALTERNATIVAS",
-  "FECHA_VIGENCIA_DESDE",
-  "FECHA_VIGENCIA_HASTA",
-  "CONTADO",
-  "CALCULA_INTERESES",
-  "TIPO_ASIGNACION"
-];
-const DEPOSITO_TABLE = "STA22";
-const DEPOSITO_ID_FIELD = "ID_STA22";
-const DEPOSITO_CODE_FIELD = "COD_SUCURS";
-const depositoModelColumns = [
-  DEPOSITO_ID_FIELD,
-  DEPOSITO_CODE_FIELD,
-  "ABASTECE",
-  "DIR_SUCURS",
-  "NOMBRE_SUC",
-  "INHABILITA",
-  "SUCURSAL_DESTINO",
-  "SINCRONIZA_NEXO_PEDIDOS"
-];
-const PERFIL_TABLE = "GVA51";
-const PERFIL_ID_FIELD = "ID_GVA51";
-const PERFIL_CODE_FIELD = "COD_PERFIL";
-const perfilModelColumns = [
-  PERFIL_CODE_FIELD,
-  PERFIL_ID_FIELD,
-  "COMP_STK",
-  "DESCRIPCIO",
-  "BONIFIC",
-  "BONIF_DEF",
-  "D_BONIFIC",
-  "FECHA",
-  "COND_VENTA",
-  "DEPOSITO",
-  "TAL_FACTUR",
-  "TAL_PEDIDO",
-  "TAL_REMITO",
-  "TIPO_ASIEN",
-  "TRANSPORTE",
-  "D_COND_VEN",
-  "D_DEPOSITO",
-  "D_TAL_FACT",
-  "D_TAL_PED",
-  "D_TAL_REMI",
-  "D_LISTA_PR",
-  "D_TRANSPOR",
-  "D_TIPO_ASI",
-  "EDITA_DIRECCION_ENTREGA",
-  "ID_ASIENTO_MODELO_GV"
-];
-const TALONARIO_TABLE = "GVA43";
-const TALONARIO_CODE_FIELD = "TALONARIO";
-const TALONARIO_ID_FIELD = "ID_GVA43";
-const TALONARIO_ID2_FIELD = "TALON_PED";
-const talonarioModelColumns = [
-  TALONARIO_CODE_FIELD,
-  TALONARIO_ID_FIELD,
-  "TIPO",
-  "COMPROB",
-  "DESCRIP",
-  "DESTINO",
-  "EDITA_NRO",
-  "FECHA_VTO",
-  "NRO_DESDE",
-  "NRO_HASTA",
-  "PROXIMO",
-  "RENGLONES",
-  "SUCURSAL",
-  "EXCLUSIVO",
-  "FECH_AVISO",
-  "VAL_FECHA",
-  "TIPO_TALONARIO"
-];
-const TRANSPORTE_TABLE = "GVA24";
-const TRANSPORTE_ID_FIELD = "ID_GVA24";
-const TRANSPORTE_CODE_FIELD = "COD_TRANSP";
-const transporteModelColumns = [
-  TRANSPORTE_CODE_FIELD,
-  TRANSPORTE_ID_FIELD,
-  "CATEG_TRAN",
-  "CUIT_TRANS",
-  "DOM_TRANS",
-  "NOMBRE_TRA",
-  "PORC_RECAR",
-  "COD_POSTAL",
-  "LOCALIDAD",
-  "COD_PROVIN",
-  "TELEFONO",
-  "E_MAIL",
-  "WEB",
-  "COD_GVA18",
-  "ID_GVA18"
-];
-const TRANSPORTE_NAME_COLUMNS = ["NOMBRE_TRA"];
-const VENDEDOR_TABLE = "GVA23";
-const VENDEDOR_ID_FIELD = "ID_GVA23";
-const VENDEDOR_CODE_FIELD = "COD_VENDED";
-const vendedorModelColumns = [
-  VENDEDOR_ID_FIELD,
-  VENDEDOR_CODE_FIELD,
-  "NOMBRE_VEN",
-  "INHABILITA"
-];
-const VENDEDOR_NAME_COLUMNS = ["NOMBRE_VEN"];
-const CLIENTE_TABLE = "GVA14";
-const CLIENTE_ID_FIELD = "ID_GVA14";
-const CLIENTE_CODE_FIELD = "COD_CLIENT";
-const CLIENTE_CODE2_FIELD = "COD_CLIENTE";
-const clienteModelColumns = [
-  CLIENTE_ID_FIELD,
-  CLIENTE_CODE_FIELD,
-  VENDEDOR_ID_FIELD,
-  VENDEDOR_CODE_FIELD,
-  TRANSPORTE_ID_FIELD,
-  TRANSPORTE_CODE_FIELD,
-  CONDICION_ID_FIELD,
-  CONDICION_CODE_FIELD,
-  LISTA_ID_FIELD,
-  "NRO_LISTA",
-  "II_D",
-  "IVA_D",
-  "SOBRE_II",
-  "SOBRE_IVA",
-  "NOM_COM",
-  "RAZON_SOCI",
-  "HABILITADO",
-  "FECHA_INHA",
-  "PORC_DESC"
-];
-const CLIENTE_NAME_COLUMNS = ["RAZON_SOCI", "NOM_COM"];
-const DIRECCION_TABLE = "DIRECCION_ENTREGA";
-const DIRECCION_ID_FIELD = "ID_DIRECCION_ENTREGA";
-const DIRECCION_CODE_FIELD = "COD_DIRECCION_ENTREGA";
-const direccionModelColumns = [
-  DIRECCION_ID_FIELD,
-  DIRECCION_CODE_FIELD,
-  CLIENTE_CODE2_FIELD,
-  CLIENTE_ID_FIELD,
-  "HABITUAL",
-  "DIRECCION",
-  "LOCALIDAD",
-  "CODIGO_POSTAL",
-  "TELEFONO1",
-  "TELEFONO2",
-  "HABILITADO"
-];
-const PEDIDO_TABLE = "GVA21";
-const PEDIDO_ID_FIELD = "ID_GVA21";
-const PEDIDO_CODE_FIELD = "NRO_PEDIDO";
-const LEYENDA_FIELD_LENGTH = 60;
-const pedidoModelColumns = [
-  PEDIDO_ID_FIELD,
-  PEDIDO_CODE_FIELD,
-  "ESTADO",
-  CLIENTE_ID_FIELD,
-  CLIENTE_CODE_FIELD,
-  VENDEDOR_ID_FIELD,
-  VENDEDOR_CODE_FIELD,
-  DEPOSITO_CODE_FIELD,
-  TRANSPORTE_ID_FIELD,
-  TRANSPORTE_CODE_FIELD,
-  "FECHA_INGRESO",
-  "HORA_INGRESO",
-  "FECHA_ENTR",
-  "FECHA_PEDI",
-  "HORA",
-  "USUARIO_INGRESO",
-  "COMENTARIO",
-  "LEYENDA_4",
-  "LEYENDA_5",
-  "TOTAL_PEDI",
-  "PORC_DESC"
-];
-const extendedPedidoModelColumns = [
-  ...pedidoModelColumns,
-  TALONARIO_ID2_FIELD,
-  TALONARIO_CODE_FIELD,
-  CONDICION_ID_FIELD,
-  CONDICION_CODE_FIELD,
-  LISTA_ID_FIELD,
-  LISTA_CODE2_FIELD,
-  ASIENTO_CODE_FIELD,
-  "COMP_STK",
-  "ID_ASIENTO_MODELO_GV"
-];
-const APP_NAME = "DXTango";
-const appPaths = envPaths(APP_NAME.toLowerCase());
-const configPath = appPaths.config;
-const dataPath = appPaths.data;
-appPaths.log;
-appPaths.temp;
-const cachePath = appPaths.cache;
-class DTO {
-  constructor(input) {
-    this.data = this.validate(input);
-  }
-}
 const DB_CONNECTION_TIMEOUT_MIN_SECONDS = 0;
 const DB_CONNECTION_TIMEOUT_MAX_SECONDS = 300;
 const AUTH_EXPIRATION_MIN_DAYS = 1;
@@ -5200,7 +3521,7 @@ function userRoleToNumber(role) {
   switch (role) {
     case UserRole.customer:
       return 0;
-    case UserRole.vendor:
+    case UserRole.seller:
       return 1;
     case UserRole.admin:
       return 2;
@@ -5212,7 +3533,7 @@ function numberToUserRole(value) {
     case 0:
       return UserRole.customer;
     case 1:
-      return UserRole.vendor;
+      return UserRole.seller;
     case 2:
       return UserRole.admin;
   }
@@ -5235,18 +3556,12 @@ class VOUserRole extends ValueObject {
   isAdmin() {
     return this.value.valueOf() == UserRole.admin;
   }
-  isVendor() {
-    return this.value.valueOf() == UserRole.vendor;
+  isSeller() {
+    return this.value.valueOf() == UserRole.seller;
   }
   isCustomer() {
     return this.value.valueOf() == UserRole.customer;
   }
-}
-const USER_NAME_MIN_LENGTH = 2;
-const USER_NAME_MAX_LENGTH = 60;
-function isUserName(value) {
-  const re = /^[a-zA-Z0-9_]+$/iu;
-  return typeof value === "string" && value.length >= USER_NAME_MIN_LENGTH && value.length <= USER_NAME_MAX_LENGTH && re.test(value);
 }
 class VOUserName extends ValueObject {
   validate(rawValue) {
@@ -5264,6 +3579,7 @@ class UserEntity extends RootEntity {
     const {
       username,
       tango_id,
+      tango_code,
       habilitado_en_tango,
       screen_name,
       email,
@@ -5282,8 +3598,8 @@ class UserEntity extends RootEntity {
       mostrar_mensaje_de_advertencia,
       timestamp_modificacion,
       vendedor_id,
-      id_lista_alternativa,
-      bonificacion_lista_alternativa,
+      id_lista_prioritaria,
+      bonificacion_lista_prioritaria,
       universal_id
     } = unsafe;
     this.username = new VOUserName(username);
@@ -5312,21 +3628,23 @@ class UserEntity extends RootEntity {
         })
       );
     this.tangoId = tango_id != null ? new VOUInt32(tango_id) : void 0;
+    this.tangoCode = tango_code != null ? new VONotEmptyString(tango_code) : void 0;
     this.habilitadoEnTango = habilitado_en_tango != null ? new VOBoolean(habilitado_en_tango) : void 0;
     this.vendedorId = vendedor_id != null ? new VOUInt32(vendedor_id) : void 0;
-    this.idListaAlternativa = id_lista_alternativa != null ? new VOUInt32(id_lista_alternativa) : void 0;
-    this.bonificacionListaAlternativa = bonificacion_lista_alternativa != null ? new VOPositiveNumber(bonificacion_lista_alternativa) : void 0;
+    this.idListaPrioritaria = id_lista_prioritaria != null ? new VOUInt32(id_lista_prioritaria) : void 0;
+    this.bonificacionListaPrioritaria = bonificacion_lista_prioritaria != null ? new VOPositiveNumber(bonificacion_lista_prioritaria) : void 0;
     this.universalId = new VOHexadecimal(universal_id.replaceAll("-", ""));
   }
   toUnsafe() {
-    var _a2, _b2, _c, _d, _e;
+    var _a2, _b2, _c, _d, _e, _f;
     const result = {
       ...this.parentToUnsafe(),
       username: this.username.valueOf(),
       tango_id: (_a2 = this.tangoId) == null ? void 0 : _a2.valueOf(),
-      habilitado_en_tango: (_b2 = this.habilitadoEnTango) == null ? void 0 : _b2.valueOf(),
+      tango_code: (_b2 = this.tangoCode) == null ? void 0 : _b2.valueOf(),
+      habilitado_en_tango: (_c = this.habilitadoEnTango) == null ? void 0 : _c.valueOf(),
       screen_name: this.screenName.valueOf(),
-      email: ((_c = this.email) == null ? void 0 : _c.valueOf()) ?? null,
+      email: ((_d = this.email) == null ? void 0 : _d.valueOf()) ?? null,
       password_hash: this.passwordHash.valueOf(),
       role: userRoleToNumber(this.role.valueOf()),
       habilitado_en_dxt: this.habilitadoEnDXT.valueOf(),
@@ -5341,8 +3659,8 @@ class UserEntity extends RootEntity {
       ver_sin_precio: this.verSinPrecio.valueOf(),
       mostrar_mensaje_de_advertencia: this.mostrarMensajeDeAdvertencia.valueOf(),
       timestamp_modificacion: this.timestampModificacion.valueOf(),
-      id_lista_alternativa: (_d = this.idListaAlternativa) == null ? void 0 : _d.valueOf(),
-      bonificacion_lista_alternativa: (_e = this.bonificacionListaAlternativa) == null ? void 0 : _e.valueOf(),
+      id_lista_prioritaria: (_e = this.idListaPrioritaria) == null ? void 0 : _e.valueOf(),
+      bonificacion_lista_prioritaria: (_f = this.bonificacionListaPrioritaria) == null ? void 0 : _f.valueOf(),
       universal_id: this.universalId.valueOf()
     };
     return result;
@@ -5359,8 +3677,8 @@ class UserEntity extends RootEntity {
   isCustomer() {
     return this.role.isCustomer();
   }
-  isVendor() {
-    return this.role.isVendor();
+  isSeller() {
+    return this.role.isSeller();
   }
   // fromPublicInfo(
   //   publicInfo: UserPublicInfo,
@@ -5700,40 +4018,6 @@ function dbErrorToDXTException(e) {
     }
   ));
 }
-const dxtUserTableCreationFieldsSQL = {
-  tango_id: `D_ID NOT NULL`,
-  username: `varchar(${USER_NAME_MAX_LENGTH}) NOT NULL`,
-  puede_crear_pedido: `bit NOT NULL`,
-  puede_editar_pedido: `bit NOT NULL`,
-  puede_anular_pedido: `bit NOT NULL`,
-  borrar_pedido_al_anular: `bit NOT NULL`,
-  perfil_facturacion_id: `D_ID NOT NULL`,
-  aprobar_pedido_al_crear: `bit NOT NULL`,
-  ver_pedidos_cumplidos: `bit NOT NULL`,
-  dia_de_entrega: `int NOT NULL`,
-  email: `varchar(${EMAIL_MAX_LENGTH})`,
-  ver_sin_precio: `bit NOT NULL`,
-  mostrar_mensaje_de_advertencia: `bit NOT NULL`,
-  habilitado_en_dxt: `bit NOT NULL`,
-  timestamp_modificacion: `bigint NOT NULL`,
-  id_lista_alternativa: `D_ID NULL`,
-  bonificacion_lista_alternativa: `DECIMAL_TG NULL`,
-  universal_id: `uniqueidentifier DEFAULT newid() NOT NULL`
-};
-const DXT_CLIENTE_TABLE = "dxt_cliente";
-const DXT_CLIENTE_ID_FIELD = "dxt_cliente_id";
-const dxtClienteTableCreationFieldsSQL = {
-  dxt_cliente_id: `int IDENTITY(1,1) NOT NULL`,
-  password_hash: `varchar(${MD5_LENGTH}) NOT NULL`,
-  ...dxtUserTableCreationFieldsSQL
-};
-const dxtClienteTableCreationIndexesSQL = [
-  `CONSTRAINT pk_dxt_cliente_username UNIQUE (username)`,
-  `CONSTRAINT pk_dxt_cliente_id PRIMARY KEY (dxt_cliente_id)`
-];
-const dxtClienteTablePostCommandsSQL = [
-  `CREATE INDEX ix_dxt_cliente_tango_id ON dbo.dxt_cliente (tango_id);`
-];
 const DXT_VENDEDOR_TABLE = "dxt_vendedor";
 const DXT_VENDEDOR_ID_FIELD = "dxt_vendedor_id";
 const dxtVendedorTableCreationFieldsSQL = {
@@ -5852,6 +4136,170 @@ const dxtArticuloListCreationIndexesSQL = [];
 const DXT_ARTICULO_EDIT_LIST_TABLE = "dxt_articulo_edit_list";
 const DATASET_TABLE = "Dataset";
 const DATASET_ID_FIELD = "IDDataset";
+const ALICUOTA_TABLE = "GVA41";
+const ALICUOTA_ID_FIELD = "ID_GVA41";
+const ALICUOTA_CODE_FIELD = "COD_ALICUO";
+const alicuotaModelColumns = [
+  ALICUOTA_ID_FIELD,
+  ALICUOTA_CODE_FIELD,
+  "COD_REGIM",
+  "DESCRIPCIO",
+  "IMPORTE",
+  "PORCENTAJE",
+  "PROVINCIA",
+  "GRUPO",
+  "GRUPO_AGIP",
+  "COD_SII",
+  "GRUPO_MAGNITUDES_SUPERADAS_AGIP",
+  "GRUPO_EXENTOS_AGIP",
+  "GRUPO_REGIMEN_GENERAL_AGIP",
+  "PADRON",
+  "GRUPO_PADRON",
+  "COD_GVA18",
+  "ID_GVA18"
+];
+const ASIENTO_TABLE = "GVA25";
+const ASIENTO_ID_FIELD = "ID_GVA25";
+const ASIENTO_CODE_FIELD = "TIPO_ASIEN";
+const asientoModelColumns = [
+  ASIENTO_ID_FIELD,
+  ASIENTO_CODE_FIELD,
+  "RENGLON",
+  "COD_CUENTA",
+  "CONC_ASI",
+  "CONC_MOV",
+  "DEBE",
+  "HABER",
+  "COD_IMPUES"
+];
+const DEPOSITO_TABLE = "STA22";
+const DEPOSITO_ID_FIELD = "ID_STA22";
+const DEPOSITO_CODE_FIELD = "COD_SUCURS";
+const depositoModelColumns = [
+  DEPOSITO_ID_FIELD,
+  DEPOSITO_CODE_FIELD,
+  "ABASTECE",
+  "DIR_SUCURS",
+  "NOMBRE_SUC",
+  "INHABILITA",
+  "SUCURSAL_DESTINO",
+  "SINCRONIZA_NEXO_PEDIDOS"
+];
+const PERFIL_TABLE = "GVA51";
+const PERFIL_ID_FIELD = "ID_GVA51";
+const PERFIL_CODE_FIELD = "COD_PERFIL";
+const perfilModelColumns = [
+  PERFIL_CODE_FIELD,
+  PERFIL_ID_FIELD,
+  "COMP_STK",
+  "DESCRIPCIO",
+  "BONIFIC",
+  "BONIF_DEF",
+  "D_BONIFIC",
+  "FECHA",
+  "COND_VENTA",
+  "DEPOSITO",
+  "TAL_FACTUR",
+  "TAL_PEDIDO",
+  "TAL_REMITO",
+  "TIPO_ASIEN",
+  "TRANSPORTE",
+  "D_COND_VEN",
+  "D_DEPOSITO",
+  "D_TAL_FACT",
+  "D_TAL_PED",
+  "D_TAL_REMI",
+  "D_LISTA_PR",
+  "D_TRANSPOR",
+  "D_TIPO_ASI",
+  "EDITA_DIRECCION_ENTREGA",
+  "ID_ASIENTO_MODELO_GV"
+];
+const TALONARIO_TABLE = "GVA43";
+const TALONARIO_CODE_FIELD = "TALONARIO";
+const TALONARIO_ID_FIELD = "ID_GVA43";
+const TALONARIO_ID2_FIELD = "TALON_PED";
+const talonarioModelColumns = [
+  TALONARIO_CODE_FIELD,
+  TALONARIO_ID_FIELD,
+  "TIPO",
+  "COMPROB",
+  "DESCRIP",
+  "DESTINO",
+  "EDITA_NRO",
+  "FECHA_VTO",
+  "NRO_DESDE",
+  "NRO_HASTA",
+  "PROXIMO",
+  "RENGLONES",
+  "SUCURSAL",
+  "EXCLUSIVO",
+  "FECH_AVISO",
+  "VAL_FECHA",
+  "TIPO_TALONARIO"
+];
+const DIRECCION_TABLE = "DIRECCION_ENTREGA";
+const DIRECCION_ID_FIELD = "ID_DIRECCION_ENTREGA";
+const DIRECCION_CODE_FIELD = "COD_DIRECCION_ENTREGA";
+const direccionModelColumns = [
+  DIRECCION_ID_FIELD,
+  DIRECCION_CODE_FIELD,
+  CLIENTE_CODE2_FIELD,
+  CLIENTE_ID_FIELD,
+  "HABITUAL",
+  "DIRECCION",
+  "LOCALIDAD",
+  "CODIGO_POSTAL",
+  "TELEFONO1",
+  "TELEFONO2",
+  "HABILITADO"
+];
+const PEDIDO_TABLE = "GVA21";
+const PEDIDO_ID_FIELD = "ID_GVA21";
+const PEDIDO_CODE_FIELD = "NRO_PEDIDO";
+const PEDIDO_DESCRIPTION_FIELD = "USUARIO_INGRESO";
+const PEDIDO_IS_FAVORITE_FIELD = "ES_PEDIDO_WEB";
+const LEYENDA_FIELD_LENGTH = 60;
+const pedidoModelColumns = [
+  PEDIDO_ID_FIELD,
+  PEDIDO_CODE_FIELD,
+  "ESTADO",
+  CLIENTE_ID_FIELD,
+  CLIENTE_CODE_FIELD,
+  VENDEDOR_ID_FIELD,
+  VENDEDOR_CODE_FIELD,
+  DEPOSITO_CODE_FIELD,
+  TRANSPORTE_ID_FIELD,
+  TRANSPORTE_CODE_FIELD,
+  "FECHA_INGRESO",
+  "HORA_INGRESO",
+  "FECHA_ENTR",
+  "FECHA_PEDI",
+  "HORA",
+  PEDIDO_DESCRIPTION_FIELD,
+  PEDIDO_IS_FAVORITE_FIELD,
+  "LEYENDA_4",
+  "LEYENDA_5",
+  "TOTAL_PEDI",
+  "PORC_DESC",
+  TALONARIO_ID2_FIELD,
+  TALONARIO_CODE_FIELD,
+  CONDICION_ID_FIELD,
+  CONDICION_CODE_FIELD,
+  LISTA_ID_FIELD,
+  LISTA_CODE2_FIELD,
+  ASIENTO_CODE_FIELD,
+  "COMP_STK",
+  "ID_ASIENTO_MODELO_GV"
+];
+const PEDIDO_CLIENTE_COLUMNS = [
+  "RAZON_SOCI",
+  "NOM_COM",
+  "II_D",
+  "IVA_D",
+  "SOBRE_II",
+  "SOBRE_IVA"
+];
 const CAMPO_TABLE = "Campo";
 const LONGITUD_MINIMA_PEDIDO_PRECISION = 12;
 const LONGITUD_MAXIMA_PEDIDO_PRECISION = 14;
@@ -6001,6 +4449,43 @@ class VOOrderRows extends ValueObject {
     });
   }
 }
+class VOStrings extends ValueObject {
+  validate(input) {
+    if (typeof input === "string")
+      return [input];
+    if (!Array.isArray(input))
+      this.throwError(input);
+    return input.map((e) => {
+      if (e == null)
+        this.throwError(input);
+      return e.toString();
+    });
+  }
+}
+class VODXTPassword extends ValueObject {
+  validate(value) {
+    if (typeof value === "string" && isDXTPassword(value))
+      return value;
+    this.throwError(value);
+  }
+  static random() {
+    return new VODXTPassword(generateRandomPassword());
+  }
+}
+class VOIntegers extends ValueObject {
+  validate(input) {
+    let values = Array.isArray(input) ? input : [input];
+    return values.map((v) => {
+      if (typeof v === "string")
+        v = Number.parseInt(v);
+      if (typeof v === "number" && Number.isInteger(v))
+        return v;
+      this.throwError(input);
+    });
+  }
+}
+const integersValidator = (v) => new VOIntegers(v).valueOf();
+const optionalStringsValidator = (v, def) => v == null ? def : new VOStrings(v).valueOf();
 const COMENTARIOS_MAX_LENGTH = 120;
 const DESCRIPCION_MAX_LENGTH = 120;
 const baseInputSchema = {
@@ -6016,7 +4501,8 @@ const baseInputSchema = {
 };
 const baseDraftInputSchema = {
   ...baseInputSchema,
-  descripcion: (v) => new VONotEmptyString(v, DESCRIPCION_MAX_LENGTH)
+  descripcion: (v) => new VONotEmptyString(v, DESCRIPCION_MAX_LENGTH),
+  es_favorito: (v) => new VOBoolean(v)
 };
 const baseOrderInputSchema = {
   ...baseInputSchema,
@@ -6040,6 +4526,9 @@ const createOrderInputSchema = {
   id_cliente: (v) => new VOUInt32(v),
   draft_id_to_delete: (v) => v != null ? new VOUInt32(v) : void 0
 };
+const getOrdersByIdsInputSchema = {
+  ids: integersValidator
+};
 const validateUpdateDraftInput = (input) => validateInput(updateDraftInputSchema, input);
 const validateCreateDraftInput = (input) => validateInput(createDraftInputSchema, input);
 function _extraValidation(values) {
@@ -6055,6 +4544,7 @@ const validateCreateOrderInput = (input) => validateInput(createOrderInputSchema
   _extraValidation(v);
   return v;
 });
+const validateGetOrdersByIdsInput = (input) => validateInput(getOrdersByIdsInputSchema, input);
 const DXT_PEDIDO_DRAFT_CLIENTES_TABLE = "dxt_pedido_draft_clientes";
 const DXT_PEDIDO_DRAFT_VENDEDORES_TABLE = "dxt_pedido_draft_vendedores";
 const dxtPedidoDraftTableCreationFieldsSQL = {
@@ -6106,14 +4596,14 @@ const dxtPedidoDraftTableCreationFieldsSQL = {
   NRO_PE_ORI: "varchar(14) COLLATE Latin1_General_BIN DEFAULT '' NULL",
   FECHA_INGRESO: "datetime DEFAULT '1800/01/01' NULL",
   HORA_INGRESO: "varchar(6) COLLATE Modern_Spanish_CI_AI DEFAULT '' NULL",
-  USUARIO_INGRESO: `varchar(${DESCRIPCION_MAX_LENGTH}) COLLATE Modern_Spanish_CI_AI  NOT NULL`,
+  [PEDIDO_DESCRIPTION_FIELD]: `varchar(${DESCRIPCION_MAX_LENGTH}) COLLATE Modern_Spanish_CI_AI  NOT NULL`,
   TERMINAL_INGRESO: "varchar(255) COLLATE Modern_Spanish_CI_AI DEFAULT '' NULL",
   FECHA_ULTIMA_MODIFICACION: "datetime DEFAULT '1800/01/01' NULL",
   HORA_ULTIMA_MODIFICACION: "varchar(6) COLLATE Modern_Spanish_CI_AI DEFAULT '' NULL",
   USUA_ULTIMA_MODIFICACION: "varchar(120) COLLATE Modern_Spanish_CI_AI DEFAULT '' NULL",
   TERM_ULTIMA_MODIFICACION: "varchar(255) COLLATE Modern_Spanish_CI_AI DEFAULT '' NULL",
   ID_DIRECCION_ENTREGA: "D_ID NULL",
-  ES_PEDIDO_WEB: "bit DEFAULT 0 NULL",
+  [PEDIDO_IS_FAVORITE_FIELD]: "bit DEFAULT 0 NULL",
   WEB_ORDER_ID: "int DEFAULT 0 NULL",
   FECHA_O_COMP: "datetime DEFAULT '1800/01/01' NULL",
   ACTIVIDAD_COMPROBANTE_AFIP: "varchar(1) COLLATE Modern_Spanish_CI_AI DEFAULT '' NULL",
@@ -6145,7 +4635,7 @@ const dxtPedidoDraftTableCreationIndexesSQL = (draftTableName) => [
 ];
 const dxtPedidoDraftTablePostCommandsSQL = (draftTableName, draftOwnerColumn) => [
   `CREATE INDEX IX_dxt_pedido_draft_code ON ${draftTableName} (${PEDIDO_CODE_FIELD} ASC);`,
-  `CREATE UNIQUE INDEX IX_${draftTableName}_comentario ON ${draftTableName} (${draftOwnerColumn} ASC, USUARIO_INGRESO ASC);`,
+  `CREATE UNIQUE INDEX IX_${draftTableName}_descripcion ON ${draftTableName} (${draftOwnerColumn} ASC, ${PEDIDO_DESCRIPTION_FIELD} ASC);`,
   `CREATE INDEX IX_dxt_pedido_draft_cliente ON ${draftTableName} (  ${CLIENTE_ID_FIELD} ASC, FECHA_PEDI ASC );`,
   `CREATE INDEX IX_dxt_pedido_draft_vendedor ON ${draftTableName} (  ${VENDEDOR_ID_FIELD} ASC, FECHA_PEDI ASC );`
 ];
@@ -6547,8 +5037,13 @@ const _CompanyProvider = class _CompanyProvider extends CompanyInitProvider {
     const useCache = (options == null ? void 0 : options.useCache) ?? true;
     if (!useCache)
       return null;
-    const { mainTable } = this.config;
-    return `${mainTable}_BU_${this._getOptionsCacheKey(options)}_${role}_${tangoUserId ?? "A"}`;
+    return `${this.config.mainTable}_BU_${this._getOptionsCacheKey(options)}_${role}_${tangoUserId ?? "A"}`;
+  }
+  getAllListByUserCacheKey(role, tangoUserId, options) {
+    const useCache = (options == null ? void 0 : options.useCache) ?? true;
+    if (!useCache)
+      return null;
+    return `${this.config.mainTable}_LBU_${this._getOptionsCacheKey(options)}_${role}_${tangoUserId ?? "A"}`;
   }
   _getByColumnCacheKey(columnName, columnValue, extraKey, options) {
     var _a2;
@@ -6608,114 +5103,6 @@ function _providerUniqueName(p) {
     return p;
   return `${p.constructor.name}.${p.config.mainTable}`;
 }
-function getUserRoleWhere(role, tangoUserId) {
-  switch (role) {
-    case UserRole.vendor:
-      return {
-        field: VENDEDOR_ID_FIELD,
-        value: tangoUserId
-      };
-    case UserRole.customer:
-      return {
-        field: CLIENTE_ID_FIELD,
-        value: tangoUserId
-      };
-  }
-  return void 0;
-}
-const PEDIDO_INVALIDO = "Inválido";
-const PEDIDO_INGRESADO = "IIngresado";
-const PEDIDO_APROBADO = "Visto";
-const PEDIDO_CUMPLIDO = "Cumplido";
-const PEDIDO_CERRADO = "Cerrado";
-const PEDIDO_ANULADO = "Anulado";
-const PEDIDO_ENPROGRESO = "En progreso";
-const PEDIDO_MENU_MODIFY = "Modificar";
-const PEDIDO_MENU_DELETE = "Eliminar";
-const PEDIDO_MENU_CANCEL = "Anular";
-const PEDIDO_MENU_DUPLICATE = "Duplicar";
-const PEDIDO_MENU_CREATE_ORDER = "Crear pedido";
-const PEDIDO_MENU_CREATE_DRAFT = "Crear borrador";
-const PEDIDO_MENU_CONVERT_DRAFT_TO_ORDER = "Convertir en pedido";
-const PEDIDO_ARTICLE_GROUP_NO_NAME = "Varios";
-const PEDIDO_CANCEL_ORDER = "Anular pedido";
-const PEDIDO_CANCEL_ORDER_CONFIRM = "¿Está seguro que desea anular este pedido? Esta acción no se puede deshacer.";
-const PEDIDO_ORDER_CANCELED = "Pedido anulado";
-const PEDIDO_DELETE_ORDER = "Eliminar pedido";
-const PEDIDO_DELETE_ORDER_CONFIRM = "¿Está seguro que desea eliminar este pedido? Esta acción no se puede deshacer.";
-const PEDIDO_ORDER_DELETED = "Pedido eliminado";
-const PEDIDO_DELETE_DRAFT = "Eliminar borrador";
-const PEDIDO_DELETE_DRAFT_CONFIRM = "¿Está seguro que desea eliminar este borrador? Esta acción no se puede deshacer.";
-const PEDIDO_DRAFT_DELETED = "Borrador eliminado";
-function getEstadoPedidoText(estado) {
-  switch (estado) {
-    case EstadoPedido.INGRESADO:
-      return PEDIDO_INGRESADO;
-    case EstadoPedido.APROBADO:
-      return PEDIDO_APROBADO;
-    case EstadoPedido.CUMPLIDO:
-      return PEDIDO_CUMPLIDO;
-    case EstadoPedido.CERRADO:
-      return PEDIDO_CERRADO;
-    case EstadoPedido.ANULADO:
-      return PEDIDO_ANULADO;
-    case EstadoPedido.EN_PROGRESO:
-      return PEDIDO_ENPROGRESO;
-    default:
-      return PEDIDO_INVALIDO;
-  }
-}
-function numberToEstadoPedido(value) {
-  if (!Number.isInteger(value))
-    return EstadoPedido.INVALIDO;
-  switch (value) {
-    case EstadoPedido.INGRESADO:
-      return EstadoPedido.INGRESADO;
-    case EstadoPedido.APROBADO:
-      return EstadoPedido.APROBADO;
-    case EstadoPedido.CUMPLIDO:
-      return EstadoPedido.CUMPLIDO;
-    case EstadoPedido.CERRADO:
-      return EstadoPedido.CERRADO;
-    case EstadoPedido.ANULADO:
-      return EstadoPedido.ANULADO;
-  }
-  return EstadoPedido.INVALIDO;
-}
-function realOrderStatus(header, rows) {
-  const { estado } = header;
-  const canBeInProgress = rows != null && (estado == EstadoPedido.APROBADO || estado == EstadoPedido.INGRESADO);
-  if (!canBeInProgress)
-    return estado;
-  for (const row of rows) {
-    const { a_descontar, a_facturar, pendiente_descontar, pendiente_facturar } = row;
-    if (a_descontar != pendiente_descontar || a_facturar != pendiente_facturar)
-      return EstadoPedido.EN_PROGRESO;
-  }
-  return estado;
-}
-function isUserAllowedToModifyOrder(user, orderStatus) {
-  const isAdmin = user instanceof UserEntity ? user.isAdmin() : user.role == UserRole.admin;
-  if (isAdmin)
-    return false;
-  if (orderStatus == EstadoPedido.INGRESADO)
-    return true;
-  return false;
-}
-function isUserAllowedToCancelOrDeleteOrder(user, orderStatus) {
-  if (orderStatus == EstadoPedido.INGRESADO)
-    return true;
-  const isAdmin = user instanceof UserEntity ? user.isAdmin() : user.role == UserRole.admin;
-  const puedeAnular = isAdmin ? true : user instanceof UserEntity ? user.puedeAnularPedido.valueOf() : user.puede_anular_pedido;
-  if (!puedeAnular)
-    return false;
-  const aprobarAlCrear = user instanceof UserEntity ? user.aprobarPedidoAlCrear.valueOf() : user.aprobar_pedido_al_crear;
-  if (orderStatus == EstadoPedido.APROBADO && aprobarAlCrear)
-    return true;
-  if ((orderStatus == EstadoPedido.EN_PROGRESO || orderStatus == EstadoPedido.ANULADO) && isAdmin)
-    return true;
-  return false;
-}
 class TangoProvider extends CompanyProvider {
   toResultWithoutDisposables(m) {
     const { FILLER, OBSERVACIONES, ROW_VERSION, CAMPOS_ADICIONALES, ...remaining } = m;
@@ -6748,10 +5135,10 @@ function resolveScreenName(screenNameFields, model, def = NO_NAME) {
   }
   return def;
 }
-function customerTrulyEnabled(habilitado, vendorExists, fechaInhabilitacion) {
+function customerTrulyEnabled(habilitado, sellerExists, fechaInhabilitacion) {
   if (!habilitado)
     return false;
-  if (!vendorExists)
+  if (!sellerExists)
     return false;
   const currentTime = now();
   const year = (fechaInhabilitacion == null ? void 0 : fechaInhabilitacion.getUTCFullYear()) ?? 0;
@@ -6759,287 +5146,6 @@ function customerTrulyEnabled(habilitado, vendorExists, fechaInhabilitacion) {
   const trulyEnabled = year <= 1900 || currentTime < disableTimestamp;
   return trulyEnabled;
 }
-const pedidoModelMapper = (m) => {
-  const {
-    [PEDIDO_ID_FIELD]: idPedido,
-    [PEDIDO_CODE_FIELD]: numero_pedido,
-    [CLIENTE_ID_FIELD]: id_cliente,
-    [CLIENTE_CODE_FIELD]: codigo_cliente,
-    [VENDEDOR_ID_FIELD]: id_vendedor,
-    [VENDEDOR_CODE_FIELD]: codigo_vendedor,
-    [TRANSPORTE_ID_FIELD]: id_transporte,
-    [TRANSPORTE_CODE_FIELD]: codigo_transporte,
-    FECHA_INGRESO,
-    HORA_INGRESO,
-    FECHA_PEDI,
-    FECHA_ENTR,
-    LEYENDA_4,
-    LEYENDA_5,
-    TOTAL_PEDI,
-    PORC_DESC,
-    USUARIO_INGRESO: descripcion,
-    ESTADO
-  } = m;
-  if (!isAnInteger(id_cliente))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> id_cliente");
-  if (!isNotEmptyStr(codigo_cliente))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> codigo_cliente");
-  if (!isAnInteger(id_vendedor))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> id_vendedor");
-  if (!isNotEmptyStr(codigo_vendedor))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> codigo_vendedor");
-  if (!isAnInteger(id_transporte))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> id_transporte");
-  if (!isNotEmptyStr(codigo_transporte))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> codigo_transporte");
-  if (!(FECHA_PEDI instanceof Date))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> FECHA_PEDI");
-  if (!(FECHA_ENTR === null || FECHA_ENTR instanceof Date))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> FECHA_ENTR");
-  if (!(FECHA_INGRESO === null || FECHA_INGRESO instanceof Date))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> FECHA_INGRESO");
-  const [hour, min, sec] = _getHMS(HORA_INGRESO);
-  if (!isAnInteger(hour) || !isAnInteger(min) || !isAnInteger(sec))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> HORA_INGRESO");
-  try {
-    if (FECHA_INGRESO instanceof Date)
-      FECHA_INGRESO.setHours(hour, min, sec);
-  } catch (_2) {
-  }
-  return {
-    id: idPedido,
-    numero_pedido,
-    estado: numberToEstadoPedido(ESTADO),
-    id_cliente,
-    codigo_cliente,
-    id_vendedor,
-    codigo_vendedor,
-    id_transporte,
-    codigo_transporte,
-    fecha_ingreso: FECHA_INGRESO,
-    fecha_alta: FECHA_PEDI,
-    fecha_entrega: FECHA_ENTR,
-    descripcion: descripcion ?? "",
-    comentarios: (LEYENDA_4 ?? "") + (LEYENDA_5 ?? ""),
-    total: TOTAL_PEDI ?? 0,
-    descuento: PORC_DESC ?? 0
-  };
-};
-function _getHMS(hms) {
-  if (!isStr(hms))
-    return [0, 0, 0];
-  hms = hms.trim();
-  if (hms.length != 6)
-    return [0, 0, 0];
-  const hStr = hms.substring(0, 2);
-  const mStr = hms.substring(2, 4);
-  const sStr = hms.substring(4, 6);
-  return [
-    Number.parseInt(hStr),
-    Number.parseInt(mStr),
-    Number.parseInt(sStr)
-  ];
-}
-const extendedPedidoModelMapper = (m) => {
-  const {
-    [TALONARIO_ID2_FIELD]: id_talonario,
-    [TALONARIO_CODE_FIELD]: codigo_talonario,
-    [CONDICION_ID_FIELD]: id_condicion,
-    [CONDICION_CODE_FIELD]: codigo_condicion,
-    [LISTA_ID_FIELD]: id_lista,
-    [LISTA_CODE2_FIELD]: codigo_lista,
-    [ASIENTO_CODE_FIELD]: codigo_asiento,
-    [DEPOSITO_CODE_FIELD]: codigo_deposito,
-    COMP_STK: compromete_stock,
-    ID_ASIENTO_MODELO_GV: id_asiento_modelo_gv
-  } = m;
-  if (!isAnInteger(id_talonario))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "extendedPedidoModelMapper -> id_talonario");
-  if (!isAnInteger(codigo_talonario))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "extendedPedidoModelMapper -> codigo_talonario");
-  if (!isAnInteger(id_condicion))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "extendedPedidoModelMapper -> id_vendedor");
-  if (!isAnInteger(codigo_condicion))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "extendedPedidoModelMapper -> codigo_condicion");
-  if (!isAnInteger(id_lista))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "extendedPedidoModelMapper -> id_lista");
-  if (!isAnInteger(codigo_lista))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "extendedPedidoModelMapper -> codigo_lista");
-  if (!isNotEmptyStr(codigo_asiento))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "extendedPedidoModelMapper -> codigo_asiento");
-  if (!isStr(codigo_deposito))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "extendedPedidoModelMapper -> codigo_deposito");
-  return {
-    ...pedidoModelMapper(m),
-    id_talonario,
-    codigo_talonario,
-    id_condicion,
-    codigo_condicion,
-    id_lista,
-    codigo_lista,
-    codigo_asiento,
-    codigo_deposito,
-    compromete_stock: compromete_stock === true,
-    id_asiento_modelo_gv
-  };
-};
-const pedidoAndRelationsModelMapper = (m) => {
-  const r = pedidoModelMapper(m);
-  const nombre_cliente = resolveScreenName(CLIENTE_NAME_COLUMNS, m);
-  const nombre_vendedor = r.codigo_vendedor != null ? resolveScreenName(VENDEDOR_NAME_COLUMNS, m) : void 0;
-  const nombre_transporte = r.codigo_transporte != null ? resolveScreenName(TRANSPORTE_NAME_COLUMNS, m) : void 0;
-  return {
-    ...r,
-    nombre_cliente,
-    nombre_vendedor,
-    nombre_transporte
-  };
-};
-const tangoClienteModelMapper = (m) => {
-  const { [CLIENTE_ID_FIELD]: id, [CLIENTE_CODE_FIELD]: code, HABILITADO: isEnabled, FECHA_INHA: fechaInhabilitacion, [VENDEDOR_ID_FIELD]: vendedor_id } = m;
-  const screen_name = resolveScreenName(
-    CLIENTE_NAME_COLUMNS,
-    m,
-    code
-  );
-  const vendorExists = vendedor_id != null;
-  const habilitado = customerTrulyEnabled(isEnabled, vendorExists, fechaInhabilitacion);
-  return {
-    id,
-    code,
-    screen_name,
-    habilitado
-  };
-};
-const tangoExtendedClienteModelMapper = (m) => {
-  const {
-    [VENDEDOR_ID_FIELD]: idVendedor,
-    [VENDEDOR_CODE_FIELD]: codigoVendedor,
-    [TRANSPORTE_ID_FIELD]: idTransporte,
-    [TRANSPORTE_CODE_FIELD]: codigoTransporte,
-    [LISTA_ID_FIELD]: idLista,
-    NRO_LISTA: codigoLista,
-    [CONDICION_ID_FIELD]: idCondicion,
-    [CONDICION_CODE_FIELD]: codigoCondicion,
-    IVA_D,
-    II_D,
-    SOBRE_IVA,
-    SOBRE_II,
-    PORC_DESC
-  } = m;
-  if (!isAnInteger(idVendedor))
-    throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper -> ${VENDEDOR_ID_FIELD}`);
-  if (!isNotEmptyStr(codigoVendedor))
-    throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper ${VENDEDOR_CODE_FIELD}`);
-  if (!isAnInteger(idLista))
-    throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper ${LISTA_ID_FIELD}`);
-  if (!isAnInteger(codigoLista))
-    throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper NRO_LISTA`);
-  if (!isAnInteger(idCondicion))
-    throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper ${CONDICION_ID_FIELD}`);
-  if (!isAnInteger(codigoCondicion))
-    throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper ${CONDICION_CODE_FIELD}`);
-  return {
-    ...tangoClienteModelMapper(m),
-    idVendedor,
-    codigoVendedor,
-    idTransporte,
-    codigoTransporte,
-    idCondicion,
-    codigoCondicion,
-    idLista,
-    codigoLista,
-    discriminaIVA: _isYes(IVA_D),
-    discriminaII: _isYes(II_D),
-    aplicaSobreIVA: _isYes(SOBRE_IVA),
-    aplicaSobreII: _isYes(SOBRE_II),
-    bonificacion: isANumber(PORC_DESC) ? PORC_DESC : 0
-  };
-};
-function _isYes(field) {
-  if (!isStr(field))
-    return false;
-  return field.trim().toUpperCase() === "S";
-}
-class ClienteRepository extends TangoProvider {
-  constructor() {
-    super({
-      mainTable: CLIENTE_TABLE,
-      mainIdField: CLIENTE_ID_FIELD,
-      columns: clienteModelColumns,
-      sortField: "RAZON_SOCI"
-    });
-  }
-  async customerBelongsToVendor(customerId, vendorId) {
-    const cacheKey = `belongs_${vendorId}_${customerId}`;
-    const cachedData = await this.cache.getMetadata(cacheKey);
-    if (cachedData != null)
-      return cachedData;
-    const { mainTable, columns } = this.config;
-    const k = await this.getCompany();
-    const data = await k(mainTable).count({ count: "*" }).where({
-      [VENDEDOR_ID_FIELD]: vendorId,
-      [CLIENTE_ID_FIELD]: customerId
-    });
-    const customerBelongsToVendor = Array.isArray(data) && data.length > 0 && data[0].count === 1;
-    await this.cache.setMetadata(cacheKey, customerBelongsToVendor);
-    return customerBelongsToVendor;
-  }
-  async getAllByVendor(vendorId) {
-    const cacheKey = `byVendor_${vendorId}`;
-    const cachedData = await this.cache.getMetadata(cacheKey);
-    if (cachedData != null)
-      return cachedData;
-    const { mainTable, columns } = this.config;
-    const k = await this.getCompany();
-    const data = await k(mainTable).select(...columns ?? "*").where({
-      [VENDEDOR_ID_FIELD]: vendorId
-    });
-    const result = data.map((m) => this.toResult(m));
-    await this.cache.setMetadata(cacheKey, result);
-    return result;
-  }
-  async getExtendedById(customerId) {
-    const cacheKey = `fullById_${customerId}`;
-    const cachedData = await this.cache.getMetadata(cacheKey);
-    if (cachedData != null)
-      return cachedData;
-    const { mainTable, mainIdField, columns } = this.config;
-    const k = await this.getCompany();
-    const data = await k(mainTable).first(...columns ?? "*").where(mainIdField, customerId);
-    if (data == null)
-      throw new DXTException(DXTErrorCode.DXT_CUSTOMER_NOT_FOUND);
-    const result = this._toExtendedResult(data);
-    await this.cache.setMetadata(cacheKey, result);
-    return result;
-  }
-  toResult(m) {
-    return tangoClienteModelMapper(m);
-  }
-  _toExtendedResult(m) {
-    return tangoExtendedClienteModelMapper(m);
-  }
-}
-const clienteRepository = new ClienteRepository();
-const tangoVendedorModelMapper = (m) => {
-  const { [VENDEDOR_ID_FIELD]: id, [VENDEDOR_CODE_FIELD]: code, INHABILITA } = m;
-  let screen_name = resolveScreenName(
-    VENDEDOR_NAME_COLUMNS,
-    m,
-    code
-  );
-  const habilitado = !(INHABILITA ?? false);
-  return { id, screen_name, habilitado };
-};
-const vendedorRepository = createTangoRepository(
-  VENDEDOR_TABLE,
-  VENDEDOR_ID_FIELD,
-  tangoVendedorModelMapper,
-  vendedorModelColumns,
-  [
-    clienteRepository
-  ]
-);
 const tangoTransporteModelMapper = (m) => {
   const { [TRANSPORTE_ID_FIELD]: id, [TRANSPORTE_CODE_FIELD]: code, NOMBRE_TRA } = m;
   return { id, code, name: NOMBRE_TRA ?? code };
@@ -7128,7 +5234,7 @@ const tangoPerfilModelMapper = (m) => {
     D_TIPO_ASI,
     ID_ASIENTO_MODELO_GV
   } = m;
-  const bonificacion = isStr(BONIF_DEF) && BONIF_DEF.trim().toUpperCase() == "O" ? Number.isFinite(D_BONIFIC) ? D_BONIFIC : 0 : void 0;
+  const bonificacion = isStr(BONIF_DEF) && BONIF_DEF.trim().toUpperCase() == "O" ? isANumber(D_BONIFIC) ? D_BONIFIC : 0 : null;
   const codigo_condicion_venta = isNotEmptyStr(D_COND_VEN) ? Number.parseInt(D_COND_VEN.trim()) : void 0;
   if (!isAnInteger(D_TAL_FACT))
     throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, "tangoPerfilModelMapper -> D_TAL_FACT");
@@ -7215,981 +5321,135 @@ class DireccionRepository extends TangoProvider {
   }
 }
 const direccionRepository = new DireccionRepository();
-const TANGO_PARAMETROS_TABLE = "GVA16";
-const TANGO_PARAMETROS_ID_FIELD = "ID_GVA16";
-const tangoParametrosModelColumns = [
-  TANGO_PARAMETROS_ID_FIELD,
-  "PED_APR_CO",
-  "PED_AUT_CO",
-  "PED_FECHA",
-  "PROX_NDOC"
-];
-const tangoParametrosModelMapper = (m) => {
-  const { PED_AUT_CO, PROX_NDOC } = m;
-  const idsPedidosAutomaticos = toBoolean(PED_AUT_CO, false);
-  const proximoId = PROX_NDOC;
-  if (proximoId == null || !Number.isFinite(proximoId))
-    throw new DXTException(DXTErrorCode.TANGO_DB_INVALID_DATA, "tangoParametrosModelMapper -> PROX_NDOC");
+const tangoClienteModelMapper = (m) => {
+  const { [CLIENTE_ID_FIELD]: id, [CLIENTE_CODE_FIELD]: code, HABILITADO: isEnabled, FECHA_INHA: fechaInhabilitacion, [VENDEDOR_ID_FIELD]: vendedor_id } = m;
+  const screen_name = resolveScreenName(
+    CLIENTE_NAME_COLUMNS,
+    m,
+    code
+  );
+  const sellerExists = vendedor_id != null;
+  const habilitado = customerTrulyEnabled(isEnabled, sellerExists, fechaInhabilitacion);
   return {
-    idsPedidosAutomaticos,
-    proximoId
+    id,
+    code,
+    screen_name,
+    habilitado
   };
 };
-class TangoRepository extends CompanyProvider {
+const tangoExtendedClienteModelMapper = (m) => {
+  const {
+    [VENDEDOR_ID_FIELD]: idVendedor,
+    [VENDEDOR_CODE_FIELD]: codigoVendedor,
+    [TRANSPORTE_ID_FIELD]: idTransporte,
+    [TRANSPORTE_CODE_FIELD]: codigoTransporte,
+    [LISTA_ID_FIELD]: idLista,
+    NRO_LISTA: codigoLista,
+    [CONDICION_ID_FIELD]: idCondicion,
+    [CONDICION_CODE_FIELD]: codigoCondicion,
+    IVA_D,
+    II_D,
+    SOBRE_IVA,
+    SOBRE_II,
+    PORC_DESC
+  } = m;
+  if (!isAnInteger(idVendedor))
+    throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper -> ${VENDEDOR_ID_FIELD}`);
+  if (!isNotEmptyStr(codigoVendedor))
+    throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper ${VENDEDOR_CODE_FIELD}`);
+  if (!isAnInteger(idLista))
+    throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper ${LISTA_ID_FIELD}`);
+  if (!isAnInteger(codigoLista))
+    throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper NRO_LISTA`);
+  if (!isAnInteger(idCondicion))
+    throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper ${CONDICION_ID_FIELD}`);
+  if (!isAnInteger(codigoCondicion))
+    throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper ${CONDICION_CODE_FIELD}`);
+  return {
+    ...tangoClienteModelMapper(m),
+    idVendedor,
+    codigoVendedor,
+    idTransporte,
+    codigoTransporte,
+    idCondicion,
+    codigoCondicion,
+    idLista,
+    codigoLista,
+    discriminaIVA: taxFieldIsYes(IVA_D),
+    discriminaII: taxFieldIsYes(II_D),
+    aplicaSobreIVA: taxFieldIsYes(SOBRE_IVA),
+    aplicaSobreII: taxFieldIsYes(SOBRE_II),
+    bonificacion: isANumber(PORC_DESC) ? PORC_DESC : 0
+  };
+};
+function taxFieldIsYes(field) {
+  if (!isStr(field))
+    return false;
+  return field.trim().toUpperCase() === "S";
+}
+class ClienteRepository extends TangoProvider {
   constructor() {
     super({
-      mainTable: TANGO_PARAMETROS_TABLE,
-      mainIdField: TANGO_PARAMETROS_ID_FIELD,
-      columns: tangoParametrosModelColumns
+      mainTable: CLIENTE_TABLE,
+      mainIdField: CLIENTE_ID_FIELD,
+      columns: clienteModelColumns,
+      sortField: "RAZON_SOCI"
     });
   }
-  async getParametros() {
-    return await this.getFirst();
-  }
-  async updateNextId(id, trx) {
-    const { mainTable } = this.config;
-    const k = trx ?? await this.getCompany();
-    await k(mainTable).update({ PROX_NDOC: id });
-  }
-  toResult(m) {
-    return tangoParametrosModelMapper(m);
-  }
-}
-const tangoRepository = new TangoRepository();
-class PedidoBaseRepository extends CompanyProvider {
-  constructor(config2) {
-    const { mainTable, rowsRepository } = config2;
-    super({
-      mainTable,
-      mainIdField: PEDIDO_ID_FIELD,
-      columns: pedidoModelColumns,
-      dependencies: [
-        clienteRepository,
-        vendedorRepository,
-        transporteRepository,
-        rowsRepository
-      ]
+  async customerBelongsToSeller(customerId, sellerId) {
+    const cacheKey = `belongs_${sellerId}_${customerId}`;
+    const cachedData = await this.cache.getMetadata(cacheKey);
+    if (cachedData != null)
+      return cachedData;
+    const { mainTable, columns } = this.config;
+    const k = await this.getCompany();
+    const data = await k(mainTable).count({ count: "*" }).where({
+      [VENDEDOR_ID_FIELD]: sellerId,
+      [CLIENTE_ID_FIELD]: customerId
     });
-    this._rowsRepository = rowsRepository;
+    const customerBelongsToSeller = Array.isArray(data) && data.length > 0 && data[0].count === 1;
+    await this.cache.setMetadata(cacheKey, customerBelongsToSeller);
+    return customerBelongsToSeller;
   }
-  _avoidInvalidsFilterWhereRaw() {
-    const { mainTable } = this.config;
-    return `${mainTable}.${PEDIDO_ID_FIELD} IS NOT NULL AND ${mainTable}.${PEDIDO_CODE_FIELD} IS NOT NULL AND ${mainTable}.${CLIENTE_ID_FIELD} IS NOT NULL AND ${mainTable}.${CLIENTE_CODE_FIELD} IS NOT NULL AND ${mainTable}.${VENDEDOR_ID_FIELD} IS NOT NULL AND ${mainTable}.${VENDEDOR_CODE_FIELD} IS NOT NULL AND ${mainTable}.${TRANSPORTE_ID_FIELD} IS NOT NULL AND ${mainTable}.${TRANSPORTE_CODE_FIELD} IS NOT NULL`;
+  async getAllBySeller(sellerId) {
+    const cacheKey = `bySeller_${sellerId}`;
+    const cachedData = await this.cache.getMetadata(cacheKey);
+    if (cachedData != null)
+      return cachedData;
+    const { mainTable, columns } = this.config;
+    const k = await this.getCompany();
+    const data = await k(mainTable).select(...columns ?? "*").where({
+      [VENDEDOR_ID_FIELD]: sellerId
+    });
+    const result = data.map((m) => this.toResult(m));
+    await this.cache.setMetadata(cacheKey, result);
+    return result;
   }
-  _toExtendedResult(m) {
-    return extendedPedidoModelMapper(m);
+  async getByCode(code) {
+    return await this.getOne(CLIENTE_CODE_FIELD, code);
   }
-  async getExtendedById(orderId) {
-    const cacheKey = `fullById_${orderId}`;
+  async getExtendedById(customerId) {
+    const cacheKey = `fullById_${customerId}`;
     const cachedData = await this.cache.getMetadata(cacheKey);
     if (cachedData != null)
       return cachedData;
     const { mainTable, mainIdField, columns } = this.config;
     const k = await this.getCompany();
-    const data = await k(mainTable).first(...extendedPedidoModelColumns).where(mainIdField, orderId);
+    const data = await k(mainTable).first(...columns ?? "*").where(mainIdField, customerId);
     if (data == null)
-      throw new DXTException(DXTErrorCode.NOT_FOUND);
+      throw new DXTException(DXTErrorCode.DXT_CUSTOMER_NOT_FOUND);
     const result = this._toExtendedResult(data);
     await this.cache.setMetadata(cacheKey, result);
     return result;
   }
-  _getUserRoleWhere(role, tangoUserId) {
-    return getUserRoleWhere(role, tangoUserId);
-  }
-  async getAllByUser(user, options) {
-    var _a2;
-    const role = user.role.valueOf();
-    const tangoUserId = (_a2 = user.tangoId) == null ? void 0 : _a2.valueOf();
-    const cacheKey = this.getAllByUserCacheKey(role, tangoUserId, options);
-    if (cacheKey != null) {
-      const cachedData = await this.cache.getMetadata(cacheKey);
-      if (cachedData)
-        return cachedData;
-    }
-    const { mainTable, columns } = this.config;
-    const k = await this.getCompany();
-    const where = this._getUserRoleWhere(role, tangoUserId);
-    let query = k(mainTable);
-    if (where != null)
-      query = query.where(
-        `${mainTable}.${where.field}`,
-        where.value
-      );
-    const mainColumns = (columns ?? ["*"]).map((c) => `${mainTable}.${c.toString()}`);
-    const clienteNombreColumns = CLIENTE_NAME_COLUMNS.map((c) => `${CLIENTE_TABLE}.${c}`);
-    const vendedorNombreColumns = VENDEDOR_NAME_COLUMNS.map((c) => `${VENDEDOR_TABLE}.${c}`);
-    const transporteNombreColumns = TRANSPORTE_NAME_COLUMNS.map((c) => `${TRANSPORTE_TABLE}.${c}`);
-    const data = await query.andWhereRaw(this._avoidInvalidsFilterWhereRaw()).select(...mainColumns, ...clienteNombreColumns, ...vendedorNombreColumns, ...transporteNombreColumns).leftOuterJoin(CLIENTE_TABLE, `${mainTable}.${CLIENTE_ID_FIELD}`, `${CLIENTE_TABLE}.${CLIENTE_ID_FIELD}`).leftOuterJoin(VENDEDOR_TABLE, `${mainTable}.${VENDEDOR_ID_FIELD}`, `${VENDEDOR_TABLE}.${VENDEDOR_ID_FIELD}`).leftOuterJoin(TRANSPORTE_TABLE, `${mainTable}.${TRANSPORTE_ID_FIELD}`, `${TRANSPORTE_TABLE}.${TRANSPORTE_ID_FIELD}`);
-    if (data == null)
-      throw new DXTException(DXTErrorCode.NOT_FOUND);
-    const result = data.map((p) => this.toResultWithRelations(p));
-    if (cacheKey != null)
-      await this.cache.setMetadata(cacheKey, result);
-    return result;
-  }
-  async deleteById(orderId) {
-    const k = await this.getCompany();
-    const { mainTable: orderTable, mainIdField: orderIdField } = this.config;
-    const result = await k.transaction(async (trx) => {
-      const { mainTable: rowsTable, mainIdField: rowIdField } = this._rowsRepository.config;
-      await trx(rowsTable).where(orderIdField, orderId).del();
-      const result2 = await trx(orderTable).where(orderIdField, orderId).del();
-      return result2;
-    });
-    if (result <= 0)
-      throw new DXTException(DXTErrorCode.NOT_FOUND);
-  }
-  composeUpsertRecord(customer, orderAndRows) {
-    const {
-      idLista,
-      codigoLista
-    } = customer;
-    const {
-      estado,
-      idTransporte,
-      codigoTransporte,
-      idDeposito,
-      codigoDeposito,
-      idCondicion,
-      codigoCondicion,
-      idAsiento,
-      codigoAsiento,
-      idTalonario,
-      codigoTalonario,
-      idDireccionDeEntrega,
-      idAsientoModeloGV,
-      bonificacion,
-      comentarios,
-      comprometeStock,
-      total
-    } = orderAndRows;
-    const comentariosLinea1 = comentarios.substring(0, LEYENDA_FIELD_LENGTH);
-    const comentariosLinea2 = comentarios.substring(LEYENDA_FIELD_LENGTH, LEYENDA_FIELD_LENGTH * 2);
-    const result = {
-      [CLIENTE_ID_FIELD]: customer.id,
-      [CLIENTE_CODE_FIELD]: customer.code,
-      [VENDEDOR_ID_FIELD]: customer.idVendedor,
-      [VENDEDOR_CODE_FIELD]: customer.codigoVendedor,
-      [CONDICION_ID_FIELD]: idCondicion,
-      [CONDICION_CODE_FIELD]: codigoCondicion,
-      [LISTA_ID_FIELD]: idLista,
-      [LISTA_CODE2_FIELD]: codigoLista,
-      [TRANSPORTE_ID_FIELD]: idTransporte,
-      [TRANSPORTE_CODE_FIELD]: codigoTransporte,
-      [TALONARIO_ID2_FIELD]: idTalonario,
-      [TALONARIO_CODE_FIELD]: codigoTalonario,
-      [DEPOSITO_CODE_FIELD]: codigoDeposito,
-      [ASIENTO_CODE_FIELD]: codigoAsiento,
-      [DIRECCION_ID_FIELD]: idDireccionDeEntrega,
-      PORC_DESC: bonificacion,
-      COMP_STK: comprometeStock,
-      LEYENDA_4: comentariosLinea1,
-      LEYENDA_5: comentariosLinea2,
-      TOTAL_PEDI: total,
-      ESTADO: estado,
-      ID_ASIENTO_MODELO_GV: idAsientoModeloGV,
-      N_REMITO: "",
-      APRUEBA: "",
-      EXPORTADO: false,
-      ID_EXTERNO: "",
-      NRO_O_COMP: "",
-      NRO_SUCURS: 0,
-      ORIGEN: "T",
-      REVISO_FAC: "0",
-      REVISO_STK: "0"
-    };
-    return result;
-  }
-  composeInsertRecord(customer, params) {
-    const result = this.composeUpsertRecord(
-      customer,
-      params
-    );
-    return result;
-  }
-  composeUpdateRecord(customer, params) {
-    const result = this.composeUpsertRecord(
-      customer,
-      params
-    );
-    return result;
-  }
-  async create(customer, params) {
-    const k = await this.getCompany();
-    const { mainTable: orderTable } = this.config;
-    const { rows } = params;
-    const orderModel = this.composeInsertRecord(customer, params);
-    const result = await k.transaction(async (trx) => {
-      const newOrderCode = await this.getNewOrderCodeAndUpdate(trx);
-      const newOrderCodeStr = await this.formatOrderCode(newOrderCode);
-      await trx(orderTable).insert({
-        ...orderModel,
-        [PEDIDO_CODE_FIELD]: newOrderCodeStr
-      });
-      const newOrderId = await this.getOrderIdFromCode(newOrderCodeStr, trx);
-      if (newOrderId == null)
-        throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "PedidoBaseRepository.create -> newOrderId not found");
-      let rowIndex = 0;
-      for (const row of rows) {
-        rowIndex++;
-        await this._rowsRepository.create(
-          newOrderId,
-          newOrderCodeStr,
-          params,
-          row,
-          rowIndex,
-          trx
-        );
-      }
-      return {
-        nuevo_pedido: true,
-        id_pedido: newOrderId,
-        numero_pedido: newOrderCodeStr
-      };
-    });
-    return result;
-  }
-  async update(customer, params) {
-    const k = await this.getCompany();
-    const { mainTable: orderTable, mainIdField: orderIdField } = this.config;
-    const { mainTable: rowsTable } = this._rowsRepository.config;
-    const { rows, idPedido } = params;
-    const orderModel = this.composeUpdateRecord(customer, params);
-    const result = await k.transaction(
-      async (trx) => {
-        const changedRecords = await trx(orderTable).where(
-          PEDIDO_ID_FIELD,
-          idPedido
-        ).update(orderModel);
-        if (changedRecords != 1)
-          throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, `PedidoBaseRepository.update -> Invalid count of changed records: ${changedRecords}`);
-        const updatedOrder = await this.getByIdOrNull(params.idPedido);
-        if (updatedOrder == null)
-          throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "PedidoBaseRepository.create -> Updated record not found");
-        await trx(rowsTable).where(orderIdField, updatedOrder.id).del();
-        let rowIndex = 0;
-        for (const row of rows) {
-          rowIndex++;
-          await this._rowsRepository.create(
-            updatedOrder.id,
-            updatedOrder.numero_pedido,
-            params,
-            row,
-            rowIndex,
-            trx
-          );
-        }
-        return {
-          nuevo_pedido: false,
-          id_pedido: updatedOrder.id,
-          numero_pedido: updatedOrder.numero_pedido
-        };
-      }
-    );
-    return result;
-  }
   toResult(m) {
-    return pedidoModelMapper(m);
+    return tangoClienteModelMapper(m);
   }
-  toResultWithRelations(m) {
-    return pedidoAndRelationsModelMapper(m);
-  }
-  async getOrderIdFromCode(orderCode, trx) {
-    const k = trx ?? await this.getCompany();
-    const result = await k(this.config.mainTable).first(PEDIDO_ID_FIELD).where(PEDIDO_CODE_FIELD, orderCode);
-    return (result == null ? void 0 : result[PEDIDO_ID_FIELD]) ?? null;
-  }
-  async getOrderCodeFromId(orderId, trx) {
-    const k = trx ?? await this.getCompany();
-    const result = await k(this.config.mainTable).first(PEDIDO_CODE_FIELD).where(PEDIDO_ID_FIELD, orderId);
-    return (result == null ? void 0 : result[PEDIDO_CODE_FIELD]) ?? null;
-  }
-  async getBiggerOrderCode(trx) {
-    var _a2;
-    const { mainTable } = this.config;
-    const k = trx ?? await this.getCompany();
-    const result = await k(mainTable).first(PEDIDO_CODE_FIELD).orderBy(PEDIDO_CODE_FIELD, "desc");
-    const orderCode = (_a2 = result == null ? void 0 : result[PEDIDO_CODE_FIELD]) == null ? void 0 : _a2.trim();
-    const orderCodeNumber = Number.parseInt(orderCode);
-    return isAnInteger(orderCodeNumber) && orderCodeNumber > 0 ? orderCodeNumber : 1;
-  }
-  async formatOrderCode(orderCode) {
-    return await dictionaryRepository.formatNumeroPedido(orderCode);
-  }
-  async getNewOrderCodeAndUpdate(trx) {
-    const { idsPedidosAutomaticos, proximoId } = await tangoRepository.getParametros();
-    let newOrderCode;
-    if (idsPedidosAutomaticos) {
-      newOrderCode = proximoId;
-    } else {
-      newOrderCode = await this.getBiggerOrderCode(trx);
-    }
-    newOrderCode = await this.getNextFreeOrderCode(newOrderCode, trx);
-    await this._updateNextOrderCode(newOrderCode, trx);
-    return newOrderCode;
-  }
-  async _updateNextOrderCode(newOrderCode, trx) {
-    const { idsPedidosAutomaticos } = await tangoRepository.getParametros();
-    if (idsPedidosAutomaticos) {
-      await tangoRepository.updateNextId(newOrderCode, trx);
-    }
-  }
-  async getNextFreeOrderCode(initialOrderCode, trx) {
-    const { min, max } = await dictionaryRepository.getNumeroPedidoRange();
-    let newId = initialOrderCode;
-    while (await this.getOrderIdFromCode(await this.formatOrderCode(newId), trx) != null) {
-      newId++;
-      if (newId >= max)
-        newId = min;
-    }
-    return newId;
+  _toExtendedResult(m) {
+    return tangoExtendedClienteModelMapper(m);
   }
 }
-const renglonPedidoModelMapper = (m) => {
-  const {
-    [ARTICULO_ID_FIELD]: id_articulo,
-    [ARTICULO_CODE_FIELD]: codigo_articulo,
-    PRECIO,
-    CANT_PEDID,
-    N_RENGLON,
-    CANT_A_DES: a_descontar,
-    CANT_PEN_D: pendiente_descontar,
-    CANT_A_FAC: a_facturar,
-    CANT_PEN_F: pendiente_facturar
-  } = m;
-  const precio = PRECIO ?? 0;
-  const cantidad = CANT_PEDID ?? 0;
-  const subtotal = precio * cantidad;
-  if (!isNotEmptyStr(codigo_articulo))
-    throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `renglonPedidoModelMapper ${ARTICULO_CODE_FIELD}`);
-  return {
-    id_articulo,
-    codigo_articulo,
-    renglon: N_RENGLON ?? 0,
-    precio,
-    cantidad,
-    subtotal,
-    a_descontar,
-    pendiente_descontar,
-    a_facturar,
-    pendiente_facturar
-  };
-};
-const renglonPedidoAndRelationsModelMapper = (m) => {
-  const r = renglonPedidoModelMapper(m);
-  const { [ARTICULO_CODE_FIELD]: codigoArticulo, DESCRIPCIO, DESC_ADIC: descripcion_adicional } = m;
-  const nombre_articulo = DESCRIPCIO ?? (codigoArticulo == null ? NONEXISTENT_PRODUCT : NO_NAME);
-  return {
-    ...r,
-    nombre_articulo,
-    descripcion_adicional
-  };
-};
-function tangoArticuloModelMapper(m) {
-  const { [ARTICULO_ID_FIELD]: id, [ARTICULO_CODE_FIELD]: codigo, DESCRIPCIO, DESC_ADIC } = m;
-  return {
-    id,
-    codigo,
-    nombre: DESCRIPCIO ?? codigo,
-    descripcion_adicional: DESC_ADIC
-  };
-}
-function tangoFullArticleModelMapper(m, alternateListId, alternateDiscount) {
-  const {
-    PRECIO,
-    [LISTA_ID_FIELD]: idLista,
-    COD_II,
-    COD_IVA,
-    COD_S_II,
-    COD_S_IVA,
-    ID_MEDIDA_STOCK,
-    ID_MEDIDA_STOCK_2,
-    ID_MEDIDA_VENTAS
-  } = m;
-  const discount = alternateListId != null && idLista === alternateListId ? alternateDiscount : null;
-  return {
-    ...tangoArticuloModelMapper(m),
-    id_lista: idLista,
-    precio: PRECIO,
-    bonificacion: discount ?? void 0,
-    codigo_iva: COD_IVA,
-    codigo_sobre_iva: COD_S_IVA,
-    codigo_ii: COD_II,
-    codigo_sobre_ii: COD_S_II,
-    id_medida_stock: ID_MEDIDA_STOCK ?? null,
-    id_medida_stock_2: ID_MEDIDA_STOCK_2 ?? null,
-    id_medida_ventas: ID_MEDIDA_VENTAS ?? null
-  };
-}
-function tangoFullArticleOrGroupNameModelMapper(m, alternateListId, alternateDiscount) {
-  const { DXTO_CODIGO_ARTICULO, [ARTICULO_CODE_FIELD]: codigoArticulo } = m;
-  const isGroupLabel = DXTO_CODIGO_ARTICULO != null && DXTO_CODIGO_ARTICULO !== codigoArticulo;
-  if (isGroupLabel)
-    return DXTO_CODIGO_ARTICULO.trim();
-  return tangoFullArticleModelMapper(
-    m,
-    alternateListId,
-    alternateDiscount
-  );
-}
-function tangoListaModelMapper(m) {
-  const {
-    [LISTA_ID_FIELD]: id,
-    [LISTA_CODE_FIELD]: codigo,
-    NOMBRE_LIS,
-    INCLUY_IMP,
-    INCLUY_IVA,
-    HABILITADA
-  } = m;
-  const nombre = NOMBRE_LIS ?? codigo.toString();
-  const incluye_ii = toBoolean(INCLUY_IMP, false);
-  const incluye_iva = toBoolean(INCLUY_IVA, false);
-  const habilitada = toBoolean(HABILITADA, false);
-  return {
-    id,
-    codigo,
-    nombre,
-    incluye_ii,
-    incluye_iva,
-    habilitada
-  };
-}
-function tangoPrecioModelMapper(m) {
-  const {
-    [ARTICULO_CODE_FIELD]: codigoArticulo,
-    PRECIO
-  } = m;
-  const precio = PRECIO ?? 0;
-  return {
-    codigoArticulo,
-    precio
-  };
-}
-class ArticuloRepository extends TangoProvider {
-  constructor() {
-    super({
-      mainTable: ARTICULO_TABLE,
-      mainIdField: ARTICULO_ID_FIELD,
-      columns: articuloModelColumns
-    });
-  }
-  toResult(m) {
-    return tangoArticuloModelMapper(m);
-  }
-  async getArticlesWithTaxes(listId, alternateListId, alternateDiscount) {
-    const { mainTable } = this.config;
-    const k = await this.getCompany();
-    const fullArticuloCodeField = `${ARTICULO_TABLE}.${ARTICULO_CODE_FIELD}`;
-    const fullPrecioListaIdField = `${PRECIO_TABLE}.${LISTA_ID_FIELD}`;
-    const otherListId = alternateListId ?? listId;
-    const articuloColumns = articuloModelColumns.map((c) => `${ARTICULO_TABLE}.${c} as ${c}`);
-    const precioColumns = ["PRECIO", LISTA_ID_FIELD].map((c) => `${PRECIO_TABLE}.${c} as ${c}`);
-    let query = k(mainTable).select(...articuloColumns, ...precioColumns).leftOuterJoin(PRECIO_TABLE, fullArticuloCodeField, `${PRECIO_TABLE}.${ARTICULO_CODE_FIELD}`);
-    const result = await query.where(
-      k.raw(
-        `${fullPrecioListaIdField} = ? OR ${fullPrecioListaIdField} = ?`,
-        [listId, otherListId]
-      )
-    ).orderBy(fullArticuloCodeField);
-    return result.map((item) => tangoFullArticleModelMapper(
-      item,
-      alternateListId,
-      alternateDiscount
-    ));
-  }
-}
-const articuloRepository = new ArticuloRepository();
-const listaRepository = createTangoRepository(LISTA_TABLE, LISTA_ID_FIELD, tangoListaModelMapper, listaModelColumns);
-const precioRepository = createTangoRepository(PRECIO_TABLE, PRECIO_ID_FIELD, tangoPrecioModelMapper, precioModelColumns, [listaRepository, articuloRepository]);
-class RenglonPedidoBaseRepository extends CompanyProvider {
-  constructor(config2) {
-    const { mainTable, pedidoTable } = config2;
-    super({
-      mainTable,
-      mainIdField: RENGLON_PEDIDO_ID_FIELD,
-      columns: renglonPedidoModelColumns,
-      dependencies: [
-        articuloRepository,
-        pedidoTable
-      ]
-    });
-    this._pedidoTable = pedidoTable;
-    const filteredColumns = renglonPedidoModelColumns.filter((c) => c != PEDIDO_ID_FIELD) ?? [];
-    this.mainColumns = filteredColumns.map((c) => `${mainTable}.${c.toString()}`);
-    this.pedidoColumns = [`${pedidoTable}.${PEDIDO_ID_FIELD}`];
-    this.articuloColumns = ARTICULO_NAME_COLUMNS.map((c) => `${ARTICULO_TABLE}.${c}`);
-  }
-  async _getByWhere(whereColumn, whereValue) {
-    const cacheKey = `byWhere_${whereColumn ?? "x"}_${whereValue ?? "x"}`;
-    const resultFromCache = await this.cache.getMetadata(cacheKey);
-    if (resultFromCache != null)
-      return resultFromCache;
-    const { mainTable } = this.config;
-    const pedidoTable = this._pedidoTable;
-    const k = await this.getCompany();
-    let query = k(mainTable);
-    if (whereColumn != null)
-      query = query.where(whereColumn, whereValue);
-    const allColumns = [
-      ...this.mainColumns,
-      ...this.articuloColumns,
-      ...this.pedidoColumns
-    ];
-    const rawData = await query.select(allColumns).leftOuterJoin(ARTICULO_TABLE, `${mainTable}.${ARTICULO_ID_FIELD}`, `${ARTICULO_TABLE}.${ARTICULO_ID_FIELD}`).innerJoin(pedidoTable, `${mainTable}.${PEDIDO_CODE_FIELD}`, `${pedidoTable}.${PEDIDO_CODE_FIELD}`).orderBy(PEDIDO_ID_FIELD);
-    if (rawData == null)
-      throw new DXTException(DXTErrorCode.NOT_FOUND);
-    const data = rawData.map((renglonPedido) => this.toRenglonPedidoWithIdPedido(renglonPedido));
-    let result = {};
-    let sliceBegin = 0;
-    let idPedidoPrev = void 0;
-    data.forEach((renglon, index) => {
-      if (idPedidoPrev != null && idPedidoPrev != renglon.id_pedido) {
-        const sliceEnd = index;
-        result[idPedidoPrev] = data.slice(sliceBegin, sliceEnd);
-        sliceBegin = sliceEnd;
-      }
-      idPedidoPrev = renglon.id_pedido;
-    });
-    if (idPedidoPrev != null) {
-      result[idPedidoPrev] = data.slice(sliceBegin, data.length);
-    }
-    await this.cache.setMetadata(cacheKey, result);
-    return result;
-  }
-  async getByIdPedido(idPedido) {
-    const { mainTable } = this.config;
-    const data = await this._getByWhere(`${mainTable}.${PEDIDO_ID_FIELD}`, idPedido);
-    return data[idPedido] ?? [];
-  }
-  async getByNumeroPedido(numeroPedido) {
-    const { mainTable } = this.config;
-    const data = await this._getByWhere(`${mainTable}.${PEDIDO_CODE_FIELD}`, numeroPedido);
-    return Object.values(data)[0] ?? [];
-  }
-  async getAllByUser(user, options) {
-    var _a2;
-    const role = user.role.valueOf();
-    const tangoUserId = (_a2 = user.tangoId) == null ? void 0 : _a2.valueOf();
-    const where = getUserRoleWhere(role, tangoUserId);
-    return await this._getByWhere(where == null ? void 0 : where.field, where == null ? void 0 : where.value);
-  }
-  toResult(m) {
-    return renglonPedidoModelMapper(m);
-  }
-  toRenglonPedidoWithIdPedido(m) {
-    const id_pedido = m[PEDIDO_ID_FIELD];
-    if (id_pedido == null)
-      throw new DXTException(DXTErrorCode.TANGO_DB_INVALID_DATA, `RenglonPedidoRepository.toRenglonWithIdPedido -> ${PEDIDO_ID_FIELD}`);
-    return {
-      ...renglonPedidoAndRelationsModelMapper(m),
-      id_pedido
-    };
-  }
-  toResultAndRelations(m) {
-    return renglonPedidoAndRelationsModelMapper(m);
-  }
-  async create(idPedido, numeroPedido, order, row, rowIndex, trx) {
-    const model = this.composeInsertRecord(
-      idPedido,
-      numeroPedido,
-      order,
-      row,
-      rowIndex
-    );
-    const { mainTable } = this.config;
-    const k = trx ?? await this.getCompany();
-    try {
-      await k(mainTable).insert(model);
-    } catch (e) {
-      console.error(e);
-      throw e;
-    }
-  }
-  composeInsertRecord(idPedido, numeroPedido, order, row, rowIndex) {
-    const {
-      idTalonario,
-      codigoTalonario
-    } = order;
-    const {
-      idArticle,
-      codeArticle,
-      quantity,
-      precio,
-      bonificacion,
-      idMedidaStock,
-      idMedidaStock2,
-      idMedidaVentas,
-      unidadMedidaSeleccionada
-    } = row;
-    const result = {
-      [PEDIDO_CODE_FIELD]: numeroPedido,
-      [PEDIDO_ID_FIELD]: idPedido,
-      N_RENGLON: rowIndex,
-      [ARTICULO_CODE_FIELD]: codeArticle,
-      [ARTICULO_ID_FIELD]: idArticle,
-      [TALONARIO_ID2_FIELD]: idTalonario,
-      PRECIO: precio ?? 0,
-      DESCUENTO: bonificacion ?? 0,
-      CANT_A_DES: quantity,
-      CANT_A_FAC: quantity,
-      CANT_PEDID: quantity,
-      CANT_PEN_D: quantity,
-      CANT_PEN_F: quantity,
-      CAN_EQUI_V: quantity,
-      ID_MEDIDA_STOCK: idMedidaStock,
-      ID_MEDIDA_STOCK_2: idMedidaStock2,
-      ID_MEDIDA_VENTAS: idMedidaVentas,
-      UNIDAD_MEDIDA_SELECCIONADA: unidadMedidaSeleccionada
-    };
-    return result;
-  }
-}
-class RenglonPedidoRepository extends RenglonPedidoBaseRepository {
-  constructor() {
-    super({
-      mainTable: RENGLON_PEDIDO_TABLE,
-      pedidoTable: PEDIDO_TABLE
-    });
-  }
-}
-const renglonPedidoRepository = new RenglonPedidoRepository();
-class PedidoRepository extends PedidoBaseRepository {
-  constructor() {
-    super({
-      mainTable: PEDIDO_TABLE,
-      rowsRepository: renglonPedidoRepository
-    });
-  }
-  getRowsRepository() {
-    return renglonPedidoRepository;
-  }
-  async cancel(id) {
-    const k = await this.getCompany();
-    const { mainTable, mainIdField, columns } = this.config;
-    await k(mainTable).where(mainIdField, id).update({
-      ESTADO: EstadoPedido.ANULADO
-    });
-    await this.cache.invalidateById(id);
-  }
-  composeUpsertRecord(customer, params) {
-    const parentResult = super.composeUpsertRecord(customer, params);
-    const {
-      fechaPedido,
-      fechaEntrega
-    } = params;
-    return {
-      ...parentResult,
-      FECHA_PEDI: fechaPedido,
-      FECHA_ENTR: fechaEntrega
-    };
-  }
-  composeInsertRecord(customer, params) {
-    const parentResult = this.composeUpsertRecord(
-      customer,
-      params
-    );
-    const {
-      fechaIngreso
-    } = params;
-    const horaIngreso = getDateHHMMSS(fechaIngreso);
-    return {
-      ...parentResult,
-      FECHA_INGRESO: fechaIngreso,
-      HORA_INGRESO: horaIngreso,
-      HORA: horaIngreso
-    };
-  }
-  composeUpdateRecord(customer, params) {
-    const parentResult = this.composeUpsertRecord(
-      customer,
-      params
-    );
-    return {
-      ...parentResult
-    };
-  }
-}
-const pedidoRepository = new PedidoRepository();
-async function checkUserIsOwnerOrThrow(user, orderHeader, adminAllowed) {
-  const { role } = user;
-  if (role.isAdmin()) {
-    if (!adminAllowed)
-      throw new DXTException(DXTErrorCode.CUSTOMER_OR_VENDOR_ROLE_REQUIRED);
-    return;
-  }
-  if (role.isVendor()) {
-    const idVendedor = user.tangoId.valueOf();
-    const isVendorCustomer = await clienteRepository.customerBelongsToVendor(
-      orderHeader.id_cliente,
-      idVendedor
-    );
-    if (!isVendorCustomer)
-      throw new DXTException(DXTErrorCode.ORDER_CUSTOMER_DOES_NOT_BELONGS_TO_VENDOR);
-    return;
-  }
-  const idCliente = user.tangoId.valueOf();
-  if (orderHeader.id_cliente !== idCliente)
-    throw new DXTException(DXTErrorCode.ORDER_DOES_NOT_BELONGS_TO_CUSTOMER);
-}
-class DXTPedidoDraftRowRepository extends RenglonPedidoBaseRepository {
-  constructor(config2) {
-    super(config2);
-  }
-}
-class DXTPedidoDraftRowClientesRepository extends DXTPedidoDraftRowRepository {
-  constructor() {
-    super({
-      mainTable: DXT_PEDIDO_DRAFT_ROW_CLIENTES_TABLE,
-      pedidoTable: DXT_PEDIDO_DRAFT_CLIENTES_TABLE
-    });
-  }
-}
-const dxtPedidoDraftRowClientesRepository = new DXTPedidoDraftRowClientesRepository();
-class DXTPedidoDraftRowVendedoresRepository extends DXTPedidoDraftRowRepository {
-  constructor() {
-    super({
-      mainTable: DXT_PEDIDO_DRAFT_ROW_VENDEDORES_TABLE,
-      pedidoTable: DXT_PEDIDO_DRAFT_VENDEDORES_TABLE
-    });
-  }
-}
-const dxtPedidoDraftRowVendedoresRepository = new DXTPedidoDraftRowVendedoresRepository();
-class DXTPedidoDraftRepository extends PedidoBaseRepository {
-  // constructor(config: PedidoBaseRepositoryConfig) {
-  //   super(config);
-  // }
-  async descriptionExists(user, description, draftIdToIgnore) {
-    var _a2;
-    if (user.isAdmin())
-      throw new DXTException(DXTErrorCode.CUSTOMER_OR_VENDOR_ROLE_REQUIRED);
-    const isCustomer = user.isCustomer();
-    const column = isCustomer ? CLIENTE_ID_FIELD : VENDEDOR_ID_FIELD;
-    const tangoId = (_a2 = user.tangoId) == null ? void 0 : _a2.valueOf();
-    if (tangoId == null)
-      throw new DXTException(isCustomer ? DXTErrorCode.TANGO_CUSTOMER_NO_LONGER_EXISTS : DXTErrorCode.TANGO_VENDOR_NO_LONGER_EXISTS);
-    const data = await this.getOneOrNull(column, tangoId, {
-      where: {
-        field: "USUARIO_INGRESO",
-        value: description
-      }
-    });
-    if (draftIdToIgnore != null && (data == null ? void 0 : data.id) === draftIdToIgnore)
-      return false;
-    return data != null;
-  }
-  composeUpsertRecord(customer, params) {
-    const parentResult = super.composeUpsertRecord(customer, params);
-    const {
-      descripcion
-    } = params;
-    return {
-      ...parentResult,
-      USUARIO_INGRESO: descripcion
-    };
-  }
-  composeInsertRecord(customer, params) {
-    const parentResult = this.composeUpsertRecord(
-      customer,
-      params
-    );
-    return {
-      ...parentResult
-    };
-  }
-  composeUpdateRecord(customer, params) {
-    const parentResult = this.composeUpsertRecord(
-      customer,
-      params
-    );
-    return {
-      ...parentResult
-    };
-  }
-  async getNewOrderCodeAndUpdate() {
-    return await this.getNextFreeOrderCode(await this.getBiggerOrderCode());
-  }
-}
-class DXTPedidoDraftClientesRepository extends DXTPedidoDraftRepository {
-  constructor() {
-    super({
-      mainTable: DXT_PEDIDO_DRAFT_CLIENTES_TABLE,
-      rowsRepository: dxtPedidoDraftRowClientesRepository
-    });
-  }
-}
-const dxtPedidoDraftClientesRepository = new DXTPedidoDraftClientesRepository();
-class DXTPedidoDraftVendedoresRepository extends DXTPedidoDraftRepository {
-  constructor() {
-    super({
-      mainTable: DXT_PEDIDO_DRAFT_VENDEDORES_TABLE,
-      rowsRepository: dxtPedidoDraftRowVendedoresRepository
-    });
-  }
-}
-const dxtPedidoDraftVendedoresRepository = new DXTPedidoDraftVendedoresRepository();
-function getDraftRepository(user) {
-  return _isCustomer(user) ? dxtPedidoDraftClientesRepository : dxtPedidoDraftVendedoresRepository;
-}
-function getDraftRowRepository(user) {
-  return _isCustomer(user) ? dxtPedidoDraftRowClientesRepository : dxtPedidoDraftRowVendedoresRepository;
-}
-function _isCustomer(user) {
-  const role = user.role.valueOf();
-  if (role == UserRole.admin)
-    throw new DXTException(DXTErrorCode.CUSTOMER_OR_VENDOR_ROLE_REQUIRED);
-  return role == UserRole.customer;
-}
-async function getOrderWithRows(idPedido, user, isDraft, adminAllowed, ignoreRows) {
-  const dxtPedidoDraftRepository = getDraftRepository(user);
-  const dxtPedidoDraftRowRepository = getDraftRowRepository(user);
-  const header = isDraft ? await dxtPedidoDraftRepository.getExtendedById(idPedido) : await pedidoRepository.getExtendedById(idPedido);
-  const rows = ignoreRows ? null : isDraft ? await dxtPedidoDraftRowRepository.getByIdPedido(idPedido) : await renglonPedidoRepository.getByNumeroPedido(header.numero_pedido);
-  const rowsOk = rows != null || ignoreRows;
-  if (header == null || !rowsOk)
-    throw new DXTException(isDraft ? DXTErrorCode.DRAFT_NOT_FOUND : DXTErrorCode.ORDER_NOT_FOUND);
-  const { estado, ...remaining } = header;
-  const finalHeader = {
-    ...remaining,
-    estado: realOrderStatus(header, rows)
-  };
-  await checkUserIsOwnerOrThrow(
-    user,
-    finalHeader,
-    adminAllowed
-  );
-  if (rows == null) {
-    return {
-      isDraft,
-      header: finalHeader
-    };
-  }
-  return {
-    isDraft,
-    header: finalHeader,
-    rows
-  };
-}
-const ARTICLE_GROUP_NO_NAME = "_";
-function _getDXTArticuloListParam(s) {
-  const chunks = s.split("=", 2);
-  if (chunks.length != 2)
-    return null;
-  const key = chunks[0].trim().toLowerCase();
-  const value = chunks[1].trim();
-  if (key.length == 0)
-    return null;
-  return { key, value };
-}
-function strToDXTArticuloListRecord(s) {
-  if (!isStr(s))
-    return null;
-  let p = s.indexOf(";");
-  if (p <= 0)
-    p = s.length;
-  const codigo_articulo = s.substring(0, p).trimEnd();
-  if (codigo_articulo.length == 0)
-    return null;
-  const params = s.substring(p + 1).trim();
-  if (codigo_articulo == ARTICLE_GROUP_NO_NAME)
-    throw new DXTException(DXTErrorCode.RESERVED_ARTICLE_GROUP_NAME, `"${ARTICLE_GROUP_NO_NAME}"`);
-  if (params.length == 0)
-    return { codigo_articulo };
-  return {
-    codigo_articulo,
-    params
-  };
-}
-function strToDXTArticuloListParams(paramsStr) {
-  if (paramsStr == null)
-    return void 0;
-  const result = {};
-  let emptyParams = true;
-  const chunks = paramsStr.split(";");
-  chunks.forEach((s, i) => {
-    const paramEntry = _getDXTArticuloListParam(s);
-    if (paramEntry == null)
-      return;
-    const { key, value } = paramEntry;
-    result[key] = value;
-    emptyParams = false;
-  });
-  return emptyParams ? void 0 : result;
-}
-class DXTArticuloListRepository extends CompanyProvider {
-  constructor(config2) {
-    super({
-      mainIdField: DXT_LIST_ARTICULO_CODE_FIELD,
-      ...config2
-    });
-  }
-  async getList() {
-    const rows = await this.getAll();
-    return rows.map((v) => {
-      const line = v.codigo_articulo;
-      if (v.params == null)
-        return line;
-      return `${line}; ${v.params}`;
-    });
-  }
-  async setList(list) {
-    this.cache.clear();
-    const finalList = list.filter((e) => e.codigo_articulo.trim().length > 0);
-    const { mainTable } = this.config;
-    const k = await this.getCompany();
-    await k.transaction(async (trx) => {
-      await trx(mainTable).truncate();
-      await trx.batchInsert(mainTable, finalList, 500);
-    });
-    emitBusEvent(
-      new DBSettingsChangedEvent({
-        passiveDBChanges: false,
-        newDictionary: false,
-        newCompany: false,
-        resetCache: true
-      })
-    );
-    return true;
-  }
-  toResult(m) {
-    return m;
-  }
-}
-class DXTArticuloEditListRepository extends DXTArticuloListRepository {
-  constructor() {
-    super({
-      mainTable: DXT_ARTICULO_EDIT_LIST_TABLE,
-      dependencies: [
-        articuloRepository,
-        precioRepository
-      ]
-    });
-  }
-  async getArticlesWithTaxes(listId, alternateListId, alternateDiscount) {
-    const { mainTable } = this.config;
-    const k = await this.getCompany();
-    const fullDXTArticuloListCodeField = `${mainTable}.codigo_articulo`;
-    const fullArticuloCodeField = `${ARTICULO_TABLE}.${ARTICULO_CODE_FIELD}`;
-    const fullPrecioListaIdField = `${PRECIO_TABLE}.${LISTA_ID_FIELD}`;
-    const mainColumns = [`${fullDXTArticuloListCodeField} as DXTO_CODIGO_ARTICULO`];
-    const articuloColumns = articuloModelColumns.map((c) => `${ARTICULO_TABLE}.${c} as ${c}`);
-    const precioColumns = ["PRECIO", LISTA_ID_FIELD].map((c) => `${PRECIO_TABLE}.${c} as ${c}`);
-    let query = k(mainTable).select(...mainColumns, ...articuloColumns, ...precioColumns);
-    query = query.leftOuterJoin(ARTICULO_TABLE, fullDXTArticuloListCodeField, fullArticuloCodeField).leftOuterJoin(PRECIO_TABLE, fullDXTArticuloListCodeField, `${PRECIO_TABLE}.${ARTICULO_CODE_FIELD}`);
-    const otherListId = alternateListId ?? listId;
-    const result = await query.where(
-      k.raw(
-        `${fullPrecioListaIdField} = ? OR ${fullPrecioListaIdField} = ? OR (${fullDXTArticuloListCodeField} IS NOT NULL AND ${fullPrecioListaIdField} IS NULL AND ${fullArticuloCodeField} IS NULL )`,
-        [listId, otherListId]
-      )
-    ).orderBy(`${DXT_ARTICULO_EDIT_LIST_TABLE}.id`);
-    return result.map((item) => tangoFullArticleOrGroupNameModelMapper(
-      item,
-      alternateListId,
-      alternateDiscount
-    ));
-  }
-}
-const dxtArticuloEditListRepository = new DXTArticuloEditListRepository();
+const clienteRepository = new ClienteRepository();
 class DXTUserRepository extends CompanyProvider {
   constructor(config2) {
     super(config2);
@@ -8312,22 +5572,33 @@ class DXTUserRepository extends CompanyProvider {
   getScreenName(relatedModel) {
     return resolveScreenName(this.config.screenNameFields, relatedModel, relatedModel.username);
   }
-  async _throwIfTwinTableUserExists(username) {
-    const { twinRepository } = this.config;
-    try {
-      const _2 = await twinRepository().getUserWithRelationsByName(username, false);
-      throw new DXTException(DXTErrorCode.DUPLICATED_TABLE_RECORD);
-    } catch (e) {
-      const notFoundError = isNotFoundException(e);
-      if (notFoundError)
-        return;
-      throw e;
+  async _assertValidInput(input, current_dxt_user_id) {
+    await this._throwIfUserNameExists(input.username, current_dxt_user_id);
+    const profile = await perfilRepository.getByIdOrNull(input.perfil_facturacion_id);
+    const customer = profile != null ? await clienteRepository.getByIdOrNull(input.tango_id) : null;
+    if (profile == null || customer == null)
+      throw new DXTException(DXTErrorCode.INVALID_PARAMETER);
+  }
+  async _throwIfUserNameExists(username, current_dxt_user_id) {
+    if (current_dxt_user_id != null) {
+      const currentTableUser = await this.getOneOrNull("username", username);
+      if (currentTableUser != null && currentTableUser.id != current_dxt_user_id)
+        throw new DXTException(DXTErrorCode.USERNAME_ALREADY_EXISTS);
     }
+    const { twinRepository } = this.config;
+    const twinTableUser = await twinRepository().getOneOrNull("username", username);
+    if (twinTableUser != null)
+      throw new DXTException(DXTErrorCode.USERNAME_ALREADY_EXISTS);
+  }
+  async preCreate(k, input) {
+  }
+  async preUpdate(k, input) {
   }
   async create(input) {
     const k = await this.getCompany();
-    const inputModel = this._userInputToModel(input);
-    await this._throwIfTwinTableUserExists(inputModel.username);
+    await this._assertValidInput(input, null);
+    const inputModel = this.userCreateInputToModel(input);
+    await this.preCreate(k, inputModel);
     const { mainTable, mainIdField } = this.config;
     try {
       const result = await k(mainTable).returning(mainIdField).insert(inputModel);
@@ -8339,8 +5610,9 @@ class DXTUserRepository extends CompanyProvider {
   }
   async update(id, input) {
     const k = await this.getCompany();
-    const inputModel = this._userInputToModel(input);
-    await this._throwIfTwinTableUserExists(inputModel.username);
+    await this._assertValidInput(input, id);
+    const inputModel = this.userUpdateInputToModel(input);
+    await this.preUpdate(k, inputModel);
     const { mainTable, mainIdField } = this.config;
     try {
       const result = await k(mainTable).where(mainIdField, id).update(inputModel);
@@ -8358,7 +5630,7 @@ class DXTUserRepository extends CompanyProvider {
       throw new DXTException(DXTErrorCode.INVALID_PARAMETER, "username no coincide");
     return await this.deleteById(id);
   }
-  _userInputToModel(input) {
+  userInputToModel(input) {
     const {
       password,
       habilitado_en_dxt,
@@ -8373,7 +5645,32 @@ class DXTUserRepository extends CompanyProvider {
       timestamp_modificacion: now()
     };
   }
+  userUpdateInputToModel(input) {
+    return this.userInputToModel(input);
+  }
+  userCreateInputToModel(input) {
+    return this.userInputToModel(input);
+  }
 }
+const tangoVendedorModelMapper = (m) => {
+  const { [VENDEDOR_ID_FIELD]: id, [VENDEDOR_CODE_FIELD]: code, INHABILITA } = m;
+  let screen_name = resolveScreenName(
+    VENDEDOR_NAME_COLUMNS,
+    m,
+    code
+  );
+  const habilitado = !(INHABILITA ?? false);
+  return { id, screen_name, habilitado };
+};
+const vendedorRepository = createTangoRepository(
+  VENDEDOR_TABLE,
+  VENDEDOR_ID_FIELD,
+  tangoVendedorModelMapper,
+  vendedorModelColumns,
+  [
+    clienteRepository
+  ]
+);
 class DXTVendedorRepository extends DXTUserRepository {
   constructor() {
     super({
@@ -8383,8 +5680,8 @@ class DXTVendedorRepository extends DXTUserRepository {
       tangoTable: VENDEDOR_TABLE,
       tangoIdField: VENDEDOR_ID_FIELD,
       tangoColumns: vendedorModelColumns,
-      dxtUserNotFoundErrorCode: DXTErrorCode.DXT_VENDOR_NOT_FOUND,
-      tangoUserNotFoundErrorCode: DXTErrorCode.TANGO_VENDOR_NO_LONGER_EXISTS,
+      dxtUserNotFoundErrorCode: DXTErrorCode.DXT_SELLER_NOT_FOUND,
+      tangoUserNotFoundErrorCode: DXTErrorCode.TANGO_SELLER_NO_LONGER_EXISTS,
       screenNameFields: VENDEDOR_NAME_COLUMNS,
       sortField: "NOMBRE_VEN",
       dependencies: [
@@ -8394,28 +5691,27 @@ class DXTVendedorRepository extends DXTUserRepository {
     });
   }
   toResult(m) {
-    const { habilitado_en_dxt, tango_id } = m;
+    const { dxt_vendedor_id, habilitado_en_dxt, password_hash, tango_id } = m;
+    if (dxt_vendedor_id == null)
+      throw Error("DXTVendedorRepository.toResult() -> dxt_vendedor_id == null");
     return {
       ...m,
-      id: m.dxt_vendedor_id,
+      password_hash,
+      id: dxt_vendedor_id,
       tango_id,
       screen_name: m.username,
-      role: userRoleToNumber(UserRole.vendor),
+      role: UserRole.seller,
       habilitado_en_dxt,
       vendedor_id: tango_id
     };
   }
   toResultWithRelations(vendedor) {
-    const { dxt_vendedor_id: id, habilitado_en_dxt, INHABILITA: inhabilitado_en_tango, tango_id, ...remaining } = vendedor;
+    const { habilitado_en_dxt, INHABILITA: inhabilitado_en_tango, tango_id, [VENDEDOR_CODE_FIELD]: tangoCode, ...remaining } = vendedor;
     return {
-      ...remaining,
-      id,
-      tango_id,
-      role: UserRole.vendor,
+      ...this.toResult(vendedor),
+      tango_code: tangoCode ?? void 0,
       screen_name: this.getScreenName(vendedor),
-      habilitado_en_tango: inhabilitado_en_tango != null ? !inhabilitado_en_tango : void 0,
-      habilitado_en_dxt,
-      vendedor_id: tango_id
+      habilitado_en_tango: inhabilitado_en_tango != null ? !inhabilitado_en_tango : void 0
     };
   }
 }
@@ -8442,11 +5738,15 @@ class DXTClienteRepository extends DXTUserRepository {
     const {
       dxt_cliente_id,
       habilitado_en_dxt,
+      password_hash,
       ...remaining
     } = m;
+    if (dxt_cliente_id == null)
+      throw Error("DXTClienteRepository.toResult() -> dxt_cliente_id == null");
     return {
       ...remaining,
       id: dxt_cliente_id,
+      password_hash,
       screen_name: m.username,
       role: UserRole.customer,
       habilitado_en_dxt
@@ -8456,536 +5756,72 @@ class DXTClienteRepository extends DXTUserRepository {
     this.config;
     const {
       HABILITADO: isEnabled,
+      [CLIENTE_CODE_FIELD]: tangoCode,
       [VENDEDOR_ID_FIELD]: vendedor_id,
       FECHA_INHA: fechaInhabilitacion,
       ...remaining
     } = cliente;
-    const vendorExists = vendedor_id != null;
-    const habilitado_en_tango = isEnabled != null ? customerTrulyEnabled(isEnabled, vendorExists, fechaInhabilitacion) : null;
+    const sellerExists = vendedor_id != null;
+    const habilitado_en_tango = isEnabled != null ? customerTrulyEnabled(isEnabled, sellerExists, fechaInhabilitacion) : null;
     return {
       ...this.toResult(remaining),
-      role: UserRole.customer,
+      tango_code: tangoCode ?? void 0,
       screen_name: this.getScreenName(cliente),
       habilitado_en_tango: habilitado_en_tango !== null ? habilitado_en_tango : void 0,
       vendedor_id: vendedor_id ?? void 0
     };
   }
+  userCreateInputToModel(input) {
+    const data = super.userCreateInputToModel(input);
+    return {
+      ...data,
+      lista_prioritaria_vendedor: input.lista_prioritaria_vendedor === true && input.id_lista_prioritaria == null
+    };
+  }
+  userUpdateInputToModel(input) {
+    const data = super.userUpdateInputToModel(input);
+    return {
+      ...data,
+      lista_prioritaria_vendedor: input.lista_prioritaria_vendedor === true && input.id_lista_prioritaria == null
+    };
+  }
+  async preCreate(k, input) {
+    const siblings = await this.getSiblings(null, input.tango_id);
+    await this._matchSiblingsData(k, input, siblings);
+  }
+  async preUpdate(k, input) {
+    const siblings = await this.getSiblings(input.dxt_cliente_id, input.tango_id);
+    await this._matchSiblingsData(k, input, siblings);
+  }
+  async _matchSiblingsData(k, input, siblings) {
+    const ids = siblings.map((sibling) => sibling.id);
+    if (ids.length == 0)
+      return;
+    const {
+      perfil_facturacion_id,
+      id_lista_prioritaria,
+      bonificacion_lista_prioritaria,
+      lista_prioritaria_vendedor
+    } = input;
+    const matchedData = {
+      perfil_facturacion_id,
+      id_lista_prioritaria,
+      bonificacion_lista_prioritaria,
+      lista_prioritaria_vendedor: lista_prioritaria_vendedor === true && id_lista_prioritaria == null
+    };
+    const { mainTable, mainIdField } = this.config;
+    for (const id of ids) {
+      await k(mainTable).where(mainIdField, id).update(matchedData);
+    }
+  }
+  async getSiblings(dxt_cliente_id, tango_id) {
+    const result = await this.getMany("tango_id", tango_id);
+    if (dxt_cliente_id == null)
+      return result;
+    return result.filter((customer) => customer.id != dxt_cliente_id);
+  }
 }
 const dxtClienteRepository = new DXTClienteRepository();
-async function getArticlesWithTaxes(user, customer, alwaysIncludeArticlesWithoutPrice, splitInGroups) {
-  var _a2, _b2;
-  let dxtCustomer;
-  if (user.isVendor()) {
-    dxtCustomer = await dxtClienteRepository.getOneOrNull("tango_id", customer.id);
-  }
-  const listId = customer.idLista;
-  const alternateListId = dxtCustomer != null ? dxtCustomer.id_lista_alternativa : (_a2 = user.idListaAlternativa) == null ? void 0 : _a2.valueOf();
-  const alternateDiscount = dxtCustomer != null ? dxtCustomer.bonificacion_lista_alternativa : (_b2 = user.bonificacionListaAlternativa) == null ? void 0 : _b2.valueOf();
-  const keepArticlesWithoutPrice = alwaysIncludeArticlesWithoutPrice || user.verSinPrecio.valueOf();
-  const orderListExists = await dxtArticuloEditListRepository.count() > 0;
-  const cacheKey = `groupedArticles_${listId}_${alternateListId ?? "0"}_${orderListExists ? "OL" : "NOL"}_${splitInGroups ? "S" : "NS"}`;
-  const cachedData = await articuloRepository.cache.getMetadata(cacheKey);
-  if (cachedData != null) {
-    return keepArticlesWithoutPrice ? cachedData : _removeArticlesWithoutPrice(cachedData);
-  }
-  const useOrderLists = orderListExists && splitInGroups;
-  let result;
-  if (useOrderLists) {
-    const data = await dxtArticuloEditListRepository.getArticlesWithTaxes(
-      listId,
-      alternateListId,
-      alternateDiscount
-    );
-    result = _splitByOrderListGroup(data);
-  } else {
-    const data = await articuloRepository.getArticlesWithTaxes(
-      listId,
-      alternateListId,
-      alternateDiscount
-    );
-    result = splitInGroups ? _splitByArticleCode(data) : { [ARTICLE_GROUP_NO_NAME]: data };
-  }
-  await articuloRepository.cache.setMetadata(cacheKey, result);
-  return keepArticlesWithoutPrice ? result : _removeArticlesWithoutPrice(result);
-}
-function _removeArticlesWithoutPrice(articles) {
-  return Object.fromEntries(
-    Object.entries(articles).map(
-      ([groupName, articles2]) => {
-        return [
-          groupName,
-          articles2.filter((a) => a.precio > 0)
-        ];
-      }
-    )
-  );
-}
-function _splitByOrderListGroup(data) {
-  let result = {};
-  let currentList = null;
-  let lastGroupName = null;
-  data.forEach((item) => {
-    const isGroupLabel = isStr(item);
-    if (isGroupLabel) {
-      lastGroupName = item.trim();
-      if (lastGroupName.length == 0)
-        lastGroupName = ARTICLE_GROUP_NO_NAME;
-      currentList = result[lastGroupName];
-      if (currentList == null) {
-        currentList = [];
-        result[lastGroupName] = currentList;
-      }
-    } else {
-      if (currentList == null) {
-        currentList = [];
-        result[ARTICLE_GROUP_NO_NAME] = currentList;
-      }
-      if (item.id_lista != null)
-        currentList.push(item);
-    }
-  });
-  return result;
-}
-function _splitByArticleCode(data) {
-  let result = {};
-  let currentList = null;
-  let lastGroupName = null;
-  let totalGroups = 0;
-  data.forEach((articulo) => {
-    const { codigo, id_lista } = articulo;
-    if (id_lista != null)
-      totalGroups += codigo.trim().split(" ").length;
-  });
-  const averageGroupCount = Math.round(data.length > 0 ? totalGroups / data.length : 0);
-  const groupNameLimit = averageGroupCount <= 1 ? 0 : averageGroupCount <= 2 ? 1 : 2;
-  data.filter((articulo) => articulo.id_lista != null).forEach((articulo) => {
-    const { codigo } = articulo;
-    const possibleGroupName = codigo.trim().split(" ", groupNameLimit).map((g) => g.trim()).join(" ").toUpperCase();
-    const currentGroupName = possibleGroupName.length > 0 ? possibleGroupName : ARTICLE_GROUP_NO_NAME;
-    const isNewGroupName = currentGroupName !== lastGroupName;
-    if (isNewGroupName) {
-      lastGroupName = currentGroupName;
-      currentList = result[lastGroupName] ?? [];
-      result[lastGroupName] = currentList;
-    }
-    if (currentList == null) {
-      lastGroupName = ARTICLE_GROUP_NO_NAME;
-      currentList = [];
-      result[lastGroupName] = currentList;
-    }
-    currentList.push(articulo);
-  });
-  return result;
-}
-async function getArticles(user, customer) {
-  const groupedArticles = await getArticlesWithTaxes(
-    user,
-    customer,
-    true,
-    false
-  );
-  const result = groupedArticles[ARTICLE_GROUP_NO_NAME];
-  return new Map(result.map((article) => [article.id, article]));
-}
-async function getGroupedArticles(user, customer) {
-  return await getArticlesWithTaxes(
-    user,
-    customer,
-    false,
-    true
-  );
-}
-function adjustPrice(params, article, listas, alicuotas, applyDiscount, forceTaxesDiscrimination) {
-  const { id_lista_alternativa, codigo_iva, codigo_ii, codigo_sobre_iva, codigo_sobre_ii, precio } = article;
-  const { usuarioAplicaSobreIVA, usuarioAplicaSobreII } = params;
-  const listaAlternativa = id_lista_alternativa != null ? listas.get(id_lista_alternativa) : null;
-  const listaIncluyeIVA = (listaAlternativa == null ? void 0 : listaAlternativa.incluye_iva) ?? params.listaIncluyeIVA;
-  const listaIncluyeII = (listaAlternativa == null ? void 0 : listaAlternativa.incluye_ii) ?? params.listaIncluyeII;
-  const bonificacion = article.bonificacion ?? params.bonificacion;
-  const usuarioDiscriminaIVA = params.usuarioDiscriminaIVA;
-  const usuarioDiscriminaII = params.usuarioDiscriminaII;
-  const ivaPercentage = codigo_iva != null ? alicuotas.get(codigo_iva) ?? 0 : 0;
-  const impuestoInternoPercentage = codigo_ii != null ? alicuotas.get(codigo_ii) ?? 0 : 0;
-  const sobreIVABruto = codigo_sobre_iva != null ? alicuotas.get(codigo_sobre_iva) ?? 0 : 0;
-  const sobreIIBruto = codigo_sobre_ii != null ? alicuotas.get(codigo_sobre_ii) ?? 0 : 0;
-  const sobreIVA = percentageToFactor(ivaPercentage * sobreIVABruto / 100);
-  const sobreII = percentageToFactor(impuestoInternoPercentage * sobreIIBruto / 100);
-  const iva = percentageToFactor(ivaPercentage);
-  const impuestoInterno = percentageToFactor(impuestoInternoPercentage);
-  let result = precio;
-  if (!listaIncluyeIVA && !usuarioDiscriminaIVA) {
-    result = result * iva;
-    if (usuarioAplicaSobreIVA) {
-      result = result * sobreIVA;
-    }
-  } else if (listaIncluyeIVA && usuarioDiscriminaIVA) {
-    result = result / iva;
-    if (usuarioAplicaSobreIVA) {
-      result = result / sobreIVA;
-    }
-  }
-  if (!listaIncluyeII && !usuarioDiscriminaII) {
-    result = result * impuestoInterno;
-    if (usuarioAplicaSobreII) {
-      result = result * sobreII;
-    }
-  } else if (listaIncluyeII && usuarioDiscriminaII) {
-    result = result / impuestoInterno;
-    if (usuarioAplicaSobreII) {
-      result = result / sobreII;
-    }
-  }
-  if (applyDiscount) {
-    const discount = bonificacion ?? 0;
-    result = result - result * discount / 100;
-  }
-  return result;
-}
-function percentageToFactor(value) {
-  const sign = value >= 0 ? 1 : -1;
-  return (1 + value / 100) * sign;
-}
-async function prepareOrderGroupedArticles(user, originalOrder, newOrderHeader, customer, auxiliares, createNew) {
-  const articles = await getGroupedArticles(
-    user,
-    customer
-  );
-  const alicuotas = await alicuotaRepository.getAllPercentages();
-  const { listas } = auxiliares;
-  return _addQuantitiesAndAdjustPrices(
-    newOrderHeader,
-    articles,
-    alicuotas,
-    listas,
-    originalOrder == null ? void 0 : originalOrder.rows
-  );
-}
-function _addQuantitiesAndAdjustPrices(orderHeader, articles, alicuotas, listas, rows) {
-  const quantities = rows != null ? new Map(rows.map((row) => [row.codigo_articulo, row])) : null;
-  const commonAdjustPriceParams = {
-    bonificacion: orderHeader.bonificacion,
-    listaIncluyeIVA: orderHeader.lista_incluye_iva,
-    listaIncluyeII: orderHeader.lista_incluye_ii,
-    usuarioAplicaSobreIVA: orderHeader.usuario_aplica_sobre_iva,
-    usuarioAplicaSobreII: orderHeader.usuario_aplica_sobre_ii,
-    usuarioDiscriminaIVA: orderHeader.usuario_discrimina_iva,
-    usuarioDiscriminaII: orderHeader.usuario_discrimina_ii
-  };
-  return Object.fromEntries(
-    Object.entries(articles).map(
-      ([groupName, articles2]) => {
-        return [
-          groupName,
-          articles2.map((article) => {
-            const {
-              codigo_iva,
-              codigo_sobre_iva,
-              codigo_ii,
-              codigo_sobre_ii,
-              ...remainingArticle
-            } = article;
-            const newPrice = adjustPrice(
-              commonAdjustPriceParams,
-              article,
-              listas,
-              alicuotas,
-              false
-            );
-            const row = quantities == null ? void 0 : quantities.get(article.codigo);
-            if (row == null) {
-              return {
-                ...remainingArticle,
-                precio: newPrice
-              };
-            }
-            return {
-              ...remainingArticle,
-              precio: newPrice,
-              cantidad: row.cantidad
-            };
-          })
-        ];
-      }
-    )
-  );
-}
-async function getAuxiliares(customerId) {
-  const [
-    preListas,
-    transportes,
-    preDepositos,
-    condiciones,
-    preAsientos,
-    preTalonarios,
-    preDirecciones
-  ] = await Promise.all([
-    listaRepository.getAll(),
-    transporteRepository.getAll(),
-    depositoRepository.getAll(),
-    condicionRepository.getAll(),
-    asientoRepository.getAll(),
-    talonarioRepository.getAll(),
-    direccionRepository.getByCustomer(customerId)
-  ]);
-  const listas = new Map(preListas.map((row) => [row.codigo, row]));
-  const asientos = _.uniqWith(
-    preAsientos.filter((asiento) => asiento.codigo_cuenta == 0),
-    (a, b) => a.tipo == b.tipo
-  );
-  const talonarios = preTalonarios.filter((talonario) => {
-    const { tipo, comprobante } = talonario;
-    return (comprobante == "" || comprobante == "FAC") && tipo != "X" && tipo != "R" && tipo != "";
-  });
-  const direcciones = preDirecciones.filter((direccion) => direccion.habilitada);
-  const depositos = [
-    ...preDepositos,
-    {
-      id: 0,
-      code: "",
-      name: "MOSTRADOR"
-    }
-  ];
-  if (transportes.length == 0)
-    throw new DXTException(DXTErrorCode.EMPTY_TRANSPORTE_LIST);
-  if (depositos.length == 0)
-    throw new DXTException(DXTErrorCode.EMPTY_DEPOSITO_LIST);
-  if (condiciones.length == 0)
-    throw new DXTException(DXTErrorCode.EMPTY_CONDICION_LIST);
-  if (asientos.length == 0)
-    throw new DXTException(DXTErrorCode.EMPTY_ASIENTO_LIST);
-  if (talonarios.length == 0)
-    throw new DXTException(DXTErrorCode.EMPTY_TALONARIO_LIST);
-  if (direcciones.length == 0)
-    throw new DXTException(DXTErrorCode.EMPTY_DIRECCION_LIST);
-  return {
-    listas,
-    transportes,
-    depositos,
-    condiciones,
-    asientos,
-    talonarios,
-    direcciones
-  };
-}
-async function getOptimalBillingProfile(user, originalOrder, customer, auxiliares) {
-  const userBillingProfile = await perfilRepository.getById(user.perfilFacturacionId.valueOf());
-  const realOrder = originalOrder != null && !originalOrder.isDraft ? originalOrder : null;
-  const currentTalonario = realOrder == null ? void 0 : realOrder.header.codigo_talonario;
-  if (currentTalonario != null)
-    return userBillingProfile;
-  let customerBillingProfile = null;
-  if (user.isVendor()) {
-    const dxtCustomer = await dxtClienteRepository.getOneOrNull("tango_id", customer.id);
-    const customerBillingProfileId = dxtCustomer == null ? void 0 : dxtCustomer.perfil_facturacion_id;
-    customerBillingProfile = customerBillingProfileId != null ? await perfilRepository.getById(customerBillingProfileId) : null;
-  }
-  const cbp = customerBillingProfile;
-  const ubp = userBillingProfile;
-  const optimalBillingProfile = {
-    ...userBillingProfile,
-    // Se aplica la configuración del perfil del cliente    
-    id_asiento_modelo_gv: (cbp == null ? void 0 : cbp.id_asiento_modelo_gv) ?? ubp.id_asiento_modelo_gv,
-    codigo_talonario_factura: (cbp == null ? void 0 : cbp.codigo_talonario_factura) ?? ubp.codigo_talonario_factura,
-    codigo_talonario_pedido: (cbp == null ? void 0 : cbp.codigo_talonario_pedido) ?? ubp.codigo_talonario_pedido,
-    codigo_talonario_remito: (cbp == null ? void 0 : cbp.codigo_talonario_remito) ?? ubp.codigo_talonario_remito,
-    codigo_deposito: (cbp == null ? void 0 : cbp.codigo_deposito) ?? ubp.codigo_deposito,
-    codigo_asiento: (cbp == null ? void 0 : cbp.codigo_asiento) ?? ubp.codigo_asiento,
-    // Se aplica la configuración del cliente
-    codigo_condicion_venta: customer.codigoCondicion,
-    codigo_transporte: customer.codigoTransporte ?? (cbp == null ? void 0 : cbp.codigo_transporte) ?? ubp.codigo_transporte,
-    codigo_lista_precio: customer.codigoLista
-  };
-  if (customer.discriminaIVA)
-    return optimalBillingProfile;
-  const { talonarios } = await getAuxiliares(customer.id);
-  const selectedTalonario = talonarios.find((talonario) => talonario.code == optimalBillingProfile.codigo_talonario_factura);
-  if (selectedTalonario != null && _talonarioConsumidorFinal(selectedTalonario))
-    return optimalBillingProfile;
-  const talonarioConsumidorFinal = talonarios.find((talonario) => _talonarioConsumidorFinal(talonario));
-  if (!talonarioConsumidorFinal)
-    throw new DXTException(DXTErrorCode.INVALID_CONSUMIDOR_FINAL_TALONARIO);
-  return {
-    ...optimalBillingProfile,
-    codigo_talonario_factura: talonarioConsumidorFinal.code
-  };
-}
-function _talonarioConsumidorFinal(talonario) {
-  const { tipo } = talonario;
-  return tipo == "B" || tipo == "C";
-}
-async function prepareOrderHeader(user, originalOrder, customer, billingProfile, auxiliares, createNew, startDraft) {
-  var _a2;
-  if (!createNew && originalOrder == null)
-    throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "prepareOrderHeader() -> createNew must be true if originalOrder is null");
-  const originalOrderIsDraft = (originalOrder == null ? void 0 : originalOrder.isDraft) === true;
-  const sameType = originalOrderIsDraft == startDraft;
-  if (!createNew && !sameType)
-    throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "prepareOrderHeader() -> When createNew is false, both originalOrder.isDraft and startDraft must be the same");
-  const vendorId = (_a2 = user.vendedorId) == null ? void 0 : _a2.valueOf();
-  if (vendorId == null)
-    throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "prepareOrderHeader() -> vendorId is null");
-  const vendor = await vendedorRepository.getById(vendorId);
-  const {
-    depositos,
-    talonarios,
-    transportes,
-    listas,
-    condiciones,
-    asientos,
-    direcciones
-  } = auxiliares;
-  const {
-    discriminaIVA,
-    discriminaII,
-    aplicaSobreIVA,
-    aplicaSobreII
-  } = customer;
-  const bonificacion_editable = billingProfile.bonificacion_editable;
-  const descripcion = startDraft && originalOrder != null ? originalOrder.header.descripcion : "";
-  const comentarios = originalOrder != null ? originalOrder.header.comentarios : "";
-  const realOrder = originalOrder != null && !originalOrder.isDraft ? originalOrder : null;
-  const updatingRealOrder = createNew == false && startDraft == false && realOrder != null;
-  const ignoreOriginalOrderId = createNew || originalOrder == null || !sameType;
-  const orderId = ignoreOriginalOrderId ? void 0 : originalOrder.header.id;
-  const numeroPedido = ignoreOriginalOrderId ? void 0 : originalOrder.header.numero_pedido;
-  const bonificacion = (bonificacion_editable ? originalOrder == null ? void 0 : originalOrder.header.descuento : billingProfile.bonificacion) ?? billingProfile.bonificacion ?? customer.bonificacion;
-  const originalDeliveryDate = originalOrderIsDraft ? null : originalOrder == null ? void 0 : originalOrder.header.fecha_entrega;
-  const creationDate = (createNew || originalOrderIsDraft ? /* @__PURE__ */ new Date() : originalOrder == null ? void 0 : originalOrder.header.fecha_alta) ?? /* @__PURE__ */ new Date();
-  const deliveryDate = createNew || originalDeliveryDate == null ? addDays(creationDate, user.diaDeEntrega.valueOf()) : originalDeliveryDate;
-  const {
-    codigo_lista_precio,
-    deposito_editable,
-    transporte_editable,
-    condicion_editable,
-    asiento_editable,
-    talonario_editable,
-    direccion_editable,
-    compromete_stock
-  } = billingProfile;
-  const bp = billingProfile;
-  const codigo_transporte = updatingRealOrder && transporte_editable ? realOrder.header.codigo_transporte : bp.codigo_transporte;
-  const codigo_deposito = updatingRealOrder && deposito_editable ? realOrder.header.codigo_deposito : bp.codigo_deposito;
-  const codigo_condicion_venta = updatingRealOrder && condicion_editable ? realOrder.header.codigo_condicion : bp.codigo_condicion_venta;
-  const codigo_asiento = updatingRealOrder && talonario_editable ? realOrder.header.codigo_asiento : bp.codigo_asiento;
-  const codigo_talonario_factura = updatingRealOrder && talonario_editable ? realOrder.header.codigo_talonario : bp.codigo_talonario_factura;
-  const id_asiento_modelo_gv = updatingRealOrder ? realOrder.header.id_asiento_modelo_gv ?? bp.id_asiento_modelo_gv : bp.id_asiento_modelo_gv;
-  const direccion_habitual = direcciones.find((direccion) => direccion.habitual);
-  const codigo_direccion = (direccion_habitual == null ? void 0 : direccion_habitual.code) ?? direcciones[0].code;
-  const lista = listas.get(codigo_lista_precio);
-  if (lista == null)
-    throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "prepareOrderHeader() -> Lista de precios inexistente");
-  const result = {
-    es_borrador: startDraft,
-    descripcion,
-    comentarios,
-    id_pedido: orderId,
-    numero_pedido: numeroPedido,
-    id_cliente: customer.id,
-    nombre_cliente: customer.screen_name,
-    id_vendedor: vendorId,
-    nombre_vendedor: vendor.screen_name,
-    id_asiento_modelo_gv,
-    compromete_stock,
-    bonificacion,
-    bonificacion_editable,
-    fecha_alta: dateToISOStringZ(creationDate),
-    fecha_alta_editable: billingProfile.fecha_editable,
-    fecha_entrega: dateToISOStringZ(deliveryDate),
-    fecha_entrega_editable: billingProfile.fecha_editable,
-    transportes: _setSelectedItem(transportes, transporte_editable, DXTErrorCode.UNKNOWN_TRANSPORTE, codigo_transporte, (el) => el.code == codigo_transporte),
-    depositos: _setSelectedItem(depositos, deposito_editable, DXTErrorCode.UNKNOWN_DEPOSITO, codigo_deposito, (el) => codigo_deposito == null && el.code == "" || el.code == codigo_deposito),
-    condiciones: _setSelectedItem(condiciones, condicion_editable, DXTErrorCode.UNKNOWN_CONDICION, codigo_condicion_venta, (el) => el.code == codigo_condicion_venta),
-    asientos: _setSelectedItem(asientos, asiento_editable, DXTErrorCode.UNKNOWN_ASIENTO, codigo_asiento, (el) => el.code == codigo_asiento),
-    talonarios: _setSelectedItem(talonarios, talonario_editable, DXTErrorCode.UNKNOWN_TALONARIO, codigo_talonario_factura, (el) => el.code == codigo_talonario_factura),
-    direcciones: _setSelectedItem(direcciones, direccion_editable, DXTErrorCode.UNKNOWN_DIRECCION, codigo_direccion, (el) => el.code == codigo_direccion),
-    transporte_editable,
-    deposito_editable,
-    condicion_editable,
-    asiento_editable,
-    talonario_editable,
-    direccion_editable,
-    id_lista_de_precio: lista.id,
-    lista_incluye_iva: lista.incluye_iva,
-    lista_incluye_ii: lista.incluye_ii,
-    usuario_discrimina_iva: discriminaIVA,
-    usuario_discrimina_ii: discriminaII,
-    usuario_aplica_sobre_iva: aplicaSobreIVA,
-    usuario_aplica_sobre_ii: aplicaSobreII
-  };
-  return result;
-}
-function _setSelectedItem(list, editable, unknownElementError, targetValue, checkSelected) {
-  if (targetValue == null)
-    return list;
-  if (editable) {
-    return list.map((el) => ({
-      ...el,
-      selected: (checkSelected == null ? void 0 : checkSelected(el)) ?? false
-    }));
-  }
-  if (checkSelected == null)
-    throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "_setSelectedItem -> <checkSelected> must be defined when <editable> is false");
-  const result = list.filter((el) => checkSelected(el));
-  if (result.length == 0)
-    throw new DXTException(unknownElementError, valueToString(targetValue));
-  return result;
-}
-async function prepareStartValues(user, originalOrder, customerId, createNew, startDraft) {
-  const customer = await clienteRepository.getExtendedById(customerId);
-  const auxiliares = await getAuxiliares(customerId);
-  const billingProfile = await getOptimalBillingProfile(
-    user,
-    originalOrder,
-    customer
-  );
-  const header = await prepareOrderHeader(
-    user,
-    originalOrder,
-    customer,
-    billingProfile,
-    auxiliares,
-    createNew,
-    startDraft
-  );
-  const groupedArticles = await prepareOrderGroupedArticles(
-    user,
-    originalOrder,
-    header,
-    customer,
-    auxiliares
-  );
-  return {
-    cabecera: header,
-    articulos: groupedArticles
-  };
-}
-var StartPedidoMode = /* @__PURE__ */ ((StartPedidoMode2) => {
-  StartPedidoMode2[StartPedidoMode2["edit"] = 0] = "edit";
-  StartPedidoMode2[StartPedidoMode2["create"] = 1] = "create";
-  StartPedidoMode2[StartPedidoMode2["createCopy"] = 2] = "createCopy";
-  return StartPedidoMode2;
-})(StartPedidoMode || {});
-async function startPedido(user, params) {
-  const { mode: mode2 } = params;
-  const createNew = mode2 != 0;
-  if (createNew && !user.puedeCrearPedido.valueOf())
-    throw new DXTException(DXTErrorCode.USER_CANNOT_CREATE_ORDERS);
-  if (!createNew && !user.puedeEditarPedido.valueOf())
-    throw new DXTException(DXTErrorCode.USER_CANNOT_UPDATE_ORDERS);
-  const startDraft = mode2 == 0 ? params.isDraft : params.createDraft;
-  const originalOrder = mode2 == 1 ? null : await getOrderWithRows(params.idPedido, user, params.isDraft, false, false);
-  if (mode2 == 0 && originalOrder != null && !isUserAllowedToModifyOrder(user, originalOrder.header.estado)) {
-    throw new DXTException(DXTErrorCode.USER_CANNOT_UPDATE_ORDER_IN_CURRENT_STATUS);
-  }
-  const idCliente = mode2 == 1 ? params.idCliente : originalOrder.header.id_cliente;
-  return await prepareStartValues(
-    user,
-    originalOrder,
-    idCliente,
-    createNew,
-    startDraft
-  );
-}
 function getMessageFromHttpStatus(status) {
   return _httpStatusMessagesEnglish.get(status) ?? _httpStatusMessagesEnglish.get(HttpStatus.INTERNAL_SERVER_ERROR) ?? "Error";
 }
@@ -9235,8 +6071,8 @@ async function connectWorker(authTokenString) {
   tokenProps.universalId.valueOf();
   if (role === UserRole.customer)
     return await _testUserConnect(dxtClienteRepository, token, DXTErrorCode.TANGO_CUSTOMER_NO_LONGER_EXISTS);
-  if (role === UserRole.vendor)
-    return await _testUserConnect(dxtVendedorRepository, token, DXTErrorCode.TANGO_VENDOR_NO_LONGER_EXISTS);
+  if (role === UserRole.seller)
+    return await _testUserConnect(dxtVendedorRepository, token, DXTErrorCode.TANGO_SELLER_NO_LONGER_EXISTS);
   throw new DXTException(DXTErrorCode.MISSING_AUTH_TOKEN);
 }
 async function _testUserConnect(repository, authToken, tangoUserNotFoundErrorCode) {
@@ -9280,7 +6116,7 @@ async function loginWorker(username, password) {
     dxtVendedorRepository,
     username,
     passwordHash,
-    DXTErrorCode.TANGO_VENDOR_NO_LONGER_EXISTS
+    DXTErrorCode.TANGO_SELLER_NO_LONGER_EXISTS
   );
   if (result)
     return result;
@@ -9367,648 +6203,1493 @@ class AuthenticatedRootController extends RootController {
   }
 }
 const authenticatedRootController = new AuthenticatedRootController();
-class CustomerAndVendorRootController extends AuthenticatedRootController {
+class AdminRootController extends AuthenticatedRootController {
   async onRequest(req) {
     await super.onRequest(req);
-    if (req.auth.user.role.isAdmin()) {
-      throw new DXTException(DXTErrorCode.FORBIDDEN);
+    if (!req.auth.user.role.isAdmin()) {
+      throw new DXTException(DXTErrorCode.ADMIN_ROLE_REQUIRED);
     }
   }
 }
-const customerAndVendorRootController = new CustomerAndVendorRootController();
-class CustomerRootController extends AuthenticatedRootController {
-  async onRequest(req) {
-    await super.onRequest(req);
-    if (!req.auth.user.role.isCustomer())
-      throw new DXTException(DXTErrorCode.FORBIDDEN);
-  }
-}
-const customerRootController = new CustomerRootController();
-class VendorRootController extends AuthenticatedRootController {
-  async onRequest(req) {
-    await super.onRequest(req);
-    if (!req.auth.user.role.isVendor())
-      throw new DXTException(DXTErrorCode.FORBIDDEN);
-  }
-}
-const vendorRootController = new VendorRootController();
-const idClienteValidationOptions = {
-  validation: {
-    params: {
-      id_cliente: integerValidator
-    }
-  }
-};
-const idPedidoValidationOptions = {
-  validation: {
-    params: {
-      id_pedido: integerValidator
-    }
-  }
-};
-async function _startNew(user, createDraft) {
-  const { tangoId, role } = user;
-  if (tangoId == null || !role.isCustomer())
-    throw new DXTException(DXTErrorCode.CUSTOMER_ROLE_REQUIRED);
-  return await startPedido(user, {
-    mode: StartPedidoMode.create,
-    idCliente: tangoId.valueOf(),
-    createDraft
-  });
-}
-async function _startNewForCustomer(user, idCliente, createDraft) {
-  const { tangoId, role } = user;
-  if (tangoId == null || !role.isVendor())
-    throw new DXTException(DXTErrorCode.VENDOR_ROLE_REQUIRED);
-  return await startPedido(user, {
-    mode: StartPedidoMode.create,
-    idCliente,
-    createDraft
-  });
-}
-async function _startNewFromCopy(user, isDraft, idPedido, createDraft) {
-  return await startPedido(user, {
-    mode: StartPedidoMode.createCopy,
-    isDraft,
-    idPedido,
-    createDraft
-  });
-}
-const startNewDraftEndpoint = createApiEndpoint(
-  customerRootController,
-  void 0,
-  async (req) => await _startNew(req.auth.user, true)
-);
-const startNewOrderEndpoint = createApiEndpoint(
-  customerRootController,
-  void 0,
-  async (req) => await _startNew(req.auth.user, false)
-);
-const startNewOrderForCustomerEndpoint = createApiEndpoint(
-  vendorRootController,
-  idClienteValidationOptions,
-  async (req) => await _startNewForCustomer(req.auth.user, req.validated.params.id_cliente, false)
-);
-const startNewDraftForCustomerEndpoint = createApiEndpoint(
-  vendorRootController,
-  idClienteValidationOptions,
-  async (req) => await _startNewForCustomer(req.auth.user, req.validated.params.id_cliente, true)
-);
-const startOrderUpdateEndpoint = createApiEndpoint(
-  customerAndVendorRootController,
-  idPedidoValidationOptions,
-  async (req) => await startPedido(req.auth.user, {
-    mode: StartPedidoMode.edit,
-    isDraft: false,
-    idPedido: req.validated.params.id_pedido
-  })
-);
-const startDraftUpdateEndpoint = createApiEndpoint(
-  customerAndVendorRootController,
-  idPedidoValidationOptions,
-  async (req) => await startPedido(req.auth.user, {
-    mode: StartPedidoMode.edit,
-    isDraft: true,
-    idPedido: req.validated.params.id_pedido
-  })
-);
-const startNewOrderFromExistingOrderEndpoint = createApiEndpoint(
-  customerAndVendorRootController,
-  idPedidoValidationOptions,
-  async (req) => await _startNewFromCopy(req.auth.user, false, req.validated.params.id_pedido, false)
-);
-const startNewOrderFromExistingDraftEndpoint = createApiEndpoint(
-  customerAndVendorRootController,
-  idPedidoValidationOptions,
-  async (req) => await _startNewFromCopy(req.auth.user, true, req.validated.params.id_pedido, false)
-);
-const startNewDraftFromExistingOrderEndpoint = createApiEndpoint(
-  customerAndVendorRootController,
-  idPedidoValidationOptions,
-  async (req) => await _startNewFromCopy(req.auth.user, false, req.validated.params.id_pedido, true)
-);
-const startNewDraftFromExistingDraftEndpoint = createApiEndpoint(
-  customerAndVendorRootController,
-  idPedidoValidationOptions,
-  async (req) => await _startNewFromCopy(req.auth.user, true, req.validated.params.id_pedido, true)
-);
-async function createOrUpdateOrder(user, customer, order) {
-  const repository = order.saveDraft ? getDraftRepository(user) : pedidoRepository;
-  if (order.idPedido != null) {
-    return await repository.update(customer, order);
-  }
-  return await repository.create(customer, order);
-}
-var SaveOrderMode = /* @__PURE__ */ ((SaveOrderMode2) => {
-  SaveOrderMode2[SaveOrderMode2["create"] = 0] = "create";
-  SaveOrderMode2[SaveOrderMode2["update"] = 1] = "update";
-  return SaveOrderMode2;
-})(SaveOrderMode || {});
-class DXTArticuloPrintListRepository extends DXTArticuloListRepository {
-  constructor() {
-    super({
-      mainTable: DXT_ARTICULO_PRINT_LIST_TABLE,
-      dependencies: [
-        articuloRepository
-      ]
-    });
-    this.mainColumns = [`${DXT_ARTICULO_PRINT_LIST_TABLE}.*`];
-    this.articuloColumns = [ARTICULO_ID_FIELD].map((c) => `${ARTICULO_TABLE}.${c}`);
-  }
-  async getIdsWithParams(paramsToReturn) {
-    const cacheKey = `ids_${paramsToReturn == null ? void 0 : paramsToReturn.join(".")}`;
-    const resultFromCache = await this.cache.getMetadata(cacheKey);
-    if (resultFromCache != null)
-      return resultFromCache;
-    const { mainTable } = this.config;
-    const k = await this.getCompany();
-    const rawData = await k(mainTable).select(...this.mainColumns, ...this.articuloColumns).innerJoin(ARTICULO_TABLE, `${mainTable}.${DXT_LIST_ARTICULO_CODE_FIELD}`, `${ARTICULO_TABLE}.${ARTICULO_CODE_FIELD}`).orderBy(DXT_LIST_ARTICULO_ID_FIELD);
-    if (rawData == null)
-      throw new DXTException(DXTErrorCode.NOT_FOUND);
-    const data = rawData.map((m) => this.toArticuloIdResult(m, paramsToReturn));
-    await this.cache.setMetadata(cacheKey, data);
-    return data;
-  }
-  toArticuloIdResult(m, paramsToReturn) {
-    const { [ARTICULO_ID_FIELD]: id_articulo } = m;
-    const params = strToDXTArticuloListParams(m.params);
-    if (paramsToReturn.length == 0) {
-      if (params != null)
-        return [id_articulo, params];
-      return id_articulo;
-    }
-    const filteredParamsEntries = params == null ? null : Object.entries(params).filter(
-      ([key, _2]) => paramsToReturn.includes(key)
-    );
-    if (filteredParamsEntries != null && filteredParamsEntries.length > 0) {
-      return [id_articulo, Object.fromEntries(filteredParamsEntries)];
-    }
-    return id_articulo;
-  }
-}
-const dxtArticuloPrintListRepository = new DXTArticuloPrintListRepository();
-async function validateInputRows(user, originalOrder, customer, billingProfile, auxiliares, validatedOrderHeader, inputRows) {
-  const articles = await getArticles(user, customer);
-  const rawResult = inputRows.map((row) => _validateOrderRow(
-    row,
-    articles.get(row.id)
-  ));
-  await dxtArticuloPrintListRepository.getAll();
-  const sortedRows = rawResult;
-  const { listas } = auxiliares;
-  const alicuotas = await alicuotaRepository.getAllPercentages();
-  const { idListaDePrecio, bonificacion } = validatedOrderHeader;
-  const lista = listas.get(idListaDePrecio);
-  if (lista == null)
-    throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "validateInputRows -> lista == null");
-  const { incluye_iva, incluye_ii } = lista;
-  const adjustPriceParams = {
-    bonificacion,
-    listaIncluyeIVA: incluye_iva,
-    listaIncluyeII: incluye_ii,
-    usuarioAplicaSobreIVA: customer.aplicaSobreIVA,
-    usuarioAplicaSobreII: customer.aplicaSobreII,
-    usuarioDiscriminaIVA: customer.discriminaIVA,
-    usuarioDiscriminaII: customer.discriminaII
-  };
-  const rowsWithAdjustedPrice = sortedRows.map((row) => {
-    const adjustedPrice = adjustPrice(
-      adjustPriceParams,
-      row,
-      listas,
-      alicuotas,
-      true
-    );
-    return {
-      ...row,
-      precio: adjustedPrice
-    };
-  });
-  const total = _calculateTotal(
-    rowsWithAdjustedPrice
-  );
-  return {
-    ...validatedOrderHeader,
-    total,
-    rows: rowsWithAdjustedPrice
-  };
-}
-function _validateOrderRow(row, article) {
-  const {
-    quantity
-  } = row;
-  if (article == null)
-    throw new DXTException(DXTErrorCode.INACCESIBLE_ORDER_ROW_ARTICLE);
-  const {
-    id,
-    codigo,
-    precio,
-    bonificacion,
-    id_medida_stock,
-    id_medida_stock_2,
-    id_medida_ventas,
-    id_lista_alternativa,
-    codigo_iva,
-    codigo_ii,
-    codigo_sobre_iva,
-    codigo_sobre_ii
-  } = article;
-  return {
-    idArticle: id,
-    codeArticle: codigo,
-    quantity,
-    id_lista_alternativa,
-    precio,
-    bonificacion,
-    idMedidaStock: id_medida_stock,
-    idMedidaStock2: id_medida_stock_2,
-    idMedidaVentas: id_medida_ventas,
-    codigo_iva,
-    codigo_ii,
-    codigo_sobre_iva,
-    codigo_sobre_ii,
-    unidadMedidaSeleccionada: "P"
-  };
-}
-function _calculateTotal(rows) {
-  let total = 0;
-  rows.forEach((row) => {
-    total += row.quantity * (row.precio ?? 0);
-  });
-  return total;
-}
-async function validateInputHeader(user, originalOrder, customer, params, billingProfile, auxiliares) {
-  const {
-    mode: mode2,
-    saveDraft,
-    input
-  } = params;
-  const createNew = mode2 == SaveOrderMode.create;
-  if (saveDraft) {
-    const dxtPedidoDraftRepository = getDraftRepository(user);
-    const draftIdToIgnore = !createNew ? params.idPedido : null;
-    const descriptionExists = await dxtPedidoDraftRepository.descriptionExists(
-      user,
-      input.descripcion,
-      draftIdToIgnore
-    );
-    if (descriptionExists)
-      throw new DXTException(DXTErrorCode.DUPLICATED_DRAFT_DESCRIPTION);
-  }
-  const {
-    comentarios,
-    renglones
-  } = input;
-  const starDraft = saveDraft;
-  const initialOrderHeader = await prepareOrderHeader(
-    user,
-    originalOrder,
-    customer,
-    billingProfile,
-    auxiliares,
-    createNew,
-    starDraft
-  );
-  const {
-    id_lista_de_precio,
-    id_asiento_modelo_gv,
-    transportes,
-    depositos,
-    condiciones,
-    asientos,
-    talonarios,
-    direcciones,
-    transporte_editable,
-    deposito_editable,
-    condicion_editable,
-    asiento_editable,
-    talonario_editable,
-    direccion_editable,
-    bonificacion_editable
-  } = initialOrderHeader;
-  const estado = user.aprobarPedidoAlCrear.valueOf() ? EstadoPedido.APROBADO : EstadoPedido.INGRESADO;
-  const {
-    compromete_stock
-  } = billingProfile;
-  const [idTransporte, codigoTransporte] = _checkSelection(transportes, transporte_editable, input.id_transporte, DXTErrorCode.INVALID_TRANSPORTE);
-  const [idDeposito, codigoDeposito] = _checkSelection(depositos, deposito_editable, input.id_deposito, DXTErrorCode.INVALID_DEPOSITO);
-  const [idCondicion, codigoCondicion] = _checkSelection(condiciones, condicion_editable, input.id_condicion, DXTErrorCode.INVALID_CONDICION);
-  const [idAsiento, codigoAsiento] = _checkSelection(asientos, asiento_editable, input.id_asiento, DXTErrorCode.INVALID_ASIENTO);
-  const [idTalonario, codigoTalonario] = _checkSelection(talonarios, talonario_editable, input.id_talonario, DXTErrorCode.INVALID_TALONARIO);
-  const [idDireccionDeEntrega, _2] = _checkSelection(direcciones, direccion_editable, input.id_direccion, DXTErrorCode.INVALID_DIRECCION);
-  const validatedDiscount = limitNumber(
-    bonificacion_editable ? input.bonificacion : initialOrderHeader.bonificacion,
-    0,
-    100
-  );
-  const validatedOrderHeader = {
-    idTransporte,
-    codigoTransporte,
-    idDeposito,
-    codigoDeposito,
-    idCondicion,
-    codigoCondicion,
-    idAsiento,
-    codigoAsiento,
-    idTalonario,
-    codigoTalonario,
-    idListaDePrecio: id_lista_de_precio,
-    idDireccionDeEntrega,
-    bonificacion: validatedDiscount,
-    comentarios,
-    comprometeStock: compromete_stock,
-    estado,
-    idAsientoModeloGV: id_asiento_modelo_gv
-  };
-  return validatedOrderHeader;
-}
-function _checkSelection(list, isEditable, selectedId, errorCode) {
-  const pickFirst = !isEditable;
-  const index = list.findIndex((item) => pickFirst || item.id == selectedId);
-  if (index < 0)
-    throw new DXTException(errorCode);
-  return [
-    list[index].id,
-    list[index].code
-  ];
-}
-async function validateInputParams(user, originalOrder, customer, params) {
-  const auxiliares = await getAuxiliares(customer.id);
-  const billingProfile = await getOptimalBillingProfile(
-    user,
-    originalOrder,
-    customer
-  );
-  const validatedOrderHeader = await validateInputHeader(
-    user,
-    originalOrder,
-    customer,
-    params,
-    billingProfile,
-    auxiliares
-  );
-  const validatedOrder = await validateInputRows(
-    user,
-    originalOrder,
-    customer,
-    billingProfile,
-    auxiliares,
-    validatedOrderHeader,
-    params.input.renglones
-  );
-  const {
-    mode: mode2,
-    saveDraft,
-    input
-  } = params;
-  const idPedido = mode2 == SaveOrderMode.update ? params.idPedido : null;
-  if (saveDraft) {
-    const descripcion = input.descripcion;
-    return {
-      ...validatedOrder,
-      saveDraft,
-      idPedido,
-      descripcion
-    };
-  }
-  const realOrder = (originalOrder == null ? void 0 : originalOrder.isDraft) === false ? originalOrder : null;
-  const fechaIngreso = (realOrder == null ? void 0 : realOrder.header.fecha_ingreso) ?? /* @__PURE__ */ new Date();
-  const fechaPedido = input.fecha_alta;
-  const fechaEntrega = input.fecha_entrega;
-  return {
-    ...validatedOrder,
-    saveDraft,
-    idPedido,
-    fechaIngreso,
-    fechaPedido,
-    fechaEntrega
-  };
-}
-async function deleteDraft(user, idDraft) {
-  await getOrderWithRows(idDraft, user, true, true, true);
-  await getDraftRepository(user).deleteById(idDraft);
-}
-async function savePedido(user, params) {
-  var _a2;
-  const { mode: mode2, saveDraft, input } = params;
-  const createNew = mode2 == SaveOrderMode.create;
-  if (user.isAdmin())
-    throw new DXTException(DXTErrorCode.CUSTOMER_OR_VENDOR_ROLE_REQUIRED);
-  if (createNew && !user.puedeCrearPedido.valueOf())
-    throw new DXTException(DXTErrorCode.USER_CANNOT_CREATE_ORDERS);
-  if (!createNew && !user.puedeEditarPedido.valueOf())
-    throw new DXTException(DXTErrorCode.USER_CANNOT_UPDATE_ORDERS);
-  const originalIsDraft = mode2 == SaveOrderMode.update && saveDraft;
-  const originalOrder = mode2 == SaveOrderMode.update ? await getOrderWithRows(input.id_pedido, user, originalIsDraft, false, false) : null;
-  if (originalOrder != null && originalOrder.header.estado != EstadoPedido.INGRESADO) {
-    throw new DXTException(DXTErrorCode.USER_CANNOT_UPDATE_ORDER_IN_CURRENT_STATUS);
-  }
-  const idCliente = mode2 == SaveOrderMode.update ? originalOrder.header.id_cliente : input.id_cliente;
-  const customer = await clienteRepository.getExtendedById(idCliente);
-  const idCustomerVendedor = customer.idVendedor;
-  if (user.isVendor() && idCustomerVendedor != ((_a2 = user.vendedorId) == null ? void 0 : _a2.valueOf()))
-    throw new DXTException(DXTErrorCode.CUSTOMER_DOES_NOT_BELONGS_TO_VENDOR);
-  const validatedOrder = await validateInputParams(
-    user,
-    originalOrder,
-    customer,
-    params
-  );
-  const result = await createOrUpdateOrder(user, customer, validatedOrder);
-  const draftIdToDelete = mode2 == SaveOrderMode.create && !saveDraft ? params.input.draft_id_to_delete : null;
-  if (draftIdToDelete != null) {
-    await deleteDraft(
-      user,
-      draftIdToDelete
-    );
-  }
-  return result;
-}
-const createOrderEndpoint = createApiEndpoint(
-  customerAndVendorRootController,
-  {
-    validation: {
-      body: validateCreateOrderInput
-    }
-  },
-  async (req) => await savePedido(req.auth.user, {
-    mode: SaveOrderMode.create,
-    saveDraft: false,
-    input: req.validated.body
-  })
-);
-const createDraftEndpoint = createApiEndpoint(
-  customerAndVendorRootController,
-  {
-    validation: {
-      body: validateCreateDraftInput
-    }
-  },
-  async (req) => await savePedido(req.auth.user, {
-    mode: SaveOrderMode.create,
-    saveDraft: true,
-    input: req.validated.body
-  })
-);
+const adminRootController = new AdminRootController();
 const paginationOffsetValidator = (v) => v != null ? new VOIntegerRange(v, 0, 1e9).valueOf() : void 0;
 const paginationLimitValidator = (v) => v != null ? new VOIntegerRange(v, 1, 1e3).valueOf() : void 0;
 const tangoIdValidator = (v) => new VOUInt32(v).valueOf();
-const updateOrderEndpoint = createApiEndpoint(
-  customerAndVendorRootController,
-  {
-    validation: {
-      params: { id_pedido: tangoIdValidator },
-      body: validateUpdateOrderInput
-    }
+const optionalTangoIdValidator = (v) => v != null ? new VOUInt32(v).valueOf() : void 0;
+const DIAS_DE_ENTREGA_MIN_DAYS = 0;
+const DIAS_DE_ENTREGA_MAX_DAYS = 365;
+const DIAS_DE_ENTREGA_DEFAULT = 30;
+const baseUserInputSchema = {
+  tango_id: (v) => new VOUInt32(v),
+  username: (v) => {
+    const s = new VOUserName(v).valueOf();
+    if (s.toLowerCase() == ADMIN_USERNAME)
+      throw new DXTException(DXTErrorCode.FORBIDDEN_ADMIN_USERNAME);
+    return s;
   },
-  async (req) => await savePedido(req.auth.user, {
-    mode: SaveOrderMode.update,
-    saveDraft: false,
-    idPedido: req.validated.params.id_pedido,
-    input: req.validated.body
-  })
-);
-const updateDraftEndpoint = createApiEndpoint(
-  customerAndVendorRootController,
-  {
-    validation: {
-      params: { id_pedido: tangoIdValidator },
-      body: validateUpdateDraftInput
-    }
-  },
-  async (req) => await savePedido(req.auth.user, {
-    mode: SaveOrderMode.update,
-    saveDraft: true,
-    idPedido: req.validated.params.id_pedido,
-    input: req.validated.body
-  })
-);
-async function cancelPedido(user, idPedido) {
-  const deleteOrder = user.borrarPedidoAlAnular.valueOf();
-  if (!user.puedeAnularPedido.valueOf()) {
-    if (deleteOrder)
-      throw new DXTException(DXTErrorCode.USER_CANNOT_DELETE_ORDERS);
-    throw new DXTException(DXTErrorCode.USER_CANNOT_CANCEL_ORDERS);
-  }
-  const pedidoOriginal = await getOrderWithRows(idPedido, user, false, true, true);
-  const { header } = pedidoOriginal;
-  const currentStatus = header.estado;
-  const canCancelOrDelete = isUserAllowedToCancelOrDeleteOrder(user, currentStatus);
-  if (!canCancelOrDelete) {
-    if (deleteOrder)
-      throw new DXTException(DXTErrorCode.USER_CANNOT_DELETE_ORDER_IN_CURRENT_STATUS);
-    throw new DXTException(DXTErrorCode.USER_CANNOT_CANCEL_ORDER_IN_CURRENT_STATUS);
-  }
-  if (deleteOrder) {
-    await pedidoRepository.deleteById(idPedido);
-  } else {
-    await pedidoRepository.cancel(idPedido);
-  }
+  password: (v) => v != null ? new VODXTPassword(v) : void 0,
+  puede_crear_pedido: (v) => new VOBoolean(v),
+  puede_editar_pedido: (v) => new VOBoolean(v),
+  puede_anular_pedido: (v) => new VOBoolean(v),
+  borrar_pedido_al_anular: (v) => new VOBoolean(v),
+  perfil_facturacion_id: (v) => new VOUInt32(v),
+  aprobar_pedido_al_crear: (v) => new VOBoolean(v),
+  ver_pedidos_cumplidos: (v) => new VOBoolean(v),
+  dia_de_entrega: (v) => new VOIntegerRange(v, DIAS_DE_ENTREGA_MIN_DAYS, DIAS_DE_ENTREGA_MAX_DAYS),
+  email: (v) => v != null ? new VOEmailAddress(v) : void 0,
+  ver_sin_precio: (v) => new VOBoolean(v),
+  mostrar_mensaje_de_advertencia: (v) => new VOBoolean(v),
+  habilitado_en_dxt: (v) => new VOBoolean(v),
+  id_lista_prioritaria: (v) => v != null ? new VOUInt32(v) : null,
+  bonificacion_lista_prioritaria: (v) => v != null ? new VOPositiveNumber(v) : null
+};
+const updateUserInputSchema = {
+  ...baseUserInputSchema
+};
+const createUserInputSchema = {
+  ...baseUserInputSchema,
+  password: (v) => new VODXTPassword(v)
+};
+const deleteUserInputSchema = {
+  username: (v) => new VONotEmptyString(v)
+};
+const validateDeleteUserInput = (input) => validateInput(deleteUserInputSchema, input);
+const updateClienteInputSchema = {
+  ...updateUserInputSchema,
+  lista_prioritaria_vendedor: (v) => new VOBoolean(v)
+};
+const createClienteInputSchema = {
+  ...createUserInputSchema,
+  lista_prioritaria_vendedor: (v) => new VOBoolean(v)
+};
+const validateUpdateClienteInput = (input) => validateInput(updateClienteInputSchema, input);
+const validateCreateClienteInput = (input) => validateInput(createClienteInputSchema, input);
+const updateVendedorInputSchema = updateUserInputSchema;
+const createVendedorInputSchema = createUserInputSchema;
+const validateUpdateVendedorInput = (input) => validateInput(updateVendedorInputSchema, input);
+const validateCreateVendedorInput = (input) => validateInput(createVendedorInputSchema, input);
+function clienteToSafeOutput(unsafe) {
+  const {
+    password_hash,
+    ...remaining
+  } = unsafe;
+  return remaining;
 }
-const cancelOrderEndpoint = createApiEndpoint(
-  customerAndVendorRootController,
-  idPedidoValidationOptions,
+function vendedorToSafeOutput(unsafe) {
+  const {
+    password_hash,
+    ...remaining
+  } = unsafe;
+  return remaining;
+}
+const integerValidator = (v) => new VOInteger(v).valueOf();
+const stringValidator = (v) => new VONotEmptyString(v).valueOf();
+const optionalStringValidator = (v, def) => v == null ? def : new VOString(v).valueOf();
+const ARTICLE_GROUP_NO_NAME = "_";
+function _getDXTArticuloListParam(s) {
+  const chunks = s.split("=", 2);
+  if (chunks.length != 2)
+    return null;
+  const key = chunks[0].trim().toLowerCase();
+  const value = chunks[1].trim();
+  if (key.length == 0)
+    return null;
+  return { key, value };
+}
+function strToDXTArticuloListRecord(s) {
+  if (!isStr(s))
+    return null;
+  let p = s.indexOf(";");
+  if (p <= 0)
+    p = s.length;
+  const codigo_articulo = s.substring(0, p).trimEnd();
+  if (codigo_articulo.length == 0)
+    return null;
+  const params = s.substring(p + 1).trim();
+  if (codigo_articulo == ARTICLE_GROUP_NO_NAME)
+    throw new DXTException(DXTErrorCode.RESERVED_ARTICLE_GROUP_NAME, `"${ARTICLE_GROUP_NO_NAME}"`);
+  if (params.length == 0)
+    return { codigo_articulo };
+  return {
+    codigo_articulo,
+    params
+  };
+}
+function strToDXTArticuloListParams(paramsStr) {
+  if (paramsStr == null)
+    return void 0;
+  const result = {};
+  let emptyParams = true;
+  const chunks = paramsStr.split(";");
+  chunks.forEach((s, i) => {
+    const paramEntry = _getDXTArticuloListParam(s);
+    if (paramEntry == null)
+      return;
+    const { key, value } = paramEntry;
+    result[key] = value;
+    emptyParams = false;
+  });
+  return emptyParams ? void 0 : result;
+}
+function tangoArticuloModelMapper(m) {
+  const { [ARTICULO_ID_FIELD]: id, [ARTICULO_CODE_FIELD]: codigo, DESCRIPCIO, DESC_ADIC } = m;
+  return {
+    id,
+    codigo,
+    nombre: DESCRIPCIO ?? codigo,
+    descripcion_adicional: DESC_ADIC
+  };
+}
+function tangoFullArticleModelMapper(m, prioritaryListId, prioritaryDiscount, overridedDiscount) {
+  const {
+    PRECIO,
+    [LISTA_ID_FIELD]: idLista,
+    COD_II,
+    COD_IVA,
+    COD_S_II,
+    COD_S_IVA,
+    ID_MEDIDA_STOCK,
+    ID_MEDIDA_STOCK_2,
+    ID_MEDIDA_VENTAS,
+    DXTO_PARAMS
+  } = m;
+  const idListaIsPrioritary = prioritaryListId != null && idLista === prioritaryListId;
+  const discount = overridedDiscount != null ? overridedDiscount : idListaIsPrioritary ? prioritaryDiscount : null;
+  return {
+    ...tangoArticuloModelMapper(m),
+    id_lista: idLista,
+    precio: PRECIO,
+    bonificacion: discount ?? void 0,
+    codigo_iva: COD_IVA,
+    codigo_sobre_iva: COD_S_IVA,
+    codigo_ii: COD_II,
+    codigo_sobre_ii: COD_S_II,
+    id_medida_stock: ID_MEDIDA_STOCK ?? null,
+    id_medida_stock_2: ID_MEDIDA_STOCK_2 ?? null,
+    id_medida_ventas: ID_MEDIDA_VENTAS ?? null,
+    params: strToDXTArticuloListParams(DXTO_PARAMS)
+  };
+}
+function tangoFullArticleOrGroupNameModelMapper(m, prioritaryListId, prioritaryDiscount, overridedDiscount) {
+  const { DXTO_CODIGO_ARTICULO, [ARTICULO_CODE_FIELD]: codigoArticulo } = m;
+  const isGroupLabel = DXTO_CODIGO_ARTICULO != null && DXTO_CODIGO_ARTICULO !== codigoArticulo;
+  if (isGroupLabel)
+    return DXTO_CODIGO_ARTICULO.trim();
+  return tangoFullArticleModelMapper(
+    m,
+    prioritaryListId,
+    prioritaryDiscount,
+    overridedDiscount
+  );
+}
+function tangoListaModelMapper(m) {
+  const {
+    [LISTA_ID_FIELD]: id,
+    [LISTA_CODE_FIELD]: codigo,
+    NOMBRE_LIS,
+    INCLUY_IMP,
+    INCLUY_IVA,
+    HABILITADA
+  } = m;
+  const nombre = NOMBRE_LIS ?? codigo.toString();
+  const incluye_ii = toBoolean(INCLUY_IMP, false);
+  const incluye_iva = toBoolean(INCLUY_IVA, false);
+  const habilitada = toBoolean(HABILITADA, false);
+  return {
+    id,
+    codigo,
+    nombre,
+    incluye_ii,
+    incluye_iva,
+    habilitada
+  };
+}
+function tangoPrecioModelMapper(m) {
+  const {
+    [ARTICULO_CODE_FIELD]: codigoArticulo,
+    PRECIO
+  } = m;
+  const precio = PRECIO ?? 0;
+  return {
+    codigoArticulo,
+    precio
+  };
+}
+class ArticuloRepository extends TangoProvider {
+  constructor() {
+    super({
+      mainTable: ARTICULO_TABLE,
+      mainIdField: ARTICULO_ID_FIELD,
+      columns: articuloModelColumns
+    });
+  }
+  toResult(m) {
+    return tangoArticuloModelMapper(m);
+  }
+  // async getByListIdWithTaxes(
+  //   profileListId: number,
+  //   prioritaryListId: number|null|undefined,
+  //   prioritaryDiscount: number|null|undefined,
+  // ): Promise<FullArticleResult[]> {
+  //   const singleListId = prioritaryListId == null;
+  //   const sameOrSinglePriceList = singleListId || profileListId === prioritaryListId;
+  //   const overridedDiscount = singleListId ? null : prioritaryDiscount;
+  //   const aListId = sameOrSinglePriceList ? profileListId : prioritaryListId;
+  //   const bListId = sameOrSinglePriceList ? null          : profileListId;
+  //   const k = await this.getCompany();
+  //   const fullArticuloCodeField = `${ARTICULO_TABLE}.${ARTICULO_CODE_FIELD}`;
+  //   const fullPrecioListaIdField = `${PRECIO_TABLE}.${LISTA_ID_FIELD}`;
+  //   const articuloColumns = articuloModelColumns.map(c => `${ARTICULO_TABLE}.${c} as ${c}`);
+  //   const precioColumns = ['PRECIO', LISTA_ID_FIELD, ARTICULO_CODE_FIELD];
+  //   const aPrecioColumns = precioColumns.map(c => `tpa.${c}`);
+  //   const bPrecioColumns = bListId!=null ? precioColumns.map(c => `tpb.${c}`) : [];
+  //   let query = k(ARTICULO_TABLE).select(
+  //     ...articuloColumns,
+  //     ...aPrecioColumns,
+  //     ...bPrecioColumns,
+  //   );
+  //   const aPricesQuery = k(PRECIO_TABLE).select(precioColumns).where(LISTA_ID_FIELD, aListId).as('tpa');
+  //   const bPricesQuery = bListId!=null ? k(PRECIO_TABLE).select(precioColumns).where(LISTA_ID_FIELD, bListId).as('tpb') : null;
+  //   query = query.leftOuterJoin(aPricesQuery, fullArticuloCodeField, `tpa.${ARTICULO_CODE_FIELD}`);
+  //   if (bPricesQuery!=null) query = query.leftOuterJoin(bPricesQuery, fullArticuloCodeField, `tpb.${ARTICULO_CODE_FIELD}`);
+  //   query = bListId!=null
+  //     ? query.where( k.raw(`tpa.${LISTA_ID_FIELD} = ? OR tpb.${LISTA_ID_FIELD} = ?`, [aListId, bListId] ) )
+  //     : query.where( k.raw(`tpa.${LISTA_ID_FIELD} = ?`, [aListId] ) );
+  //   const result: ArticuloWithMultiPriceModel[] = await query.orderBy(fullArticuloCodeField);
+  //   return result.map(item => tangoFullArticleModelMapper(
+  //     item,
+  //     prioritaryListId,
+  //     prioritaryDiscount,
+  //     overridedDiscount,
+  //   ));
+  // }  
+}
+const articuloRepository = new ArticuloRepository();
+const listaRepository = createTangoRepository(LISTA_TABLE, LISTA_ID_FIELD, tangoListaModelMapper, listaModelColumns);
+const precioRepository = createTangoRepository(
+  PRECIO_TABLE,
+  PRECIO_ID_FIELD,
+  tangoPrecioModelMapper,
+  precioModelColumns,
+  [
+    dxtClienteRepository,
+    dxtVendedorRepository,
+    listaRepository,
+    articuloRepository
+  ]
+);
+function createDXTUserGetAllEndpoint(repository) {
+  return createApiEndpoint(
+    adminRootController,
+    {
+      validation: {
+        query: {
+          offset: paginationOffsetValidator,
+          limit: paginationLimitValidator,
+          order: optionalStringValidator
+        }
+      }
+    },
+    async (req) => {
+      const { offset, limit, order } = req.validated.query;
+      return await repository.getAllWithRelations({ offset, limit });
+    }
+  );
+}
+const dxtClienteGetAllEndpoint = createDXTUserGetAllEndpoint(dxtClienteRepository);
+const dxtClienteGetOneEndpoint = createApiEndpoint(
+  adminRootController,
+  { validation: { params: { id_cliente: tangoIdValidator } } },
+  async (req) => clienteToSafeOutput(await dxtClienteRepository.getById(req.validated.params.id_cliente))
+);
+const dxtClienteGetSiblingsEndpoint = createApiEndpoint(
+  adminRootController,
+  {
+    validation: {
+      params: {
+        id_cliente: optionalTangoIdValidator,
+        tango_id: tangoIdValidator
+      }
+    }
+  },
   async (req) => {
-    await cancelPedido(req.auth.user, req.validated.params.id_pedido);
+    const result = await dxtClienteRepository.getSiblings(req.validated.params.id_cliente, req.validated.params.tango_id);
+    return result.map((sibling) => clienteToSafeOutput(sibling));
+  }
+);
+const dxtClienteCreateEndpoint = createApiEndpoint(
+  adminRootController,
+  { validation: { body: validateCreateClienteInput } },
+  async (req) => clienteToSafeOutput(await dxtClienteRepository.create(req.validated.body))
+);
+const dxtClienteUpdateEndpoint = createApiEndpoint(
+  adminRootController,
+  {
+    validation: {
+      params: { id_cliente: tangoIdValidator },
+      body: validateUpdateClienteInput
+    }
+  },
+  async (req) => clienteToSafeOutput(await dxtClienteRepository.update(req.validated.params.id_cliente, req.validated.body))
+);
+const dxtClienteDeleteEndpoint = createApiEndpoint(
+  adminRootController,
+  {
+    validation: {
+      params: { id_cliente: tangoIdValidator },
+      body: validateDeleteUserInput
+    }
+  },
+  async (req) => {
+    await dxtClienteRepository.delete(req.validated.params.id_cliente, req.validated.body.username);
     return { ok: true };
   }
 );
-const cancelDraftEndpoint = createApiEndpoint(
-  customerAndVendorRootController,
-  idPedidoValidationOptions,
+const dxtVendedorGetAllEndpoint = createDXTUserGetAllEndpoint(dxtVendedorRepository);
+const dxtVendedorGetOneEndpoint = createApiEndpoint(
+  adminRootController,
+  { validation: { params: { id_vendedor: tangoIdValidator } } },
+  async (req) => vendedorToSafeOutput(await dxtVendedorRepository.getById(req.validated.params.id_vendedor))
+  //async (req): Promise<DXTVendedorResult> => vendedorToSafeOutput( await dxtVendedorRepository.getUserWithRelationsById(req.validated.params.id, false) ),
+);
+const dxtVendedorCreateEndpoint = createApiEndpoint(
+  adminRootController,
+  { validation: { body: validateCreateVendedorInput } },
+  async (req) => vendedorToSafeOutput(await dxtVendedorRepository.create(req.validated.body))
+);
+const dxtVendedorUpdateEndpoint = createApiEndpoint(
+  adminRootController,
+  {
+    validation: {
+      params: { id_vendedor: tangoIdValidator },
+      body: validateUpdateVendedorInput
+    }
+  },
+  async (req) => vendedorToSafeOutput(await dxtVendedorRepository.update(req.validated.params.id_vendedor, req.validated.body))
+);
+const dxtVendedorDeleteEndpoint = createApiEndpoint(
+  adminRootController,
+  {
+    validation: {
+      params: { id_vendedor: tangoIdValidator },
+      body: validateDeleteUserInput
+    }
+  },
   async (req) => {
-    await deleteDraft(req.auth.user, req.validated.params.id_pedido);
+    await dxtVendedorRepository.delete(req.validated.params.id_vendedor, req.validated.body.username);
     return { ok: true };
   }
 );
-async function getAllPedidos(user, draft) {
-  var _a2;
-  user.role.valueOf();
-  (_a2 = user.tangoId) == null ? void 0 : _a2.valueOf();
-  if (draft) {
-    const result2 = await getDraftRepository(user).getAllByUser(user);
-    return result2;
+const dxtVendedorGetCustomersEndpoint = createApiEndpoint(
+  authenticatedRootController,
+  void 0,
+  async (req) => {
+    var _a2;
+    const { user } = req.auth;
+    const tangoId = (_a2 = user.tangoId) == null ? void 0 : _a2.valueOf();
+    if (!user.role.isSeller())
+      throw new DXTException(DXTErrorCode.SELLER_ROLE_REQUIRED);
+    if (typeof tangoId !== "number")
+      throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "dxtVendedorGetCustomersEndpoint");
+    return await clienteRepository.getAllBySeller(tangoId);
   }
-  const result = await pedidoRepository.getAllByUser(user);
-  return _filterVisibleOrders(user, result);
+);
+const dxtUsuarioGetAuxiliaresEndpoint = createApiEndpoint(
+  authenticatedRootController,
+  void 0,
+  async (req) => {
+    req.auth;
+    const [perfiles, listas] = await Promise.all([
+      perfilRepository.getAll(),
+      listaRepository.getAll()
+    ]);
+    return {
+      listas,
+      perfiles
+    };
+  }
+);
+async function loader$G({ request, params }) {
+  return await dxtClienteGetSiblingsEndpoint.get(request, params);
 }
-function _filterVisibleOrders(user, orders) {
-  const verPedidosCumplidos = user.verPedidosCumplidos.valueOf();
-  return orders.filter((pedido) => {
-    const { estado } = pedido;
-    if (estado == EstadoPedido.ANULADO || estado == EstadoPedido.INVALIDO)
-      return false;
-    if (estado == EstadoPedido.CERRADO || estado == EstadoPedido.CUMPLIDO) {
-      return verPedidosCumplidos;
+const action$G = unimplementedApiResponse;
+const route1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  action: action$G,
+  loader: loader$G
+}, Symbol.toStringTag, { value: "Module" }));
+apiEndpoint("/dxt/usuario/auxiliares", "GET");
+const _API_DXT_CUSTOMER = "/dxt/cliente";
+const _API_DXT_CUSTOMER_ID = "/dxt/cliente/:id";
+const API_DXT_CUSTOMER_GET_ALL = apiEndpoint(_API_DXT_CUSTOMER, "GET");
+const API_DXT_CUSTOMER_CREATE = apiEndpoint(_API_DXT_CUSTOMER, "POST");
+const API_DXT_CUSTOMER_GET_ONE = apiEndpoint(_API_DXT_CUSTOMER_ID, "GET");
+const API_DXT_CUSTOMER_UPDATE = apiEndpoint(_API_DXT_CUSTOMER_ID, "PATCH");
+const API_DXT_CUSTOMER_DELETE = apiEndpoint(_API_DXT_CUSTOMER_ID, "DELETE");
+const _API_DXT_SELLER = "/dxt/vendedor";
+const _API_DXT_SELLER_ID = "/dxt/vendedor/:id";
+const API_DXT_SELLER_GET_ALL = apiEndpoint(_API_DXT_SELLER, "GET");
+const API_DXT_SELLER_CREATE = apiEndpoint(_API_DXT_SELLER, "POST");
+const API_DXT_SELLER_GET_ONE = apiEndpoint(_API_DXT_SELLER_ID, "GET");
+const API_DXT_SELLER_UPDATE = apiEndpoint(_API_DXT_SELLER_ID, "PATCH");
+const API_DXT_SELLER_DELETE = apiEndpoint(_API_DXT_SELLER_ID, "DELETE");
+const API_DXT_SELLER_CUSTOMERS = apiEndpoint("/dxt/vendedor/cliente", "GET");
+const customerCreateRequest = async (input, app) => {
+  return await dxtApiRequest(
+    {
+      ...API_DXT_CUSTOMER_CREATE,
+      data: input,
+      silent: true
+    },
+    app
+  );
+};
+const customerUpdateRequest = async (id, input, app) => {
+  return await dxtApiRequest(
+    {
+      ...API_DXT_CUSTOMER_UPDATE,
+      pathParams: { id },
+      data: input,
+      silent: true
+    },
+    app
+  );
+};
+const customerDeleteRequest = async (id, input, app) => await dxtApiRequest(
+  {
+    ...API_DXT_CUSTOMER_DELETE,
+    pathParams: { id },
+    data: input,
+    silent: true
+  },
+  app
+);
+const sellerCreateRequest = async (input, app) => {
+  return await dxtApiRequest(
+    {
+      ...API_DXT_SELLER_CREATE,
+      data: input,
+      silent: true
+    },
+    app
+  );
+};
+const sellerDeleteRequest = async (id, input, app) => await dxtApiRequest(
+  {
+    ...API_DXT_SELLER_DELETE,
+    pathParams: { id },
+    data: input,
+    silent: true
+  },
+  app
+);
+const sellerUpdateRequest = async (id, input, app) => {
+  return await dxtApiRequest(
+    {
+      ...API_DXT_SELLER_UPDATE,
+      pathParams: { id },
+      data: input,
+      silent: true
+    },
+    app
+  );
+};
+class FetchState {
+  constructor(originalRequest) {
+    this.originalRequest = originalRequest;
+  }
+  mapOrElse(options) {
+    const { loading, success, error, orElse } = options;
+    if (this instanceof FetchStateLoading && loading)
+      return loading(this);
+    if (this instanceof FetchStateSuccess && success)
+      return success(this);
+    if (this instanceof FetchStateError && error)
+      return error(this);
+    return orElse(this);
+  }
+  map(options) {
+    const { loading, success, error } = options;
+    return this.mapOrElse({
+      loading,
+      success,
+      error,
+      orElse: (_2) => {
+        throw Error("Invalid useAxiosFetch state");
+      }
+    });
+  }
+  isLoading() {
+    return this instanceof FetchStateLoading;
+  }
+  isSuccess() {
+    return this instanceof FetchStateSuccess;
+  }
+  isError() {
+    return this instanceof FetchStateError;
+  }
+  errorOrNull() {
+    if (this instanceof FetchStateError)
+      return this.error;
+    return null;
+  }
+  callIfLoading(func) {
+    return this instanceof FetchStateLoading ? func(this) ?? false : false;
+  }
+  callIfSuccess(func) {
+    return this instanceof FetchStateSuccess ? func(this) ?? false : false;
+  }
+  callIfError(func) {
+    return this instanceof FetchStateError ? func(this) ?? false : false;
+  }
+}
+class FetchStateLoading extends FetchState {
+  constructor(originalRequest) {
+    super(originalRequest);
+  }
+}
+class FetchStateError extends FetchState {
+  constructor(error, originalRequest) {
+    super(originalRequest);
+    this.error = error;
+  }
+}
+class FetchStateSuccess extends FetchState {
+  constructor(data, originalRequest) {
+    super(originalRequest);
+    this.data = data;
+  }
+}
+function useAxiosFetch(params, ...args) {
+  const [fetchState, setFetchState] = useState(
+    new FetchStateLoading(params)
+  );
+  const retry = async () => {
+    setFetchState(new FetchStateLoading(fetchState.originalRequest));
+    await makeRequest();
+  };
+  const reload = async () => {
+    if (!fetchState.isSuccess()) {
+      setFetchState(new FetchStateLoading(fetchState.originalRequest));
     }
-    return true;
+    await makeRequest();
+  };
+  const makeRequest = async () => {
+    var _a2;
+    const params2 = fetchState.originalRequest;
+    try {
+      const response = await axiosRequestPlus(params2);
+      const data = ((_a2 = response == null ? void 0 : response.data) == null ? void 0 : _a2.data) ?? (response == null ? void 0 : response.data);
+      setFetchState(new FetchStateSuccess(data, params2));
+    } catch (err) {
+      if (err instanceof AxiosRequestPlusError) {
+        const axiosError = err;
+        const [errorParser] = args;
+        const parsedError = errorParser ? errorParser(axiosError) : axiosError;
+        const stateError = new FetchStateError(parsedError, params2);
+        setFetchState(stateError);
+      } else {
+        throw err;
+      }
+    }
+  };
+  useEffect(() => {
+    makeRequest();
+  }, []);
+  return {
+    state: fetchState,
+    reload,
+    retry
+  };
+}
+function useDXTApiFetch(params) {
+  const app = useBasicAppResources();
+  const retryCallback = app.retryCallback;
+  const dxtApiParams = createDXTApiParams(app, params);
+  const { state, retry, reload } = useAxiosFetch(
+    dxtApiParams,
+    (axiosError) => {
+      return exceptionToDXTErrorInfo(axiosError);
+    }
+  );
+  useEffect(() => {
+    (async () => {
+      const isSilent = (params == null ? void 0 : params.silent) ?? false;
+      if (isSilent)
+        return;
+      if (!(state instanceof FetchStateError))
+        return;
+      const stateError = state.error;
+      const isTokenError2 = await checkTokenErrorAndRedirect(app, stateError.status);
+      if (isTokenError2)
+        return;
+      if (retryCallback && await retryCallback({
+        message: stateError.error_description
+      }))
+        retry();
+    })();
+  }, [state]);
+  return {
+    state,
+    retry,
+    reload
+  };
+}
+function useGetAllDXTCustomers() {
+  return useDXTApiFetch({
+    ...API_DXT_CUSTOMER_GET_ALL,
+    silent: true
   });
 }
-const getAllOrdersEndpoint = createApiEndpoint(
-  authenticatedRootController,
-  void 0,
-  async (req) => await getAllPedidos(req.auth.user, false)
+function useGetOneDXTCustomer(id) {
+  return useDXTApiFetch({
+    ...API_DXT_CUSTOMER_GET_ONE,
+    pathParams: { id },
+    silent: true
+  });
+}
+function useGetAllDXTSellers() {
+  return useDXTApiFetch({
+    ...API_DXT_SELLER_GET_ALL,
+    silent: true
+  });
+}
+function useGetOneDXTSeller(id) {
+  return useDXTApiFetch({
+    ...API_DXT_SELLER_GET_ONE,
+    pathParams: { id },
+    silent: true
+  });
+}
+function useGetDXTSellerCustomers() {
+  return useDXTApiFetch({
+    ...API_DXT_SELLER_CUSTOMERS,
+    silent: true
+  });
+}
+const WELCOME = "Bienvenido al sistema de pedidos de Sorbalok Pinturas.";
+const OPTIONS = "Opciones";
+const LOGOUT = "Salir";
+const CHANGE_COLOR_MODE = "Cambiar modo de color";
+const CONFIGURE = "Configurar";
+const TANGO_CONNECTION = "Conexión a Tango";
+const TANGO_CONNECTION_UPDATED = "Conexión a Tango actualizada";
+const COMPANY = "Empresa";
+const COMPANY_UPDATED = "Empresa actualizada";
+const INVALID_LIST_TYPE = "Tipo de lista no válida";
+const BACK_TO_SETTINGS = "Volver a Configuración";
+const BACK_TO_PEDIDOS = "Volver a Pedidos";
+const BACK_TO_BORRADORES = "Volver a Borradores";
+const USER_NOT_FOUND = "Usuario no encontrado";
+const UNKNOW_ERROR = "Error desconocido";
+const NO_PEDIDOS = "No se encontraron pedidos";
+const NO_BORRADORES = "El usuario no posee borradores";
+const NO_USERS = "No se encontraron usuarios";
+const PEDIDOS = "Pedidos";
+const BORRADORES = "Borradores";
+const ADMINISTRACION = "Administración";
+const CHANGE_PASSWORD = "Cambiar contraseña";
+const DOWNLOADS = "Descargas";
+const DOWNLOADING = "Descargando...";
+const SELECTED_S = " seleccionado";
+const SELECTED_P = " seleccionados";
+const USER_CREATED = "Usuario creado";
+const USER_UPDATED = "Usuario actualizado";
+const USER_DELETE = "Eliminar usuario";
+const USER_DELETE_CONFIRM = "¿Está seguro que desea eliminar este usuario? Esta acción no se puede deshacer.";
+const USER_DELETED = "Usuario eliminado";
+const CLIENTS_ADMIN = "Gestión de Clientes";
+const CLIENTS_CREATE = "Crear Cliente";
+const CLIENTS_UPDATE = "Modificar Cliente";
+const CLIENTS_SELECT = "Seleccione un Cliente";
+const CLIENTS_LABEL = "Cliente Tango";
+const CLIENTS_NO_OPTIONS = "No hay clientes disponibles";
+const SELLERS_ADMIN = "Gestión de Vendedores";
+const SELLERS_CREATE = "Crear Vendedor";
+const SELLERS_UPDATE = "Modificar Vendedor";
+const SELLERS_SELECT = "Seleccione un Vendedor";
+const SELLERS_LABEL = "Vendedor Tango";
+const SELLERS_NO_OPTIONS = "No hay vendedores disponibles";
+const PRODUCT_EDIT_LIST = "Lista de artículos para edición";
+const PRODUCT_PRINT_LIST = "Lista de artículos para impresión";
+const VARIOUS_SETTINGS = "Configuraciones Varias";
+const VARIOUS_SETTINGS_UPDATED = "Configuraciones actualizadas";
+const LIST_UPDATED = "Lista actualizada";
+const DATE_FORMAT = "dd/MM/yyyy";
+const DATE_FORMAT_API = "yyyy-MM-dd";
+const DATE_DAY_NAMES_SHORT = ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"];
+const DATE_MONTH_NAMES_SHORT = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+const ORDER_CREATED = "Pedido creado";
+const ORDER_CREATED_NUMBER = "Número de Pedido: {{numero_pedido}}";
+const ORDER_UPDATED = "Pedido actualizado";
+const ORDER_UPDATED_NUMBER = "Número de Pedido: {{numero_pedido}}";
+const DRAFT_CREATED = "Borrador creado";
+const DRAFT_CREATED_NUMBER = "Número de Borrador: {{numero_pedido}}";
+const DRAFT_UPDATED = "Borrador actualizado";
+const DRAFT_UPDATED_NUMBER = "Número de Borrador: {{numero_pedido}}";
+const settings$1 = {
+  customers: {
+    api: {
+      getAll: useGetAllDXTCustomers,
+      delete: customerDeleteRequest
+    },
+    userType: "cliente",
+    titles: {
+      common: CLIENTS_ADMIN,
+      create: CLIENTS_CREATE,
+      edit: CLIENTS_UPDATE
+    },
+    actionButtonNavigateTo: URL_SETTINGS_CUSTOMERS_ADD_PATH,
+    cancelButtonNavigateTo: URL_SETTINGS_CUSTOMERS_PATH,
+    editButtonNavigateTo: URL_SETTINGS_CUSTOMERS_EDIT_PATH,
+    tangoRelatedFields: {
+      placeholder: CLIENTS_SELECT,
+      label: CLIENTS_LABEL,
+      empty: CLIENTS_NO_OPTIONS
+    }
+  },
+  sellers: {
+    api: {
+      getAll: useGetAllDXTSellers,
+      delete: sellerDeleteRequest
+    },
+    userType: "vendedor",
+    titles: {
+      common: SELLERS_ADMIN,
+      create: SELLERS_CREATE,
+      edit: SELLERS_UPDATE
+    },
+    actionButtonNavigateTo: URL_SETTINGS_SELLERS_ADD_PATH,
+    cancelButtonNavigateTo: URL_SETTINGS_SELLERS_PATH,
+    editButtonNavigateTo: URL_SETTINGS_SELLERS_EDIT_PATH,
+    tangoRelatedFields: {
+      placeholder: SELLERS_SELECT,
+      label: SELLERS_LABEL,
+      empty: SELLERS_NO_OPTIONS
+    }
+  }
+};
+const CommonErrors = ({ error, buttonProps }) => {
+  return /* @__PURE__ */ jsx(
+    Box,
+    {
+      width: "full",
+      sx: {
+        mt: 6
+      },
+      children: /* @__PURE__ */ jsxs(
+        Alert,
+        {
+          status: "error",
+          variant: "subtle",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          height: "200px",
+          children: [
+            /* @__PURE__ */ jsx(AlertIcon, { boxSize: "40px", sx: { mr: 0, mb: 4 } }),
+            /* @__PURE__ */ jsx(AlertDescription, { maxWidth: "sm", children: error }),
+            buttonProps != null && /* @__PURE__ */ jsx(
+              Button,
+              {
+                ...buttonProps,
+                sx: {
+                  mt: 4
+                },
+                children: buttonProps.label
+              }
+            )
+          ]
+        }
+      )
+    }
+  );
+};
+const CommonCard = (props) => {
+  const { children, cardProps, cardBodyProps } = props;
+  const borderColor = useColorModeValue("gray.200", "white.200");
+  return /* @__PURE__ */ jsx(
+    Card,
+    {
+      boxShadow: "lg",
+      sx: { mb: 4 },
+      borderColor,
+      ...cardProps,
+      children: /* @__PURE__ */ jsx(CardBody, { ...cardBodyProps, children })
+    }
+  );
+};
+const ResponsiveIconButton = (props) => {
+  const { text, icon, iconProps, sharedProps, buttonProps, iconButtonProps } = props;
+  const buttonInjection = useBreakpointValue({
+    base: /* @__PURE__ */ jsx(
+      IconButton,
+      {
+        "aria-label": text,
+        ...sharedProps,
+        ...iconButtonProps,
+        icon: /* @__PURE__ */ jsx(Icon, { as: icon, ...iconProps })
+      }
+    ),
+    md: /* @__PURE__ */ jsx(
+      Button,
+      {
+        ...sharedProps,
+        ...buttonProps,
+        ...icon && { leftIcon: /* @__PURE__ */ jsx(Icon, { as: icon, ...iconProps }) },
+        children: text
+      }
+    )
+  });
+  return /* @__PURE__ */ jsx(Fragment, { children: buttonInjection });
+};
+const SettingsFormHeading = (props) => {
+  const { title, actionButton, returnButton } = props;
+  return /* @__PURE__ */ jsx(CommonCard, { children: /* @__PURE__ */ jsxs(Flex, { direction: "row", alignItems: "center", gap: "2", children: [
+    returnButton && /* @__PURE__ */ jsx(
+      IconButton,
+      {
+        "aria-label": BACK,
+        icon: /* @__PURE__ */ jsx(ChevronLeftIcon, {}),
+        colorScheme: "gray",
+        size: "xs",
+        variant: "outline",
+        ...returnButton.buttonProps
+      }
+    ),
+    /* @__PURE__ */ jsx(Heading, { size: ["sm", "md"], textTransform: "uppercase", children: title }),
+    actionButton && /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx(Spacer, {}),
+      /* @__PURE__ */ jsx(
+        ResponsiveIconButton,
+        {
+          icon: actionButton.icon,
+          text: actionButton.label,
+          sharedProps: {
+            size: "sm",
+            fontWeight: "400",
+            colorScheme: "green",
+            textTransform: "uppercase",
+            ...actionButton.buttonProps
+          },
+          iconProps: {
+            boxSize: {
+              base: 5,
+              md: 4
+            }
+          }
+        }
+      )
+    ] })
+  ] }) });
+};
+const ApiErrors = ({
+  error,
+  retry,
+  cancelAndNavigateTo
+}) => {
+  var _a2, _b2;
+  const navigate = useNavigate();
+  return /* @__PURE__ */ jsxs(Box, { textAlign: "center", py: 10, px: 6, children: [
+    /* @__PURE__ */ jsx(Box, { display: "inline-block", children: /* @__PURE__ */ jsx(
+      Flex,
+      {
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        bg: "red.500",
+        rounded: "50px",
+        w: "55px",
+        h: "55px",
+        textAlign: "center",
+        children: /* @__PURE__ */ jsx(Icon, { as: CloseIcon, boxSize: "40px", color: "white" })
+      }
+    ) }),
+    !error.message_to_user ? /* @__PURE__ */ jsx(Text, { mt: 6, color: "white", children: error.error_description }) : /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx(Heading, { as: "h2", size: "xl", mt: 6, mb: 2, children: (_a2 = error.message_to_user) == null ? void 0 : _a2.title }),
+      /* @__PURE__ */ jsx(Text, { color: "white", children: (_b2 = error.message_to_user) == null ? void 0 : _b2.content })
+    ] }),
+    /* @__PURE__ */ jsxs(
+      HStack,
+      {
+        sx: {
+          mt: 6
+        },
+        spacing: 4,
+        justifyContent: "center",
+        children: [
+          retry && /* @__PURE__ */ jsx(Button, { onClick: retry, colorScheme: "blue", children: RETRY }),
+          cancelAndNavigateTo != null && /* @__PURE__ */ jsx(
+            Button,
+            {
+              onClick: () => {
+                navigate(cancelAndNavigateTo);
+              },
+              colorScheme: "gray",
+              children: CANCEL
+            }
+          )
+        ]
+      }
+    )
+  ] });
+};
+const FormInputSkeleton = ({ height }) => /* @__PURE__ */ jsx(Skeleton, { width: "full", height: height ?? "36px", borderRadius: "md" });
+const FormTextareaSkeleton = ({ height }) => /* @__PURE__ */ jsx(Skeleton, { width: "full", height: height ?? "80px", borderRadius: "md" });
+const DXTUserEditLoading = () => /* @__PURE__ */ jsx(
+  Box,
+  {
+    width: "full",
+    sx: {
+      mt: 8,
+      mb: 4
+    },
+    children: /* @__PURE__ */ jsxs(
+      Grid,
+      {
+        templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
+        alignItems: "center",
+        gap: 4,
+        children: [
+          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(Divider, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(Divider, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(Divider, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsxs(Stack, { spacing: 4, direction: { base: "column" }, children: [
+            /* @__PURE__ */ jsx(HStack, { spacing: 4, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+            /* @__PURE__ */ jsx(HStack, { spacing: 4, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+            /* @__PURE__ */ jsx(HStack, { spacing: 4, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+            /* @__PURE__ */ jsx(HStack, { spacing: 4, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+            /* @__PURE__ */ jsx(HStack, { spacing: 4, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+            /* @__PURE__ */ jsx(HStack, { spacing: 4, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+            /* @__PURE__ */ jsx(HStack, { spacing: 4, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+            /* @__PURE__ */ jsx(HStack, { spacing: 4, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) })
+          ] }) }),
+          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(Divider, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, {}),
+          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) })
+        ]
+      }
+    )
+  }
 );
-const getAllDraftsEndpoint = createApiEndpoint(
-  authenticatedRootController,
-  void 0,
-  async (req) => await getAllPedidos(req.auth.user, true)
-);
-async function getAllRowsPedidos(user, draft) {
-  const repository = draft ? getDraftRowRepository(user) : renglonPedidoRepository;
-  const result = await repository.getAllByUser(user);
+const API_TANGO_LISTA_DE_PRECIOS_GET_ALL = apiEndpoint("/tango/lista", "GET");
+const API_TANGO_PERFIL_GET_ALL = apiEndpoint("/tango/perfil", "GET");
+const API_TANGO_CLIENTE_GET_ALL = apiEndpoint("/tango/cliente", "GET");
+const API_TANGO_VENDEDOR_GET_ALL = apiEndpoint("/tango/vendedor", "GET");
+function useAppResources() {
+  const result = useBasicAppResources();
+  if (!(result.authState instanceof AuthStateLoggedIn))
+    throw new DXTException(
+      new DXTError(DXTErrorCode.INTERNAL_CLIENT_ERROR, {
+        extra: "AuthState is not AuthStateLoggedIn"
+      })
+    );
+  if (typeof result.authDispatch !== "function")
+    throw new DXTException(
+      new DXTError(DXTErrorCode.INTERNAL_CLIENT_ERROR, {
+        extra: "Invalid authDispath in useAppResources()"
+      })
+    );
   return result;
 }
-const getOrderRowsEndpoint = createApiEndpoint(
-  authenticatedRootController,
-  void 0,
-  async (req) => await getAllRowsPedidos(req.auth.user, false)
-);
-const getDraftRowsEndpoint = createApiEndpoint(
-  authenticatedRootController,
-  void 0,
-  async (req) => await getAllRowsPedidos(req.auth.user, true)
-);
-async function loader$C({ request, params }) {
-  return await startNewDraftFromExistingOrderEndpoint.get(request, params);
-}
-const action$C = unimplementedApiResponse;
-const route3 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  action: action$C,
-  loader: loader$C
-}, Symbol.toStringTag, { value: "Module" }));
-async function loader$B({ request, params }) {
-  return await startNewOrderFromExistingDraftEndpoint.get(request, params);
-}
-const action$B = unimplementedApiResponse;
-const route4 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  action: action$B,
-  loader: loader$B
-}, Symbol.toStringTag, { value: "Module" }));
-const useCreateUserValidation = () => {
-  const [passwordStatus, setPasswordStatus] = useState(null);
-  const customValidationSchema = yup.object({
-    password: yup.string().required("Ingrese una contraseña").test("password", "Formato de contraseña no válido", (v) => {
-      if (v != "" && v != null) {
-        let newPasswordStatus = dxtPasswordStatus(v);
-        if (!_.isEqual(passwordStatus, newPasswordStatus))
-          setPasswordStatus(newPasswordStatus);
-        return yupVOValidation(VODXTPassword, v);
+const buildSelectOptions = (props) => {
+  const { data, fieldsMap, disabledIcon } = props;
+  const result = [];
+  data.length && data.forEach((data2) => {
+    const label = Array.isArray(fieldsMap == null ? void 0 : fieldsMap.label) ? fieldsMap.label.map((value) => {
+      return data2[value];
+    }).join(" - ") : data2[(fieldsMap == null ? void 0 : fieldsMap.label) ?? "name"];
+    result.push({
+      label,
+      value: data2[(fieldsMap == null ? void 0 : fieldsMap.value) ?? "id"],
+      ...(fieldsMap == null ? void 0 : fieldsMap.selected) != null && {
+        selected: data2[fieldsMap.selected]
+      },
+      ...(fieldsMap == null ? void 0 : fieldsMap.isEnabled) != null && {
+        isDisabled: !data2[fieldsMap.isEnabled]
+      },
+      ...(fieldsMap == null ? void 0 : fieldsMap.isEnabled) != null && disabledIcon != null && !data2[fieldsMap == null ? void 0 : fieldsMap.isEnabled] && {
+        icon: disabledIcon
       }
-      return true;
-    })
-  }).required();
-  const yupValidationSchema2 = commonUserValidationSchema.concat(customValidationSchema);
-  return { yupValidationSchema: yupValidationSchema2, passwordStatus };
+    });
+  });
+  return result;
 };
-const DXTUserCreateReady = (props) => {
+function useTangoList(props) {
+  const { endpoint, params, fieldsMap, disabledIcon } = props;
+  const { state, retry } = useDXTApiFetch({
+    ...endpoint,
+    silent: true,
+    params
+  });
+  const result = state.mapOrElse({
+    success: (state2) => {
+      const data = state2.data;
+      return buildSelectOptions({ data, fieldsMap, disabledIcon });
+    },
+    orElse: () => {
+      return [];
+    }
+  });
+  return { state, result };
+}
+const ControlledInput = (props) => {
+  const { fieldProps, formControlProps, formControlInnerProps, inputGroupProps, control, rightComponent } = props;
+  const {
+    field: { ref, onChange, value },
+    fieldState: { invalid },
+    formState: { errors }
+  } = useController({
+    name: fieldProps.name,
+    control
+  });
+  const { label, helperText, icon, iconEnding } = formControlInnerProps || {};
+  return /* @__PURE__ */ jsxs(FormControl, { ...formControlProps, isInvalid: invalid, children: [
+    label != null && /* @__PURE__ */ jsx(
+      FormLabel,
+      {
+        htmlFor: fieldProps.name,
+        sx: fieldProps.variant === "flushed" ? { fontSize: "sm", mb: 0 } : {},
+        children: label
+      }
+    ),
+    /* @__PURE__ */ jsxs(InputGroup, { ...inputGroupProps, display: rightComponent != null ? "inline-block" : void 0, children: [
+      icon,
+      /* @__PURE__ */ jsx(
+        Input,
+        {
+          autoComplete: "off",
+          ...fieldProps,
+          onChange: (e) => {
+            fieldProps.onChange && fieldProps.onChange(e);
+            onChange(e);
+          },
+          value,
+          ref
+        }
+      ),
+      iconEnding
+    ] }),
+    rightComponent != null && /* @__PURE__ */ jsx("div", { style: { display: "inline-block" }, children: rightComponent }),
+    helperText != null && /* @__PURE__ */ jsx(FormHelperText, { children: helperText })
+  ] });
+};
+const ControlledRadio = (props) => {
+  const {
+    fieldProps,
+    formControlProps,
+    formControlInnerProps,
+    stackProps,
+    radioProps,
+    control
+  } = props;
+  const { name } = fieldProps;
+  const { helperText } = formControlInnerProps || {};
+  const {
+    field: { ref, onChange, value },
+    fieldState: { invalid },
+    formState: { errors }
+  } = useController({
+    name: fieldProps.name,
+    control
+  });
+  return /* @__PURE__ */ jsxs(FormControl, { ...formControlProps, isInvalid: invalid, children: [
+    /* @__PURE__ */ jsx(
+      RadioGroup,
+      {
+        ...fieldProps,
+        onChange,
+        value: value.toString(),
+        ref,
+        children: /* @__PURE__ */ jsx(Stack, { direction: "row", spacing: 4, ...stackProps, children: fieldProps.options.map((option, index) => /* @__PURE__ */ jsx(
+          Radio,
+          {
+            value: option.value.toString(),
+            ...radioProps,
+            children: option.label
+          },
+          `${name}-option-${index}`
+        )) })
+      }
+    ),
+    helperText != null && /* @__PURE__ */ jsx(FormHelperText, { children: helperText })
+  ] });
+};
+const isSize = (size) => {
+  const isString = typeof size === "string";
+  return isString && ["sm", "md", "lg"].includes(size);
+};
+const getDefaultSize = (size) => {
+  if (isSize(size)) {
+    return size;
+  }
+  if (size === "xs") {
+    return "sm";
+  }
+  if (size === "xl") {
+    return "lg";
+  }
+  return "md";
+};
+const useSize = (size) => {
+  const chakraTheme = useTheme();
+  const defaultSize = getDefaultSize(
+    chakraTheme.components.Input.defaultProps.size
+  );
+  const definedSize = size ?? defaultSize;
+  const realSize = useBreakpointValue(
+    typeof definedSize === "string" ? [definedSize] : definedSize,
+    {
+      fallback: "md"
+    }
+  ) || defaultSize;
+  return realSize;
+};
+const ChakraReactSelectCustomMenuList = (props) => {
+  var _a2;
+  const {
+    className,
+    cx,
+    innerRef,
+    children,
+    maxHeight,
+    isMulti,
+    innerProps,
+    selectProps: {
+      chakraStyles,
+      size: sizeProp,
+      variant,
+      focusBorderColor,
+      errorBorderColor
+    }
+  } = props;
+  const menuStyles = useMultiStyleConfig("Menu");
+  const size = useSize(sizeProp);
+  const inputStyles = useMultiStyleConfig("Input", {
+    size,
+    variant,
+    focusBorderColor,
+    errorBorderColor
+  });
+  const fieldStyles = inputStyles.field;
+  const initialSx = {
+    ...menuStyles.list,
+    minW: "100%",
+    // maxHeight: `${maxHeight}px`,
+    // overflowY: 'auto',
+    // This is hacky, but it works. May be removed in the future
+    "--input-border-radius": fieldStyles == null ? void 0 : fieldStyles["--input-border-radius"],
+    borderRadius: (fieldStyles == null ? void 0 : fieldStyles.borderRadius) || ((_a2 = menuStyles.list) == null ? void 0 : _a2.borderRadius),
+    position: "relative"
+    // required for offset[Height, Top] > keyboard scroll
+    // WebkitOverflowScrolling: 'touch',
+  };
+  const sx = (chakraStyles == null ? void 0 : chakraStyles.menuList) ? chakraStyles.menuList(initialSx, props) : initialSx;
+  return /* @__PURE__ */ jsx(
+    Box,
+    {
+      role: "listbox",
+      ...innerProps,
+      className: cx(
+        {
+          "menu-list": true,
+          "menu-list--is-multi": isMulti
+        },
+        className
+      ),
+      sx,
+      children
+    }
+  );
+};
+const VirtualizedMenuList = memo(function(props) {
+  const { children, ...restProps } = props;
+  const itemHeight = 35;
+  const { options, maxHeight, getValue } = props;
+  const [value] = getValue();
+  const valueIndexOf = options.indexOf(value);
+  const itemsPerPage = Math.floor(maxHeight / itemHeight);
+  const initialOffset = valueIndexOf > itemsPerPage ? valueIndexOf * itemHeight : 0;
+  const minHeight = Math.min(options.length * itemHeight, maxHeight);
+  return /* @__PURE__ */ jsx(ChakraReactSelectCustomMenuList, { ...props, children: /* @__PURE__ */ jsx(
+    FixedSizeList,
+    {
+      height: minHeight + 2,
+      itemCount: Children.count(children),
+      itemSize: itemHeight,
+      initialScrollOffset: initialOffset,
+      width: "100%",
+      outerRef: props.innerRef,
+      overscanCount: 20,
+      children: ({ index, style }) => /* @__PURE__ */ jsx("div", { style, children: Children.toArray(children)[index] })
+    }
+  ) });
+});
+const ControlledSelect = (props) => {
+  const {
+    fieldProps,
+    formControlProps,
+    formControlInnerProps,
+    control,
+    shouldSort
+  } = props;
+  const { helperText, label } = formControlInnerProps || {};
+  function compareByLabel(a, b) {
+    return a.label.localeCompare(b.label);
+  }
+  if (shouldSort ?? false)
+    fieldProps.options.sort(compareByLabel);
+  const {
+    field: { ref, onChange, value },
+    fieldState: { invalid },
+    formState: { errors }
+  } = useController({
+    name: fieldProps.name,
+    control
+  });
+  return /* @__PURE__ */ jsxs(FormControl, { ...formControlProps, isInvalid: invalid, children: [
+    /* @__PURE__ */ jsx(
+      FormLabel,
+      {
+        sx: fieldProps.variant === "flushed" ? { fontSize: "sm", mb: 0 } : {},
+        children: label
+      }
+    ),
+    /* @__PURE__ */ jsx(
+      Select,
+      {
+        ...fieldProps,
+        ref,
+        value: fieldProps.options.find((option) => option.value === value),
+        filterOption: createFilter({ ignoreAccents: false }),
+        onChange: (newValue, actionMeta) => {
+          return onChange(newValue.value);
+        },
+        useBasicStyles: true,
+        isSearchable: fieldProps.options.length > 10 ? fieldProps.isSearchable : false,
+        instanceId: fieldProps.name,
+        chakraStyles: {
+          option: (provided, state) => {
+            return {
+              ...provided,
+              ...fieldProps.virtualized === true && {
+                fontSize: { base: "xs", sm: "sm", md: "md" }
+              }
+            };
+          }
+        },
+        components: {
+          ...fieldProps.virtualized === true && {
+            MenuList: VirtualizedMenuList
+          },
+          Option: ({ children, ...props2 }) => {
+            if (fieldProps.virtualized === true) {
+              delete props2.innerProps.onMouseMove;
+              delete props2.innerProps.onMouseOver;
+            }
+            const propsData = props2.data;
+            return /* @__PURE__ */ jsxs(chakraComponents.Option, { ...props2, children: [
+              children,
+              " ",
+              propsData.icon != null && propsData.icon
+            ] });
+          }
+        }
+      }
+    ),
+    helperText != null && /* @__PURE__ */ jsx(FormHelperText, { children: helperText })
+  ] });
+};
+const ControlledSwitch = (props) => {
+  const {
+    fieldProps,
+    formControlProps,
+    formControlInnerProps,
+    control,
+    watch
+  } = props;
+  const { label } = formControlInnerProps || {};
+  const {
+    field: { ref, onChange, onBlur, value },
+    fieldState: { invalid },
+    formState: { errors }
+  } = useController({
+    name: fieldProps.name,
+    control
+  });
+  return /* @__PURE__ */ jsxs(
+    FormControl,
+    {
+      display: "flex",
+      alignItems: "center",
+      ...formControlProps,
+      isInvalid: invalid,
+      children: [
+        /* @__PURE__ */ jsx(
+          Switch,
+          {
+            ...fieldProps,
+            ...watch,
+            isChecked: value,
+            onChange: (e) => onChange(e.target.checked),
+            onBlur,
+            ref
+          }
+        ),
+        label != null && /* @__PURE__ */ jsx(
+          FormLabel,
+          {
+            htmlFor: fieldProps.id,
+            sx: { mb: 0, ms: 4 },
+            color: fieldProps.isDisabled === true ? "gray.500" : void 0,
+            cursor: "pointer",
+            children: label
+          }
+        )
+      ]
+    }
+  );
+};
+const FormErrors = React.forwardRef((props, ref) => {
+  const { errors } = props;
+  return Object.keys(errors).length ? /* @__PURE__ */ jsx(
+    Box,
+    {
+      width: "full",
+      sx: {
+        mb: 4
+      },
+      ref,
+      children: /* @__PURE__ */ jsx(Alert, { status: "error", variant: "left-accent", sx: { p: 4 }, children: /* @__PURE__ */ jsx(UnorderedList, { fontSize: "sm", spacing: 3, children: Object.values(errors).map((error, key) => {
+        var _a2, _b2;
+        return /* @__PURE__ */ jsx(ListItem, { children: ((_a2 = error == null ? void 0 : error.message) == null ? void 0 : _a2.toString()) ?? ((_b2 = error == null ? void 0 : error.root) == null ? void 0 : _b2.message.toString()) }, key);
+      }) }) })
+    }
+  ) : /* @__PURE__ */ jsx(Fragment, {});
+});
+const PasswordWithStatus = (props) => {
+  const {
+    fieldProps,
+    formControlInnerProps,
+    passwordStatus,
+    disableForm,
+    control
+  } = props;
+  const [showPassword, setShowPassword] = useState(false);
+  const handleShowHidePassword = () => {
+    setShowPassword(!showPassword);
+  };
+  const { label, helperText } = formControlInnerProps || {};
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx(
+      ControlledInput,
+      {
+        fieldProps: {
+          ...fieldProps,
+          type: !showPassword ? "password" : "text"
+        },
+        formControlProps: {
+          isDisabled: disableForm
+        },
+        formControlInnerProps: {
+          label,
+          iconEnding: /* @__PURE__ */ jsx(InputRightElement, { children: /* @__PURE__ */ jsx(
+            Icon,
+            {
+              onClick: handleShowHidePassword,
+              sx: { cursor: "pointer" },
+              as: showPassword ? EyeOffOutlineIcon : EyeOutlineIcon,
+              boxSize: 5
+            }
+          ) })
+        },
+        control
+      }
+    ),
+    passwordStatus != null && /* @__PURE__ */ jsxs(Fragment, { children: [
+      passwordStatus.tooShort && /* @__PURE__ */ jsx(Badge, { colorScheme: "red", children: PASSWORD_TOO_SHORT }),
+      passwordStatus.tooLong && /* @__PURE__ */ jsx(Badge, { colorScheme: "red", children: PASSWORD_TOO_LONG }),
+      passwordStatus.invalidCharsPresent && /* @__PURE__ */ jsx(Badge, { colorScheme: "red", children: PASSWORD_INVALID_CHARS })
+    ] })
+  ] });
+};
+const InlineError = ({ error }) => {
+  return /* @__PURE__ */ jsx(
+    Badge,
+    {
+      colorScheme: "red",
+      sx: {
+        mt: 2,
+        p: 2,
+        whiteSpace: "normal"
+      },
+      children: error
+    }
+  );
+};
+const SettingsFormsButtons = (props) => {
+  const { isLoading, buttonActionText, buttonCancelUrl, hideCancelButton } = props;
+  const navigate = useNavigate();
+  return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs(Stack, { direction: { base: "column", md: "row" }, children: [
+    /* @__PURE__ */ jsx(
+      Button,
+      {
+        type: "submit",
+        colorScheme: "blue",
+        width: "full",
+        isLoading,
+        children: buttonActionText ?? UPDATE
+      }
+    ),
+    hideCancelButton !== true && /* @__PURE__ */ jsx(
+      Button,
+      {
+        type: "button",
+        colorScheme: "gray",
+        width: "full",
+        isLoading,
+        onClick: () => navigate(buttonCancelUrl ?? URL_SETTINGS_PATH),
+        children: CANCEL
+      }
+    )
+  ] }) });
+};
+function useUserValidation(schemaMaker) {
+  const [passwordStatus, setPasswordStatus] = useState(null);
+  const yupValidationSchema2 = schemaMaker(passwordStatus, setPasswordStatus);
+  return {
+    yupValidationSchema: yupValidationSchema2,
+    passwordStatus
+  };
+}
+const DXTUserEditReady = (props) => {
   var _a2, _b2;
-  const { typeSettings, returnUrl, title } = props;
+  const { stateData, typeSettings, returnUrl, title, schemaMaker, schemaDataToApiInput, saveUserCall } = props;
+  useRef(VOUUIdV4.random().valueOf());
   const app = useAppResources();
   const toast = useToast();
-  const { yupValidationSchema: yupValidationSchema2, passwordStatus } = useCreateUserValidation();
+  const { yupValidationSchema: yupValidationSchema2, passwordStatus } = useUserValidation(schemaMaker);
   const { state: statePerfiles, result: resultPerfiles } = useTangoList({
     endpoint: API_TANGO_PERFIL_GET_ALL,
     fieldsMap: {
@@ -10025,20 +7706,49 @@ const DXTUserCreateReady = (props) => {
     },
     disabledIcon: /* @__PURE__ */ jsx(Icon, { as: AccountCancelIcon, color: "red.400", ml: 2, boxSize: 5 })
   });
-  const {
-    handleSubmit,
-    control,
-    setError,
-    resetField,
-    watch,
-    formState: { errors, isSubmitting, isSubmitSuccessful }
-  } = useForm({
-    defaultValues: {
+  const { state: stateListaPrioritaria, result: resultListaPrioritaria } = useTangoList({
+    endpoint: API_TANGO_LISTA_DE_PRECIOS_GET_ALL,
+    fieldsMap: {
+      label: "nombre",
+      value: "id",
+      isEnabled: "habilitada"
+    },
+    disabledIcon: /* @__PURE__ */ jsx(Icon, { as: CancelIcon, color: "red.400", ml: 2, boxSize: 5 })
+  });
+  const isUpdating = stateData !== null;
+  let defaultValues2;
+  if (isUpdating) {
+    defaultValues2 = {
+      username: stateData.username,
+      email: stateData.email ?? "",
+      tango_id: stateData.tango_id,
+      id_lista_prioritaria: stateData.id_lista_prioritaria === null ? 0 : stateData.id_lista_prioritaria,
+      bonificacion_lista_prioritaria: stateData.bonificacion_lista_prioritaria === null ? 0 : stateData.bonificacion_lista_prioritaria,
+      bonificacion_lista_prioritaria_switch: stateData.bonificacion_lista_prioritaria != null,
+      lista_prioritaria_vendedor: stateData.lista_prioritaria_vendedor != null ? stateData.lista_prioritaria_vendedor : false,
+      perfil_facturacion_id: stateData.perfil_facturacion_id,
+      habilitado_en_dxt: stateData.habilitado_en_dxt,
+      puede_crear_pedido: stateData.puede_crear_pedido,
+      puede_editar_pedido: stateData.puede_editar_pedido,
+      puede_anular_pedido: stateData.puede_anular_pedido,
+      borrar_pedido_al_anular: stateData.borrar_pedido_al_anular,
+      aprobar_pedido_al_crear: stateData.aprobar_pedido_al_crear,
+      ver_pedidos_cumplidos: stateData.ver_pedidos_cumplidos,
+      ver_sin_precio: stateData.ver_sin_precio,
+      mostrar_mensaje_de_advertencia: stateData.mostrar_mensaje_de_advertencia,
+      dia_de_entrega: stateData.dia_de_entrega
+    };
+  } else {
+    defaultValues2 = {
       username: "",
       password: "",
       email: "",
       tango_id: 0,
       perfil_facturacion_id: 0,
+      id_lista_prioritaria: 0,
+      bonificacion_lista_prioritaria: 0,
+      bonificacion_lista_prioritaria_switch: false,
+      lista_prioritaria_vendedor: false,
       habilitado_en_dxt: true,
       puede_crear_pedido: true,
       puede_editar_pedido: true,
@@ -10049,25 +7759,70 @@ const DXTUserCreateReady = (props) => {
       borrar_pedido_al_anular: false,
       aprobar_pedido_al_crear: false,
       dia_de_entrega: DIAS_DE_ENTREGA_DEFAULT
-    },
+    };
+  }
+  const listaPrioritariaVendedorExists = yupValidationSchema2.fields.lista_prioritaria_vendedor != null;
+  yupResolver(yupValidationSchema2);
+  const {
+    handleSubmit,
+    control,
+    resetField,
+    setError,
+    watch,
+    formState: { errors, isSubmitting, isSubmitSuccessful }
+  } = useForm({
+    defaultValues: defaultValues2,
     resolver: yupResolver(yupValidationSchema2)
   });
   const watchPuedeAnularPedido = watch("puede_anular_pedido");
+  const watchPerfil = watch("perfil_facturacion_id");
+  const watchBonificacionPrioritariaSwitch = watch("bonificacion_lista_prioritaria_switch");
+  const watchIdListaPrioritaria = watch("id_lista_prioritaria");
   useEffect(() => {
     if (watchPuedeAnularPedido === false)
       resetField("borrar_pedido_al_anular", { defaultValue: false });
   }, [watchPuedeAnularPedido]);
+  useEffect(() => {
+    var _a3;
+    if (watchBonificacionPrioritariaSwitch === false) {
+      if (statePerfiles.isSuccess()) {
+        const bonificacionPerfil = ((_a3 = statePerfiles.data.find((obj) => {
+          return obj.id === watchPerfil;
+        })) == null ? void 0 : _a3.bonificacion) ?? 0;
+        resetField("bonificacion_lista_prioritaria", { defaultValue: bonificacionPerfil });
+      }
+    }
+    if (watchIdListaPrioritaria === 0) {
+      resetField("bonificacion_lista_prioritaria", { defaultValue: 0 });
+      resetField("bonificacion_lista_prioritaria_switch", { defaultValue: false });
+    } else {
+      resetField("lista_prioritaria_vendedor", { defaultValue: false });
+    }
+  }, [statePerfiles.isSuccess(), watchIdListaPrioritaria, watchBonificacionPrioritariaSwitch, watchPerfil]);
   const disableForm = isSubmitSuccessful || isSubmitting;
   const onSubmit = async (dataUnsafe) => {
-    const { ...data } = dataUnsafe;
-    if (data.email === "")
-      delete data.email;
-    const input = data;
-    const result = await typeSettings.api.post(input, app);
+    const {
+      bonificacion_lista_prioritaria_switch,
+      ...data
+    } = dataUnsafe;
+    const rawInput = {
+      ...dataUnsafe,
+      email: data.email === "" ? void 0 : data.email,
+      password: data.password === "" ? void 0 : data.password
+    };
+    const input = schemaDataToApiInput(rawInput);
+    if (input == null) {
+      toast({
+        title: getDXTErrorDescription(DXTErrorCode.INVALID_PARAMETER),
+        status: "error"
+      });
+      return;
+    }
+    const result = await saveUserCall(input, app);
     result.map({
       success: (_2) => {
         toast({
-          title: USER_CREATED,
+          title: isUpdating ? USER_UPDATED : USER_CREATED,
           status: "success"
         });
         app.navigate(returnUrl);
@@ -10081,6 +7836,9 @@ const DXTUserCreateReady = (props) => {
       }
     });
   };
+  const disabledBonificacionLista = disableForm || watchIdListaPrioritaria === 0 || watchBonificacionPrioritariaSwitch === false;
+  const disabledListaPrioritariaVendedor = !disableForm && watchIdListaPrioritaria !== 0;
+  const disabledBonificacionListaSwitch = disableForm || watchIdListaPrioritaria === 0;
   return /* @__PURE__ */ jsx("form", { noValidate: true, onSubmit: handleSubmit(onSubmit), children: /* @__PURE__ */ jsxs(Box, { children: [
     /* @__PURE__ */ jsx(FormErrors, { errors }),
     /* @__PURE__ */ jsx(CommonCard, { children: /* @__PURE__ */ jsxs(
@@ -10151,7 +7909,7 @@ const DXTUserCreateReady = (props) => {
               control
             }
           ) }),
-          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
+          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(
             ControlledInput,
             {
               fieldProps: {
@@ -10187,14 +7945,102 @@ const DXTUserCreateReady = (props) => {
                 formControlProps: {
                   isDisabled: disableForm || !(statePerfiles instanceof FetchStateSuccess)
                 },
+                control,
                 formControlInnerProps: {
                   label: "Perfil de facturación"
+                }
+              }
+            ),
+            statePerfiles instanceof FetchStateError && /* @__PURE__ */ jsx(InlineError, { error: statePerfiles.errorOrNull().error })
+          ] }),
+          /* @__PURE__ */ jsxs(GridItem, { children: [
+            /* @__PURE__ */ jsx(
+              ControlledSelect,
+              {
+                fieldProps: {
+                  name: "id_lista_prioritaria",
+                  options: [
+                    ...[
+                      {
+                        label: "NINGUNA",
+                        value: 0
+                      }
+                    ],
+                    ...resultListaPrioritaria
+                  ],
+                  noOptionsMessage(obj) {
+                    return "No hay listas prioritarias";
+                  },
+                  isLoading: stateListaPrioritaria instanceof FetchStateLoading,
+                  selectedOptionStyle: "check"
+                },
+                formControlProps: {
+                  isDisabled: disableForm || !(stateListaPrioritaria instanceof FetchStateSuccess)
+                },
+                formControlInnerProps: {
+                  label: "Lista de precios prioritaria"
                 },
                 control
               }
             ),
             statePerfiles instanceof FetchStateError && /* @__PURE__ */ jsx(InlineError, { error: statePerfiles.errorOrNull().error })
           ] }),
+          /* @__PURE__ */ jsxs(GridItem, { children: [
+            /* @__PURE__ */ jsx(FormControl, { isDisabled: disabledBonificacionListaSwitch, children: /* @__PURE__ */ jsx(FormLabel, { children: "Bonificación lista prioritaria (%)" }) }),
+            /* @__PURE__ */ jsxs(HStack, { children: [
+              /* @__PURE__ */ jsx(
+                ControlledInput,
+                {
+                  formControlProps: {
+                    width: "auto",
+                    isDisabled: disabledBonificacionLista
+                  },
+                  fieldProps: {
+                    name: "bonificacion_lista_prioritaria",
+                    id: "bonificacion_lista_prioritaria",
+                    type: "text",
+                    inputMode: "tel",
+                    textAlign: "end",
+                    htmlSize: 5,
+                    maxLength: 5,
+                    minWidth: 120
+                  },
+                  control
+                }
+              ),
+              /* @__PURE__ */ jsx(
+                ControlledSwitch,
+                {
+                  fieldProps: {
+                    name: "bonificacion_lista_prioritaria_switch",
+                    id: "bonificacion_lista_prioritaria_switch"
+                  },
+                  formControlProps: {
+                    width: "auto",
+                    isDisabled: disabledBonificacionListaSwitch
+                  },
+                  control
+                }
+              )
+            ] })
+          ] }),
+          listaPrioritariaVendedorExists && /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(
+            ControlledSwitch,
+            {
+              fieldProps: {
+                name: "lista_prioritaria_vendedor",
+                id: "lista_prioritaria_vendedor"
+              },
+              formControlProps: {
+                width: "auto",
+                isDisabled: disabledListaPrioritariaVendedor
+              },
+              formControlInnerProps: {
+                label: "Permitir lista prioritaria del vendedor"
+              },
+              control
+            }
+          ) }),
           /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(Divider, {}) }),
           /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(Heading, { size: "sm", textTransform: "uppercase", children: "Estado" }) }),
           /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(
@@ -10393,8 +8239,7 @@ const DXTUserCreateReady = (props) => {
                 isDisabled: disableForm
               },
               formControlInnerProps: {
-                label: "Tiempo de entrega de pedidos",
-                helperText: "Expresado en días"
+                label: "Tiempo de entrega (en días)"
               },
               control
             }
@@ -10406,24 +8251,2759 @@ const DXTUserCreateReady = (props) => {
     /* @__PURE__ */ jsx(CommonCard, { children: /* @__PURE__ */ jsx(
       SettingsFormsButtons,
       {
-        buttonActionText: "Guardar",
+        buttonActionText: isUpdating ? UPDATE : SAVE,
         isLoading: disableForm,
         hideCancelButton: true
       }
     ) })
   ] }) });
 };
-const DXTUserCreate = (props) => {
-  const { typeSettings, returnUrl, title } = props;
+function DXTUserUpdate(props) {
+  const { typeSettings, id, returnUrl, title, schemaMaker, schemaDataToApiInput, useGetOneHook, saveUserCall } = props;
+  const { state, retry } = useGetOneHook(id);
+  return state.map({
+    loading: (_2) => /* @__PURE__ */ jsx(DXTUserEditLoading, {}),
+    error: ({ error }) => /* @__PURE__ */ jsx(
+      ApiErrors,
+      {
+        error,
+        retry,
+        cancelAndNavigateTo: URL_SETTINGS_PATH
+      }
+    ),
+    success: (state2) => /* @__PURE__ */ jsx(
+      DXTUserEditReady,
+      {
+        stateData: state2.data,
+        typeSettings,
+        returnUrl,
+        title,
+        schemaMaker,
+        schemaDataToApiInput,
+        saveUserCall
+      }
+    )
+  });
+}
+function DXTUserCreate(props) {
+  const { typeSettings, returnUrl, title, schemaMaker, schemaDataToApiInput, saveUserCall } = props;
   return /* @__PURE__ */ jsx(
-    DXTUserCreateReady,
+    DXTUserEditReady,
     {
+      stateData: null,
       typeSettings,
       returnUrl,
-      title
+      title,
+      schemaMaker,
+      schemaDataToApiInput,
+      saveUserCall
     }
   );
+}
+function yupVOValidation(VO, value) {
+  try {
+    new VO(value);
+    return true;
+  } catch (_2) {
+    return false;
+  }
+}
+const baseUserValidation = {
+  tango_id: yup.number().integer().min(1, "Seleccione un cliente de Tango").required("Seleccione un cliente de Tango").typeError("Seleccione un cliente de Tango"),
+  username: yup.string().required("Ingrese un nombre de usuario").test("username", "Ingrese un nombre de usuario válido", (v) => {
+    if (!yupVOValidation(VOUserName, v))
+      return false;
+    return v.toLowerCase() != ADMIN_USERNAME;
+  }),
+  email: yup.string().email("Ingrese un correo electrónico válido"),
+  perfil_facturacion_id: yup.number().integer().min(1, "Seleccione un perfil de facturación").required("Seleccione un perfil de facturación").typeError("Seleccione un perfil de facturación"),
+  id_lista_prioritaria: yup.number().integer(),
+  // bonificacion_lista_prioritaria: yup
+  //   .number()
+  //   .integer()
+  //   .required('Ingrese una bonificación válida')
+  //   .typeError('Ingrese una bonificación válida')
+  //   .min(0, 'La bonificación debe encontrarse entre 0 y 100%')
+  //   .max(100, 'La bonificación debe encontrarse entre 0 y 100%'),
+  bonificacion_lista_prioritaria: yup.number().when(["id_lista_prioritaria"], {
+    is: (val) => val > 0,
+    then: (schema) => schema.required("Ingrese una bonificación válida").typeError("Ingrese una bonificación válida").min(0, "La bonificación debe encontrarse entre 0 y 100%").max(100, "La bonificación debe encontrarse entre 0 y 100%"),
+    otherwise: (schema) => schema
+  }),
+  bonificacion_lista_prioritaria_switch: yup.boolean(),
+  dia_de_entrega: yup.number().integer(
+    `El tiempo de entrega de pedidos debe ser un un número entero entre ${DIAS_DE_ENTREGA_MIN_DAYS} y ${DIAS_DE_ENTREGA_MAX_DAYS}`
+  ).min(
+    DIAS_DE_ENTREGA_MIN_DAYS,
+    `El tiempo de entrega de pedidos debe ser mayor o igual a ${DIAS_DE_ENTREGA_MIN_DAYS} días`
+  ).max(
+    DIAS_DE_ENTREGA_MAX_DAYS,
+    `El tiempo de entrega de pedidos no puede superar los ${DIAS_DE_ENTREGA_MAX_DAYS} días`
+  ).required("Ingrese el número de días para entrega de pedidos").typeError("Ingrese el número de días para entrega de pedidos"),
+  habilitado_en_dxt: yup.boolean().required(),
+  puede_crear_pedido: yup.boolean().required(),
+  puede_editar_pedido: yup.boolean().required(),
+  ver_pedidos_cumplidos: yup.boolean().required(),
+  ver_sin_precio: yup.boolean().required(),
+  mostrar_mensaje_de_advertencia: yup.boolean().required(),
+  puede_anular_pedido: yup.boolean().required(),
+  borrar_pedido_al_anular: yup.boolean().required(),
+  aprobar_pedido_al_crear: yup.boolean().required()
 };
+const commonUserValidation = {
+  ...baseUserValidation,
+  password: yup.string(),
+  lista_prioritaria_vendedor: yup.boolean()
+};
+yup.object(commonUserValidation);
+function makeUserValidation(yupPassword, passwordStatus, setPasswordStatus) {
+  return {
+    ...baseUserValidation,
+    password: yupPassword.test("password", "Formato de contraseña no válido", (v) => {
+      if (v != "" && v != null) {
+        let newPasswordStatus = dxtPasswordStatus(v);
+        if (!_.isEqual(passwordStatus, newPasswordStatus))
+          setPasswordStatus(newPasswordStatus);
+        return yupVOValidation(VODXTPassword, v);
+      }
+      return true;
+    })
+  };
+}
+const extraUpdateValidation = {
+  // id: yup.number().integer().required()
+};
+const extraCustomerValidation = {
+  lista_prioritaria_vendedor: yup.boolean().when(["id_lista_prioritaria"], {
+    is: (idListaPrioritaria) => idListaPrioritaria > 0,
+    then: (schema) => schema.test("false", "lista_prioritaria_vendedor debe ser false", (v) => v === false),
+    otherwise: (schema) => schema
+  })
+};
+const YUP_OPTIONAL_PASSWORD = yup.string();
+const YUP_REQUIRED_PASSWORD = yup.string().required("Ingrese una contraseña");
+function makeCreateCustomerValidationSchema(passwordStatus, setPasswordStatus) {
+  const base = makeUserValidation(YUP_REQUIRED_PASSWORD, passwordStatus, setPasswordStatus);
+  return yup.object({
+    ...base,
+    ...extraCustomerValidation
+  }).required();
+}
+function makeUpdateCustomerValidationSchema(passwordStatus, setPasswordStatus) {
+  const base = makeUserValidation(YUP_OPTIONAL_PASSWORD, passwordStatus, setPasswordStatus);
+  return yup.object({
+    ...base,
+    ...extraUpdateValidation,
+    ...extraCustomerValidation
+  }).required();
+}
+function makeCreateSellerValidationSchema(passwordStatus, setPasswordStatus) {
+  const base = makeUserValidation(YUP_REQUIRED_PASSWORD, passwordStatus, setPasswordStatus);
+  return yup.object(base).required();
+}
+function makeUpdateSellerValidationSchema(passwordStatus, setPasswordStatus) {
+  const base = makeUserValidation(YUP_OPTIONAL_PASSWORD, passwordStatus, setPasswordStatus);
+  return yup.object({
+    ...base,
+    ...extraUpdateValidation
+  }).required();
+}
+function _commonNormalization(data) {
+  const {
+    id_lista_prioritaria,
+    bonificacion_lista_prioritaria_switch,
+    bonificacion_lista_prioritaria,
+    lista_prioritaria_vendedor,
+    ...remaining
+  } = data;
+  const listaPrioritariaPresente = id_lista_prioritaria != null && id_lista_prioritaria > 0;
+  return {
+    ...remaining,
+    id_lista_prioritaria: listaPrioritariaPresente ? id_lista_prioritaria : void 0,
+    bonificacion_lista_prioritaria: listaPrioritariaPresente && bonificacion_lista_prioritaria_switch === true ? bonificacion_lista_prioritaria : void 0,
+    lista_prioritaria_vendedor: listaPrioritariaPresente ? false : lista_prioritaria_vendedor === true
+  };
+}
+function transformCreateSellerSchemaData(data) {
+  const { password, lista_prioritaria_vendedor: _2, ...remaining } = _commonNormalization(data);
+  if (password == null)
+    return null;
+  return {
+    ...remaining,
+    password
+  };
+}
+function transformUpdateSellerSchemaData(data) {
+  const { lista_prioritaria_vendedor: _2, ...remaining } = _commonNormalization(data);
+  return {
+    ...remaining
+  };
+}
+function transformCreateCustomerSchemaData(data) {
+  const { password, lista_prioritaria_vendedor, ...remaining } = _commonNormalization(data);
+  if (password == null)
+    return null;
+  return {
+    ...remaining,
+    lista_prioritaria_vendedor: lista_prioritaria_vendedor === true,
+    password
+  };
+}
+function transformUpdateCustomerSchemaData(data) {
+  const { lista_prioritaria_vendedor, ...remaining } = _commonNormalization(data);
+  return {
+    ...remaining,
+    lista_prioritaria_vendedor: lista_prioritaria_vendedor === true
+  };
+}
+function Edit$1() {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const typeSettings = settings$1.customers;
+  const idValidated = tryVOValue(() => new VOInteger(id), null);
+  if (idValidated == null) {
+    return /* @__PURE__ */ jsx(
+      CommonErrors,
+      {
+        error: USER_NOT_FOUND,
+        buttonProps: {
+          label: BACK_TO_SETTINGS,
+          colorScheme: "green",
+          onClick: () => {
+            navigate(URL_SETTINGS_PATH);
+          }
+        }
+      }
+    );
+  }
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx(
+      SettingsFormHeading,
+      {
+        title: typeSettings.titles.edit,
+        returnButton: {
+          buttonProps: {
+            onClick: () => {
+              navigate(URL_SETTINGS_CUSTOMERS_PATH);
+            }
+          }
+        }
+      }
+    ),
+    /* @__PURE__ */ jsx(
+      DXTUserUpdate,
+      {
+        typeSettings,
+        id: idValidated,
+        returnUrl: URL_SETTINGS_CUSTOMERS_PATH,
+        title: "Información del Cliente",
+        schemaMaker: makeUpdateCustomerValidationSchema,
+        schemaDataToApiInput: transformUpdateCustomerSchemaData,
+        useGetOneHook: useGetOneDXTCustomer,
+        saveUserCall: (input, appResources) => customerUpdateRequest(idValidated, input, appResources)
+      }
+    )
+  ] });
+}
+const route2 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: Edit$1
+}, Symbol.toStringTag, { value: "Module" }));
+function Edit() {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const typeSettings = settings$1.sellers;
+  const idValidated = tryVOValue(() => new VOInteger(id), null);
+  if (idValidated == null) {
+    return /* @__PURE__ */ jsx(
+      CommonErrors,
+      {
+        error: USER_NOT_FOUND,
+        buttonProps: {
+          label: BACK_TO_SETTINGS,
+          colorScheme: "green",
+          onClick: () => {
+            navigate(URL_SETTINGS_PATH);
+          }
+        }
+      }
+    );
+  }
+  if (integerValidator(id)) {
+    return /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx(
+        SettingsFormHeading,
+        {
+          title: typeSettings.titles.edit,
+          returnButton: {
+            buttonProps: {
+              onClick: () => {
+                navigate(URL_SETTINGS_SELLERS_PATH);
+              }
+            }
+          }
+        }
+      ),
+      /* @__PURE__ */ jsx(
+        DXTUserUpdate,
+        {
+          typeSettings,
+          id: idValidated,
+          returnUrl: URL_SETTINGS_SELLERS_PATH,
+          title: "Información del Vendedor",
+          schemaMaker: makeUpdateSellerValidationSchema,
+          schemaDataToApiInput: transformUpdateSellerSchemaData,
+          useGetOneHook: useGetOneDXTSeller,
+          saveUserCall: (input, appResources) => sellerUpdateRequest(idValidated, input, appResources)
+        }
+      )
+    ] });
+  }
+}
+const route3 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: Edit
+}, Symbol.toStringTag, { value: "Module" }));
+var EstadoPedido = /* @__PURE__ */ ((EstadoPedido2) => {
+  EstadoPedido2[EstadoPedido2["INVALIDO"] = 0] = "INVALIDO";
+  EstadoPedido2[EstadoPedido2["INGRESADO"] = 1] = "INGRESADO";
+  EstadoPedido2[EstadoPedido2["APROBADO"] = 2] = "APROBADO";
+  EstadoPedido2[EstadoPedido2["CUMPLIDO"] = 3] = "CUMPLIDO";
+  EstadoPedido2[EstadoPedido2["CERRADO"] = 4] = "CERRADO";
+  EstadoPedido2[EstadoPedido2["ANULADO"] = 5] = "ANULADO";
+  EstadoPedido2[EstadoPedido2["EN_PROGRESO"] = 100] = "EN_PROGRESO";
+  return EstadoPedido2;
+})(EstadoPedido || {});
+function getUserRoleWhere(role, tangoUserId) {
+  switch (role) {
+    case UserRole.seller:
+      return {
+        field: VENDEDOR_ID_FIELD,
+        value: tangoUserId
+      };
+    case UserRole.customer:
+      return {
+        field: CLIENTE_ID_FIELD,
+        value: tangoUserId
+      };
+  }
+  return void 0;
+}
+const PEDIDO_INVALIDO = "Inválido";
+const PEDIDO_INGRESADO = "Ingresado";
+const PEDIDO_APROBADO = "Visto";
+const PEDIDO_CUMPLIDO = "Cumplido";
+const PEDIDO_CERRADO = "Cerrado";
+const PEDIDO_ANULADO = "Anulado";
+const PEDIDO_ENPROGRESO = "En progreso";
+const PEDIDO_MENU_MODIFY = "Modificar";
+const PEDIDO_MENU_DELETE = "Eliminar";
+const PEDIDO_MENU_CANCEL = "Anular";
+const PEDIDO_MENU_DUPLICATE = "Duplicar";
+const PEDIDO_MENU_CREATE_ORDER = "Crear pedido";
+const PEDIDO_MENU_CREATE_ORDER_AND_KEEP_DRAFT = "Crear pedido y mantener borrador";
+const PEDIDO_MENU_CREATE_DRAFT = "Crear borrador";
+const PEDIDO_MENU_CONVERT_DRAFT_TO_ORDER = "Crear pedido y eliminar borrador";
+const PEDIDO_MENU_MARK_DRAFT_AS_FAVORITE = "Marcar como favorito";
+const PEDIDO_MENU_REMOVE_DRAFT_FAVORITE_MARK = "Remover marca de favorito";
+const PEDIDO_MENU_UNABLE_TO_DELETE_FAVORITE = "No se puede eliminar un favorito";
+const PEDIDO_ARTICLE_GROUP_NO_NAME = "Varios";
+const PEDIDO_CANCEL_ORDER = "Anular pedido";
+const PEDIDO_CANCEL_ORDER_CONFIRM = "¿Está seguro que desea anular este pedido? Esta acción no se puede deshacer.";
+const PEDIDO_ORDER_CANCELED = "Pedido anulado";
+const PEDIDO_DELETE_ORDER = "Eliminar pedido";
+const PEDIDO_DELETE_ORDER_CONFIRM = "¿Está seguro que desea eliminar este pedido? Esta acción no se puede deshacer.";
+const PEDIDO_ORDER_DELETED = "Pedido eliminado";
+const PEDIDO_DELETE_DRAFT = "Eliminar borrador";
+const PEDIDO_DELETE_DRAFT_CONFIRM = "¿Está seguro que desea eliminar este borrador? Esta acción no se puede deshacer.";
+const PEDIDO_DRAFT_DELETED = "Borrador eliminado";
+const PEDIDO_REMOVE_DRAFT_FAVORITE_MARK = "Atención";
+const PEDIDO_REMOVE_DRAFT_FAVORITE_MARK_CONFIRM = "¿Desea eliminar la marca de favorito?";
+const PEDIDO_PRINT_PAGE_BREAKS = "Saltos de página entre pedidos";
+const ORPHAN_ROWS_HEADER = "Los siguientes precios ya no están disponibles para el usuario.";
+const ORPHAN_ROWS_FOOTER = 'Comuníquese con el administrador para que verifique las listas de precios, y que compruebe la "Lista de edición de artículos" en la configuración DXTango.';
+const ORDER_SUMMARY = "Resumen del pedido";
+const DRAFT_SUMMARY = "Resumen del borrador";
+const ORDER_SUMMARY_EMPTY = "El pedido no cuenta con productos";
+const DRAFT_SUMMARY_EMPTY = "El borrador no cuenta con productos";
+function getEstadoPedidoText(estado) {
+  switch (estado) {
+    case EstadoPedido.INGRESADO:
+      return PEDIDO_INGRESADO;
+    case EstadoPedido.APROBADO:
+      return PEDIDO_APROBADO;
+    case EstadoPedido.CUMPLIDO:
+      return PEDIDO_CUMPLIDO;
+    case EstadoPedido.CERRADO:
+      return PEDIDO_CERRADO;
+    case EstadoPedido.ANULADO:
+      return PEDIDO_ANULADO;
+    case EstadoPedido.EN_PROGRESO:
+      return PEDIDO_ENPROGRESO;
+    default:
+      return PEDIDO_INVALIDO;
+  }
+}
+function numberToEstadoPedido(value) {
+  if (!Number.isInteger(value))
+    return EstadoPedido.INVALIDO;
+  switch (value) {
+    case EstadoPedido.INGRESADO:
+      return EstadoPedido.INGRESADO;
+    case EstadoPedido.APROBADO:
+      return EstadoPedido.APROBADO;
+    case EstadoPedido.CUMPLIDO:
+      return EstadoPedido.CUMPLIDO;
+    case EstadoPedido.CERRADO:
+      return EstadoPedido.CERRADO;
+    case EstadoPedido.ANULADO:
+      return EstadoPedido.ANULADO;
+  }
+  return EstadoPedido.INVALIDO;
+}
+function realOrderStatus(header, rows) {
+  const { estado } = header;
+  const canBeInProgress = rows != null && (estado == EstadoPedido.APROBADO || estado == EstadoPedido.INGRESADO);
+  if (!canBeInProgress)
+    return estado;
+  for (const row of rows) {
+    const { a_descontar, a_facturar, pendiente_descontar, pendiente_facturar } = row;
+    if (a_descontar != pendiente_descontar || a_facturar != pendiente_facturar)
+      return EstadoPedido.EN_PROGRESO;
+  }
+  return estado;
+}
+function realOrderTotal(header, rows) {
+  if (rows == null)
+    return null;
+  let total = 0;
+  for (const row of rows) {
+    total += (row.cantidad ?? 0) * (row.precio ?? 0);
+  }
+  return total;
+}
+function isUserAllowedToModifyOrder(user, orderStatus) {
+  const isAdmin = user instanceof UserEntity ? user.isAdmin() : user.role == UserRole.admin;
+  if (isAdmin)
+    return false;
+  if (orderStatus != EstadoPedido.INGRESADO)
+    return false;
+  return true;
+}
+function isUserAllowedToCancelOrDeleteOrder(user, orderStatus) {
+  const isAdmin = user instanceof UserEntity ? user.isAdmin() : user.role == UserRole.admin;
+  const puedeAnular = isAdmin ? true : user instanceof UserEntity ? user.puedeAnularPedido.valueOf() : user.puede_anular_pedido;
+  if (!puedeAnular)
+    return false;
+  const aprobarAlCrear = user instanceof UserEntity ? user.aprobarPedidoAlCrear.valueOf() : user.aprobar_pedido_al_crear;
+  if (orderStatus == EstadoPedido.APROBADO && aprobarAlCrear)
+    return true;
+  if ((orderStatus == EstadoPedido.EN_PROGRESO || orderStatus == EstadoPedido.ANULADO) && isAdmin)
+    return true;
+  return false;
+}
+const pedidoModelMapper = (m) => {
+  const {
+    [PEDIDO_ID_FIELD]: idPedido,
+    [PEDIDO_CODE_FIELD]: numero_pedido,
+    [CLIENTE_ID_FIELD]: id_cliente,
+    [CLIENTE_CODE_FIELD]: codigo_cliente,
+    [VENDEDOR_ID_FIELD]: id_vendedor,
+    [VENDEDOR_CODE_FIELD]: codigo_vendedor,
+    [TRANSPORTE_ID_FIELD]: id_transporte,
+    [TRANSPORTE_CODE_FIELD]: codigo_transporte,
+    FECHA_INGRESO,
+    HORA_INGRESO,
+    FECHA_PEDI,
+    FECHA_ENTR,
+    LEYENDA_4,
+    LEYENDA_5,
+    TOTAL_PEDI,
+    PORC_DESC,
+    [PEDIDO_DESCRIPTION_FIELD]: descripcion,
+    [PEDIDO_IS_FAVORITE_FIELD]: es_favorito,
+    ESTADO,
+    [TALONARIO_ID2_FIELD]: id_talonario,
+    [TALONARIO_CODE_FIELD]: codigo_talonario,
+    [CONDICION_ID_FIELD]: id_condicion,
+    [CONDICION_CODE_FIELD]: codigo_condicion,
+    [LISTA_ID_FIELD]: id_lista,
+    [LISTA_CODE2_FIELD]: codigo_lista,
+    [ASIENTO_CODE_FIELD]: codigo_asiento,
+    [DEPOSITO_CODE_FIELD]: codigo_deposito,
+    COMP_STK: compromete_stock,
+    ID_ASIENTO_MODELO_GV: id_asiento_modelo_gv
+  } = m;
+  if (!isAnInteger(id_cliente))
+    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> id_cliente");
+  if (!isNotEmptyStr(codigo_cliente))
+    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> codigo_cliente");
+  if (!isAnInteger(id_vendedor))
+    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> id_vendedor");
+  if (!isNotEmptyStr(codigo_vendedor))
+    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> codigo_vendedor");
+  if (!isAnInteger(id_transporte))
+    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> id_transporte");
+  if (!isNotEmptyStr(codigo_transporte))
+    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> codigo_transporte");
+  if (!(FECHA_PEDI instanceof Date))
+    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> FECHA_PEDI");
+  if (!(FECHA_ENTR === null || FECHA_ENTR instanceof Date))
+    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> FECHA_ENTR");
+  if (!(FECHA_INGRESO === null || FECHA_INGRESO instanceof Date))
+    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> FECHA_INGRESO");
+  const [hour, min, sec] = _getHMS(HORA_INGRESO);
+  if (!isAnInteger(hour) || !isAnInteger(min) || !isAnInteger(sec))
+    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> HORA_INGRESO");
+  if (!isAnInteger(id_talonario))
+    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> id_talonario");
+  if (!isAnInteger(codigo_talonario))
+    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> codigo_talonario");
+  if (!isAnInteger(id_condicion))
+    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> id_vendedor");
+  if (!isAnInteger(codigo_condicion))
+    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> codigo_condicion");
+  if (!isAnInteger(id_lista))
+    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> id_lista");
+  if (!isAnInteger(codigo_lista))
+    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> codigo_lista");
+  if (!isStr(codigo_asiento))
+    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> codigo_asiento");
+  if (!isStr(codigo_deposito))
+    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> codigo_deposito");
+  try {
+    if (FECHA_INGRESO instanceof Date)
+      FECHA_INGRESO.setHours(hour, min, sec);
+  } catch (_2) {
+  }
+  return {
+    id: idPedido,
+    numero_pedido,
+    estado: numberToEstadoPedido(ESTADO),
+    id_cliente,
+    codigo_cliente,
+    id_vendedor,
+    codigo_vendedor,
+    id_transporte,
+    codigo_transporte,
+    fecha_ingreso: FECHA_INGRESO,
+    fecha_alta: FECHA_PEDI,
+    fecha_entrega: FECHA_ENTR,
+    descripcion: descripcion ?? "",
+    es_favorito: es_favorito === true,
+    comentarios: (LEYENDA_4 ?? "") + (LEYENDA_5 ?? ""),
+    total: TOTAL_PEDI ?? 0,
+    descuento: PORC_DESC ?? 0,
+    id_talonario,
+    codigo_talonario,
+    id_condicion,
+    codigo_condicion,
+    id_lista,
+    codigo_lista,
+    codigo_asiento,
+    codigo_deposito,
+    compromete_stock: compromete_stock === true,
+    id_asiento_modelo_gv
+  };
+};
+function _getHMS(hms) {
+  if (!isStr(hms))
+    return [0, 0, 0];
+  hms = hms.trim();
+  if (hms.length != 6)
+    return [0, 0, 0];
+  const hStr = hms.substring(0, 2);
+  const mStr = hms.substring(2, 4);
+  const sStr = hms.substring(4, 6);
+  return [
+    Number.parseInt(hStr),
+    Number.parseInt(mStr),
+    Number.parseInt(sStr)
+  ];
+}
+const pedidoAndRelationsModelMapper = (m) => {
+  const r = pedidoModelMapper(m);
+  const nombre_cliente = resolveScreenName(CLIENTE_NAME_COLUMNS, m);
+  const nombre_vendedor = r.codigo_vendedor != null ? resolveScreenName(VENDEDOR_NAME_COLUMNS, m) : void 0;
+  const nombre_transporte = r.codigo_transporte != null ? resolveScreenName(TRANSPORTE_NAME_COLUMNS, m) : void 0;
+  const discriminaII = taxFieldIsYes(m.II_D);
+  const discriminaIVA = taxFieldIsYes(m.IVA_D);
+  return {
+    ...r,
+    nombre_cliente,
+    nombre_vendedor,
+    nombre_transporte,
+    sin_ii: discriminaII,
+    sin_iva: discriminaIVA
+    // descuento_cliente,
+  };
+};
+const TANGO_PARAMETROS_TABLE = "GVA16";
+const TANGO_PARAMETROS_ID_FIELD = "ID_GVA16";
+const tangoParametrosModelColumns = [
+  TANGO_PARAMETROS_ID_FIELD,
+  "PED_APR_CO",
+  "PED_AUT_CO",
+  "PED_FECHA",
+  "PROX_NDOC"
+];
+const tangoParametrosModelMapper = (m) => {
+  const { PED_AUT_CO, PROX_NDOC } = m;
+  const idsPedidosAutomaticos = toBoolean(PED_AUT_CO, false);
+  const proximoId = PROX_NDOC;
+  if (proximoId == null || !Number.isFinite(proximoId))
+    throw new DXTException(DXTErrorCode.TANGO_DB_INVALID_DATA, "tangoParametrosModelMapper -> PROX_NDOC");
+  return {
+    idsPedidosAutomaticos,
+    proximoId
+  };
+};
+class TangoRepository extends CompanyProvider {
+  constructor() {
+    super({
+      mainTable: TANGO_PARAMETROS_TABLE,
+      mainIdField: TANGO_PARAMETROS_ID_FIELD,
+      columns: tangoParametrosModelColumns
+    });
+  }
+  async getParametros() {
+    return await this.getFirst();
+  }
+  async updateNextId(id, trx) {
+    const { mainTable } = this.config;
+    const k = trx ?? await this.getCompany();
+    await k(mainTable).update({ PROX_NDOC: id });
+  }
+  toResult(m) {
+    return tangoParametrosModelMapper(m);
+  }
+}
+const tangoRepository = new TangoRepository();
+class PedidoBaseRepository extends CompanyProvider {
+  constructor(config2) {
+    const { mainTable, rowsRepository, dependencies } = config2;
+    super({
+      mainTable,
+      mainIdField: PEDIDO_ID_FIELD,
+      columns: pedidoModelColumns,
+      dependencies: [
+        ...dependencies ?? [],
+        rowsRepository
+      ]
+    });
+    this._rowsRepository = rowsRepository;
+  }
+  _avoidInvalidsFilterWhereRaw() {
+    const { mainTable } = this.config;
+    return `${mainTable}.${PEDIDO_ID_FIELD} IS NOT NULL AND ${mainTable}.${PEDIDO_CODE_FIELD} IS NOT NULL AND ${mainTable}.${CLIENTE_ID_FIELD} IS NOT NULL AND ${mainTable}.${CLIENTE_CODE_FIELD} IS NOT NULL AND ${mainTable}.${VENDEDOR_ID_FIELD} IS NOT NULL AND ${mainTable}.${VENDEDOR_CODE_FIELD} IS NOT NULL AND ${mainTable}.${TRANSPORTE_ID_FIELD} IS NOT NULL AND ${mainTable}.${TRANSPORTE_CODE_FIELD} IS NOT NULL`;
+  }
+  // private _toExtendedResult(m: PedidoModel): ExtendedPedidoResult {
+  //   return extendedPedidoModelMapper(m);
+  // }
+  // async getFullById(orderId: number): Promise<ExtendedPedidoResult> {
+  //   const cacheKey = `fullById_${orderId}`;
+  //   const cachedData = await this.cache.getMetadata<ExtendedPedidoResult>(cacheKey);
+  //   if (cachedData != null) return cachedData;
+  //   const { mainTable, mainIdField, columns } = this.config;
+  //   const k = await this.getCompany();
+  //   const data = await k(mainTable).first(...extendedPedidoModelColumns).where(mainIdField, orderId);
+  //   if (data==null) throw new DXTException(DXTErrorCode.NOT_FOUND);
+  //   const result = this._toExtendedResult(data);
+  //   await this.cache.setMetadata(cacheKey, result);
+  //   return result;
+  // }
+  _getUserRoleWhere(role, tangoUserId) {
+    return getUserRoleWhere(role, tangoUserId);
+  }
+  async finalTransformer(user, pedido) {
+    return pedido;
+  }
+  async getAllByUser(user, options) {
+    var _a2;
+    const role = user.role.valueOf();
+    const tangoUserId = (_a2 = user.tangoId) == null ? void 0 : _a2.valueOf();
+    const cacheKey = this.getAllByUserCacheKey(role, tangoUserId, options);
+    if (cacheKey != null) {
+      const cachedData = await this.cache.getMetadata(cacheKey);
+      if (cachedData)
+        return cachedData;
+    }
+    const { mainTable, columns } = this.config;
+    const k = await this.getCompany();
+    const where = this._getUserRoleWhere(role, tangoUserId);
+    let query = k(mainTable);
+    if (where != null)
+      query = query.where(
+        `${mainTable}.${where.field}`,
+        where.value
+      );
+    const mainColumns = (columns ?? ["*"]).map((c) => `${mainTable}.${c.toString()}`);
+    const pedidoClienteColumns = [...PEDIDO_CLIENTE_COLUMNS].map((c) => `${CLIENTE_TABLE}.${c}`);
+    const vendedorNombreColumns = VENDEDOR_NAME_COLUMNS.map((c) => `${VENDEDOR_TABLE}.${c}`);
+    const transporteNombreColumns = TRANSPORTE_NAME_COLUMNS.map((c) => `${TRANSPORTE_TABLE}.${c}`);
+    const data = await query.andWhereRaw(this._avoidInvalidsFilterWhereRaw()).select(...mainColumns, ...pedidoClienteColumns, ...vendedorNombreColumns, ...transporteNombreColumns).leftOuterJoin(CLIENTE_TABLE, `${mainTable}.${CLIENTE_ID_FIELD}`, `${CLIENTE_TABLE}.${CLIENTE_ID_FIELD}`).leftOuterJoin(VENDEDOR_TABLE, `${mainTable}.${VENDEDOR_ID_FIELD}`, `${VENDEDOR_TABLE}.${VENDEDOR_ID_FIELD}`).leftOuterJoin(TRANSPORTE_TABLE, `${mainTable}.${TRANSPORTE_ID_FIELD}`, `${TRANSPORTE_TABLE}.${TRANSPORTE_ID_FIELD}`);
+    if (data == null)
+      throw new DXTException(DXTErrorCode.NOT_FOUND);
+    let transformedData = [];
+    for (const pedido of data) {
+      transformedData.push(
+        await this.finalTransformer(user, this.toResultWithRelations(pedido))
+      );
+    }
+    const result = Object.fromEntries(transformedData.map((p) => [p.id, p]));
+    if (cacheKey != null)
+      await this.cache.setMetadata(cacheKey, result);
+    return result;
+  }
+  async getAllListByUser(user, options) {
+    const result = Object.values(await this.getAllByUser(user, options));
+    return result;
+  }
+  async deleteById(orderId) {
+    const k = await this.getCompany();
+    const { mainTable: orderTable, mainIdField: orderIdField } = this.config;
+    const result = await k.transaction(async (trx) => {
+      const { mainTable: rowsTable, mainIdField: rowIdField } = this._rowsRepository.config;
+      await trx(rowsTable).where(orderIdField, orderId).del();
+      const result2 = await trx(orderTable).where(orderIdField, orderId).del();
+      return result2;
+    });
+    if (result <= 0)
+      throw new DXTException(DXTErrorCode.NOT_FOUND);
+  }
+  composeUpsertRecord(customer, orderAndRows) {
+    const {
+      idLista,
+      codigoLista
+    } = customer;
+    const {
+      estado,
+      idTransporte,
+      codigoTransporte,
+      idDeposito,
+      codigoDeposito,
+      idCondicion,
+      codigoCondicion,
+      idAsiento,
+      codigoAsiento,
+      idTalonario,
+      codigoTalonario,
+      idDireccionDeEntrega,
+      idAsientoModeloGV,
+      bonificacion,
+      comentarios,
+      comprometeStock,
+      total
+    } = orderAndRows;
+    const comentariosLinea1 = comentarios.substring(0, LEYENDA_FIELD_LENGTH);
+    const comentariosLinea2 = comentarios.substring(LEYENDA_FIELD_LENGTH, LEYENDA_FIELD_LENGTH * 2);
+    const result = {
+      [CLIENTE_ID_FIELD]: customer.id,
+      [CLIENTE_CODE_FIELD]: customer.code,
+      [VENDEDOR_ID_FIELD]: customer.idVendedor,
+      [VENDEDOR_CODE_FIELD]: customer.codigoVendedor,
+      [CONDICION_ID_FIELD]: idCondicion,
+      [CONDICION_CODE_FIELD]: codigoCondicion,
+      [LISTA_ID_FIELD]: idLista,
+      [LISTA_CODE2_FIELD]: codigoLista,
+      [TRANSPORTE_ID_FIELD]: idTransporte,
+      [TRANSPORTE_CODE_FIELD]: codigoTransporte,
+      [TALONARIO_ID2_FIELD]: idTalonario,
+      [TALONARIO_CODE_FIELD]: codigoTalonario,
+      [DEPOSITO_CODE_FIELD]: codigoDeposito,
+      [ASIENTO_CODE_FIELD]: codigoAsiento,
+      [DIRECCION_ID_FIELD]: idDireccionDeEntrega,
+      PORC_DESC: bonificacion,
+      COMP_STK: comprometeStock,
+      LEYENDA_4: comentariosLinea1,
+      LEYENDA_5: comentariosLinea2,
+      TOTAL_PEDI: total,
+      ESTADO: estado,
+      ID_ASIENTO_MODELO_GV: idAsientoModeloGV,
+      N_REMITO: "",
+      APRUEBA: "",
+      EXPORTADO: false,
+      ID_EXTERNO: "",
+      NRO_O_COMP: "",
+      NRO_SUCURS: 0,
+      ORIGEN: "T",
+      REVISO_FAC: "0",
+      REVISO_STK: "0"
+    };
+    return result;
+  }
+  composeInsertRecord(customer, params) {
+    const result = this.composeUpsertRecord(
+      customer,
+      params
+    );
+    return result;
+  }
+  composeUpdateRecord(customer, params) {
+    const result = this.composeUpsertRecord(
+      customer,
+      params
+    );
+    return result;
+  }
+  async create(customer, params) {
+    const k = await this.getCompany();
+    const { mainTable: orderTable } = this.config;
+    const { rows } = params;
+    const orderModel = this.composeInsertRecord(customer, params);
+    const result = await k.transaction(async (trx) => {
+      const newOrderCode = await this.getNewOrderCodeAndUpdate(trx);
+      const newOrderCodeStr = await this.formatOrderCode(newOrderCode);
+      await trx(orderTable).insert({
+        ...orderModel,
+        [PEDIDO_CODE_FIELD]: newOrderCodeStr
+      });
+      const newOrderId = await this.getOrderIdFromCode(newOrderCodeStr, trx);
+      if (newOrderId == null)
+        throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "PedidoBaseRepository.create -> newOrderId not found");
+      let rowIndex = 0;
+      for (const row of rows) {
+        rowIndex++;
+        await this._rowsRepository.create(
+          newOrderId,
+          newOrderCodeStr,
+          params,
+          row,
+          rowIndex,
+          trx
+        );
+      }
+      return {
+        nuevo_pedido: true,
+        id_pedido: newOrderId,
+        numero_pedido: newOrderCodeStr
+      };
+    });
+    return result;
+  }
+  async update(customer, params) {
+    const k = await this.getCompany();
+    const { mainTable: orderTable, mainIdField: orderIdField } = this.config;
+    const { mainTable: rowsTable } = this._rowsRepository.config;
+    const { rows, idPedido } = params;
+    const orderModel = this.composeUpdateRecord(customer, params);
+    const result = await k.transaction(
+      async (trx) => {
+        const changedRecords = await trx(orderTable).where(
+          PEDIDO_ID_FIELD,
+          idPedido
+        ).update(orderModel);
+        if (changedRecords != 1)
+          throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, `PedidoBaseRepository.update -> Invalid count of changed records: ${changedRecords}`);
+        const updatedOrder = await this.getByIdOrNull(params.idPedido);
+        if (updatedOrder == null)
+          throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "PedidoBaseRepository.update -> Updated record not found");
+        if (updatedOrder.id == null)
+          throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "PedidoBaseRepository.update -> updatedOrder.id == null");
+        await trx(rowsTable).where(orderIdField, updatedOrder.id).del();
+        let rowIndex = 0;
+        for (const row of rows) {
+          rowIndex++;
+          await this._rowsRepository.create(
+            updatedOrder.id,
+            updatedOrder.numero_pedido,
+            params,
+            row,
+            rowIndex,
+            trx
+          );
+        }
+        return {
+          nuevo_pedido: false,
+          id_pedido: updatedOrder.id,
+          numero_pedido: updatedOrder.numero_pedido
+        };
+      }
+    );
+    return result;
+  }
+  toResult(m) {
+    return pedidoModelMapper(m);
+  }
+  toResultWithRelations(m) {
+    return pedidoAndRelationsModelMapper(m);
+  }
+  async getOrderIdFromCode(orderCode, trx) {
+    const k = trx ?? await this.getCompany();
+    const result = await k(this.config.mainTable).first(PEDIDO_ID_FIELD).where(PEDIDO_CODE_FIELD, orderCode);
+    return (result == null ? void 0 : result[PEDIDO_ID_FIELD]) ?? null;
+  }
+  async getOrderCodeFromId(orderId, trx) {
+    const k = trx ?? await this.getCompany();
+    const result = await k(this.config.mainTable).first(PEDIDO_CODE_FIELD).where(PEDIDO_ID_FIELD, orderId);
+    return (result == null ? void 0 : result[PEDIDO_CODE_FIELD]) ?? null;
+  }
+  async getBiggerOrderCode(trx) {
+    var _a2;
+    const { mainTable } = this.config;
+    const k = trx ?? await this.getCompany();
+    const result = await k(mainTable).first(PEDIDO_CODE_FIELD).orderBy(PEDIDO_CODE_FIELD, "desc");
+    const orderCode = (_a2 = result == null ? void 0 : result[PEDIDO_CODE_FIELD]) == null ? void 0 : _a2.trim();
+    const orderCodeNumber = Number.parseInt(orderCode);
+    return isAnInteger(orderCodeNumber) && orderCodeNumber > 0 ? orderCodeNumber : 1;
+  }
+  async formatOrderCode(orderCode) {
+    return await dictionaryRepository.formatNumeroPedido(orderCode);
+  }
+  async getNewOrderCodeAndUpdate(trx) {
+    const { idsPedidosAutomaticos, proximoId } = await tangoRepository.getParametros();
+    let newOrderCode;
+    if (idsPedidosAutomaticos) {
+      newOrderCode = proximoId;
+    } else {
+      newOrderCode = await this.getBiggerOrderCode(trx);
+    }
+    newOrderCode = await this.getNextFreeOrderCode(newOrderCode, trx);
+    await this._updateNextOrderCode(newOrderCode, trx);
+    return newOrderCode;
+  }
+  async _updateNextOrderCode(newOrderCode, trx) {
+    const { idsPedidosAutomaticos } = await tangoRepository.getParametros();
+    if (idsPedidosAutomaticos) {
+      await tangoRepository.updateNextId(newOrderCode, trx);
+    }
+  }
+  async getNextFreeOrderCode(initialOrderCode, trx) {
+    const { min, max } = await dictionaryRepository.getNumeroPedidoRange();
+    let newId = initialOrderCode;
+    while (await this.getOrderIdFromCode(await this.formatOrderCode(newId), trx) != null) {
+      newId++;
+      if (newId >= max)
+        newId = min;
+    }
+    return newId;
+  }
+}
+const renglonPedidoModelMapper = (m) => {
+  const {
+    [ARTICULO_ID_FIELD]: id_articulo,
+    [ARTICULO_CODE_FIELD]: codigo_articulo,
+    PRECIO,
+    CANT_PEDID,
+    N_RENGLON,
+    CANT_A_DES: a_descontar,
+    CANT_PEN_D: pendiente_descontar,
+    CANT_A_FAC: a_facturar,
+    CANT_PEN_F: pendiente_facturar
+  } = m;
+  const precio = PRECIO ?? 0;
+  const cantidad = CANT_PEDID ?? 0;
+  const subtotal = precio * cantidad;
+  if (!isNotEmptyStr(codigo_articulo))
+    throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `renglonPedidoModelMapper ${ARTICULO_CODE_FIELD}`);
+  return {
+    id_articulo,
+    codigo_articulo,
+    renglon: N_RENGLON ?? 0,
+    precio,
+    cantidad,
+    subtotal,
+    a_descontar,
+    pendiente_descontar,
+    a_facturar,
+    pendiente_facturar
+  };
+};
+const renglonPedidoAndRelationsModelMapper = (m) => {
+  const r = renglonPedidoModelMapper(m);
+  const { [ARTICULO_CODE_FIELD]: codigoArticulo, DESCRIPCIO, DESC_ADIC: descripcion_adicional } = m;
+  const nombre_articulo = DESCRIPCIO ?? (codigoArticulo == null ? NONEXISTENT_PRODUCT : NO_NAME);
+  return {
+    ...r,
+    nombre_articulo,
+    descripcion_adicional
+  };
+};
+class DXTArticuloListRepository extends CompanyProvider {
+  constructor(config2) {
+    super({
+      mainIdField: DXT_LIST_ARTICULO_CODE_FIELD,
+      ...config2
+    });
+  }
+  async getList() {
+    const rows = await this.getAll();
+    return rows.map((v) => {
+      const line = v.codigo_articulo;
+      if (v.params == null)
+        return line;
+      return `${line}; ${v.params}`;
+    });
+  }
+  async setList(list) {
+    this.cache.clear();
+    const finalList = list.filter((e) => e.codigo_articulo.trim().length > 0);
+    const { mainTable } = this.config;
+    const k = await this.getCompany();
+    await k.transaction(async (trx) => {
+      await trx(mainTable).truncate();
+      await trx.batchInsert(mainTable, finalList, 500);
+    });
+    emitBusEvent(
+      new DBSettingsChangedEvent({
+        passiveDBChanges: false,
+        newDictionary: false,
+        newCompany: false,
+        resetCache: true
+      })
+    );
+    return true;
+  }
+  toResult(m) {
+    return m;
+  }
+}
+class DXTArticuloPrintListRepository extends DXTArticuloListRepository {
+  constructor() {
+    super({
+      mainTable: DXT_ARTICULO_PRINT_LIST_TABLE,
+      dependencies: [
+        articuloRepository,
+        dxtClienteRepository,
+        dxtVendedorRepository
+      ]
+    });
+    this.mainColumns = [`${DXT_ARTICULO_PRINT_LIST_TABLE}.*`];
+    this.articuloColumns = [ARTICULO_ID_FIELD].map((c) => `${ARTICULO_TABLE}.${c}`);
+  }
+  async getIdsWithParams(paramsToReturn) {
+    const cacheKey = `ids_${paramsToReturn == null ? void 0 : paramsToReturn.join(".")}`;
+    const resultFromCache = await this.cache.getMetadata(cacheKey);
+    if (resultFromCache != null)
+      return resultFromCache;
+    const { mainTable } = this.config;
+    const k = await this.getCompany();
+    const rawData = await k(mainTable).select(...this.mainColumns, ...this.articuloColumns).innerJoin(ARTICULO_TABLE, `${mainTable}.${DXT_LIST_ARTICULO_CODE_FIELD}`, `${ARTICULO_TABLE}.${ARTICULO_CODE_FIELD}`).orderBy(DXT_LIST_ARTICULO_ID_FIELD);
+    if (rawData == null)
+      throw new DXTException(DXTErrorCode.NOT_FOUND);
+    const data = rawData.map((m) => this.toArticuloIdResult(m, paramsToReturn));
+    await this.cache.setMetadata(cacheKey, data);
+    return data;
+  }
+  async getPackagePrintListMap() {
+    const cacheKey = `pack_printlist`;
+    const resultFromCache = await this.cache.getMetadata(cacheKey);
+    if (resultFromCache != null)
+      return resultFromCache;
+    const printListRaw = await dxtArticuloPrintListRepository.getIdsWithParams(["b"]);
+    const result = new Map(printListRaw.map((row, index) => {
+      if (isANumber(row))
+        return [row, void 0];
+      const bultoRaw = Number.parseInt(row[1]["b"]);
+      const bulto = isAnInteger(bultoRaw) && bultoRaw > 1 ? bultoRaw : void 0;
+      return [row[0], {
+        bulto,
+        order: index
+      }];
+    }));
+    await this.cache.setMetadata(cacheKey, result);
+    return result;
+  }
+  toArticuloIdResult(m, paramsToReturn) {
+    const { [ARTICULO_ID_FIELD]: id_articulo } = m;
+    const params = strToDXTArticuloListParams(m.params);
+    if (paramsToReturn.length == 0) {
+      if (params != null)
+        return [id_articulo, params];
+      return id_articulo;
+    }
+    const filteredParamsEntries = params == null ? null : Object.entries(params).filter(
+      ([key, _2]) => paramsToReturn.includes(key)
+    );
+    if (filteredParamsEntries != null && filteredParamsEntries.length > 0) {
+      return [id_articulo, Object.fromEntries(filteredParamsEntries)];
+    }
+    return id_articulo;
+  }
+}
+const dxtArticuloPrintListRepository = new DXTArticuloPrintListRepository();
+class DXTArticuloEditListRepository extends DXTArticuloListRepository {
+  constructor() {
+    super({
+      mainTable: DXT_ARTICULO_EDIT_LIST_TABLE,
+      dependencies: [
+        articuloRepository,
+        precioRepository,
+        dxtClienteRepository,
+        dxtVendedorRepository
+      ]
+    });
+  }
+  async getByListIdWithTaxes(profileListId, prioritaryListId, prioritaryDiscount) {
+    const singleListId = prioritaryListId == null;
+    const sameOrSinglePriceList = singleListId || profileListId === prioritaryListId;
+    const aListId = sameOrSinglePriceList ? profileListId : prioritaryListId;
+    const bListId = sameOrSinglePriceList ? null : profileListId;
+    const k = await this.getCompany();
+    const useArticleEditList = await this.count() > 0;
+    const fullDXTArticuloListCodeField = `${DXT_ARTICULO_EDIT_LIST_TABLE}.codigo_articulo`;
+    const fullDXTArticuloListParams = `${DXT_ARTICULO_EDIT_LIST_TABLE}.params`;
+    const fullArticuloCodeField = `${ARTICULO_TABLE}.${ARTICULO_CODE_FIELD}`;
+    const mainColumns = useArticleEditList ? [`${fullDXTArticuloListCodeField} as DXTO_CODIGO_ARTICULO`, `${fullDXTArticuloListParams} as DXTO_PARAMS`] : [];
+    const articuloColumns = articuloModelColumns.map((c) => `${ARTICULO_TABLE}.${c} as ${c}`);
+    const precioColumns = ["PRECIO", LISTA_ID_FIELD, ARTICULO_CODE_FIELD];
+    const aPrecioColumns = precioColumns.map((c) => `tpa.${c}`);
+    const bPrecioColumns = bListId != null ? precioColumns.map((c) => `tpb.${c}`) : [];
+    let query = k(useArticleEditList ? DXT_ARTICULO_EDIT_LIST_TABLE : ARTICULO_TABLE).select(
+      ...mainColumns,
+      ...articuloColumns,
+      ...aPrecioColumns,
+      ...bPrecioColumns
+    );
+    const aPricesQuery = k(PRECIO_TABLE).select(precioColumns).where(LISTA_ID_FIELD, aListId).as("tpa");
+    const bPricesQuery = bListId != null ? k(PRECIO_TABLE).select(precioColumns).where(LISTA_ID_FIELD, bListId).as("tpb") : null;
+    if (useArticleEditList)
+      query = query.leftOuterJoin(ARTICULO_TABLE, fullDXTArticuloListCodeField, fullArticuloCodeField);
+    query = query.leftOuterJoin(aPricesQuery, useArticleEditList ? fullDXTArticuloListCodeField : fullArticuloCodeField, `tpa.${ARTICULO_CODE_FIELD}`);
+    if (bPricesQuery != null)
+      query = query.leftOuterJoin(bPricesQuery, useArticleEditList ? fullDXTArticuloListCodeField : fullArticuloCodeField, `tpb.${ARTICULO_CODE_FIELD}`);
+    let whereRawQuery = `tpa.${LISTA_ID_FIELD} = ?`;
+    if (bListId != null)
+      whereRawQuery += ` OR tpb.${LISTA_ID_FIELD} = ?`;
+    if (useArticleEditList) {
+      whereRawQuery += ` OR (${fullDXTArticuloListCodeField} IS NOT NULL AND tpa.${LISTA_ID_FIELD} IS NULL AND `;
+      if (bListId != null)
+        whereRawQuery += `tpb.${LISTA_ID_FIELD} IS NULL AND `;
+      whereRawQuery += `${fullArticuloCodeField} IS NULL )`;
+    }
+    const whereParams = bListId != null ? [aListId, bListId] : [aListId];
+    query = query.where(k.raw(whereRawQuery, whereParams));
+    const result = useArticleEditList ? await query.orderBy(`${DXT_ARTICULO_EDIT_LIST_TABLE}.id`) : await query.orderBy(fullArticuloCodeField);
+    const unifiedPrices = this._multiPriceToSinglePrice(result);
+    const overridedDiscount = profileListId === prioritaryListId ? prioritaryDiscount : null;
+    return unifiedPrices.map((item) => tangoFullArticleOrGroupNameModelMapper(
+      item,
+      prioritaryListId,
+      prioritaryDiscount,
+      overridedDiscount
+    ));
+  }
+  _multiPriceToSinglePrice(data) {
+    return data.map((item) => {
+      const {
+        [ARTICULO_CODE_FIELD]: codeArticle,
+        [LISTA_ID_FIELD]: idList,
+        PRECIO: price,
+        ...remaining
+      } = item;
+      const singleIdList = Array.isArray(idList) ? idList[0] : idList;
+      const singlePrice = Array.isArray(price) ? price[0] : price;
+      const singleCodeArticle = Array.isArray(codeArticle) ? codeArticle[0] : codeArticle;
+      return {
+        ...remaining,
+        [ARTICULO_CODE_FIELD]: singleCodeArticle,
+        [LISTA_ID_FIELD]: singleIdList,
+        PRECIO: singlePrice
+      };
+    });
+  }
+}
+const dxtArticuloEditListRepository = new DXTArticuloEditListRepository();
+function applyArticlePrintList(data, printList) {
+  return data.map((row) => {
+    if (isStr(row))
+      return row;
+    const { id_articulo } = row;
+    const printData = id_articulo != null ? printList.get(id_articulo) : null;
+    return {
+      ...row,
+      bulto: printData == null ? void 0 : printData.bulto,
+      print_order: printData == null ? void 0 : printData.order
+    };
+  });
+}
+class RenglonPedidoBaseRepository extends CompanyProvider {
+  constructor(config2) {
+    const { mainTable, pedidoTable, dependencies } = config2;
+    super({
+      mainTable,
+      mainIdField: RENGLON_PEDIDO_ID_FIELD,
+      columns: renglonPedidoModelColumns,
+      dependencies: [
+        ...dependencies ?? [],
+        articuloRepository,
+        dxtArticuloPrintListRepository,
+        dxtArticuloEditListRepository,
+        perfilRepository,
+        clienteRepository,
+        vendedorRepository,
+        transporteRepository,
+        pedidoTable
+      ]
+    });
+    this._pedidoTable = pedidoTable;
+    const filteredColumns = renglonPedidoModelColumns.filter((c) => c != PEDIDO_ID_FIELD) ?? [];
+    this.mainColumns = filteredColumns.map((c) => `${mainTable}.${c.toString()}`);
+    this.pedidoColumns = [`${pedidoTable}.${PEDIDO_ID_FIELD}`];
+    this.articuloColumns = ARTICULO_NAME_COLUMNS.map((c) => `${ARTICULO_TABLE}.${c}`);
+  }
+  async _getByWhere(whereColumn, whereValue) {
+    const cacheKey = `byWhere_${whereColumn ?? "x"}_${whereValue ?? "x"}`;
+    const resultFromCache = await this.cache.getMetadata(cacheKey);
+    if (resultFromCache != null)
+      return resultFromCache;
+    const { mainTable } = this.config;
+    const pedidoTable = this._pedidoTable;
+    const k = await this.getCompany();
+    let query = k(mainTable);
+    if (whereColumn != null)
+      query = query.where(whereColumn, whereValue);
+    const allColumns = [
+      ...this.mainColumns,
+      ...this.articuloColumns,
+      ...this.pedidoColumns
+    ];
+    const rawData = await query.select(allColumns).leftOuterJoin(ARTICULO_TABLE, `${mainTable}.${ARTICULO_ID_FIELD}`, `${ARTICULO_TABLE}.${ARTICULO_ID_FIELD}`).innerJoin(pedidoTable, `${mainTable}.${PEDIDO_CODE_FIELD}`, `${pedidoTable}.${PEDIDO_CODE_FIELD}`).orderBy(PEDIDO_ID_FIELD);
+    if (rawData == null)
+      throw new DXTException(DXTErrorCode.NOT_FOUND);
+    const preTransformedData = rawData.map((renglonPedido) => this.toRenglonPedidoWithIdPedido(renglonPedido));
+    const printList = await dxtArticuloPrintListRepository.getPackagePrintListMap();
+    const data = applyArticlePrintList(
+      preTransformedData,
+      printList
+    );
+    let result = {};
+    let sliceBegin = 0;
+    let idPedidoPrev = void 0;
+    data.forEach((renglon, index) => {
+      if (idPedidoPrev != null && idPedidoPrev != renglon.id_pedido) {
+        const sliceEnd = index;
+        result[idPedidoPrev] = data.slice(sliceBegin, sliceEnd);
+        sliceBegin = sliceEnd;
+      }
+      idPedidoPrev = renglon.id_pedido;
+    });
+    if (idPedidoPrev != null) {
+      result[idPedidoPrev] = data.slice(sliceBegin, data.length);
+    }
+    await this.cache.setMetadata(cacheKey, result);
+    return result;
+  }
+  async getByIdPedido(idPedido) {
+    const { mainTable } = this.config;
+    const data = await this._getByWhere(`${mainTable}.${PEDIDO_ID_FIELD}`, idPedido);
+    return data[idPedido] ?? [];
+  }
+  async getByNumeroPedido(numeroPedido) {
+    const { mainTable } = this.config;
+    const data = await this._getByWhere(`${mainTable}.${PEDIDO_CODE_FIELD}`, numeroPedido);
+    return Object.values(data)[0] ?? [];
+  }
+  async getAllByUser(user) {
+    var _a2;
+    const role = user.role.valueOf();
+    const tangoUserId = (_a2 = user.tangoId) == null ? void 0 : _a2.valueOf();
+    const where = getUserRoleWhere(role, tangoUserId);
+    return await this._getByWhere(
+      where == null ? void 0 : where.field,
+      where == null ? void 0 : where.value
+    );
+  }
+  toResult(m) {
+    return renglonPedidoModelMapper(m);
+  }
+  toRenglonPedidoWithIdPedido(m) {
+    const id_pedido = m[PEDIDO_ID_FIELD];
+    if (id_pedido == null)
+      throw new DXTException(DXTErrorCode.TANGO_DB_INVALID_DATA, `RenglonPedidoRepository.toRenglonWithIdPedido -> ${PEDIDO_ID_FIELD}`);
+    return {
+      ...renglonPedidoAndRelationsModelMapper(m),
+      id_pedido
+    };
+  }
+  toResultAndRelations(m) {
+    return renglonPedidoAndRelationsModelMapper(m);
+  }
+  async create(idPedido, numeroPedido, order, row, rowIndex, trx) {
+    const model = this.composeInsertRecord(
+      idPedido,
+      numeroPedido,
+      order,
+      row,
+      rowIndex
+    );
+    const { mainTable } = this.config;
+    const k = trx ?? await this.getCompany();
+    try {
+      await k(mainTable).insert(model);
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  }
+  composeInsertRecord(idPedido, numeroPedido, order, row, rowIndex) {
+    const {
+      idTalonario,
+      codigoTalonario
+    } = order;
+    const {
+      idArticle,
+      codeArticle,
+      quantity,
+      precio,
+      bonificacion,
+      idMedidaStock,
+      idMedidaStock2,
+      idMedidaVentas,
+      unidadMedidaSeleccionada
+    } = row;
+    const result = {
+      [PEDIDO_CODE_FIELD]: numeroPedido,
+      [PEDIDO_ID_FIELD]: idPedido,
+      N_RENGLON: rowIndex,
+      [ARTICULO_CODE_FIELD]: codeArticle,
+      [ARTICULO_ID_FIELD]: idArticle,
+      [TALONARIO_ID2_FIELD]: idTalonario,
+      PRECIO: precio ?? 0,
+      DESCUENTO: bonificacion ?? 0,
+      CANT_A_DES: quantity,
+      CANT_A_FAC: quantity,
+      CANT_PEDID: quantity,
+      CANT_PEN_D: quantity,
+      CANT_PEN_F: quantity,
+      CAN_EQUI_V: quantity,
+      ID_MEDIDA_STOCK: idMedidaStock,
+      ID_MEDIDA_STOCK_2: idMedidaStock2,
+      ID_MEDIDA_VENTAS: idMedidaVentas,
+      UNIDAD_MEDIDA_SELECCIONADA: unidadMedidaSeleccionada
+    };
+    return result;
+  }
+}
+class RenglonPedidoRepository extends RenglonPedidoBaseRepository {
+  constructor() {
+    super({
+      mainTable: RENGLON_PEDIDO_TABLE,
+      pedidoTable: PEDIDO_TABLE
+    });
+  }
+}
+const renglonPedidoRepository = new RenglonPedidoRepository();
+class PedidoRepository extends PedidoBaseRepository {
+  constructor() {
+    super({
+      mainTable: PEDIDO_TABLE,
+      rowsRepository: renglonPedidoRepository
+    });
+  }
+  getRowsRepository() {
+    return renglonPedidoRepository;
+  }
+  async cancel(id) {
+    const k = await this.getCompany();
+    const { mainTable, mainIdField, columns } = this.config;
+    await k(mainTable).where(mainIdField, id).update({
+      ESTADO: EstadoPedido.ANULADO
+    });
+    await this.cache.invalidateById(id);
+  }
+  composeUpsertRecord(customer, params) {
+    const parentResult = super.composeUpsertRecord(customer, params);
+    const {
+      fechaPedido,
+      fechaEntrega
+    } = params;
+    return {
+      ...parentResult,
+      FECHA_PEDI: fechaPedido,
+      FECHA_ENTR: fechaEntrega
+    };
+  }
+  composeInsertRecord(customer, params) {
+    const parentResult = this.composeUpsertRecord(
+      customer,
+      params
+    );
+    const {
+      fechaIngreso
+    } = params;
+    const horaIngreso = getDateHHMMSS(fechaIngreso);
+    return {
+      ...parentResult,
+      FECHA_INGRESO: fechaIngreso,
+      HORA_INGRESO: horaIngreso,
+      HORA: horaIngreso
+    };
+  }
+  composeUpdateRecord(customer, params) {
+    const parentResult = this.composeUpsertRecord(
+      customer,
+      params
+    );
+    return {
+      ...parentResult
+    };
+  }
+}
+const pedidoRepository = new PedidoRepository();
+class DXTPedidoDraftRowRepository extends RenglonPedidoBaseRepository {
+  constructor(config2) {
+    super(config2);
+  }
+}
+class DXTPedidoDraftRowClientesRepository extends DXTPedidoDraftRowRepository {
+  constructor() {
+    super({
+      mainTable: DXT_PEDIDO_DRAFT_ROW_CLIENTES_TABLE,
+      pedidoTable: DXT_PEDIDO_DRAFT_CLIENTES_TABLE
+    });
+  }
+}
+const dxtPedidoDraftRowClientesRepository = new DXTPedidoDraftRowClientesRepository();
+class DXTPedidoDraftRowVendedoresRepository extends DXTPedidoDraftRowRepository {
+  constructor() {
+    super({
+      mainTable: DXT_PEDIDO_DRAFT_ROW_VENDEDORES_TABLE,
+      pedidoTable: DXT_PEDIDO_DRAFT_VENDEDORES_TABLE
+    });
+  }
+}
+const dxtPedidoDraftRowVendedoresRepository = new DXTPedidoDraftRowVendedoresRepository();
+async function getAuxiliares(customerId) {
+  const [
+    preListas,
+    transportes,
+    preDepositos,
+    condiciones,
+    preAsientos,
+    preTalonarios,
+    preDirecciones
+  ] = await Promise.all([
+    listaRepository.getAll(),
+    transporteRepository.getAll(),
+    depositoRepository.getAll(),
+    condicionRepository.getAll(),
+    asientoRepository.getAll(),
+    talonarioRepository.getAll(),
+    direccionRepository.getByCustomer(customerId)
+  ]);
+  const listas = new Map(preListas.map((row) => [row.codigo, row]));
+  const asientos = _.uniqWith(
+    preAsientos.filter((asiento) => asiento.codigo_cuenta == 0),
+    (a, b) => a.tipo == b.tipo
+  );
+  const talonarios = preTalonarios.filter((talonario) => {
+    const { tipo, comprobante } = talonario;
+    return (comprobante == "" || comprobante == "FAC") && tipo != "X" && tipo != "R" && tipo != "";
+  });
+  const direcciones = preDirecciones.filter((direccion) => direccion.habilitada);
+  const depositos = [
+    ...preDepositos,
+    {
+      id: 0,
+      code: "",
+      name: "MOSTRADOR"
+    }
+  ];
+  if (transportes.length == 0)
+    throw new DXTException(DXTErrorCode.EMPTY_TRANSPORTE_LIST);
+  if (depositos.length == 0)
+    throw new DXTException(DXTErrorCode.EMPTY_DEPOSITO_LIST);
+  if (condiciones.length == 0)
+    throw new DXTException(DXTErrorCode.EMPTY_CONDICION_LIST);
+  if (asientos.length == 0)
+    throw new DXTException(DXTErrorCode.EMPTY_ASIENTO_LIST);
+  if (talonarios.length == 0)
+    throw new DXTException(DXTErrorCode.EMPTY_TALONARIO_LIST);
+  if (direcciones.length == 0)
+    throw new DXTException(DXTErrorCode.EMPTY_DIRECCION_LIST);
+  return {
+    listas,
+    transportes,
+    depositos,
+    condiciones,
+    asientos,
+    talonarios,
+    direcciones
+  };
+}
+function getPropertyIfSameOrNull(data, propertyName) {
+  const l = data.length;
+  if (l == 0)
+    return null;
+  const first = data[0][propertyName];
+  for (let i = 1; i < l; i++) {
+    if (data[i][propertyName] != first)
+      return null;
+  }
+  return first;
+}
+async function getOptimalBillingProfile(user, customer) {
+  const userBillingProfile = await perfilRepository.getById(user.perfilFacturacionId.valueOf());
+  let customerBillingProfile = null;
+  if (user.isSeller()) {
+    const dxtCustomers = await dxtClienteRepository.getMany("tango_id", customer.id);
+    const customerBillingProfileId = getPropertyIfSameOrNull(dxtCustomers, "perfil_facturacion_id");
+    customerBillingProfile = customerBillingProfileId != null ? await perfilRepository.getById(customerBillingProfileId) : null;
+  }
+  const cbp = customerBillingProfile;
+  const ubp = userBillingProfile;
+  const customerCondicionAvailable = isAnInteger(customer.codigoCondicion) && customer.codigoCondicion > 0;
+  const customerTransporteAvailable = typeof customer.codigoTransporte === "string" && customer.codigoTransporte.trim() != "";
+  const customerListaAvailable = isAnInteger(customer.codigoLista) && customer.codigoLista > 0;
+  const optimalBillingProfile = {
+    ...userBillingProfile,
+    // Se aplica la configuración del perfil del cliente    
+    id_asiento_modelo_gv: (cbp == null ? void 0 : cbp.id_asiento_modelo_gv) ?? ubp.id_asiento_modelo_gv,
+    codigo_talonario_factura: (cbp == null ? void 0 : cbp.codigo_talonario_factura) ?? ubp.codigo_talonario_factura,
+    codigo_talonario_pedido: (cbp == null ? void 0 : cbp.codigo_talonario_pedido) ?? ubp.codigo_talonario_pedido,
+    codigo_talonario_remito: (cbp == null ? void 0 : cbp.codigo_talonario_remito) ?? ubp.codigo_talonario_remito,
+    codigo_deposito: (cbp == null ? void 0 : cbp.codigo_deposito) ?? ubp.codigo_deposito,
+    codigo_asiento: (cbp == null ? void 0 : cbp.codigo_asiento) ?? ubp.codigo_asiento,
+    // Se aplica la configuración del cliente
+    codigo_condicion_venta: customerCondicionAvailable ? customer.codigoCondicion : (cbp == null ? void 0 : cbp.codigo_condicion_venta) ?? ubp.codigo_condicion_venta,
+    codigo_transporte: customerTransporteAvailable ? customer.codigoTransporte : (cbp == null ? void 0 : cbp.codigo_transporte) ?? ubp.codigo_transporte,
+    codigo_lista_precio: customerListaAvailable ? customer.codigoLista : (cbp == null ? void 0 : cbp.codigo_lista_precio) ?? ubp.codigo_lista_precio
+  };
+  if (customer.discriminaIVA)
+    return optimalBillingProfile;
+  const { talonarios } = await getAuxiliares(customer.id);
+  const selectedTalonario = talonarios.find((talonario) => talonario.code == optimalBillingProfile.codigo_talonario_factura);
+  if (selectedTalonario != null && _talonarioConsumidorFinal(selectedTalonario))
+    return optimalBillingProfile;
+  const talonarioConsumidorFinal = talonarios.find((talonario) => _talonarioConsumidorFinal(talonario));
+  if (!talonarioConsumidorFinal)
+    throw new DXTException(DXTErrorCode.INVALID_CONSUMIDOR_FINAL_TALONARIO);
+  return {
+    ...optimalBillingProfile,
+    codigo_talonario_factura: talonarioConsumidorFinal.code
+  };
+}
+function _talonarioConsumidorFinal(talonario) {
+  const { tipo } = talonario;
+  return tipo == "B" || tipo == "C";
+}
+class DXTPedidoDraftRepository extends PedidoBaseRepository {
+  toResult(m) {
+    const { total, ...remaining } = super.toResult(m);
+    return remaining;
+  }
+  toResultWithRelations(m) {
+    const { total, ...remaining } = super.toResultWithRelations(m);
+    return remaining;
+  }
+  // Actualiza los valores que pueden cambiar en el pedido, como el descuento.
+  async finalTransformer(user, pedido) {
+    const customer = await clienteRepository.getExtendedById(pedido.id_cliente);
+    const billingProfile = await getOptimalBillingProfile(
+      user,
+      customer
+    );
+    const { bonificacion_editable } = billingProfile;
+    const bonificacion = (bonificacion_editable ? pedido.descuento : billingProfile.bonificacion) ?? billingProfile.bonificacion ?? customer.bonificacion;
+    const { total, ...remaining } = pedido;
+    return {
+      ...remaining,
+      descuento: bonificacion
+    };
+  }
+  async descriptionExists(user, description, draftIdToIgnore) {
+    var _a2;
+    if (user.isAdmin())
+      throw new DXTException(DXTErrorCode.CUSTOMER_OR_SELLER_ROLE_REQUIRED);
+    const isCustomer = user.isCustomer();
+    const column = isCustomer ? CLIENTE_ID_FIELD : VENDEDOR_ID_FIELD;
+    const tangoId = (_a2 = user.tangoId) == null ? void 0 : _a2.valueOf();
+    if (tangoId == null)
+      throw new DXTException(isCustomer ? DXTErrorCode.TANGO_CUSTOMER_NO_LONGER_EXISTS : DXTErrorCode.TANGO_SELLER_NO_LONGER_EXISTS);
+    const data = await this.getOneOrNull(column, tangoId, {
+      where: {
+        field: PEDIDO_DESCRIPTION_FIELD,
+        value: description
+      }
+    });
+    if (draftIdToIgnore != null && (data == null ? void 0 : data.id) === draftIdToIgnore)
+      return false;
+    return data != null;
+  }
+  composeUpsertRecord(customer, params) {
+    const parentResult = super.composeUpsertRecord(customer, params);
+    const {
+      descripcion,
+      esFavorito,
+      fechaIngreso
+    } = params;
+    const horaIngreso = getDateHHMMSS(fechaIngreso);
+    return {
+      ...parentResult,
+      [PEDIDO_DESCRIPTION_FIELD]: descripcion,
+      [PEDIDO_IS_FAVORITE_FIELD]: esFavorito,
+      FECHA_INGRESO: fechaIngreso,
+      HORA_INGRESO: horaIngreso
+    };
+  }
+  composeInsertRecord(customer, params) {
+    const parentResult = this.composeUpsertRecord(
+      customer,
+      params
+    );
+    return {
+      ...parentResult
+    };
+  }
+  composeUpdateRecord(customer, params) {
+    const parentResult = this.composeUpsertRecord(
+      customer,
+      params
+    );
+    return {
+      ...parentResult
+    };
+  }
+  async getNewOrderCodeAndUpdate() {
+    return await this.getNextFreeOrderCode(await this.getBiggerOrderCode());
+  }
+  async setFavorite(orderId, isFavorite) {
+    const k = await this.getCompany();
+    const { mainTable, mainIdField: orderIdField } = this.config;
+    const result = await k(mainTable).where(
+      PEDIDO_ID_FIELD,
+      orderId
+    ).update({
+      [PEDIDO_IS_FAVORITE_FIELD]: isFavorite === true
+    });
+    if (result < 1)
+      throw new DXTException(DXTErrorCode.DRAFT_NOT_FOUND);
+  }
+}
+class DXTPedidoDraftClientesRepository extends DXTPedidoDraftRepository {
+  constructor() {
+    super({
+      mainTable: DXT_PEDIDO_DRAFT_CLIENTES_TABLE,
+      rowsRepository: dxtPedidoDraftRowClientesRepository
+    });
+  }
+}
+const dxtPedidoDraftClientesRepository = new DXTPedidoDraftClientesRepository();
+class DXTPedidoDraftVendedoresRepository extends DXTPedidoDraftRepository {
+  constructor() {
+    super({
+      mainTable: DXT_PEDIDO_DRAFT_VENDEDORES_TABLE,
+      rowsRepository: dxtPedidoDraftRowVendedoresRepository
+    });
+  }
+}
+const dxtPedidoDraftVendedoresRepository = new DXTPedidoDraftVendedoresRepository();
+function getDraftRepository(user) {
+  return _isCustomer(user) ? dxtPedidoDraftClientesRepository : dxtPedidoDraftVendedoresRepository;
+}
+function getDraftRowRepository(user) {
+  return _isCustomer(user) ? dxtPedidoDraftRowClientesRepository : dxtPedidoDraftRowVendedoresRepository;
+}
+function _isCustomer(user) {
+  const role = user.role.valueOf();
+  if (role == UserRole.admin)
+    throw new DXTException(DXTErrorCode.CUSTOMER_OR_SELLER_ROLE_REQUIRED);
+  return role == UserRole.customer;
+}
+async function getOrderWithRows(user, idPedido, isDraft, adminAllowed, ignoreRows) {
+  const buyListRepository = isDraft ? getDraftRepository(user) : pedidoRepository;
+  const buyListRowRepository = isDraft ? getDraftRowRepository(user) : renglonPedidoRepository;
+  const header = await buyListRepository.getById(idPedido);
+  const rows = ignoreRows ? null : isDraft ? await buyListRowRepository.getByIdPedido(idPedido) : await buyListRowRepository.getByNumeroPedido(header.numero_pedido);
+  const rowsOk = rows != null || ignoreRows;
+  if (header == null || !rowsOk)
+    throw new DXTException(isDraft ? DXTErrorCode.DRAFT_NOT_FOUND : DXTErrorCode.ORDER_NOT_FOUND);
+  const { estado, ...remaining } = header;
+  const finalHeader = {
+    ...remaining,
+    estado: realOrderStatus(header, rows)
+  };
+  await _checkUserIsOwnerOrThrow(
+    user,
+    finalHeader,
+    adminAllowed
+  );
+  if (rows == null) {
+    return {
+      isDraft,
+      header: finalHeader
+    };
+  }
+  return {
+    isDraft,
+    header: finalHeader,
+    rows
+  };
+}
+async function _checkUserIsOwnerOrThrow(user, orderHeader, adminAllowed) {
+  const { role } = user;
+  if (role.isAdmin()) {
+    if (!adminAllowed)
+      throw new DXTException(DXTErrorCode.CUSTOMER_OR_SELLER_ROLE_REQUIRED);
+    return;
+  }
+  if (role.isSeller()) {
+    const idVendedor = user.tangoId.valueOf();
+    const isSellerCustomer = await clienteRepository.customerBelongsToSeller(
+      orderHeader.id_cliente,
+      idVendedor
+    );
+    if (!isSellerCustomer)
+      throw new DXTException(DXTErrorCode.ORDER_CUSTOMER_DOES_NOT_BELONGS_TO_SELLER);
+    return;
+  }
+  const idCliente = user.tangoId.valueOf();
+  if (orderHeader.id_cliente !== idCliente)
+    throw new DXTException(DXTErrorCode.ORDER_DOES_NOT_BELONGS_TO_CUSTOMER);
+}
+async function getArticlesWithTaxes(user, customer, alwaysIncludeArticlesWithoutPrice, splitInGroups) {
+  var _a2, _b2, _c, _d;
+  let prioritaryListId;
+  let prioritaryDiscount;
+  if (user.isSeller()) {
+    const dxtCustomers = await dxtClienteRepository.getMany("tango_id", customer.id);
+    const dxtCustomerExists = dxtCustomers.length > 0;
+    const commonListaPrioritariaVendedor = getPropertyIfSameOrNull(dxtCustomers, "lista_prioritaria_vendedor");
+    const allowSellerPrioritaryList = commonListaPrioritariaVendedor === true;
+    prioritaryListId = dxtCustomerExists ? getPropertyIfSameOrNull(dxtCustomers, "id_lista_prioritaria") : allowSellerPrioritaryList ? (_a2 = user.idListaPrioritaria) == null ? void 0 : _a2.valueOf() : null;
+    prioritaryDiscount = dxtCustomerExists ? getPropertyIfSameOrNull(dxtCustomers, "bonificacion_lista_prioritaria") : allowSellerPrioritaryList ? (_b2 = user.bonificacionListaPrioritaria) == null ? void 0 : _b2.valueOf() : null;
+  } else {
+    prioritaryListId = (_c = user.idListaPrioritaria) == null ? void 0 : _c.valueOf();
+    prioritaryDiscount = (_d = user.bonificacionListaPrioritaria) == null ? void 0 : _d.valueOf();
+  }
+  const listId = customer.idLista;
+  const keepArticlesWithoutPrice = alwaysIncludeArticlesWithoutPrice || user.verSinPrecio.valueOf();
+  const articleEditListExists = await dxtArticuloEditListRepository.count() > 0;
+  const articlePrintListExists = await dxtArticuloPrintListRepository.count() > 0;
+  const cacheKey = `groupedArticles_${listId}_${prioritaryListId ?? "0"}_${articleEditListExists ? "OL" : "NOL"}_${splitInGroups ? "S" : "NS"}`;
+  const cachedData = await dxtArticuloEditListRepository.cache.getMetadata(cacheKey);
+  if (cachedData != null) {
+    return keepArticlesWithoutPrice ? cachedData : _removeArticlesWithoutPrice(cachedData);
+  }
+  let result;
+  const articlePrintList = articlePrintListExists ? await dxtArticuloPrintListRepository.getPackagePrintListMap() : null;
+  const preData = await dxtArticuloEditListRepository.getByListIdWithTaxes(
+    listId,
+    prioritaryListId,
+    prioritaryDiscount
+  );
+  const data = articlePrintList != null ? applyArticlePrintList(preData, articlePrintList) : preData;
+  if (articleEditListExists && splitInGroups) {
+    result = _splitByOrderListGroup(data);
+  } else {
+    const onlyFullArticles = data.filter((item) => typeof item !== "string");
+    result = splitInGroups ? _splitByArticleCode(onlyFullArticles) : { [ARTICLE_GROUP_NO_NAME]: onlyFullArticles };
+  }
+  await dxtArticuloEditListRepository.cache.setMetadata(cacheKey, result);
+  return keepArticlesWithoutPrice ? result : _removeArticlesWithoutPrice(result);
+}
+function _removeArticlesWithoutPrice(articles) {
+  return Object.fromEntries(
+    Object.entries(articles).map(
+      ([groupName, articles2]) => {
+        return [
+          groupName,
+          articles2.filter((a) => a.id_lista != null && a.precio != null && a.precio != 0)
+        ];
+      }
+    )
+  );
+}
+function _splitByOrderListGroup(data) {
+  let result = {};
+  let currentList = null;
+  let lastGroupName = null;
+  data.forEach((item) => {
+    const isGroupLabel = isStr(item);
+    if (isGroupLabel) {
+      lastGroupName = item.trim();
+      if (lastGroupName.length == 0)
+        lastGroupName = ARTICLE_GROUP_NO_NAME;
+      currentList = result[lastGroupName];
+      if (currentList == null) {
+        currentList = [];
+        result[lastGroupName] = currentList;
+      }
+    } else {
+      if (currentList == null) {
+        currentList = [];
+        result[ARTICLE_GROUP_NO_NAME] = currentList;
+      }
+      currentList.push(item);
+    }
+  });
+  return result;
+}
+function _splitByArticleCode(data) {
+  let result = {};
+  let currentList = null;
+  let lastGroupName = null;
+  let totalGroups = 0;
+  data.forEach((articulo) => {
+    const { codigo, id_lista } = articulo;
+    if (id_lista != null) {
+      const groupLength = codigo.trim().split(" ").length;
+      totalGroups += groupLength;
+    }
+  });
+  const averageGroupCount = Math.round(data.length > 0 ? totalGroups / data.length : 0);
+  const groupNameLimit = averageGroupCount <= 1 ? 0 : averageGroupCount <= 2 ? 1 : 2;
+  data.filter((articulo) => articulo.id_lista != null).forEach((articulo) => {
+    const { codigo } = articulo;
+    const possibleGroupName = codigo.trim().split(" ", groupNameLimit).map((g) => g.trim()).join(" ").toUpperCase();
+    const currentGroupName = possibleGroupName.length > 0 ? possibleGroupName : ARTICLE_GROUP_NO_NAME;
+    const isNewGroupName = currentGroupName !== lastGroupName;
+    if (isNewGroupName) {
+      lastGroupName = currentGroupName;
+      currentList = result[lastGroupName] ?? [];
+      result[lastGroupName] = currentList;
+    }
+    if (currentList == null) {
+      lastGroupName = ARTICLE_GROUP_NO_NAME;
+      currentList = [];
+      result[lastGroupName] = currentList;
+    }
+    currentList.push(articulo);
+  });
+  return result;
+}
+async function getArticles(user, customer) {
+  const groupedArticles = await getArticlesWithTaxes(
+    user,
+    customer,
+    true,
+    false
+  );
+  const result = groupedArticles[ARTICLE_GROUP_NO_NAME];
+  return new Map(result.map((article) => [article.id, article]));
+}
+async function getGroupedArticles(user, customer) {
+  return await getArticlesWithTaxes(
+    user,
+    customer,
+    false,
+    true
+  );
+}
+function adjustPrice(params, article, listas, alicuotas, applyDiscount, forceTaxesDiscrimination) {
+  const { id_lista, codigo_iva, codigo_ii, codigo_sobre_iva, codigo_sobre_ii, precio } = article;
+  if (id_lista == null || precio == null)
+    return null;
+  const { usuarioAplicaSobreIVA, usuarioAplicaSobreII } = params;
+  const lista = id_lista != null ? listas.get(id_lista) : null;
+  const listaIncluyeIVA = (lista == null ? void 0 : lista.incluye_iva) ?? params.listaIncluyeIVA;
+  const listaIncluyeII = (lista == null ? void 0 : lista.incluye_ii) ?? params.listaIncluyeII;
+  const bonificacion = article.bonificacion ?? params.bonificacion;
+  const usuarioDiscriminaIVA = params.usuarioDiscriminaIVA;
+  const usuarioDiscriminaII = params.usuarioDiscriminaII;
+  const ivaPercentage = codigo_iva != null ? alicuotas.get(codigo_iva) ?? 0 : 0;
+  const impuestoInternoPercentage = codigo_ii != null ? alicuotas.get(codigo_ii) ?? 0 : 0;
+  const sobreIVABruto = codigo_sobre_iva != null ? alicuotas.get(codigo_sobre_iva) ?? 0 : 0;
+  const sobreIIBruto = codigo_sobre_ii != null ? alicuotas.get(codigo_sobre_ii) ?? 0 : 0;
+  const sobreIVA = percentageToFactor(ivaPercentage * sobreIVABruto / 100);
+  const sobreII = percentageToFactor(impuestoInternoPercentage * sobreIIBruto / 100);
+  const iva = percentageToFactor(ivaPercentage);
+  const impuestoInterno = percentageToFactor(impuestoInternoPercentage);
+  let result = precio;
+  if (!listaIncluyeIVA && !usuarioDiscriminaIVA) {
+    result = result * iva;
+    if (usuarioAplicaSobreIVA) {
+      result = result * sobreIVA;
+    }
+  } else if (listaIncluyeIVA && usuarioDiscriminaIVA) {
+    result = result / iva;
+    if (usuarioAplicaSobreIVA) {
+      result = result / sobreIVA;
+    }
+  }
+  if (!listaIncluyeII && !usuarioDiscriminaII) {
+    result = result * impuestoInterno;
+    if (usuarioAplicaSobreII) {
+      result = result * sobreII;
+    }
+  } else if (listaIncluyeII && usuarioDiscriminaII) {
+    result = result / impuestoInterno;
+    if (usuarioAplicaSobreII) {
+      result = result / sobreII;
+    }
+  }
+  if (applyDiscount) {
+    const discount = bonificacion ?? 0;
+    result = result - result * discount / 100;
+  }
+  return result;
+}
+function percentageToFactor(value) {
+  const sign = value >= 0 ? 1 : -1;
+  return (1 + value / 100) * sign;
+}
+async function prepareOrderGroupedArticles(user, originalOrder, newOrderHeader, customer, auxiliares, createNew) {
+  const articles = await getGroupedArticles(
+    user,
+    customer
+  );
+  originalOrder == null ? void 0 : originalOrder.rows;
+  const alicuotas = await alicuotaRepository.getAllPercentages();
+  const { listas } = auxiliares;
+  const groupedArticles = _addQuantitiesAndAdjustPrices(
+    newOrderHeader,
+    articles,
+    alicuotas,
+    listas,
+    originalOrder == null ? void 0 : originalOrder.rows
+  );
+  const rowsWithUnknownPrice = (originalOrder == null ? void 0 : originalOrder.rows) != null ? _getRowsWithUnknownPrices(articles, originalOrder.rows) : [];
+  return {
+    groupedArticles,
+    rowsWithUnknownPrice
+  };
+}
+function _getRowsWithUnknownPrices(articles, rows) {
+  new Map(rows.filter((row) => row.id_articulo != null).map((row) => [row.id_articulo, row]));
+  let articlesByIdMapEntries = [];
+  let articlesByCodeMapEntries = [];
+  Object.values(articles).map(
+    (group) => {
+      const articlesById = Object.values(group).map(
+        (article) => [article.id, article.precio]
+      );
+      const articlesByCode = Object.values(group).map(
+        (article) => [article.codigo, article.precio]
+      );
+      articlesByIdMapEntries.push(...articlesById);
+      articlesByCodeMapEntries.push(...articlesByCode);
+    }
+  );
+  const articlesByIdMap = new Map(articlesByIdMapEntries);
+  const articlesByCodeMap = new Map(articlesByCodeMapEntries);
+  let result = [];
+  rows.forEach((row) => {
+    const { id_articulo, codigo_articulo } = row;
+    const priceFromArticle = id_articulo != null ? articlesByIdMap.get(id_articulo) : articlesByCodeMap.get(codigo_articulo);
+    const isOrphan = priceFromArticle == null;
+    if (isOrphan)
+      result.push(row);
+  });
+  return result;
+}
+function _addQuantitiesAndAdjustPrices(orderHeader, articles, alicuotas, listas, rows) {
+  const quantities = rows != null ? new Map(rows.map((row) => [row.codigo_articulo, row])) : null;
+  const commonAdjustPriceParams = {
+    bonificacion: orderHeader.bonificacion,
+    listaIncluyeIVA: orderHeader.lista_incluye_iva,
+    listaIncluyeII: orderHeader.lista_incluye_ii,
+    usuarioAplicaSobreIVA: orderHeader.usuario_aplica_sobre_iva,
+    usuarioAplicaSobreII: orderHeader.usuario_aplica_sobre_ii,
+    usuarioDiscriminaIVA: orderHeader.usuario_discrimina_iva,
+    usuarioDiscriminaII: orderHeader.usuario_discrimina_ii
+  };
+  return Object.fromEntries(
+    Object.entries(articles).map(
+      ([groupName, articles2]) => {
+        return [
+          groupName,
+          articles2.map((article) => {
+            const {
+              codigo_iva,
+              codigo_sobre_iva,
+              codigo_ii,
+              codigo_sobre_ii,
+              ...remainingArticle
+            } = article;
+            const newPrice = adjustPrice(
+              commonAdjustPriceParams,
+              article,
+              listas,
+              alicuotas,
+              false
+            );
+            const row = quantities == null ? void 0 : quantities.get(article.codigo);
+            if (row == null) {
+              return {
+                ...remainingArticle,
+                precio: newPrice
+              };
+            }
+            return {
+              ...remainingArticle,
+              precio: newPrice,
+              cantidad: row.cantidad
+            };
+          })
+        ];
+      }
+    )
+  );
+}
+async function prepareOrderHeader(user, originalOrder, customer, billingProfile, auxiliares, createNew, startDraft) {
+  var _a2;
+  if (!createNew && originalOrder == null)
+    throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "prepareOrderHeader() -> createNew must be true if originalOrder is null");
+  const originalOrderIsDraft = (originalOrder == null ? void 0 : originalOrder.isDraft) === true;
+  const sameType = originalOrderIsDraft == startDraft;
+  if (!createNew && !sameType)
+    throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "prepareOrderHeader() -> When createNew is false, both originalOrder.isDraft and startDraft must be the same");
+  const sellerId = (_a2 = user.vendedorId) == null ? void 0 : _a2.valueOf();
+  if (sellerId == null)
+    throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "prepareOrderHeader() -> sellerId is null");
+  const seller = await vendedorRepository.getById(sellerId);
+  const {
+    depositos,
+    talonarios,
+    transportes,
+    listas,
+    condiciones,
+    asientos,
+    direcciones
+  } = auxiliares;
+  const {
+    discriminaIVA,
+    discriminaII,
+    aplicaSobreIVA,
+    aplicaSobreII
+  } = customer;
+  const bonificacion_editable = billingProfile.bonificacion_editable;
+  const descripcion = startDraft && originalOrder != null ? originalOrder.header.descripcion : "";
+  const comentarios = originalOrder != null ? originalOrder.header.comentarios : "";
+  const realOrder = originalOrder != null && !originalOrder.isDraft ? originalOrder : null;
+  const updatingRealOrder = createNew == false && startDraft == false && realOrder != null;
+  const ignoreOriginalOrderId = createNew || originalOrder == null || !sameType;
+  const orderId = ignoreOriginalOrderId ? void 0 : originalOrder.header.id;
+  const numeroPedido = ignoreOriginalOrderId ? void 0 : originalOrder.header.numero_pedido;
+  const bonificacion = (bonificacion_editable ? originalOrder == null ? void 0 : originalOrder.header.descuento : billingProfile.bonificacion) ?? billingProfile.bonificacion ?? customer.bonificacion;
+  const originalDeliveryDate = originalOrderIsDraft ? null : originalOrder == null ? void 0 : originalOrder.header.fecha_entrega;
+  const creationDate = (createNew || originalOrderIsDraft ? /* @__PURE__ */ new Date() : originalOrder == null ? void 0 : originalOrder.header.fecha_alta) ?? /* @__PURE__ */ new Date();
+  const deliveryDate = createNew || originalDeliveryDate == null ? addDays(creationDate, user.diaDeEntrega.valueOf()) : originalDeliveryDate;
+  const {
+    codigo_lista_precio,
+    deposito_editable,
+    transporte_editable,
+    condicion_editable,
+    asiento_editable,
+    talonario_editable,
+    direccion_editable,
+    compromete_stock
+  } = billingProfile;
+  const bp = billingProfile;
+  const codigo_transporte = (originalOrder == null ? void 0 : originalOrder.header.codigo_transporte) ?? bp.codigo_transporte;
+  const codigo_deposito = (originalOrder == null ? void 0 : originalOrder.header.codigo_deposito) ?? bp.codigo_deposito;
+  const codigo_condicion_venta = (originalOrder == null ? void 0 : originalOrder.header.codigo_condicion) ?? bp.codigo_condicion_venta;
+  const codigo_asiento = (originalOrder == null ? void 0 : originalOrder.header.codigo_asiento) ?? bp.codigo_asiento;
+  const codigo_talonario_factura = (originalOrder == null ? void 0 : originalOrder.header.codigo_talonario) ?? bp.codigo_talonario_factura;
+  const id_asiento_modelo_gv = updatingRealOrder ? realOrder.header.id_asiento_modelo_gv ?? bp.id_asiento_modelo_gv : bp.id_asiento_modelo_gv;
+  const direccion_habitual = direcciones.find((direccion) => direccion.habitual);
+  const codigo_direccion = (direccion_habitual == null ? void 0 : direccion_habitual.code) ?? direcciones[0].code;
+  const lista = listas.get(codigo_lista_precio);
+  if (lista == null)
+    throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "prepareOrderHeader() -> Lista de precios inexistente");
+  const result = {
+    es_borrador: startDraft,
+    descripcion,
+    comentarios,
+    id_pedido: orderId,
+    numero_pedido: numeroPedido,
+    id_cliente: customer.id,
+    codigo_cliente: customer.code,
+    nombre_cliente: customer.screen_name,
+    id_vendedor: sellerId,
+    nombre_vendedor: seller.screen_name,
+    id_asiento_modelo_gv,
+    compromete_stock,
+    bonificacion,
+    bonificacion_editable,
+    fecha_alta: dateToISOStringZ(creationDate),
+    fecha_alta_editable: billingProfile.fecha_editable,
+    fecha_entrega: dateToISOStringZ(deliveryDate),
+    fecha_entrega_editable: billingProfile.fecha_editable,
+    transportes: _setSelectedItem(transportes, transporte_editable, DXTErrorCode.UNKNOWN_TRANSPORTE, codigo_transporte, (el) => el.code == codigo_transporte),
+    depositos: _setSelectedItem(depositos, deposito_editable, DXTErrorCode.UNKNOWN_DEPOSITO, codigo_deposito, (el) => codigo_deposito == null && el.code == "" || el.code == codigo_deposito),
+    condiciones: _setSelectedItem(condiciones, condicion_editable, DXTErrorCode.UNKNOWN_CONDICION, codigo_condicion_venta, (el) => el.code == codigo_condicion_venta),
+    asientos: _setSelectedItem(asientos, asiento_editable, DXTErrorCode.UNKNOWN_ASIENTO, codigo_asiento, (el) => el.code == codigo_asiento),
+    talonarios: _setSelectedItem(talonarios, talonario_editable, DXTErrorCode.UNKNOWN_TALONARIO, codigo_talonario_factura, (el) => el.code == codigo_talonario_factura),
+    direcciones: _setSelectedItem(direcciones, direccion_editable, DXTErrorCode.UNKNOWN_DIRECCION, codigo_direccion, (el) => el.code == codigo_direccion),
+    transporte_editable,
+    deposito_editable,
+    condicion_editable,
+    asiento_editable,
+    talonario_editable,
+    direccion_editable,
+    id_lista_de_precio: lista.id,
+    lista_incluye_iva: lista.incluye_iva,
+    lista_incluye_ii: lista.incluye_ii,
+    usuario_discrimina_iva: discriminaIVA,
+    usuario_discrimina_ii: discriminaII,
+    usuario_aplica_sobre_iva: aplicaSobreIVA,
+    usuario_aplica_sobre_ii: aplicaSobreII
+  };
+  return result;
+}
+function _setSelectedItem(list, editable, unknownElementError, targetValue, checkSelected) {
+  if (targetValue == null)
+    return list;
+  if (editable) {
+    return list.map((el) => ({
+      ...el,
+      selected: (checkSelected == null ? void 0 : checkSelected(el)) === true ? true : void 0
+    }));
+  }
+  if (checkSelected == null)
+    throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "_setSelectedItem -> <checkSelected> must be defined when <editable> is false");
+  const result = list.filter((el) => checkSelected(el));
+  if (result.length == 0)
+    throw new DXTException(unknownElementError, valueToString(targetValue));
+  return result;
+}
+async function prepareStartValues(user, originalOrder, customerId, createNew, startDraft) {
+  const customer = await clienteRepository.getExtendedById(customerId);
+  const auxiliares = await getAuxiliares(customerId);
+  const billingProfile = await getOptimalBillingProfile(
+    user,
+    // originalOrder,
+    customer
+    // auxiliares,
+  );
+  const header = await prepareOrderHeader(
+    user,
+    originalOrder,
+    customer,
+    billingProfile,
+    auxiliares,
+    createNew,
+    startDraft
+  );
+  const result = await prepareOrderGroupedArticles(
+    user,
+    originalOrder,
+    header,
+    customer,
+    auxiliares
+  );
+  const { groupedArticles, rowsWithUnknownPrice } = result;
+  return {
+    cabecera: header,
+    articulos: groupedArticles,
+    renglones_con_precio_desconocido: rowsWithUnknownPrice.length > 0 ? rowsWithUnknownPrice : void 0
+  };
+}
+var StartPedidoMode = /* @__PURE__ */ ((StartPedidoMode2) => {
+  StartPedidoMode2[StartPedidoMode2["edit"] = 0] = "edit";
+  StartPedidoMode2[StartPedidoMode2["create"] = 1] = "create";
+  StartPedidoMode2[StartPedidoMode2["createCopy"] = 2] = "createCopy";
+  return StartPedidoMode2;
+})(StartPedidoMode || {});
+async function startPedido(user, params) {
+  const { mode: mode2 } = params;
+  const createNew = mode2 != 0;
+  const startDraft = mode2 == 0 ? params.isDraft : params.createDraft;
+  if (!startDraft && createNew && !user.puedeCrearPedido.valueOf())
+    throw new DXTException(DXTErrorCode.USER_CANNOT_CREATE_ORDERS);
+  if (!startDraft && !createNew && !user.puedeEditarPedido.valueOf())
+    throw new DXTException(DXTErrorCode.USER_CANNOT_UPDATE_ORDERS);
+  const originalOrder = mode2 == 1 ? null : await getOrderWithRows(user, params.idPedido, params.isDraft, false, false);
+  if (mode2 == 0 && originalOrder != null && !isUserAllowedToModifyOrder(user, originalOrder.header.estado)) {
+    throw new DXTException(DXTErrorCode.USER_CANNOT_UPDATE_ORDER_IN_CURRENT_STATUS);
+  }
+  const idCliente = mode2 == 1 ? params.idCliente : originalOrder.header.id_cliente;
+  return await prepareStartValues(
+    user,
+    originalOrder,
+    idCliente,
+    createNew,
+    startDraft
+  );
+}
+class CustomerAndSellerRootController extends AuthenticatedRootController {
+  async onRequest(req) {
+    await super.onRequest(req);
+    if (req.auth.user.role.isAdmin()) {
+      throw new DXTException(DXTErrorCode.FORBIDDEN);
+    }
+  }
+}
+const customerAndSellerRootController = new CustomerAndSellerRootController();
+class CustomerRootController extends AuthenticatedRootController {
+  async onRequest(req) {
+    await super.onRequest(req);
+    if (!req.auth.user.role.isCustomer())
+      throw new DXTException(DXTErrorCode.FORBIDDEN);
+  }
+}
+const customerRootController = new CustomerRootController();
+class SellerRootController extends AuthenticatedRootController {
+  async onRequest(req) {
+    await super.onRequest(req);
+    if (!req.auth.user.role.isSeller())
+      throw new DXTException(DXTErrorCode.FORBIDDEN);
+  }
+}
+const sellerRootController = new SellerRootController();
+const idClienteValidationOptions = {
+  validation: {
+    params: {
+      id_cliente: integerValidator
+    }
+  }
+};
+const idPedidoValidationOptions = {
+  validation: {
+    params: {
+      id_pedido: integerValidator
+    }
+  }
+};
+async function _startNew(user, createDraft) {
+  const { tangoId, role } = user;
+  if (tangoId == null || !role.isCustomer())
+    throw new DXTException(DXTErrorCode.CUSTOMER_ROLE_REQUIRED);
+  return await startPedido(user, {
+    mode: StartPedidoMode.create,
+    idCliente: tangoId.valueOf(),
+    createDraft
+  });
+}
+async function _startNewForCustomer(user, idCliente, createDraft) {
+  const { tangoId, role } = user;
+  if (tangoId == null || !role.isSeller())
+    throw new DXTException(DXTErrorCode.SELLER_ROLE_REQUIRED);
+  return await startPedido(user, {
+    mode: StartPedidoMode.create,
+    idCliente,
+    createDraft
+  });
+}
+async function _startNewFromCopy(user, isDraft, idPedido, createDraft) {
+  return await startPedido(user, {
+    mode: StartPedidoMode.createCopy,
+    isDraft,
+    idPedido,
+    createDraft
+  });
+}
+const startNewDraftEndpoint = createApiEndpoint(
+  customerRootController,
+  void 0,
+  async (req) => await _startNew(req.auth.user, true)
+);
+const startNewOrderEndpoint = createApiEndpoint(
+  customerRootController,
+  void 0,
+  async (req) => await _startNew(req.auth.user, false)
+);
+const startNewOrderForCustomerEndpoint = createApiEndpoint(
+  sellerRootController,
+  idClienteValidationOptions,
+  async (req) => await _startNewForCustomer(req.auth.user, req.validated.params.id_cliente, false)
+);
+const startNewDraftForCustomerEndpoint = createApiEndpoint(
+  sellerRootController,
+  idClienteValidationOptions,
+  async (req) => await _startNewForCustomer(req.auth.user, req.validated.params.id_cliente, true)
+);
+const startOrderUpdateEndpoint = createApiEndpoint(
+  customerAndSellerRootController,
+  idPedidoValidationOptions,
+  async (req) => await startPedido(req.auth.user, {
+    mode: StartPedidoMode.edit,
+    isDraft: false,
+    idPedido: req.validated.params.id_pedido
+  })
+);
+const startDraftUpdateEndpoint = createApiEndpoint(
+  customerAndSellerRootController,
+  idPedidoValidationOptions,
+  async (req) => await startPedido(req.auth.user, {
+    mode: StartPedidoMode.edit,
+    isDraft: true,
+    idPedido: req.validated.params.id_pedido
+  })
+);
+const startNewOrderFromExistingOrderEndpoint = createApiEndpoint(
+  customerAndSellerRootController,
+  idPedidoValidationOptions,
+  async (req) => await _startNewFromCopy(req.auth.user, false, req.validated.params.id_pedido, false)
+);
+const startNewOrderFromExistingDraftEndpoint = createApiEndpoint(
+  customerAndSellerRootController,
+  idPedidoValidationOptions,
+  async (req) => await _startNewFromCopy(req.auth.user, true, req.validated.params.id_pedido, false)
+);
+const startNewDraftFromExistingOrderEndpoint = createApiEndpoint(
+  customerAndSellerRootController,
+  idPedidoValidationOptions,
+  async (req) => await _startNewFromCopy(req.auth.user, false, req.validated.params.id_pedido, true)
+);
+const startNewDraftFromExistingDraftEndpoint = createApiEndpoint(
+  customerAndSellerRootController,
+  idPedidoValidationOptions,
+  async (req) => await _startNewFromCopy(req.auth.user, true, req.validated.params.id_pedido, true)
+);
+async function createOrUpdateOrder(user, customer, order) {
+  const repository = order.saveDraft ? getDraftRepository(user) : pedidoRepository;
+  if (order.idPedido != null) {
+    return await repository.update(customer, order);
+  }
+  return await repository.create(customer, order);
+}
+var SaveOrderMode = /* @__PURE__ */ ((SaveOrderMode2) => {
+  SaveOrderMode2[SaveOrderMode2["create"] = 0] = "create";
+  SaveOrderMode2[SaveOrderMode2["update"] = 1] = "update";
+  return SaveOrderMode2;
+})(SaveOrderMode || {});
+async function validateInputRows(user, originalOrder, customer, billingProfile, auxiliares, validatedOrderHeader, inputRows) {
+  const articles = await getArticles(user, customer);
+  const rawResult = inputRows.map((row) => _validateOrderRow(
+    row,
+    articles.get(row.id)
+  ));
+  const printList = await dxtArticuloPrintListRepository.getPackagePrintListMap();
+  const sortedRows = rawResult.sort((a, b) => {
+    var _a2, _b2;
+    const aOrder = (_a2 = printList.get(a.idArticle)) == null ? void 0 : _a2.order;
+    const bOrder = (_b2 = printList.get(b.idArticle)) == null ? void 0 : _b2.order;
+    if (aOrder != null && bOrder == null)
+      return -1;
+    if (aOrder == null && bOrder != null)
+      return 1;
+    if (aOrder != null && bOrder != null)
+      return aOrder - bOrder;
+    return a.codeArticle.localeCompare(b.codeArticle);
+  });
+  const { listas } = auxiliares;
+  const alicuotas = await alicuotaRepository.getAllPercentages();
+  const { idListaDePrecio, bonificacion } = validatedOrderHeader;
+  const lista = listas.get(idListaDePrecio);
+  if (lista == null)
+    throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "validateInputRows -> lista == null");
+  const { incluye_iva, incluye_ii } = lista;
+  const adjustPriceParams = {
+    bonificacion,
+    listaIncluyeIVA: incluye_iva,
+    listaIncluyeII: incluye_ii,
+    usuarioAplicaSobreIVA: customer.aplicaSobreIVA,
+    usuarioAplicaSobreII: customer.aplicaSobreII,
+    usuarioDiscriminaIVA: customer.discriminaIVA,
+    usuarioDiscriminaII: customer.discriminaII
+  };
+  const rowsWithAdjustedPrice = sortedRows.map((row) => {
+    const adjustedPrice = adjustPrice(
+      adjustPriceParams,
+      row,
+      listas,
+      alicuotas,
+      true
+    );
+    return {
+      ...row,
+      precio: adjustedPrice
+    };
+  });
+  const total = _calculateTotal(
+    rowsWithAdjustedPrice
+  );
+  return {
+    ...validatedOrderHeader,
+    total,
+    rows: rowsWithAdjustedPrice
+  };
+}
+function _validateOrderRow(row, article) {
+  const {
+    quantity
+  } = row;
+  if (article == null)
+    throw new DXTException(DXTErrorCode.INACCESIBLE_ORDER_ROW_ARTICLE);
+  const {
+    id,
+    codigo,
+    precio,
+    bonificacion,
+    id_medida_stock,
+    id_medida_stock_2,
+    id_medida_ventas,
+    id_lista,
+    codigo_iva,
+    codigo_ii,
+    codigo_sobre_iva,
+    codigo_sobre_ii
+  } = article;
+  return {
+    idArticle: id,
+    codeArticle: codigo,
+    quantity,
+    id_lista,
+    precio,
+    bonificacion,
+    idMedidaStock: id_medida_stock,
+    idMedidaStock2: id_medida_stock_2,
+    idMedidaVentas: id_medida_ventas,
+    codigo_iva,
+    codigo_ii,
+    codigo_sobre_iva,
+    codigo_sobre_ii,
+    unidadMedidaSeleccionada: "P"
+  };
+}
+function _calculateTotal(rows) {
+  let total = 0;
+  rows.forEach((row) => {
+    total += row.quantity * (row.precio ?? 0);
+  });
+  return total;
+}
+async function validateInputHeader(user, originalOrder, customer, params, billingProfile, auxiliares) {
+  const {
+    mode: mode2,
+    saveDraft,
+    input
+  } = params;
+  const createNew = mode2 == SaveOrderMode.create;
+  if (saveDraft) {
+    const dxtPedidoDraftRepository = getDraftRepository(user);
+    const draftIdToIgnore = !createNew ? params.idPedido : null;
+    const descriptionExists = await dxtPedidoDraftRepository.descriptionExists(
+      user,
+      input.descripcion,
+      draftIdToIgnore
+    );
+    if (descriptionExists)
+      throw new DXTException(DXTErrorCode.DUPLICATED_DRAFT_DESCRIPTION);
+  }
+  const {
+    comentarios,
+    renglones
+  } = input;
+  const starDraft = saveDraft;
+  const initialOrderHeader = await prepareOrderHeader(
+    user,
+    originalOrder,
+    customer,
+    billingProfile,
+    auxiliares,
+    createNew,
+    starDraft
+  );
+  const {
+    id_lista_de_precio,
+    id_asiento_modelo_gv,
+    transportes,
+    depositos,
+    condiciones,
+    asientos,
+    talonarios,
+    direcciones,
+    transporte_editable,
+    deposito_editable,
+    condicion_editable,
+    asiento_editable,
+    talonario_editable,
+    direccion_editable,
+    bonificacion_editable
+  } = initialOrderHeader;
+  const estado = user.aprobarPedidoAlCrear.valueOf() ? EstadoPedido.APROBADO : EstadoPedido.INGRESADO;
+  const {
+    compromete_stock
+  } = billingProfile;
+  const [idTransporte, codigoTransporte] = _checkSelection(transportes, transporte_editable, input.id_transporte, DXTErrorCode.INVALID_TRANSPORTE);
+  const [idDeposito, codigoDeposito] = _checkSelection(depositos, deposito_editable, input.id_deposito, DXTErrorCode.INVALID_DEPOSITO);
+  const [idCondicion, codigoCondicion] = _checkSelection(condiciones, condicion_editable, input.id_condicion, DXTErrorCode.INVALID_CONDICION);
+  const [idAsiento, codigoAsiento] = _checkSelection(asientos, asiento_editable, input.id_asiento, DXTErrorCode.INVALID_ASIENTO);
+  const [idTalonario, codigoTalonario] = _checkSelection(talonarios, talonario_editable, input.id_talonario, DXTErrorCode.INVALID_TALONARIO);
+  const [idDireccionDeEntrega, _2] = _checkSelection(direcciones, direccion_editable, input.id_direccion, DXTErrorCode.INVALID_DIRECCION);
+  const validatedDiscount = limitNumber(
+    bonificacion_editable ? input.bonificacion : initialOrderHeader.bonificacion,
+    0,
+    100
+  );
+  const validatedOrderHeader = {
+    idTransporte,
+    codigoTransporte,
+    idDeposito,
+    codigoDeposito,
+    idCondicion,
+    codigoCondicion,
+    idAsiento,
+    codigoAsiento,
+    idTalonario,
+    codigoTalonario,
+    idListaDePrecio: id_lista_de_precio,
+    idDireccionDeEntrega,
+    bonificacion: validatedDiscount,
+    comentarios,
+    comprometeStock: compromete_stock,
+    estado,
+    idAsientoModeloGV: id_asiento_modelo_gv
+  };
+  return validatedOrderHeader;
+}
+function _checkSelection(list, isEditable, selectedId, errorCode) {
+  const pickFirst = !isEditable;
+  const index = list.findIndex((item) => pickFirst || item.id == selectedId);
+  if (index < 0)
+    throw new DXTException(errorCode);
+  return [
+    list[index].id,
+    list[index].code
+  ];
+}
+async function validateInputParams(user, originalOrder, customer, params) {
+  const auxiliares = await getAuxiliares(customer.id);
+  const billingProfile = await getOptimalBillingProfile(
+    user,
+    // originalOrder,
+    customer
+    // auxiliares,
+  );
+  const validatedOrderHeader = await validateInputHeader(
+    user,
+    originalOrder,
+    customer,
+    params,
+    billingProfile,
+    auxiliares
+  );
+  const validatedOrder = await validateInputRows(
+    user,
+    originalOrder,
+    customer,
+    billingProfile,
+    auxiliares,
+    validatedOrderHeader,
+    params.input.renglones
+  );
+  const {
+    mode: mode2,
+    saveDraft,
+    input
+  } = params;
+  const idPedido = mode2 == SaveOrderMode.update ? params.idPedido : null;
+  if (saveDraft) {
+    const descripcion = input.descripcion;
+    const esFavorito = input.es_favorito;
+    const fechaIngreso2 = /* @__PURE__ */ new Date();
+    return {
+      ...validatedOrder,
+      saveDraft,
+      idPedido,
+      descripcion,
+      esFavorito,
+      fechaIngreso: fechaIngreso2
+    };
+  }
+  const realOrder = (originalOrder == null ? void 0 : originalOrder.isDraft) === false ? originalOrder : null;
+  const fechaIngreso = (realOrder == null ? void 0 : realOrder.header.fecha_ingreso) ?? /* @__PURE__ */ new Date();
+  const fechaPedido = input.fecha_alta;
+  const fechaEntrega = input.fecha_entrega;
+  return {
+    ...validatedOrder,
+    saveDraft,
+    idPedido,
+    fechaIngreso,
+    fechaPedido,
+    fechaEntrega
+  };
+}
+async function assertUserIsOwner(user, idPedido, isDraft, adminAllowed) {
+  await getOrderWithRows(
+    user,
+    idPedido,
+    isDraft,
+    adminAllowed,
+    true
+  );
+}
+async function deleteDraft(user, idDraft) {
+  await assertUserIsOwner(user, idDraft, true, true);
+  await getDraftRepository(user).deleteById(idDraft);
+}
+async function savePedido(user, params) {
+  var _a2;
+  const { mode: mode2, saveDraft, input } = params;
+  const createNew = mode2 == SaveOrderMode.create;
+  if (user.isAdmin())
+    throw new DXTException(DXTErrorCode.CUSTOMER_OR_SELLER_ROLE_REQUIRED);
+  if (!saveDraft && createNew && !user.puedeCrearPedido.valueOf())
+    throw new DXTException(DXTErrorCode.USER_CANNOT_CREATE_ORDERS);
+  if (!saveDraft && !createNew && !user.puedeEditarPedido.valueOf())
+    throw new DXTException(DXTErrorCode.USER_CANNOT_UPDATE_ORDERS);
+  const originalIsDraft = mode2 == SaveOrderMode.update && saveDraft;
+  const originalOrder = mode2 == SaveOrderMode.update ? await getOrderWithRows(user, input.id_pedido, originalIsDraft, false, false) : null;
+  if (!saveDraft && originalOrder != null && originalOrder.header.estado != EstadoPedido.INGRESADO) {
+    throw new DXTException(DXTErrorCode.USER_CANNOT_UPDATE_ORDER_IN_CURRENT_STATUS);
+  }
+  const idCliente = mode2 == SaveOrderMode.update ? originalOrder.header.id_cliente : input.id_cliente;
+  const customer = await clienteRepository.getExtendedById(idCliente);
+  const idCustomerVendedor = customer.idVendedor;
+  if (user.isSeller() && idCustomerVendedor != ((_a2 = user.vendedorId) == null ? void 0 : _a2.valueOf()))
+    throw new DXTException(DXTErrorCode.CUSTOMER_DOES_NOT_BELONGS_TO_SELLER);
+  const validatedOrder = await validateInputParams(
+    user,
+    originalOrder,
+    customer,
+    params
+  );
+  const result = await createOrUpdateOrder(user, customer, validatedOrder);
+  const draftIdToDelete = mode2 == SaveOrderMode.create && !saveDraft ? params.input.draft_id_to_delete : null;
+  if (draftIdToDelete != null) {
+    await deleteDraft(
+      user,
+      draftIdToDelete
+    );
+  }
+  return result;
+}
+const createOrderEndpoint = createApiEndpoint(
+  customerAndSellerRootController,
+  {
+    validation: {
+      body: validateCreateOrderInput
+    }
+  },
+  async (req) => await savePedido(req.auth.user, {
+    mode: SaveOrderMode.create,
+    saveDraft: false,
+    input: req.validated.body
+  })
+);
+const createDraftEndpoint = createApiEndpoint(
+  customerAndSellerRootController,
+  {
+    validation: {
+      body: validateCreateDraftInput
+    }
+  },
+  async (req) => await savePedido(req.auth.user, {
+    mode: SaveOrderMode.create,
+    saveDraft: true,
+    input: req.validated.body
+  })
+);
+const updateOrderEndpoint = createApiEndpoint(
+  customerAndSellerRootController,
+  {
+    validation: {
+      params: { id_pedido: tangoIdValidator },
+      body: validateUpdateOrderInput
+    }
+  },
+  async (req) => await savePedido(req.auth.user, {
+    mode: SaveOrderMode.update,
+    saveDraft: false,
+    idPedido: req.validated.params.id_pedido,
+    input: req.validated.body
+  })
+);
+const updateDraftEndpoint = createApiEndpoint(
+  customerAndSellerRootController,
+  {
+    validation: {
+      params: { id_pedido: tangoIdValidator },
+      body: validateUpdateDraftInput
+    }
+  },
+  async (req) => await savePedido(req.auth.user, {
+    mode: SaveOrderMode.update,
+    saveDraft: true,
+    idPedido: req.validated.params.id_pedido,
+    input: req.validated.body
+  })
+);
+async function cancelPedido(user, idPedido) {
+  const deleteOrder = user.borrarPedidoAlAnular.valueOf();
+  if (!user.puedeAnularPedido.valueOf()) {
+    if (deleteOrder)
+      throw new DXTException(DXTErrorCode.USER_CANNOT_DELETE_ORDERS);
+    throw new DXTException(DXTErrorCode.USER_CANNOT_CANCEL_ORDERS);
+  }
+  const pedidoOriginal = await getOrderWithRows(user, idPedido, false, true, true);
+  const { header } = pedidoOriginal;
+  const currentStatus = header.estado;
+  const canCancelOrDelete = isUserAllowedToCancelOrDeleteOrder(user, currentStatus);
+  if (!canCancelOrDelete) {
+    if (deleteOrder)
+      throw new DXTException(DXTErrorCode.USER_CANNOT_DELETE_ORDER_IN_CURRENT_STATUS);
+    throw new DXTException(DXTErrorCode.USER_CANNOT_CANCEL_ORDER_IN_CURRENT_STATUS);
+  }
+  if (deleteOrder) {
+    await pedidoRepository.deleteById(idPedido);
+  } else {
+    await pedidoRepository.cancel(idPedido);
+  }
+}
+const cancelOrderEndpoint = createApiEndpoint(
+  authenticatedRootController,
+  idPedidoValidationOptions,
+  async (req) => {
+    await cancelPedido(req.auth.user, req.validated.params.id_pedido);
+    return { ok: true };
+  }
+);
+const cancelDraftEndpoint = createApiEndpoint(
+  customerAndSellerRootController,
+  idPedidoValidationOptions,
+  async (req) => {
+    await deleteDraft(req.auth.user, req.validated.params.id_pedido);
+    return { ok: true };
+  }
+);
+async function getAllPedidos(user, isDraft) {
+  if (isDraft) {
+    const result2 = await getDraftRepository(user).getAllListByUser(user);
+    return Object.values(result2);
+  }
+  const result = await pedidoRepository.getAllListByUser(user);
+  return _filterVisibleOrders(user, result);
+}
+function _filterVisibleOrders(user, orders) {
+  const verPedidosCumplidos = user.verPedidosCumplidos.valueOf();
+  return orders.filter((pedido) => {
+    const { estado } = pedido;
+    if (estado == EstadoPedido.ANULADO || estado == EstadoPedido.INVALIDO)
+      return false;
+    if (estado == EstadoPedido.CERRADO || estado == EstadoPedido.CUMPLIDO) {
+      return verPedidosCumplidos;
+    }
+    return true;
+  });
+}
+const getAllOrdersEndpoint = createApiEndpoint(
+  authenticatedRootController,
+  void 0,
+  async (req) => await getAllPedidos(req.auth.user, false)
+);
+const getAllDraftsEndpoint = createApiEndpoint(
+  authenticatedRootController,
+  void 0,
+  async (req) => await getAllPedidos(req.auth.user, true)
+);
+async function getAllRowsPedidos(user, isDraft) {
+  const repository = isDraft ? getDraftRowRepository(user) : renglonPedidoRepository;
+  const result = await repository.getAllByUser(user);
+  return result;
+}
+const getOrderRowsEndpoint = createApiEndpoint(
+  authenticatedRootController,
+  void 0,
+  async (req) => await getAllRowsPedidos(req.auth.user, false)
+);
+const getDraftRowsEndpoint = createApiEndpoint(
+  authenticatedRootController,
+  void 0,
+  async (req) => await getAllRowsPedidos(req.auth.user, true)
+);
+async function loader$F({ request, params }) {
+  return await startNewDraftFromExistingOrderEndpoint.get(request, params);
+}
+const action$F = unimplementedApiResponse;
+const route4 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  action: action$F,
+  loader: loader$F
+}, Symbol.toStringTag, { value: "Module" }));
+async function loader$E({ request, params }) {
+  return await startNewOrderFromExistingDraftEndpoint.get(request, params);
+}
+const action$E = unimplementedApiResponse;
+const route5 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  action: action$E,
+  loader: loader$E
+}, Symbol.toStringTag, { value: "Module" }));
 function Add$1() {
   const typeSettings = settings$1.customers;
   const navigate = useNavigate();
@@ -10446,12 +11026,15 @@ function Add$1() {
       {
         typeSettings,
         returnUrl: URL_SETTINGS_CUSTOMERS_PATH,
-        title: "Información del Cliente"
+        title: "Información del Cliente",
+        schemaMaker: makeCreateCustomerValidationSchema,
+        schemaDataToApiInput: transformCreateCustomerSchemaData,
+        saveUserCall: (input, appResources) => customerCreateRequest(input, appResources)
       }
     )
   ] });
 }
-const route5 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route6 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Add$1
 }, Symbol.toStringTag, { value: "Module" }));
@@ -10464,6 +11047,7 @@ const API_PEDIDO_START_UPDATE = apiEndpoint("/pedido/:id_pedido/start_update", "
 const API_PEDIDO_CREATE = apiEndpoint("/pedido", "POST");
 const API_PEDIDO_UPDATE = apiEndpoint("/pedido/:id_pedido", "PATCH");
 const API_PEDIDO_DELETE = apiEndpoint("/pedido/:id_pedido", "DELETE");
+const API_PEDIDO_GET_BY_IDS = apiEndpoint("/pedido/by_ids", "POST");
 const API_BORRADOR_GET_ALL = apiEndpoint("/draft", "GET");
 const API_BORRADOR_GET_ALL_ROWS = apiEndpoint("/draft/renglones", "GET");
 const API_BORRADOR_START_NEW = apiEndpoint("/draft/start_new/:id_cliente", "GET");
@@ -10473,6 +11057,8 @@ const API_BORRADOR_START_UPDATE = apiEndpoint("/draft/:id_pedido/start_update", 
 const API_BORRADOR_CREATE = apiEndpoint("/draft", "POST");
 const API_BORRADOR_UPDATE = apiEndpoint("/draft/:id_pedido", "PATCH");
 const API_BORRADOR_DELETE = apiEndpoint("/draft/:id_pedido", "DELETE");
+const API_BORRADOR_MARK_AS_FAVORITE = apiEndpoint("/draft/:id_pedido/favorite", "PATCH");
+const API_BORRADOR_REMOVE_FAVORITE_MARK = apiEndpoint("/draft/:id_pedido/favorite", "DELETE");
 function useBorradorPedidoStartNew(customerId, isDraft) {
   return useDXTApiFetch({
     ...isDraft ? API_BORRADOR_START_NEW : API_PEDIDO_START_NEW,
@@ -10517,6 +11103,15 @@ const usePedidoStartNew = (customerId) => useBorradorPedidoStartNew(customerId, 
 const usePedidoStartUpdate = (orderId) => useBorradorPedidoStartUpdate(orderId, false);
 const usePedidoStartCopy = (orderId) => useBorradorPedidoStartCopy(orderId, false);
 const usePedidoCreateDraft = (orderId) => useBorradorPedidoCreateFromAnother(orderId, false);
+function usePedidoGetByIds(ids) {
+  return useDXTApiFetch({
+    ...API_PEDIDO_GET_BY_IDS,
+    data: {
+      ids
+    },
+    silent: true
+  });
+}
 const createOrderRequest = async (input, app) => {
   return await dxtApiRequest(
     {
@@ -10573,6 +11168,26 @@ const deleteDraftRequest = async (id_pedido, app) => {
   return await dxtApiRequest(
     {
       ...API_BORRADOR_DELETE,
+      pathParams: { id_pedido },
+      silent: true
+    },
+    app
+  );
+};
+const markDraftAsFavoriteRequest = async (id_pedido, app) => {
+  return await dxtApiRequest(
+    {
+      ...API_BORRADOR_MARK_AS_FAVORITE,
+      pathParams: { id_pedido },
+      silent: true
+    },
+    app
+  );
+};
+const removeDraftFavoriteMarkRequest = async (id_pedido, app) => {
+  return await dxtApiRequest(
+    {
+      ...API_BORRADOR_REMOVE_FAVORITE_MARK,
       pathParams: { id_pedido },
       silent: true
     },
@@ -10641,15 +11256,62 @@ function _filter(data, query, fieldsToFilter) {
   }
   return data;
 }
+function formatNombreArticulo(nombre, codigo_articulo, descriptionAdicional) {
+  if (codigo_articulo == null)
+    return NONEXISTENT_PRODUCT;
+  if (nombre == null)
+    return NO_NAME;
+  let result = `${codigo_articulo} - ${nombre.trim()}`;
+  if ((descriptionAdicional ?? "").trim().length > 0)
+    result = `${result} (${descriptionAdicional})`.trim();
+  return result;
+}
+function formatAuxiliares(codigo, nombre, gender) {
+  if (codigo != null && nombre != null)
+    return `${codigo} - ${nombre}`;
+  return gender === "f" ? NONE_F : NONE_M;
+}
+function formatCliente(codigo, nombre) {
+  return `${codigo} - ${nombre}`;
+}
+const calculateBonificacion = (price, bonificacion) => {
+  if (price == null)
+    return 0;
+  return price - price * bonificacion / 100;
+};
+const calculateTotals = (quantities, prices, globalDiscount) => {
+  let total = 0;
+  quantities.forEach((quantity, id) => {
+    const { amount, discount } = prices[id];
+    if (amount == null)
+      return;
+    const finalDiscount = 100 - (discount ?? globalDiscount);
+    total += quantity * amount * finalDiscount / 100;
+  });
+  return total;
+};
+function formatTaxesLabel(sinIVA, sinII) {
+  if (sinIVA) {
+    return sinII ? "sin IVA e II" : "sin IVA";
+  }
+  return sinII ? "con IVA, sin II" : "con IVA";
+}
+function calculateBoxesAndUnits(quantity, perBox) {
+  if (perBox == null)
+    return null;
+  const boxes = Math.floor(quantity / perBox);
+  const units = quantity % perBox;
+  return (boxes > 0 ? `${boxes}b` : "") + (units > 0 ? (boxes > 0 ? ` ` : ``) + `${units}u` : "");
+}
 const USER_ROLE_CUSTOMER = "Cliente";
-const USER_ROLE_VENDOR = "Vendedor";
+const USER_ROLE_SELLER = "Vendedor";
 const USER_ROLE_ADMIN = "Administrador";
 function getUserRoleText(role) {
   switch (role) {
     case UserRole.customer:
       return USER_ROLE_CUSTOMER;
-    case UserRole.vendor:
-      return USER_ROLE_VENDOR;
+    case UserRole.seller:
+      return USER_ROLE_SELLER;
     default:
       return USER_ROLE_ADMIN;
   }
@@ -10703,7 +11365,8 @@ const Navbar = ({ children }) => {
   const navigate = useNavigate();
   const user = authState.userOrNull();
   const systemMessage = user == null ? void 0 : user.message;
-  (user == null ? void 0 : user.role) != null ? getUserRoleText(user == null ? void 0 : user.role) : "";
+  const isAdmin = authState.isAdmin();
+  const userRoleText = (user == null ? void 0 : user.role) != null ? getUserRoleText(user == null ? void 0 : user.role) : "";
   const _username = (user == null ? void 0 : user.screen_name.trim()) ?? "";
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsx(
@@ -10737,7 +11400,7 @@ const Navbar = ({ children }) => {
                   children: PEDIDOS
                 }
               ),
-              !authState.isAdmin() && /* @__PURE__ */ jsx(
+              !isAdmin && /* @__PURE__ */ jsx(
                 MenuItem,
                 {
                   onClick: () => {
@@ -10746,7 +11409,17 @@ const Navbar = ({ children }) => {
                   children: BORRADORES
                 }
               ),
-              authState.isAdmin() && /* @__PURE__ */ jsxs(Fragment, { children: [
+              /* @__PURE__ */ jsx(MenuDivider, {}),
+              /* @__PURE__ */ jsx(
+                MenuItem,
+                {
+                  onClick: () => {
+                    navigate(URL_DOWNLOADS_PATH);
+                  },
+                  children: DOWNLOADS
+                }
+              ),
+              isAdmin && /* @__PURE__ */ jsxs(Fragment, { children: [
                 /* @__PURE__ */ jsx(MenuDivider, {}),
                 /* @__PURE__ */ jsx(
                   MenuItem,
@@ -10780,19 +11453,27 @@ const Navbar = ({ children }) => {
               }
             ),
             /* @__PURE__ */ jsxs(MenuList, { rootProps: { zIndex: 2e3 }, children: [
-              /* @__PURE__ */ jsxs(Flex, { direction: "row", alignItems: "center", sx: { px: 3 }, children: [
-                /* @__PURE__ */ jsx(
-                  Text,
-                  {
-                    sx: {
-                      textTransform: "uppercase",
-                      fontWeight: "bold"
-                    },
-                    children: _username
-                  }
-                ),
-                /* @__PURE__ */ jsx(Spacer, {}),
-                /* @__PURE__ */ jsx(ColorModeSelector, {})
+              /* @__PURE__ */ jsxs(Box, { sx: { px: 3 }, children: [
+                !isAdmin && /* @__PURE__ */ jsxs(Text, { fontSize: "sm", children: [
+                  userRoleText,
+                  " ",
+                  user == null ? void 0 : user.tango_code
+                ] }),
+                /* @__PURE__ */ jsxs(Flex, { direction: "row", alignItems: "center", children: [
+                  /* @__PURE__ */ jsx(
+                    Text,
+                    {
+                      sx: {
+                        textTransform: "uppercase",
+                        fontWeight: "bold"
+                      },
+                      children: _username
+                    }
+                  ),
+                  /* @__PURE__ */ jsx(Spacer, {}),
+                  /* @__PURE__ */ jsx(ColorModeSelector, {})
+                ] }),
+                !isAdmin && /* @__PURE__ */ jsx(Text, { fontSize: "sm", children: user == null ? void 0 : user.username })
               ] }),
               /* @__PURE__ */ jsx(MenuDivider, {}),
               /* @__PURE__ */ jsx(
@@ -10874,6 +11555,7 @@ const OrdersAddNav = (props) => {
     isDisabled,
     handlePedidoAction,
     handleDraftAction,
+    handlePedidoSummary,
     setIsDraft,
     ...searchFieldProps
   } = props;
@@ -10898,8 +11580,8 @@ const OrdersAddNav = (props) => {
                   colorScheme: "orange",
                   isDisabled,
                   onClick: () => {
-                    handleSubmit((data) => {
-                      handlePedidoAction(data);
+                    handleSubmit(async (data) => {
+                      await handlePedidoAction(data);
                     })();
                   }
                 },
@@ -10946,7 +11628,7 @@ const OrdersAddNav = (props) => {
                   isDisabled,
                   onClick: () => {
                     handleSubmit(async (data) => {
-                      handleDraftAction(data);
+                      await handleDraftAction(data);
                     })();
                   }
                 },
@@ -10990,7 +11672,8 @@ const OrdersAddNav = (props) => {
                 size: "sm",
                 fontWeight: "400",
                 colorScheme: "blue",
-                isDisabled
+                isDisabled,
+                onClick: () => handlePedidoSummary()
               },
               iconProps: {
                 boxSize: {
@@ -11017,7 +11700,190 @@ const OrdersAddNav = (props) => {
 };
 const OrdersContainer = ({
   children
-}) => /* @__PURE__ */ jsx(Container, { maxW: "6xl", children });
+}) => /* @__PURE__ */ jsx(Container, { maxW: "6xl", sx: { px: { base: 2, md: 4 } }, children });
+const MessageToUserAlert = (props) => {
+  const { type, title, content } = props;
+  const icons = {
+    info: InfoIcon,
+    warning: WarningIcon,
+    error: ErrorIcon
+  };
+  const IconType = type != null ? icons[type] ?? null : null;
+  return /* @__PURE__ */ jsxs(Box, { textAlign: "center", py: 10, px: 6, children: [
+    IconType != null && /* @__PURE__ */ jsx(Icon, { as: IconType, boxSize: 12 }),
+    /* @__PURE__ */ jsx(Heading, { as: "h2", size: "xl", mt: 4, mb: 2, children: title }),
+    /* @__PURE__ */ jsx(Text, { children: content.split("\n").map((chunk) => /* @__PURE__ */ jsxs(Fragment, { children: [
+      chunk,
+      /* @__PURE__ */ jsx("br", {})
+    ] })) })
+  ] });
+};
+const MessageToUserDialog$1 = ({
+  title,
+  message,
+  onResolve
+}) => {
+  const handleCancel = () => {
+    onResolve(
+      0
+      /* close */
+    );
+  };
+  return /* @__PURE__ */ jsx(
+    CustomDialog,
+    {
+      isOpen: true,
+      dialogTitle: title,
+      dialogContents: message,
+      hideButtons: true,
+      handleCancel,
+      handleCancelWording: CLOSE
+    }
+  );
+};
+function useMessageToUserDialog() {
+  return useModal(
+    MessageToUserDialog$1
+  );
+}
+function formatPrice(precio, moneda) {
+  if (precio == null)
+    return "SIN PRECIO";
+  return `${moneda != null && moneda + " "}${_formatNumber(precio)}`;
+}
+function _formatNumber(num) {
+  return num.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+const TextSpecialPrice = (textProps) => {
+  return /* @__PURE__ */ jsx(Text, { textAlign: "right", ...textProps, children: "Especial" });
+};
+const TextPriceNative = ({ precio, moneda }) => {
+  return /* @__PURE__ */ jsx(Fragment, { children: formatPrice(precio, moneda) });
+};
+const MessageToUserDialog = ({
+  app,
+  cabecera,
+  renglones,
+  total,
+  bonificacionGlobal,
+  title,
+  emptyResultText,
+  onResolve
+}) => {
+  const handleCancel = () => {
+    onResolve(
+      0
+      /* close */
+    );
+  };
+  const isCustomer = app.authState.isCustomer();
+  const rowColor = useColorModeValue(
+    "var(--chakra-colors-gray-200)",
+    "var(--chakra-colors-black)"
+  );
+  const tableBorderColor = useColorModeValue(
+    "var(--chakra-colors-gray-400)",
+    "var(--chakra-colors-black)"
+  );
+  const sinIVA = cabecera.usuario_discrimina_iva;
+  const sinII = cabecera.usuario_discrimina_ii;
+  const taxesLabel = `(${formatTaxesLabel(sinIVA, sinII)})`;
+  const EmptyResult = /* @__PURE__ */ jsx(Text, { textAlign: "center", children: emptyResultText });
+  const Contents = /* @__PURE__ */ jsx(TableContainer, { sx: { p: 0, m: 0 }, children: /* @__PURE__ */ jsx(
+    Table,
+    {
+      variant: "stripedOverCard",
+      colorScheme: "gray",
+      size: "md",
+      sx: {
+        borderCollapse: "separate"
+      },
+      children: /* @__PURE__ */ jsx(Tbody, { children: /* @__PURE__ */ jsx(Tr, { children: /* @__PURE__ */ jsx(Td, { sx: { p: 0 }, children: /* @__PURE__ */ jsxs(
+        "table",
+        {
+          width: "100%",
+          cellPadding: 8,
+          cellSpacing: 4,
+          style: {
+            fontSize: "0.8rem",
+            border: `1px solid ${tableBorderColor}`
+          },
+          children: [
+            /* @__PURE__ */ jsx(
+              "thead",
+              {
+                style: {
+                  backgroundColor: `${rowColor}`,
+                  textTransform: "uppercase"
+                },
+                children: /* @__PURE__ */ jsxs("tr", { children: [
+                  /* @__PURE__ */ jsx("th", { className: "text-left", style: { width: "70%" }, children: "Artículo" }),
+                  /* @__PURE__ */ jsx("th", { className: "text-center", style: { width: "15%" }, children: "Cantidad" }),
+                  /* @__PURE__ */ jsx("th", { className: "text-right", style: { width: "15%" }, children: "Subtotal" })
+                ] })
+              }
+            ),
+            /* @__PURE__ */ jsxs("tbody", { children: [
+              renglones.map((product, index) => {
+                const { id, codigo, nombre, cantidad, precio, bonificacion } = product;
+                const precioBonificacion = calculateBonificacion(
+                  precio ?? 0,
+                  bonificacion ?? bonificacionGlobal
+                );
+                const productSum = (cantidad ?? 0) * precioBonificacion;
+                return /* @__PURE__ */ jsxs("tr", { children: [
+                  /* @__PURE__ */ jsxs("td", { className: "word-break-all", children: [
+                    codigo,
+                    " - ",
+                    nombre
+                  ] }),
+                  /* @__PURE__ */ jsx("td", { className: "text-center", children: cantidad }),
+                  /* @__PURE__ */ jsx("td", { className: "text-right", children: /* @__PURE__ */ jsx(TextPriceNative, { precio: productSum, moneda: "$" }) })
+                ] }, `pedido-row-${id}`);
+              }),
+              /* @__PURE__ */ jsxs("tr", { children: [
+                /* @__PURE__ */ jsx("td", { colSpan: 2, children: /* @__PURE__ */ jsxs("strong", { children: [
+                  "Total",
+                  " ",
+                  bonificacionGlobal > 0 ? /* @__PURE__ */ jsxs(Fragment, { children: [
+                    !isCustomer && /* @__PURE__ */ jsxs(Fragment, { children: [
+                      ` -${bonificacionGlobal}%`,
+                      " "
+                    ] }),
+                    /* @__PURE__ */ jsx("span", { style: { fontSize: "small" }, children: taxesLabel })
+                  ] }) : /* @__PURE__ */ jsxs("span", { style: { fontSize: "small" }, children: [
+                    " ",
+                    taxesLabel
+                  ] })
+                ] }) }),
+                /* @__PURE__ */ jsx("td", { className: "text-right", children: /* @__PURE__ */ jsx("strong", { children: /* @__PURE__ */ jsx(TextPriceNative, { precio: total ?? 0, moneda: "$" }) }) })
+              ] })
+            ] })
+          ]
+        }
+      ) }) }) })
+    }
+  ) });
+  return /* @__PURE__ */ jsx(
+    CustomDialog,
+    {
+      isOpen: true,
+      dialogTitle: title,
+      dialogSize: { base: "full", sm: "md", md: "3xl" },
+      dialogContents: !renglones.length ? EmptyResult : Contents,
+      handleCancel,
+      handleCancelWording: CLOSE
+    }
+  );
+};
+function useOrderSummaryDialog() {
+  return useModal(
+    MessageToUserDialog
+  );
+}
 function parseDateString(value, originalValue) {
   const parsedDate = isDate(originalValue) ? originalValue : parse$1(originalValue, "yyyy-MM-dd", /* @__PURE__ */ new Date());
   return parsedDate;
@@ -11056,28 +11922,6 @@ const useCustomValidationSchema$1 = (isDraft) => {
   }
 };
 const eventBus = new Nanobus();
-function formatNombreArticulo(nombre, codigo_articulo, descriptionAdicional) {
-  if (codigo_articulo == null)
-    return NONEXISTENT_PRODUCT;
-  if (nombre == null)
-    return NO_NAME;
-  let result = `${codigo_articulo} - ${nombre.trim()}`;
-  if ((descriptionAdicional ?? "").trim().length > 0)
-    result = `${result} (${descriptionAdicional})`.trim();
-  return result;
-}
-const calculateBonificacion = (price, bonificacion) => {
-  return price - price * bonificacion / 100;
-};
-const calculateTotals = (quantities, prices, globalDiscount) => {
-  let total = 0;
-  quantities.forEach((quantity, id) => {
-    const { amount, discount } = prices[id];
-    const finalDiscount = 100 - (discount ?? globalDiscount);
-    total += quantity * amount * finalDiscount / 100;
-  });
-  return total;
-};
 const Month_Names_Short = [
   "Jan",
   "Feb",
@@ -11694,25 +12538,7 @@ const ControlledTextarea = (props) => {
     helperText != null && /* @__PURE__ */ jsx(FormHelperText, { children: helperText })
   ] });
 };
-function formatNumber(num) {
-  return num.toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
-}
-const TextSpecialPrice = (textProps) => {
-  return /* @__PURE__ */ jsx(Text, { textAlign: "right", ...textProps, children: "Especial" });
-};
-const TextPrice = ({ precio, moneda, textProps }) => {
-  return /* @__PURE__ */ jsx(Text, { textAlign: "right", ...textProps, children: TextPricePlain(precio, moneda) });
-};
-const TextPriceNative = ({ precio, moneda }) => {
-  return /* @__PURE__ */ jsx(Fragment, { children: TextPricePlain(precio, moneda) });
-};
-const TextPricePlain = (precio, moneda) => {
-  return `${moneda != null && moneda + " "}${formatNumber(precio)}`;
-};
-const OrderTotal = ({ prices }) => {
+const OrderTotal = ({ prices, sinIVA, sinII }) => {
   const app = useAppResources();
   const isCustomer = app.authState.isCustomer();
   const { control } = useFormContext();
@@ -11725,30 +12551,35 @@ const OrderTotal = ({ prices }) => {
     name: "bonificacion"
   });
   const total = calculateTotals(quantitiesWatch, prices, bonificacionWatch);
+  const taxesLabel = `(${formatTaxesLabel(sinIVA, sinII)})`;
   return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsxs(Heading, { textTransform: "uppercase", size: "xs", children: [
-      "Total (Sin IVA)",
-      !isCustomer && bonificacionWatch > 0 && ` - Bonif. ${bonificacionWatch}%`
+    /* @__PURE__ */ jsxs(Heading, { size: "xs", children: [
+      "Total",
+      " ",
+      bonificacionWatch > 0 ? /* @__PURE__ */ jsxs(Fragment, { children: [
+        !isCustomer && /* @__PURE__ */ jsxs(Fragment, { children: [
+          ` -${bonificacionWatch}%`,
+          " "
+        ] }),
+        /* @__PURE__ */ jsx("span", { style: { fontSize: "small" }, children: taxesLabel })
+      ] }) : /* @__PURE__ */ jsxs("span", { style: { fontSize: "small" }, children: [
+        " ",
+        taxesLabel
+      ] })
     ] }),
-    /* @__PURE__ */ jsx(
-      TextPrice,
+    /* @__PURE__ */ jsx(Heading, { size: "md", textTransform: "uppercase", sx: { mt: 1, color: "green.400", fontWeight: "bolder" }, children: /* @__PURE__ */ jsx(
+      TextPriceNative,
       {
         precio: total ?? 0,
-        moneda: "$",
-        textProps: {
-          fontSize: "2xl",
-          color: "green.400",
-          fontWeight: "bolder",
-          sx: { mt: 1 }
-        }
+        moneda: "$"
       }
-    )
+    ) })
   ] });
 };
 const OrderInfo = (props) => {
   const { isDraft, cabecera, disableForm, prices } = props;
   const app = useAppResources();
-  const isCustomer = app.authState.isCustomer();
+  app.authState.isCustomer();
   const { isOpen, onToggle } = useDisclosure({
     defaultIsOpen: true
   });
@@ -11802,15 +12633,11 @@ const OrderInfo = (props) => {
       selected: "habitual"
     }
   });
-  const fechaAltaVisible = !isCustomer || isCustomer && cabecera.fecha_alta_editable;
-  const fechaEntregaVisible = !isCustomer || isCustomer && cabecera.fecha_entrega_editable;
-  const condicionVentaVisible = !isCustomer || isCustomer && cabecera.condicion_editable;
-  const tipoAsientoVisible = !isCustomer || isCustomer && cabecera.asiento_editable;
-  const transporteVisible = !isCustomer || isCustomer && cabecera.transporte_editable;
-  const talonarioVisible = !isCustomer || isCustomer && cabecera.talonario_editable;
-  const depositoVisible = !isCustomer || isCustomer && cabecera.deposito_editable;
-  const direccionVisible = !isCustomer || isCustomer && cabecera.direccion_editable;
-  const bonificacionVisible = !isCustomer || isCustomer && cabecera.bonificacion_editable;
+  const fechaAltaVisible = true;
+  const fechaEntregaVisible = true;
+  const sinIVA = cabecera.usuario_discrimina_iva;
+  const sinII = cabecera.usuario_discrimina_ii;
+  const showOrderNumber = !!(!isDraft && cabecera.numero_pedido != null);
   return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs(Box, { children: [
     isDraft && /* @__PURE__ */ jsx(
       CommonCard,
@@ -11858,7 +12685,7 @@ const OrderInfo = (props) => {
           /* @__PURE__ */ jsxs(
             Grid,
             {
-              templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
+              templateColumns: { base: "1fr", md: showOrderNumber ? "repeat(3,1fr)" : "repeat(2,1fr)" },
               alignItems: "center",
               gap: 4,
               onClick: onToggle,
@@ -11866,10 +12693,17 @@ const OrderInfo = (props) => {
               sx: { p: 4 },
               children: [
                 /* @__PURE__ */ jsxs(GridItem, { children: [
-                  /* @__PURE__ */ jsx(Heading, { size: "xs", children: "Cliente:" }),
+                  /* @__PURE__ */ jsxs(Heading, { size: "xs", children: [
+                    "Cliente ",
+                    cabecera.codigo_cliente
+                  ] }),
                   /* @__PURE__ */ jsx(Heading, { size: "md", textTransform: "uppercase", sx: { mt: 1 }, children: cabecera.nombre_cliente })
                 ] }),
-                /* @__PURE__ */ jsx(GridItem, { textAlign: { md: "end" }, children: /* @__PURE__ */ jsx(OrderTotal, { prices }) })
+                showOrderNumber && /* @__PURE__ */ jsxs(GridItem, { textAlign: { md: "center" }, children: [
+                  /* @__PURE__ */ jsx(Heading, { size: "xs", children: "Número de pedido" }),
+                  /* @__PURE__ */ jsx(Heading, { size: "md", textTransform: "uppercase", sx: { mt: 1 }, children: cabecera.numero_pedido })
+                ] }),
+                /* @__PURE__ */ jsx(GridItem, { textAlign: { md: "end" }, children: /* @__PURE__ */ jsx(OrderTotal, { prices, sinIVA, sinII }) })
               ]
             }
           ),
@@ -11919,7 +12753,7 @@ const OrderInfo = (props) => {
                     control
                   }
                 ) }),
-                condicionVentaVisible && /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
+                /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
                   ControlledSelect,
                   {
                     fieldProps: {
@@ -11942,7 +12776,7 @@ const OrderInfo = (props) => {
                     control
                   }
                 ) }),
-                tipoAsientoVisible && /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
+                /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
                   ControlledSelect,
                   {
                     fieldProps: {
@@ -11965,7 +12799,7 @@ const OrderInfo = (props) => {
                     control
                   }
                 ) }),
-                transporteVisible && /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
+                /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
                   ControlledSelect,
                   {
                     fieldProps: {
@@ -11988,7 +12822,7 @@ const OrderInfo = (props) => {
                     control
                   }
                 ) }),
-                talonarioVisible && /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
+                /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
                   ControlledSelect,
                   {
                     fieldProps: {
@@ -12011,7 +12845,7 @@ const OrderInfo = (props) => {
                     control
                   }
                 ) }),
-                depositoVisible && /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
+                /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
                   ControlledSelect,
                   {
                     fieldProps: {
@@ -12034,7 +12868,7 @@ const OrderInfo = (props) => {
                     control
                   }
                 ) }),
-                direccionVisible && /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
+                /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
                   ControlledSelect,
                   {
                     fieldProps: {
@@ -12057,7 +12891,7 @@ const OrderInfo = (props) => {
                     control
                   }
                 ) }),
-                bonificacionVisible && /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
+                /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
                   ControlledInput,
                   {
                     fieldProps: {
@@ -12069,8 +12903,8 @@ const OrderInfo = (props) => {
                       max: 100,
                       htmlSize: 5,
                       maxLength: 5,
-                      width: "auto",
-                      textAlign: "right",
+                      width: "100px",
+                      textAlign: "left",
                       onKeyDown: (e) => {
                         if (/^(,|-|\+)$/.test(e.key))
                           e.preventDefault();
@@ -12107,7 +12941,8 @@ const OrderInfo = (props) => {
                       name: "comentarios",
                       id: "comentarios",
                       maxLength: COMENTARIOS_MAX_LENGTH,
-                      rows: 3
+                      rows: 3,
+                      minHeight: 16
                     },
                     formControlProps: {
                       isDisabled: disableForm
@@ -12147,7 +12982,7 @@ const ProductsRow = (props) => {
     formState: { isSubmitSuccessful, isSubmitting }
   } = useFormContext();
   const precioBonificacion = calculateBonificacion(
-    precio,
+    precio ?? 0,
     bonificacion ?? bonificacionGlobal
   );
   const productQuantity = useWatch({ control, name: `quantities.${id}` });
@@ -12197,6 +13032,20 @@ const ProductsRow = (props) => {
     /* @__PURE__ */ jsx("td", { className: "text-right white-space-nowrap", children: productSum != null && /* @__PURE__ */ jsx(TextPriceNative, { precio: productSum, moneda: "$" }) })
   ] });
 };
+const ProductsRowWithoutPrice = (props) => {
+  const { codigo, nombre } = props.product;
+  return /* @__PURE__ */ jsxs("tr", { children: [
+    /* @__PURE__ */ jsxs("td", { className: "word-break-all crossed-text", style: { color: "grey" }, children: [
+      codigo,
+      " - ",
+      nombre
+    ] }),
+    /* @__PURE__ */ jsx("td", { className: "hidden-on-base" }),
+    /* @__PURE__ */ jsx("td", { className: "hidden-on-base" }),
+    /* @__PURE__ */ jsx("td", {}),
+    /* @__PURE__ */ jsx("td", { className: "text-right white-space-nowrap", style: { color: "grey" }, children: /* @__PURE__ */ jsx(TextPriceNative, {}) })
+  ] });
+};
 const ProductsList = memo(function ProductsList2({
   articulos
 }) {
@@ -12213,55 +13062,74 @@ const ProductsList = memo(function ProductsList2({
     "var(--chakra-colors-gray-400)",
     "var(--chakra-colors-black)"
   );
-  return /* @__PURE__ */ jsx(AccordionPanel, { sx: { p: 4, pt: 0 }, children: /* @__PURE__ */ jsxs(
-    "table",
+  return /* @__PURE__ */ jsx(AccordionPanel, { sx: { p: 4, pt: 0 }, children: /* @__PURE__ */ jsx(TableContainer, { sx: { p: 0, m: 0 }, children: /* @__PURE__ */ jsx(
+    Table,
     {
-      width: "100%",
-      cellPadding: 8,
-      cellSpacing: 4,
-      style: {
-        fontSize: "0.8rem",
-        border: `1px solid ${tableBorderColor}`
+      variant: "stripedOverCard",
+      colorScheme: "gray",
+      size: "md",
+      sx: {
+        borderCollapse: "separate"
       },
-      children: [
-        /* @__PURE__ */ jsx(
-          "thead",
-          {
-            style: { backgroundColor: `${rowColor}`, textTransform: "uppercase" },
-            children: /* @__PURE__ */ jsxs("tr", { children: [
-              /* @__PURE__ */ jsx("th", { className: "text-left", style: { width: "55%" }, children: "Artículo" }),
-              /* @__PURE__ */ jsx(
-                "th",
-                {
-                  className: "text-right hidden-on-base",
-                  style: { width: "10%" },
-                  children: "Lista"
-                }
-              ),
-              /* @__PURE__ */ jsx(
-                "th",
-                {
-                  className: "text-right hidden-on-base",
-                  style: { width: "10%" },
-                  children: "Bonificado"
-                }
-              ),
-              /* @__PURE__ */ jsx("th", { className: "text-center", style: { width: "12%" }, children: "Cantidad" }),
-              /* @__PURE__ */ jsx("th", { className: "text-right", style: { width: "13%" }, children: "Subtotal" })
-            ] })
-          }
-        ),
-        /* @__PURE__ */ jsx("tbody", { children: articulos.map((product, index) => /* @__PURE__ */ jsx(
-          ProductsRow,
-          {
-            product,
-            bonificacionGlobal: bonificacionWatch
+      children: /* @__PURE__ */ jsx(Tbody, { children: /* @__PURE__ */ jsx(Tr, { children: /* @__PURE__ */ jsx(Td, { sx: { p: 0 }, children: /* @__PURE__ */ jsxs(
+        "table",
+        {
+          width: "100%",
+          cellPadding: 8,
+          cellSpacing: 4,
+          style: {
+            fontSize: "0.8rem",
+            border: `1px solid ${tableBorderColor}`
           },
-          `product-row-${product.id}`
-        )) })
-      ]
+          children: [
+            /* @__PURE__ */ jsx(
+              "thead",
+              {
+                style: {
+                  backgroundColor: `${rowColor}`,
+                  textTransform: "uppercase"
+                },
+                children: /* @__PURE__ */ jsxs("tr", { children: [
+                  /* @__PURE__ */ jsx("th", { className: "text-left", style: { width: "55%" }, children: "Artículo" }),
+                  /* @__PURE__ */ jsx(
+                    "th",
+                    {
+                      className: "text-right hidden-on-base",
+                      style: { width: "10%" },
+                      children: "Lista"
+                    }
+                  ),
+                  /* @__PURE__ */ jsx(
+                    "th",
+                    {
+                      className: "text-right hidden-on-base",
+                      style: { width: "10%" },
+                      children: "Bonificado"
+                    }
+                  ),
+                  /* @__PURE__ */ jsx("th", { className: "text-center", style: { width: "12%" }, children: "Cantidad" }),
+                  /* @__PURE__ */ jsx("th", { className: "text-right", style: { width: "13%" }, children: "Subtotal" })
+                ] })
+              }
+            ),
+            /* @__PURE__ */ jsx("tbody", { children: articulos.map((product, index) => {
+              if (product.precio == null || product.precio == 0) {
+                return /* @__PURE__ */ jsx(ProductsRowWithoutPrice, { product });
+              }
+              return /* @__PURE__ */ jsx(
+                ProductsRow,
+                {
+                  product,
+                  bonificacionGlobal: bonificacionWatch
+                },
+                `product-row-${product.id}`
+              );
+            }) })
+          ]
+        }
+      ) }) }) })
     }
-  ) });
+  ) }) });
 });
 const CategoryAccordionButton = (props) => {
   const { control } = useFormContext();
@@ -12272,7 +13140,7 @@ const CategoryAccordionButton = (props) => {
     const productQuantity = useWatch({ control, name: `quantities.${id}` });
     if (productQuantity > 0) {
       const precioBonificacion = calculateBonificacion(
-        precio,
+        precio ?? 0,
         bonificacion ?? bonificacionWatch
       );
       categorySum = (categorySum != void 0 ? categorySum : 0) + productQuantity * precioBonificacion;
@@ -12388,18 +13256,35 @@ var OrderEditMode = /* @__PURE__ */ ((OrderEditMode2) => {
 })(OrderEditMode || {});
 const OrderEditReady = (props) => {
   const { saveDraft, pedidoState, draftIdToDelete } = props;
+  const { renglones_con_precio_desconocido: orphanRows } = pedidoState;
+  const dialogCall = useMessageToUserDialog();
+  useEffect(() => {
+    const thereAreOrphanRows = orphanRows != null ? orphanRows.length > 0 : false;
+    if (thereAreOrphanRows) {
+      const articles = orphanRows == null ? void 0 : orphanRows.map((row) => `${row.codigo_articulo} - ${row.nombre_articulo}`);
+      const content = `${ORPHAN_ROWS_HEADER}
+
+${articles == null ? void 0 : articles.join("\n")}
+
+${ORPHAN_ROWS_FOOTER}`;
+      dialogCall({
+        message: /* @__PURE__ */ jsx(MessageToUserAlert, { type: "warning", content })
+      });
+    }
+  }, [orphanRows]);
   const isUpdating = props.editMode === 2;
   const isCopying = props.editMode === 1;
   const [isDraft, setIsDraft] = useState(saveDraft);
   const app = useAppResources();
   const toast = useToast();
+  const orderSummaryDialogCall = useOrderSummaryDialog();
   const { yupValidationSchema: yupValidationSchema2 } = useCustomValidationSchema$1(isDraft);
   const quantities = [];
   const prices = {};
   _.forOwn(pedidoState.articulos, (articulos) => {
     articulos.forEach((product) => {
       prices[product.id] = {
-        amount: product.precio,
+        amount: product.precio ?? 0,
         discount: product.bonificacion
       };
       quantities[product.id] = product.cantidad ?? 0;
@@ -12423,19 +13308,19 @@ const OrderEditReady = (props) => {
     resolver: yupResolver(yupValidationSchema2)
   });
   const {
-    handleSubmit,
     setError,
-    formState: { errors, isSubmitting, isSubmitSuccessful }
+    formState,
+    watch
   } = formMethods;
+  const { errors, isSubmitting, isSubmitSuccessful, isDirty } = formState;
+  const bonificacionWatch = watch("bonificacion");
+  const quantitiesWatch = watch("quantities");
   const disableForm = isSubmitSuccessful || isSubmitting;
   const quantitiesToRenglones = (quantities2) => {
     const renglones = [];
     quantities2.forEach((quantity, id) => {
       if (quantity != null && quantity > 0)
-        renglones.push({
-          id,
-          quantity
-        });
+        renglones.push({ id, quantity });
     });
     return renglones;
   };
@@ -12497,10 +13382,7 @@ const OrderEditReady = (props) => {
       success: (state) => {
         toast({
           title: ORDER_UPDATED,
-          description: ORDER_UPDATED_NUMBER.replace(
-            "{{numero_pedido}}",
-            state.data.numero_pedido
-          ),
+          description: ORDER_UPDATED_NUMBER.replace("{{numero_pedido}}", state.data.numero_pedido),
           status: "success"
         });
         app.navigate(URL_PEDIDOS_PATH);
@@ -12525,6 +13407,7 @@ const OrderEditReady = (props) => {
     const input = {
       ...data,
       id_cliente: pedidoState.cabecera.id_cliente,
+      es_favorito: false,
       renglones
     };
     const result = await createDraftRequest(input, app);
@@ -12532,10 +13415,7 @@ const OrderEditReady = (props) => {
       success: (state) => {
         toast({
           title: DRAFT_CREATED,
-          description: DRAFT_CREATED_NUMBER.replace(
-            "{{numero_pedido}}",
-            state.data.numero_pedido
-          ),
+          description: DRAFT_CREATED_NUMBER.replace("{{numero_pedido}}", state.data.numero_pedido),
           status: "success"
         });
         app.navigate(URL_BORRADORES_PATH);
@@ -12562,6 +13442,7 @@ const OrderEditReady = (props) => {
     const input = {
       ...data,
       id_pedido: pedidoState.cabecera.id_pedido,
+      es_favorito: false,
       renglones
     };
     const result = await updateDraftRequest(input.id_pedido, input, app);
@@ -12569,10 +13450,7 @@ const OrderEditReady = (props) => {
       success: (state) => {
         toast({
           title: DRAFT_UPDATED,
-          description: DRAFT_UPDATED_NUMBER.replace(
-            "{{numero_pedido}}",
-            state.data.numero_pedido
-          ),
+          description: DRAFT_UPDATED_NUMBER.replace("{{numero_pedido}}", state.data.numero_pedido),
           status: "success"
         });
         app.navigate(URL_BORRADORES_PATH);
@@ -12584,6 +13462,35 @@ const OrderEditReady = (props) => {
         });
         setError("root", { message: e.info.error_description });
       }
+    });
+  };
+  useEffect(() => {
+    if (Object.keys(errors).length == 1 && errors.quantities)
+      window.scrollTo(0, 0);
+  }, [formState]);
+  const handlePedidoSummary = () => {
+    const renglones = quantitiesToRenglones(quantitiesWatch);
+    const articulos = pedidoState.articulos;
+    const total = calculateTotals(quantitiesWatch, prices, bonificacionWatch);
+    const productos = [];
+    _.each(renglones, (renglon) => {
+      _.each(articulos, (product, cat) => {
+        const productMatch = _.find(product, { id: renglon.id });
+        if (productMatch !== void 0)
+          productos.push({
+            ...productMatch,
+            ...{ cantidad: renglon.quantity }
+          });
+      });
+    });
+    orderSummaryDialogCall({
+      app,
+      cabecera: pedidoState.cabecera,
+      renglones: productos,
+      bonificacionGlobal: bonificacionWatch,
+      total,
+      title: !isDraft ? ORDER_SUMMARY : DRAFT_SUMMARY,
+      emptyResultText: !isDraft ? ORDER_SUMMARY_EMPTY : DRAFT_SUMMARY_EMPTY
     });
   };
   const {
@@ -12602,7 +13509,8 @@ const OrderEditReady = (props) => {
         setIsDraft,
         handleSearchInputChange,
         handlePedidoAction: isUpdating ? handleUpdatePedido : handleCreatePedido,
-        handleDraftAction: isUpdating ? handleUpdateDraft : handleCreateDraft
+        handleDraftAction: isUpdating ? handleUpdateDraft : handleCreateDraft,
+        handlePedidoSummary
       }
     ) }),
     /* @__PURE__ */ jsx(OrdersContainer, { children: /* @__PURE__ */ jsxs(Box, { sx: { my: 4 }, children: [
@@ -12763,7 +13671,7 @@ function DraftsCopy$2() {
     }
   );
 }
-const route6 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route7 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: DraftsCopy$2
 }, Symbol.toStringTag, { value: "Module" }));
@@ -12771,7 +13679,7 @@ function DraftsCopy$1() {
   const { id_pedido } = useParams();
   return /* @__PURE__ */ jsx(CreateDraftFromOrderPage, { id_pedido });
 }
-const route7 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route8 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: DraftsCopy$1
 }, Symbol.toStringTag, { value: "Module" }));
@@ -12842,7 +13750,7 @@ const settings = {
       'Por ejemplo, la siguente línea indica el artículo "01 35", y además define que cada bulto posee 12 unidades:',
       /* @__PURE__ */ jsx("br", {}),
       /* @__PURE__ */ jsx("br", {}),
-      /* @__PURE__ */ jsx("b", { children: "01 35, b=12" })
+      /* @__PURE__ */ jsx("b", { children: "01 35; b=12" })
     ] })
   }
 };
@@ -13005,7 +13913,7 @@ function Lists$1() {
     }
   );
 }
-const route8 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route9 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Lists$1
 }, Symbol.toStringTag, { value: "Module" }));
@@ -13024,32 +13932,6 @@ const SettingsUsersLoading = () => {
         /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormTextareaSkeleton, { height: "400px" }) }),
         /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) })
       ] })
-    }
-  );
-};
-const DeleteDialog = ({
-  isOpen,
-  onClose,
-  handleDeletion,
-  message
-}) => {
-  const cancelRef = useRef();
-  return /* @__PURE__ */ jsx(
-    AlertDialog,
-    {
-      isOpen,
-      leastDestructiveRef: cancelRef,
-      onClose,
-      motionPreset: "slideInBottom",
-      isCentered: true,
-      children: /* @__PURE__ */ jsx(AlertDialogOverlay, { children: /* @__PURE__ */ jsxs(AlertDialogContent, { children: [
-        /* @__PURE__ */ jsx(AlertDialogHeader, { fontSize: "lg", fontWeight: "bold", children: message.title }),
-        /* @__PURE__ */ jsx(AlertDialogBody, { children: message.body }),
-        /* @__PURE__ */ jsxs(AlertDialogFooter, { children: [
-          /* @__PURE__ */ jsx(Button, { ref: cancelRef, onClick: onClose, children: CANCEL }),
-          /* @__PURE__ */ jsx(Button, { colorScheme: "red", onClick: handleDeletion, ml: 3, children: DELETE })
-        ] })
-      ] }) })
     }
   );
 };
@@ -13179,12 +14061,52 @@ const TextWordBreak = ({
     }
   );
 };
+var ConfirmationDialogResult = /* @__PURE__ */ ((ConfirmationDialogResult2) => {
+  ConfirmationDialogResult2[ConfirmationDialogResult2["cancel"] = 0] = "cancel";
+  ConfirmationDialogResult2[ConfirmationDialogResult2["accept"] = 1] = "accept";
+  return ConfirmationDialogResult2;
+})(ConfirmationDialogResult || {});
+const ConfirmationDialog = ({
+  title,
+  message,
+  onResolve
+}) => {
+  const handleCancel = () => {
+    onResolve(
+      0
+      /* cancel */
+    );
+  };
+  const handleAccept = () => {
+    onResolve(
+      1
+      /* accept */
+    );
+  };
+  return /* @__PURE__ */ jsx(
+    CustomDialog,
+    {
+      isOpen: true,
+      dialogSize: "sm",
+      handleCancel,
+      handleCancelWording: CANCEL,
+      handleAccept,
+      handleAcceptWording: DELETE,
+      dialogTitle: title ?? void 0,
+      dialogContents: message
+    }
+  );
+};
+function useConfirmationDialog() {
+  return useModal(
+    ConfirmationDialog
+  );
+}
 const SettingsUsersReady = (props) => {
   const { stateData, retry, typeSettings } = props;
   const app = useAppResources();
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
-  const selectedUser = useRef(null);
+  const ConfirmationDialog2 = useConfirmationDialog();
   const { filteredData, handleSearchInputChange, isFiltering } = useSearchField(
     stateData,
     ["screen_name", "username"]
@@ -13199,17 +14121,12 @@ const SettingsUsersReady = (props) => {
   useEffect(() => {
     setCurrentPage(1);
   }, [isFiltering]);
-  const handleDeleteDialog = (id, username) => () => {
-    selectedUser.current = { id, username };
-    onOpen();
-  };
-  const handleEdit = (id) => () => {
-    app.navigate(pathParamsToUrl(typeSettings.editButtonNavigateTo, { id }));
-  };
-  const handleDeletion = async () => {
-    if (selectedUser.current != null) {
-      const { id, username } = selectedUser.current;
-      selectedUser.current = null;
+  const handleDelete = async function(id, username) {
+    const dialogResult = await ConfirmationDialog2({
+      title: USER_DELETE,
+      message: USER_DELETE_CONFIRM
+    });
+    if (dialogResult == ConfirmationDialogResult.accept) {
       const result = await typeSettings.api.delete(id, { username }, app);
       result.map({
         success: (_2) => {
@@ -13232,125 +14149,106 @@ const SettingsUsersReady = (props) => {
           });
         }
       });
-      onClose();
     }
   };
-  return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsx(
-      DeleteDialog,
-      {
-        isOpen,
-        onClose,
-        handleDeletion,
-        message: {
-          title: USER_DELETE,
-          body: USER_DELETE_CONFIRM
+  const handleEdit = (id) => () => {
+    app.navigate(pathParamsToUrl(typeSettings.editButtonNavigateTo, { id }));
+  };
+  return /* @__PURE__ */ jsxs(CommonCard, { children: [
+    /* @__PURE__ */ jsx(Box, { sx: { pb: 4 }, children: /* @__PURE__ */ jsx(SearchField, { handleSearchInputChange }) }),
+    /* @__PURE__ */ jsx(Box, { children: /* @__PURE__ */ jsxs(Table, { variant: "grayOverCard", size: "md", children: [
+      /* @__PURE__ */ jsx(Thead, { children: /* @__PURE__ */ jsx(Tr, { children: /* @__PURE__ */ jsx(
+        Th,
+        {
+          sx: {
+            p: { base: 2, md: 4 }
+          },
+          children: /* @__PURE__ */ jsxs(
+            Grid,
+            {
+              templateColumns: {
+                base: "3fr 1fr 2fr",
+                md: "3fr 3fr 1fr 2fr"
+              },
+              gap: { base: 2, md: 4 },
+              children: [
+                /* @__PURE__ */ jsx(GridItem, { children: "Nombre completo" }),
+                /* @__PURE__ */ jsx(GridItem, { sx: { display: { base: "none", md: "block" } }, children: "Nombre de usuario" }),
+                /* @__PURE__ */ jsx(GridItem, { textAlign: "center", children: "Estado" }),
+                /* @__PURE__ */ jsx(GridItem, {})
+              ]
+            }
+          )
         }
-      }
-    ),
-    /* @__PURE__ */ jsxs(CommonCard, { children: [
-      /* @__PURE__ */ jsx(Box, { sx: { pb: 4 }, children: /* @__PURE__ */ jsx(SearchField, { handleSearchInputChange }) }),
-      /* @__PURE__ */ jsx(Box, { children: /* @__PURE__ */ jsxs(Table, { variant: "grayOverCard", size: "md", children: [
-        /* @__PURE__ */ jsx(Thead, { children: /* @__PURE__ */ jsx(Tr, { children: /* @__PURE__ */ jsx(
-          Th,
-          {
-            sx: {
-              p: { base: 2, md: 4 }
-            },
-            children: /* @__PURE__ */ jsxs(
-              Grid,
-              {
-                templateColumns: {
-                  base: "3fr 1fr 2fr",
-                  md: "3fr 3fr 1fr 2fr"
-                },
-                gap: { base: 2, md: 4 },
-                children: [
-                  /* @__PURE__ */ jsx(GridItem, { children: "Nombre completo" }),
-                  /* @__PURE__ */ jsx(GridItem, { sx: { display: { base: "none", md: "block" } }, children: "Nombre de usuario" }),
-                  /* @__PURE__ */ jsx(GridItem, { textAlign: "center", children: "Estado" }),
-                  /* @__PURE__ */ jsx(GridItem, {})
-                ]
-              }
-            )
-          }
-        ) }) }),
-        /* @__PURE__ */ jsx(Tbody, { children: currentTableData.length > 0 ? currentTableData.map((user) => /* @__PURE__ */ jsx(Tr, { children: /* @__PURE__ */ jsx(
-          Td,
-          {
-            sx: {
-              p: { base: 2, md: 4 }
-            },
-            children: /* @__PURE__ */ jsxs(
-              Grid,
-              {
-                templateColumns: {
-                  base: "3fr 1fr 2fr",
-                  md: "3fr 3fr 1fr 2fr"
-                },
-                gap: { base: 2, md: 4 },
-                alignItems: "center",
-                children: [
-                  /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(TextWordBreak, { breakType: "normal", children: user.screen_name }) }),
+      ) }) }),
+      /* @__PURE__ */ jsx(Tbody, { children: currentTableData.length > 0 ? currentTableData.map((user) => /* @__PURE__ */ jsx(Tr, { children: /* @__PURE__ */ jsx(
+        Td,
+        {
+          sx: {
+            p: { base: 2, md: 4 }
+          },
+          children: /* @__PURE__ */ jsxs(
+            Grid,
+            {
+              templateColumns: {
+                base: "3fr 1fr 2fr",
+                md: "3fr 3fr 1fr 2fr"
+              },
+              gap: { base: 2, md: 4 },
+              alignItems: "center",
+              children: [
+                /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(TextWordBreak, { breakType: "normal", children: user.screen_name }) }),
+                /* @__PURE__ */ jsx(GridItem, { sx: { display: { base: "none", md: "block" } }, children: /* @__PURE__ */ jsx(TextWordBreak, { breakType: "normal", children: user.username }) }),
+                /* @__PURE__ */ jsx(GridItem, { textAlign: "center", children: /* @__PURE__ */ jsx(
+                  Icon,
+                  {
+                    as: user.habilitado_en_dxt && user.usuario_tango_existe && user.habilitado_en_tango === true ? AccountCheckIcon : AccountCancelIcon,
+                    boxSize: 6,
+                    color: resolveUserStatusColor(user)
+                  }
+                ) }),
+                /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsxs(HStack, { justifyContent: "center", children: [
                   /* @__PURE__ */ jsx(
-                    GridItem,
+                    IconButton,
                     {
-                      sx: { display: { base: "none", md: "block" } },
-                      children: /* @__PURE__ */ jsx(TextWordBreak, { breakType: "normal", children: user.username })
+                      "aria-label": "Eliminar",
+                      size: "sm",
+                      colorScheme: "red",
+                      onClick: async () => {
+                        await handleDelete(user.id, user.username);
+                      },
+                      children: /* @__PURE__ */ jsx(Icon, { as: TrashIcon, boxSize: 4 })
                     }
                   ),
-                  /* @__PURE__ */ jsx(GridItem, { textAlign: "center", children: /* @__PURE__ */ jsx(
-                    Icon,
+                  /* @__PURE__ */ jsx(
+                    IconButton,
                     {
-                      as: user.habilitado_en_dxt && user.usuario_tango_existe && user.habilitado_en_tango === true ? AccountCheckIcon : AccountCancelIcon,
-                      boxSize: 6,
-                      color: resolveUserStatusColor(user)
+                      "aria-label": "Editar",
+                      size: "sm",
+                      colorScheme: "blue",
+                      onClick: handleEdit(user.id),
+                      children: /* @__PURE__ */ jsx(Icon, { as: PencilIcon, boxSize: 4 })
                     }
-                  ) }),
-                  /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsxs(HStack, { justifyContent: "center", children: [
-                    /* @__PURE__ */ jsx(
-                      IconButton,
-                      {
-                        "aria-label": "Eliminar",
-                        size: "sm",
-                        colorScheme: "red",
-                        onClick: handleDeleteDialog(
-                          user.id,
-                          user.username
-                        ),
-                        children: /* @__PURE__ */ jsx(Icon, { as: TrashIcon, boxSize: 4 })
-                      }
-                    ),
-                    /* @__PURE__ */ jsx(
-                      IconButton,
-                      {
-                        "aria-label": "Editar",
-                        size: "sm",
-                        colorScheme: "blue",
-                        onClick: handleEdit(user.id),
-                        children: /* @__PURE__ */ jsx(Icon, { as: PencilIcon, boxSize: 4 })
-                      }
-                    )
-                  ] }) })
-                ]
-              }
-            )
-          }
-        ) }, `row_${user.id}`)) : /* @__PURE__ */ jsx(Tr, { children: /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsxs(Alert, { status: "info", children: [
-          /* @__PURE__ */ jsx(AlertIcon, {}),
-          /* @__PURE__ */ jsx(AlertDescription, { children: isFiltering ? FILTER_NO_RESULTS : NO_USERS })
-        ] }) }) }) })
-      ] }) }),
-      /* @__PURE__ */ jsx(Flex, { sx: { pt: 4, justifyContent: "center" }, children: /* @__PURE__ */ jsx(
-        Pagination,
-        {
-          currentPage,
-          totalCount: filteredData.length,
-          pageSize: PageSize,
-          onPageChange: (page) => setCurrentPage(page)
+                  )
+                ] }) })
+              ]
+            }
+          )
         }
-      ) })
-    ] })
+      ) }, `row_${user.id}`)) : /* @__PURE__ */ jsx(Tr, { children: /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsxs(Alert, { status: "info", children: [
+        /* @__PURE__ */ jsx(AlertIcon, {}),
+        /* @__PURE__ */ jsx(AlertDescription, { children: isFiltering ? FILTER_NO_RESULTS : NO_USERS })
+      ] }) }) }) })
+    ] }) }),
+    /* @__PURE__ */ jsx(Flex, { sx: { pt: 4, justifyContent: "center" }, children: /* @__PURE__ */ jsx(
+      Pagination,
+      {
+        currentPage,
+        totalCount: filteredData.length,
+        pageSize: PageSize,
+        onPageChange: (page) => setCurrentPage(page)
+      }
+    ) })
   ] });
 };
 const SettingsUsers = (props) => {
@@ -13422,7 +14320,7 @@ function Lists() {
     }
   );
 }
-const route9 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route10 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Lists
 }, Symbol.toStringTag, { value: "Module" }));
@@ -13430,7 +14328,7 @@ function DraftsCopy() {
   const { id_pedido } = useParams();
   return /* @__PURE__ */ jsx(CreateDraftFromDraftPage, { id_pedido });
 }
-const route10 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route11 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: DraftsCopy
 }, Symbol.toStringTag, { value: "Module" }));
@@ -13438,7 +14336,7 @@ function OrdersAdd$5() {
   const { id_pedido } = useParams();
   return /* @__PURE__ */ jsx(UpdateDraftPage, { id_pedido });
 }
-const route11 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route12 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: OrdersAdd$5
 }, Symbol.toStringTag, { value: "Module" }));
@@ -13446,7 +14344,7 @@ function OrdersCopy() {
   const { id_pedido } = useParams();
   return /* @__PURE__ */ jsx(CreateOrderFromOrderPage, { id_pedido });
 }
-const route12 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route13 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: OrdersCopy
 }, Symbol.toStringTag, { value: "Module" }));
@@ -13454,21 +14352,30 @@ function OrdersAdd$4() {
   const { id_pedido } = useParams();
   return /* @__PURE__ */ jsx(UpdateOrderPage, { id_pedido });
 }
-const route13 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route14 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: OrdersAdd$4
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$A({ request, params }) {
+async function loader$D({ request, params }) {
+  return await dxtClienteGetSiblingsEndpoint.get(request, params);
+}
+const action$D = unimplementedApiResponse;
+const route15 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  action: action$D,
+  loader: loader$D
+}, Symbol.toStringTag, { value: "Module" }));
+async function loader$C({ request, params }) {
   return await startOrderUpdateEndpoint.get(request, params);
 }
-const action$A = unimplementedApiResponse;
-const route14 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const action$C = unimplementedApiResponse;
+const route16 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$A,
-  loader: loader$A
+  action: action$C,
+  loader: loader$C
 }, Symbol.toStringTag, { value: "Module" }));
 function Add() {
-  const typeSettings = settings$1.vendors;
+  const typeSettings = settings$1.sellers;
   const navigate = useNavigate();
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsx(
@@ -13478,7 +14385,7 @@ function Add() {
         returnButton: {
           buttonProps: {
             onClick: () => {
-              navigate(URL_SETTINGS_VENDORS_PATH);
+              navigate(URL_SETTINGS_SELLERS_PATH);
             }
           }
         }
@@ -13488,70 +14395,64 @@ function Add() {
       DXTUserCreate,
       {
         typeSettings,
-        returnUrl: URL_SETTINGS_VENDORS_PATH,
-        title: "Información del Vendedor"
+        returnUrl: URL_SETTINGS_SELLERS_PATH,
+        title: "Información del Vendedor",
+        schemaMaker: makeCreateSellerValidationSchema,
+        schemaDataToApiInput: transformCreateSellerSchemaData,
+        saveUserCall: (input, appResources) => sellerCreateRequest(input, appResources)
       }
     )
   ] });
 }
-const route15 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route17 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Add
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$z({ request, params }) {
+async function loader$B({ request, params }) {
   return await startDraftUpdateEndpoint.get(request, params);
 }
+const action$B = unimplementedApiResponse;
+const route18 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  action: action$B,
+  loader: loader$B
+}, Symbol.toStringTag, { value: "Module" }));
+async function loader$A({ request, params }) {
+  return await startNewOrderFromExistingOrderEndpoint.get(request, params);
+}
+const action$A = unimplementedApiResponse;
+const route19 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  action: action$A,
+  loader: loader$A
+}, Symbol.toStringTag, { value: "Module" }));
+async function loader$z({ request, params }) {
+  return await startNewOrderForCustomerEndpoint.get(request, params);
+}
 const action$z = unimplementedApiResponse;
-const route16 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route20 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$z,
   loader: loader$z
 }, Symbol.toStringTag, { value: "Module" }));
 async function loader$y({ request, params }) {
-  return await startNewOrderFromExistingOrderEndpoint.get(request, params);
+  return await startNewDraftFromExistingDraftEndpoint.get(request, params);
 }
 const action$y = unimplementedApiResponse;
-const route17 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route21 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$y,
   loader: loader$y
 }, Symbol.toStringTag, { value: "Module" }));
 async function loader$x({ request, params }) {
-  return await startNewOrderForCustomerEndpoint.get(request, params);
+  return await startNewDraftForCustomerEndpoint.get(request, params);
 }
 const action$x = unimplementedApiResponse;
-const route18 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route22 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$x,
   loader: loader$x
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$w({ request, params }) {
-  return await startNewDraftFromExistingDraftEndpoint.get(request, params);
-}
-const action$w = unimplementedApiResponse;
-const route19 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  action: action$w,
-  loader: loader$w
-}, Symbol.toStringTag, { value: "Module" }));
-async function loader$v({ request, params }) {
-  return await startNewDraftForCustomerEndpoint.get(request, params);
-}
-const action$v = unimplementedApiResponse;
-const route20 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  action: action$v,
-  loader: loader$v
-}, Symbol.toStringTag, { value: "Module" }));
-class AdminRootController extends AuthenticatedRootController {
-  async onRequest(req) {
-    await super.onRequest(req);
-    if (!req.auth.user.role.isAdmin()) {
-      throw new DXTException(DXTErrorCode.ADMIN_ROLE_REQUIRED);
-    }
-  }
-}
-const adminRootController = new AdminRootController();
 class VOArticuloListRecords extends ValueObject {
   validate(rawValue) {
     if (!Array.isArray(rawValue))
@@ -13570,7 +14471,6 @@ const setArticuloListInputSchema = {
   data: (v) => new VOArticuloListRecords(v)
 };
 const validateArticuloListInput = (input) => validateInput(setArticuloListInputSchema, input);
-const optionalStringsValidator = (v, def) => v == null ? def : new VOStrings(v).valueOf();
 const dxtArticuloGetPrintListEndpoint = createApiEndpoint(
   adminRootController,
   void 0,
@@ -13620,20 +14520,20 @@ const dxtArticuloGetPrintListIdsEndpoint = createApiEndpoint(
     return await dxtArticuloPrintListRepository.getIdsWithParams(paramsToReturn);
   }
 );
-async function loader$u({ request, params }) {
+async function loader$w({ request, params }) {
   return await dxtArticuloGetPrintListIdsEndpoint.get(request, params);
 }
-const action$u = unimplementedApiResponse;
-const route21 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const action$w = unimplementedApiResponse;
+const route23 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$u,
-  loader: loader$u
+  action: action$w,
+  loader: loader$w
 }, Symbol.toStringTag, { value: "Module" }));
 function OrdersAdd$3() {
   const { client } = useParams();
   return /* @__PURE__ */ jsx(CreateDraftPage, { client });
 }
-const route22 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route24 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: OrdersAdd$3
 }, Symbol.toStringTag, { value: "Module" }));
@@ -13641,7 +14541,7 @@ function OrdersAdd$2() {
   const { client } = useParams();
   return /* @__PURE__ */ jsx(CreateOrderPage, { client });
 }
-const route23 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route25 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: OrdersAdd$2
 }, Symbol.toStringTag, { value: "Module" }));
@@ -13686,198 +14586,60 @@ const setActiveCompanyEndpoint = createApiEndpoint(
   }
   /* *************************************************************************************************************** */
 );
-const loader$t = unimplementedApiResponse;
-async function action$t({ request, params }) {
+const loader$v = unimplementedApiResponse;
+async function action$v({ request, params }) {
   return await setActiveCompanyEndpoint.post(request, params);
 }
-const route24 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route26 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$t,
-  loader: loader$t
+  action: action$v,
+  loader: loader$v
 }, Symbol.toStringTag, { value: "Module" }));
-const updateUserInputSchema = {
-  tango_id: (v) => new VOUInt32(v),
-  username: (v) => {
-    const s = new VONotEmptyString(v).valueOf();
-    if (s.toLowerCase() == ADMIN_USERNAME)
-      throw new DXTException(DXTErrorCode.FORBIDDEN_ADMIN_USERNAME);
-    return s;
-  },
-  password: (v) => v != null ? new VODXTPassword(v) : void 0,
-  puede_crear_pedido: (v) => new VOBoolean(v),
-  puede_editar_pedido: (v) => new VOBoolean(v),
-  puede_anular_pedido: (v) => new VOBoolean(v),
-  borrar_pedido_al_anular: (v) => new VOBoolean(v),
-  perfil_facturacion_id: (v) => new VOUInt32(v),
-  aprobar_pedido_al_crear: (v) => new VOBoolean(v),
-  ver_pedidos_cumplidos: (v) => new VOBoolean(v),
-  dia_de_entrega: (v) => new VOIntegerRange(v, DIAS_DE_ENTREGA_MIN_DAYS, DIAS_DE_ENTREGA_MAX_DAYS),
-  email: (v) => v != null ? new VOEmailAddress(v) : void 0,
-  ver_sin_precio: (v) => new VOBoolean(v),
-  mostrar_mensaje_de_advertencia: (v) => new VOBoolean(v),
-  habilitado_en_dxt: (v) => new VOBoolean(v),
-  id_lista_alternativa: (v) => v != null ? new VOUInt32(v) : null,
-  bonificacion_lista_alternativa: (v) => v != null ? new VOPositiveNumber(v) : null
-};
-const createUserInputSchema = {
-  ...updateUserInputSchema,
-  password: (v) => new VODXTPassword(v)
-};
-const deleteUserInputSchema = {
-  username: (v) => new VONotEmptyString(v)
-};
-const validateDeleteUserInput = (input) => validateInput(deleteUserInputSchema, input);
-const updateClienteInputSchema = updateUserInputSchema;
-const createClienteInputSchema = createUserInputSchema;
-const validateUpdateClienteInput = (input) => validateInput(updateClienteInputSchema, input);
-const validateCreateClienteInput = (input) => validateInput(createClienteInputSchema, input);
-const updateVendedorInputSchema = updateUserInputSchema;
-const createVendedorInputSchema = createUserInputSchema;
-const validateUpdateVendedorInput = (input) => validateInput(updateVendedorInputSchema, input);
-const validateCreateVendedorInput = (input) => validateInput(createVendedorInputSchema, input);
-function clienteToSafeOutput(unsafe) {
-  const {
-    password_hash,
-    ...remaining
-  } = unsafe;
-  return remaining;
+async function setDraftFavorite(user, idDraft, isFavorite) {
+  await assertUserIsOwner(user, idDraft, true, false);
+  await getDraftRepository(user).setFavorite(idDraft, isFavorite);
 }
-function vendedorToSafeOutput(unsafe) {
-  const {
-    password_hash,
-    ...remaining
-  } = unsafe;
-  return remaining;
-}
-function createDXTUserGetAllEndpoint(repository) {
-  return createApiEndpoint(
-    adminRootController,
-    {
-      validation: {
-        query: {
-          offset: paginationOffsetValidator,
-          limit: paginationLimitValidator,
-          order: optionalStringValidator
-        }
-      }
-    },
-    async (req) => {
-      const { offset, limit, order } = req.validated.query;
-      return await repository.getAllWithRelations({ offset, limit });
-    }
-  );
-}
-const dxtClienteGetAllEndpoint = createDXTUserGetAllEndpoint(dxtClienteRepository);
-const dxtClienteGetOneEndpoint = createApiEndpoint(
-  adminRootController,
-  { validation: { params: { id_cliente: tangoIdValidator } } },
-  async (req) => clienteToSafeOutput(await dxtClienteRepository.getById(req.validated.params.id_cliente))
-);
-const dxtClienteCreateEndpoint = createApiEndpoint(
-  adminRootController,
-  { validation: { body: validateCreateClienteInput } },
-  async (req) => clienteToSafeOutput(await dxtClienteRepository.create(req.validated.body))
-);
-const dxtClienteUpdateEndpoint = createApiEndpoint(
-  adminRootController,
-  {
-    validation: {
-      params: { id_cliente: tangoIdValidator },
-      body: validateUpdateClienteInput
-    }
-  },
-  async (req) => clienteToSafeOutput(await dxtClienteRepository.update(req.validated.params.id_cliente, req.validated.body))
-);
-const dxtClienteDeleteEndpoint = createApiEndpoint(
-  adminRootController,
-  {
-    validation: {
-      params: { id_cliente: tangoIdValidator },
-      body: validateDeleteUserInput
-    }
-  },
+const markDraftAsFavoriteEndpoint = createApiEndpoint(
+  customerAndSellerRootController,
+  idPedidoValidationOptions,
   async (req) => {
-    await dxtClienteRepository.delete(req.validated.params.id_cliente, req.validated.body.username);
+    await setDraftFavorite(req.auth.user, req.validated.params.id_pedido, true);
     return { ok: true };
   }
 );
-const dxtVendedorGetAllEndpoint = createDXTUserGetAllEndpoint(dxtVendedorRepository);
-const dxtVendedorGetOneEndpoint = createApiEndpoint(
-  adminRootController,
-  { validation: { params: { id_vendedor: tangoIdValidator } } },
-  async (req) => vendedorToSafeOutput(await dxtVendedorRepository.getById(req.validated.params.id_vendedor))
-  //async (req): Promise<DXTVendedorResult> => vendedorToSafeOutput( await dxtVendedorRepository.getUserWithRelationsById(req.validated.params.id, false) ),
-);
-const dxtVendedorCreateEndpoint = createApiEndpoint(
-  adminRootController,
-  { validation: { body: validateCreateVendedorInput } },
-  async (req) => vendedorToSafeOutput(await dxtVendedorRepository.create(req.validated.body))
-);
-const dxtVendedorUpdateEndpoint = createApiEndpoint(
-  adminRootController,
-  {
-    validation: {
-      params: { id_vendedor: tangoIdValidator },
-      body: validateUpdateVendedorInput
-    }
-  },
-  async (req) => vendedorToSafeOutput(await dxtVendedorRepository.update(req.validated.params.id_vendedor, req.validated.body))
-);
-const dxtVendedorDeleteEndpoint = createApiEndpoint(
-  adminRootController,
-  {
-    validation: {
-      params: { id_vendedor: tangoIdValidator },
-      body: validateDeleteUserInput
-    }
-  },
+const removeDraftFavoriteMarkEndpoint = createApiEndpoint(
+  customerAndSellerRootController,
+  idPedidoValidationOptions,
   async (req) => {
-    await dxtVendedorRepository.delete(req.validated.params.id_vendedor, req.validated.body.username);
+    await setDraftFavorite(req.auth.user, req.validated.params.id_pedido, false);
     return { ok: true };
   }
 );
-const dxtVendedorGetCustomersEndpoint = createApiEndpoint(
-  authenticatedRootController,
-  void 0,
-  async (req) => {
-    var _a2;
-    const { user } = req.auth;
-    const tangoId = (_a2 = user.tangoId) == null ? void 0 : _a2.valueOf();
-    if (!user.role.isVendor())
-      throw new DXTException(DXTErrorCode.VENDOR_ROLE_REQUIRED);
-    if (typeof tangoId !== "number")
-      throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "dxtVendedorGetCustomersEndpoint");
-    return await clienteRepository.getAllByVendor(tangoId);
-  }
-);
-const dxtUsuarioGetAuxiliaresEndpoint = createApiEndpoint(
-  authenticatedRootController,
-  void 0,
-  async (req) => {
-    req.auth;
-    const [perfiles, listas] = await Promise.all([
-      perfilRepository.getAll(),
-      listaRepository.getAll()
-    ]);
-    return {
-      listas,
-      perfiles
-    };
-  }
-);
-async function loader$s({ request, params }) {
+const loader$u = unimplementedApiResponse;
+async function action$u({ request, params }) {
+  return await mapEndpoint(request, params, {
+    delete: removeDraftFavoriteMarkEndpoint,
+    patch: markDraftAsFavoriteEndpoint
+  });
+}
+const route27 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  action: action$u,
+  loader: loader$u
+}, Symbol.toStringTag, { value: "Module" }));
+async function loader$t({ request, params }) {
   return await dxtVendedorGetOneEndpoint.get(request, params);
 }
-async function action$s({ request, params }) {
+async function action$t({ request, params }) {
   return await mapEndpoint(request, params, {
     delete: dxtVendedorDeleteEndpoint,
     patch: dxtVendedorUpdateEndpoint
   });
 }
-const route25 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route28 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$s,
-  loader: loader$s
+  action: action$t,
+  loader: loader$t
 }, Symbol.toStringTag, { value: "Module" }));
 const useCustomValidationSchema = () => {
   const [passwordStatus, setPasswordStatus] = useState(null);
@@ -13993,71 +14755,61 @@ const ChangePassword = () => {
     ) })
   ] }) });
 };
-function Tango$1() {
-  const navigate = useNavigate();
-  return /* @__PURE__ */ jsxs(Container, { maxW: "2xl", sx: { my: 4 }, children: [
-    /* @__PURE__ */ jsx(
-      SettingsFormHeading,
-      {
-        title: CHANGE_PASSWORD,
-        returnButton: {
-          buttonProps: {
-            onClick: () => {
-              navigate(URL_MAIN_PATH);
-            }
-          }
-        }
-      }
-    ),
-    /* @__PURE__ */ jsx(ChangePassword, {})
+function Tango$2() {
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx(Navbar, {}),
+    /* @__PURE__ */ jsxs(Container, { maxW: "2xl", sx: { my: 4 }, children: [
+      /* @__PURE__ */ jsx(SettingsFormHeading, { title: CHANGE_PASSWORD }),
+      /* @__PURE__ */ jsx(ChangePassword, {})
+    ] })
   ] });
 }
-const route26 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route29 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: Tango$1
+  default: Tango$2
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$r({ request, params }) {
+async function loader$s({ request, params }) {
   return await dxtArticuloGetPrintListEndpoint.get(request, params);
 }
-async function action$r({ request, params }) {
+async function action$s({ request, params }) {
   return await dxtArticuloSetPrintListEndpoint.post(request, params);
 }
-const route27 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route30 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$r,
-  loader: loader$r
+  action: action$s,
+  loader: loader$s
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$q({ request, params }) {
+async function loader$r({ request, params }) {
   return await dxtClienteGetOneEndpoint.get(request, params);
 }
-async function action$q({ request, params }) {
+async function action$r({ request, params }) {
   return await mapEndpoint(request, params, {
     delete: dxtClienteDeleteEndpoint,
     patch: dxtClienteUpdateEndpoint
   });
 }
-const route28 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route31 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  action: action$r,
+  loader: loader$r
+}, Symbol.toStringTag, { value: "Module" }));
+async function loader$q({ request, params }) {
+  return await dxtArticuloGetEditListEndpoint.get(request, params);
+}
+async function action$q({ request, params }) {
+  return await dxtArticuloSetEditListEndpoint.post(request, params);
+}
+const route32 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$q,
   loader: loader$q
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$p({ request, params }) {
-  return await dxtArticuloGetEditListEndpoint.get(request, params);
-}
-async function action$p({ request, params }) {
-  return await dxtArticuloSetEditListEndpoint.post(request, params);
-}
-const route29 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const loader$p = async (o) => await dxtUsuarioGetAuxiliaresEndpoint.get(o.request, o.params);
+const action$p = unimplementedApiResponse;
+const route33 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$p,
   loader: loader$p
-}, Symbol.toStringTag, { value: "Module" }));
-const loader$o = async (o) => await dxtUsuarioGetAuxiliaresEndpoint.get(o.request, o.params);
-const action$o = unimplementedApiResponse;
-const route30 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  action: action$o,
-  loader: loader$o
 }, Symbol.toStringTag, { value: "Module" }));
 const OrdersLoading = () => /* @__PURE__ */ jsxs(Fragment, { children: [
   /* @__PURE__ */ jsx(Navbar, {}),
@@ -14070,7 +14822,6 @@ const OrdersLoading = () => /* @__PURE__ */ jsxs(Fragment, { children: [
         mb: 4
       },
       children: /* @__PURE__ */ jsxs(Grid, { templateColumns: "1fr", alignItems: "center", gap: 4, children: [
-        /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
         /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormTextareaSkeleton, { height: "120px" }) }),
         /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormTextareaSkeleton, { height: "120px" }) }),
         /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormTextareaSkeleton, { height: "120px" }) }),
@@ -14081,10 +14832,10 @@ const OrdersLoading = () => /* @__PURE__ */ jsxs(Fragment, { children: [
     }
   ) })
 ] });
-const ClientsListModal = (props) => {
+const CustomersListModal = (props) => {
   const { isDraft, isOpen, onClose } = props;
   const stateDataSortened = useRef();
-  const { state, retry } = useGetDXTVendorCustomers();
+  const { state, retry } = useGetDXTSellerCustomers();
   const SearchableList = () => {
     const { filteredData, handleSearchInputChange } = useSearchField(stateDataSortened.current ?? [], ["screen_name"]);
     const itemHeight = 30;
@@ -14144,7 +14895,7 @@ const ClientsListModal = (props) => {
       scrollBehavior: "inside",
       size: { base: "full", sm: "md", md: "lg" },
       children: [
-        /* @__PURE__ */ jsx(ModalOverlay, {}),
+        /* @__PURE__ */ jsx(ModalOverlay, { bg: "blackAlpha.800" }),
         /* @__PURE__ */ jsxs(
           ModalContent,
           {
@@ -14179,26 +14930,6 @@ const ClientsListModal = (props) => {
     }
   );
 };
-const PrintModalLoading = () => {
-  return /* @__PURE__ */ jsxs(VStack, { spacing: 4, children: [
-    /* @__PURE__ */ jsx(FormInputSkeleton, {}),
-    /* @__PURE__ */ jsx(FormInputSkeleton, {})
-  ] });
-};
-let PrintModalClient = lazy(() => {
-  return import("./assets/PrintModal.client-9CyKfGv2.js");
-});
-const PrintModal = (props) => {
-  const { pedidos, renglones, isOpen, onClose } = props;
-  return /* @__PURE__ */ jsxs(Modal, { isCentered: true, isOpen, onClose, children: [
-    /* @__PURE__ */ jsx(ModalOverlay, {}),
-    /* @__PURE__ */ jsxs(ModalContent, { children: [
-      /* @__PURE__ */ jsx(ModalHeader, { children: "Impresión de pedidos" }),
-      /* @__PURE__ */ jsx(ModalCloseButton, {}),
-      /* @__PURE__ */ jsx(ModalBody, { children: /* @__PURE__ */ jsx(Suspense, { fallback: /* @__PURE__ */ jsx(PrintModalLoading, {}), children: /* @__PURE__ */ jsx(PrintModalClient, { pedidos, renglones }) }) })
-    ] })
-  ] });
-};
 const OrdersNav = ({
   isDraft,
   pedidos,
@@ -14207,15 +14938,9 @@ const OrdersNav = ({
 }) => {
   const app = useAppResources();
   const [create, setCreate] = useState(false);
-  const [print, setPrint] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const {
-    isOpen: printIsOpen,
-    onOpen: printOnOpen,
-    onClose: printOnClose
-  } = useDisclosure();
   const [selectedPedidos, setSelectedPedidos] = useState([]);
-  const selectedPedidosAndRenglones = useRef({
+  useRef({
     pedidos: [],
     renglones: {}
   });
@@ -14252,21 +14977,8 @@ const OrdersNav = ({
     setCreate(false);
   };
   const handlePrint = () => {
-    selectedPedidosAndRenglones.current.pedidos = pedidos.filter(
-      (pedido) => selectedPedidos.includes(pedido.id)
-    );
-    if (Array.isArray(selectedPedidosAndRenglones.current.pedidos) && selectedPedidosAndRenglones.current.pedidos.length > 0 && stateRenglones.isSuccess()) {
-      selectedPedidosAndRenglones.current.renglones = _.pick(
-        stateRenglones.data,
-        selectedPedidos
-      );
-    }
-    setPrint(true);
-    printOnOpen();
-  };
-  const handlePrintOnClose = () => {
-    printOnClose();
-    setPrint(false);
+    if (Array.isArray(selectedPedidos))
+      window.open(`${URL_PEDIDOS_PRINT_PATH}?orderId=${selectedPedidos.join("&orderId=")}`, "OrderPrintWindow", "width=640,height=480");
   };
   const selectedInfo = selectedPedidos.length <= 0 ? void 0 : selectedPedidos.length == 1 ? `1 ${SELECTED_S}` : `${selectedPedidos.length} ${SELECTED_P}`;
   return /* @__PURE__ */ jsxs(Fragment, { children: [
@@ -14279,7 +14991,7 @@ const OrdersNav = ({
         sx: { mx: 4 },
         children: [
           /* @__PURE__ */ jsxs(HStack, { spacing: { base: 2, sm: 3 }, alignItems: "center", children: [
-            (app.authState.isVendor() || app.authState.isCustomer()) && /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx(
+            (app.authState.isSeller() || app.authState.isCustomer()) && /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx(
               ResponsiveIconButton,
               {
                 icon: PlusIcon,
@@ -14290,7 +15002,8 @@ const OrdersNav = ({
                   colorScheme: isDraft ? "green" : "orange",
                   onClick: () => {
                     handleCreate();
-                  }
+                  },
+                  isDisabled: !isDraft && !app.authState.userInfo.puede_crear_pedido
                 },
                 iconProps: {
                   boxSize: {
@@ -14352,20 +15065,11 @@ const OrdersNav = ({
       }
     ),
     create && /* @__PURE__ */ jsx(
-      ClientsListModal,
+      CustomersListModal,
       {
         isDraft,
         isOpen,
         onClose: handleOnClose
-      }
-    ),
-    print && /* @__PURE__ */ jsx(
-      PrintModal,
-      {
-        isOpen: printIsOpen,
-        onClose: handlePrintOnClose,
-        pedidos: selectedPedidosAndRenglones.current.pedidos,
-        renglones: selectedPedidosAndRenglones.current.renglones
       }
     )
   ] });
@@ -14403,22 +15107,20 @@ function getEstadoPedidoColor(estado, suffix) {
     return color;
   return `${color}${suffix}`;
 }
-const BadgePedidosEstado = ({ estado }) => {
-  const name = getEstadoPedidoText(estado);
-  const colorScheme = getEstadoPedidoColor(estado);
-  return /* @__PURE__ */ jsx(Badge, { fontSize: "1em", variant: "solid", colorScheme, lineHeight: "1.5em", children: name });
-};
 const PedidoMenu = ({
   app,
-  draft,
+  isDraft,
   pedido,
-  onDelete
+  onDelete,
+  onMarkAsFavorite
 }) => {
   const user = app.authState.userInfo;
-  const isAdmin = user.role == UserRole.admin;
-  const canEditOrder = isUserAllowedToModifyOrder(user, pedido.estado);
-  const canDeleteOrder = draft || isUserAllowedToCancelOrDeleteOrder(user, pedido.estado);
-  const deleteWhenCancel = draft || user.borrar_pedido_al_anular;
+  const isAdmin = app.authState.isAdmin();
+  const isFavorite = isDraft && pedido.es_favorito;
+  const canCreateOrder = !isAdmin && user.puede_crear_pedido;
+  const canEditBuyList = !isAdmin && (isDraft || user.puede_editar_pedido && isUserAllowedToModifyOrder(user, pedido.estado));
+  const canDeleteBuyList = !isAdmin && !isFavorite && (isDraft || isUserAllowedToCancelOrDeleteOrder(user, pedido.estado));
+  const deleteWhenCancel = isDraft || user.borrar_pedido_al_anular;
   return /* @__PURE__ */ jsxs(Menu, { isLazy: true, id: "menu", children: [
     /* @__PURE__ */ jsx(
       MenuButton,
@@ -14432,51 +15134,50 @@ const PedidoMenu = ({
       }
     ),
     /* @__PURE__ */ jsx(Portal, { children: /* @__PURE__ */ jsxs(MenuList, { rootProps: { zIndex: 2e3 }, children: [
-      !isAdmin && /* @__PURE__ */ jsxs(Fragment, { children: [
-        /* @__PURE__ */ jsx(
-          MenuItem,
-          {
-            onClick: () => {
-              app.navigate(
-                pathParamsToUrl(
-                  draft ? URL_BORRADORES_EDIT_PATH : URL_PEDIDOS_EDIT_PATH,
-                  { id: pedido.id }
-                )
-              );
-            },
-            isDisabled: !canEditOrder,
-            children: PEDIDO_MENU_MODIFY
-          }
-        ),
-        /* @__PURE__ */ jsx(
-          MenuItem,
-          {
-            onClick: () => {
-              app.navigate(
-                pathParamsToUrl(
-                  draft ? URL_BORRADORES_COPY_PATH : URL_PEDIDOS_COPY_PATH,
-                  { id: pedido.id }
-                )
-              );
-            },
-            children: PEDIDO_MENU_DUPLICATE
-          }
-        ),
-        /* @__PURE__ */ jsx(
-          MenuItem,
-          {
-            onClick: () => {
-              app.navigate(
-                pathParamsToUrl(
-                  draft ? URL_BORRADORES_CREATE_ORDER_PATH : URL_PEDIDOS_CREATE_DRAFT_PATH,
-                  { id: pedido.id }
-                )
-              );
-            },
-            children: draft ? PEDIDO_MENU_CREATE_ORDER : PEDIDO_MENU_CREATE_DRAFT
-          }
-        ),
-        draft && /* @__PURE__ */ jsx(
+      canEditBuyList && /* @__PURE__ */ jsx(
+        MenuItem,
+        {
+          onClick: () => {
+            app.navigate(
+              pathParamsToUrl(
+                isDraft ? URL_BORRADORES_EDIT_PATH : URL_PEDIDOS_EDIT_PATH,
+                { id: pedido.id }
+              )
+            );
+          },
+          children: PEDIDO_MENU_MODIFY
+        }
+      ),
+      (isDraft || canCreateOrder) && /* @__PURE__ */ jsx(
+        MenuItem,
+        {
+          onClick: () => {
+            app.navigate(
+              pathParamsToUrl(
+                isDraft ? URL_BORRADORES_COPY_PATH : URL_PEDIDOS_COPY_PATH,
+                { id: pedido.id }
+              )
+            );
+          },
+          children: PEDIDO_MENU_DUPLICATE
+        }
+      ),
+      (!isDraft || canCreateOrder) && /* @__PURE__ */ jsx(
+        MenuItem,
+        {
+          onClick: () => {
+            app.navigate(
+              pathParamsToUrl(
+                isDraft ? URL_BORRADORES_CREATE_ORDER_PATH : URL_PEDIDOS_CREATE_DRAFT_PATH,
+                { id: pedido.id }
+              )
+            );
+          },
+          children: isDraft ? isFavorite ? PEDIDO_MENU_CREATE_ORDER : PEDIDO_MENU_CREATE_ORDER_AND_KEEP_DRAFT : PEDIDO_MENU_CREATE_DRAFT
+        }
+      ),
+      isDraft && !isFavorite && /* @__PURE__ */ jsxs(Fragment, { children: [
+        canCreateOrder && /* @__PURE__ */ jsx(
           MenuItem,
           {
             onClick: () => {
@@ -14489,16 +15190,36 @@ const PedidoMenu = ({
             children: PEDIDO_MENU_CONVERT_DRAFT_TO_ORDER
           }
         ),
-        /* @__PURE__ */ jsx(MenuDivider, {})
+        /* @__PURE__ */ jsx(MenuDivider, {}),
+        /* @__PURE__ */ jsx(
+          MenuItem,
+          {
+            onClick: () => onMarkAsFavorite(pedido.id, true),
+            children: PEDIDO_MENU_MARK_DRAFT_AS_FAVORITE
+          }
+        )
       ] }),
-      /* @__PURE__ */ jsx(
-        MenuItem,
-        {
-          onClick: () => onDelete(pedido.id),
-          isDisabled: !canDeleteOrder,
-          children: deleteWhenCancel ? PEDIDO_MENU_DELETE : PEDIDO_MENU_CANCEL
-        }
-      )
+      isDraft && isFavorite && /* @__PURE__ */ jsxs(Fragment, { children: [
+        /* @__PURE__ */ jsx(MenuDivider, {}),
+        /* @__PURE__ */ jsx(
+          MenuItem,
+          {
+            onClick: () => onMarkAsFavorite(pedido.id, false),
+            children: PEDIDO_MENU_REMOVE_DRAFT_FAVORITE_MARK
+          }
+        )
+      ] }),
+      (isDraft || isUserAllowedToCancelOrDeleteOrder(user, pedido.estado)) && /* @__PURE__ */ jsxs(Fragment, { children: [
+        /* @__PURE__ */ jsx(MenuDivider, {}),
+        /* @__PURE__ */ jsx(
+          MenuItem,
+          {
+            onClick: () => onDelete(pedido.id),
+            isDisabled: !canDeleteBuyList,
+            children: isFavorite ? PEDIDO_MENU_UNABLE_TO_DELETE_FAVORITE : deleteWhenCancel ? PEDIDO_MENU_DELETE : PEDIDO_MENU_CANCEL
+          }
+        )
+      ] })
     ] }) })
   ] });
 };
@@ -14530,57 +15251,38 @@ const RenglonesPedido = ({
   nro_pedido,
   renglones
 }) => {
-  return /* @__PURE__ */ jsx(TableContainer, { sx: { p: 0, m: 0 }, children: /* @__PURE__ */ jsxs(
-    Table,
+  const rowColor = useColorModeValue(
+    "var(--chakra-colors-gray-200)",
+    "var(--chakra-colors-black)"
+  );
+  const tableBorderColor = useColorModeValue(
+    "var(--chakra-colors-gray-400)",
+    "var(--chakra-colors-black)"
+  );
+  return /* @__PURE__ */ jsxs(
+    "table",
     {
-      variant: "stripedHoverOverCard",
-      colorScheme: "gray",
-      size: "sm",
-      borderWidth: "1px",
+      width: "100%",
+      cellPadding: 8,
+      cellSpacing: 4,
+      style: {
+        fontSize: "0.8rem",
+        border: `1px solid ${tableBorderColor}`
+      },
       children: [
-        /* @__PURE__ */ jsx(Thead, { children: /* @__PURE__ */ jsx(Tr, { children: /* @__PURE__ */ jsx(Th, { sx: { py: 2 }, children: /* @__PURE__ */ jsxs(
-          Grid,
+        /* @__PURE__ */ jsx(
+          "thead",
           {
-            templateColumns: { base: "1fr 1fr 1fr", md: "4fr 1fr 1fr 1fr" },
-            gap: 6,
-            children: [
-              /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(Heading, { fontSize: { base: "xs", md: "sm" }, children: "Artículo" }) }),
-              /* @__PURE__ */ jsx(
-                GridItem,
-                {
-                  sx: {
-                    display: { base: "none", md: "block" }
-                  },
-                  children: /* @__PURE__ */ jsx(
-                    Heading,
-                    {
-                      fontSize: { base: "xs", md: "sm" },
-                      textAlign: "center",
-                      children: "Precio"
-                    }
-                  )
-                }
-              ),
-              /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
-                Heading,
-                {
-                  fontSize: { base: "xs", md: "sm" },
-                  textAlign: "center",
-                  children: "Cantidad"
-                }
-              ) }),
-              /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
-                Heading,
-                {
-                  fontSize: { base: "xs", md: "sm" },
-                  textAlign: "center",
-                  children: "Subtotal"
-                }
-              ) })
-            ]
+            style: { backgroundColor: `${rowColor}`, textTransform: "uppercase" },
+            children: /* @__PURE__ */ jsxs("tr", { children: [
+              /* @__PURE__ */ jsx("th", { className: "text-left", style: { width: "55%" }, children: "Artículo" }),
+              /* @__PURE__ */ jsx("th", { className: "text-right hidden-on-base", style: { width: "10%" }, children: "Precio" }),
+              /* @__PURE__ */ jsx("th", { className: "text-center", style: { width: "12%" }, children: "Cant." }),
+              /* @__PURE__ */ jsx("th", { className: "text-right", style: { width: "13%" }, children: "Subtotal" })
+            ] })
           }
-        ) }) }) }),
-        /* @__PURE__ */ jsx(Tbody, { children: renglones.map(
+        ),
+        /* @__PURE__ */ jsx("tbody", { children: renglones.map(
           ({
             id_articulo,
             nombre_articulo,
@@ -14589,38 +15291,20 @@ const RenglonesPedido = ({
             precio,
             cantidad,
             subtotal
-          }, index) => /* @__PURE__ */ jsx(Tr, { children: /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsxs(
-            Grid,
-            {
-              templateColumns: {
-                base: "1fr 1fr 1fr",
-                md: "4fr 1fr 1fr 1fr"
-              },
-              gap: 6,
-              children: [
-                /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(TextWordBreak, { children: formatNombreArticulo(
-                  nombre_articulo,
-                  codigo_articulo,
-                  descripcion_adicional
-                ) }) }),
-                /* @__PURE__ */ jsx(
-                  GridItem,
-                  {
-                    sx: {
-                      display: { base: "none", md: "block" }
-                    },
-                    children: /* @__PURE__ */ jsx(TextPrice, { precio, moneda: "$" })
-                  }
-                ),
-                /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(Text, { textAlign: "center", children: cantidad }) }),
-                /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(TextPrice, { precio: subtotal, moneda: "$" }) })
-              ]
-            }
-          ) }) }, `details-${nro_pedido}-${index}`)
+          }, index) => /* @__PURE__ */ jsxs("tr", { children: [
+            /* @__PURE__ */ jsx("td", { children: /* @__PURE__ */ jsx(TextWordBreak, { children: formatNombreArticulo(
+              nombre_articulo,
+              codigo_articulo,
+              descripcion_adicional
+            ) }) }),
+            /* @__PURE__ */ jsx("td", { className: "text-right hidden-on-base", children: /* @__PURE__ */ jsx(TextPriceNative, { precio, moneda: "$" }) }),
+            /* @__PURE__ */ jsx("td", { children: /* @__PURE__ */ jsx(Text, { textAlign: "center", children: cantidad }) }),
+            /* @__PURE__ */ jsx("td", { className: "text-right", children: /* @__PURE__ */ jsx(TextPriceNative, { precio: subtotal, moneda: "$" }) })
+          ] }, `details-${nro_pedido}-${index}`)
         ) })
       ]
     }
-  ) });
+  );
 };
 const Renglones = ({ wasOpen, pedido, stateRenglones }) => {
   return /* @__PURE__ */ jsx(Box, { sx: { mt: 6 }, children: wasOpen && stateRenglones.map({
@@ -14642,20 +15326,275 @@ const Renglones = ({ wasOpen, pedido, stateRenglones }) => {
     }
   }) });
 };
+const BadgePedidosEstado = ({ estado }) => {
+  const name = getEstadoPedidoText(estado);
+  const colorScheme = getEstadoPedidoColor(estado);
+  return /* @__PURE__ */ jsx(Badge, { fontSize: "1em", variant: "solid", colorScheme, lineHeight: "1.5em", children: name });
+};
+const OrdersGrid = (props) => {
+  const { app, pedido, total, estado, handleToggleDetails } = props;
+  const {
+    numero_pedido,
+    fecha_alta,
+    fecha_entrega,
+    codigo_cliente,
+    codigo_vendedor,
+    codigo_transporte,
+    nombre_cliente,
+    nombre_vendedor,
+    nombre_transporte,
+    descuento,
+    comentarios,
+    sin_iva,
+    sin_ii
+  } = pedido;
+  const isSeller = app.authState.isSeller();
+  const isCustomer = app.authState.isCustomer();
+  const showComments = comentarios != null && comentarios.length > 0;
+  return /* @__PURE__ */ jsxs(
+    Grid,
+    {
+      templateColumns: {
+        base: "repeat(2, 1fr)",
+        lg: "repeat(4, 1fr)"
+      },
+      gap: 6,
+      sx: {
+        cursor: "pointer"
+      },
+      onClick: () => {
+        handleToggleDetails();
+      },
+      children: [
+        /* @__PURE__ */ jsxs(GridItem, { children: [
+          /* @__PURE__ */ jsx(Heading, { size: "sm", children: "Pedido" }),
+          /* @__PURE__ */ jsx(Text, { children: numero_pedido })
+        ] }),
+        /* @__PURE__ */ jsxs(GridItem, { children: [
+          /* @__PURE__ */ jsx(Heading, { size: "sm", children: "Estado" }),
+          /* @__PURE__ */ jsx(BadgePedidosEstado, { estado })
+        ] }),
+        /* @__PURE__ */ jsxs(GridItem, { children: [
+          /* @__PURE__ */ jsx(Heading, { size: "sm", children: "Emisión" }),
+          /* @__PURE__ */ jsx(Text, { children: dateToLocale(fecha_alta) })
+        ] }),
+        /* @__PURE__ */ jsxs(GridItem, { children: [
+          /* @__PURE__ */ jsx(Heading, { size: "sm", children: "Entrega" }),
+          /* @__PURE__ */ jsx(Text, { children: dateToLocale(fecha_entrega) })
+        ] }),
+        !isCustomer && /* @__PURE__ */ jsxs(GridItem, { ...isSeller ? { colSpan: { base: 1, lg: 2 } } : void 0, children: [
+          /* @__PURE__ */ jsxs(Heading, { size: "sm", children: [
+            "Cliente ",
+            codigo_cliente
+          ] }),
+          /* @__PURE__ */ jsx(TextWordBreak, { children: nombre_cliente })
+        ] }),
+        !isSeller && !isCustomer && /* @__PURE__ */ jsxs(GridItem, { children: [
+          /* @__PURE__ */ jsxs(Heading, { size: "sm", children: [
+            "Vendedor ",
+            codigo_vendedor
+          ] }),
+          /* @__PURE__ */ jsx(TextWordBreak, { children: nombre_vendedor })
+        ] }),
+        /* @__PURE__ */ jsxs(GridItem, { ...isCustomer ? { colSpan: { base: 1, lg: 3 } } : void 0, ...isSeller ? { colSpan: { base: 1, lg: 1 } } : void 0, children: [
+          /* @__PURE__ */ jsxs(Heading, { size: "sm", children: [
+            "Transporte ",
+            codigo_transporte
+          ] }),
+          /* @__PURE__ */ jsx(TextWordBreak, { children: nombre_transporte })
+        ] }),
+        /* @__PURE__ */ jsxs(GridItem, { ...isSeller ? { colSpan: { base: 2, lg: 1 } } : void 0, children: [
+          /* @__PURE__ */ jsxs(
+            Heading,
+            {
+              size: "sm",
+              sx: {
+                textTransform: "uppercase",
+                color: estado === EstadoPedido.APROBADO && "green.400",
+                whiteSpace: "normal"
+              },
+              children: [
+                "Total ",
+                descuento > 0 && /* @__PURE__ */ jsx(Fragment, { children: ` -${descuento}%` }),
+                /* @__PURE__ */ jsxs("span", { style: { fontSize: "small" }, children: [
+                  " ",
+                  `(${formatTaxesLabel(sin_iva, sin_ii)})`
+                ] })
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            Heading,
+            {
+              size: "sm",
+              sx: {
+                fontWeight: "bolder",
+                color: estado === EstadoPedido.APROBADO && "green.400"
+              },
+              children: total != null && /* @__PURE__ */ jsx(TextPriceNative, { precio: total, moneda: "$" })
+            }
+          )
+        ] }),
+        showComments && /* @__PURE__ */ jsx(
+          GridItem,
+          {
+            colSpan: {
+              base: 2,
+              lg: 4
+            },
+            children: /* @__PURE__ */ jsx(Alert, { status: "info", children: /* @__PURE__ */ jsx(
+              AlertDescription,
+              {
+                dangerouslySetInnerHTML: { __html: nlToBr(comentarios) },
+                sx: {
+                  whiteSpace: "normal"
+                }
+              }
+            ) })
+          }
+        )
+      ]
+    }
+  );
+};
+const DraftsGrid = (props) => {
+  const { app, pedido, estado, total, handleToggleDetails } = props;
+  const {
+    codigo_cliente,
+    codigo_vendedor,
+    codigo_transporte,
+    nombre_cliente,
+    nombre_vendedor,
+    nombre_transporte,
+    descuento,
+    comentarios,
+    descripcion,
+    es_favorito,
+    sin_iva,
+    sin_ii
+  } = pedido;
+  const isSeller = app.authState.isSeller();
+  const isCustomer = app.authState.isCustomer();
+  const showComments = comentarios != null && comentarios.length > 0;
+  const fullWidthColSpan = {
+    base: isSeller ? 1 : isCustomer ? 1 : 2,
+    md: isSeller ? 2 : isCustomer ? 1 : 2,
+    lg: isSeller ? 3 : isCustomer ? 2 : 4
+  };
+  const templateColumns = {
+    base: isSeller ? "repeat(1, 1fr)" : isCustomer ? "repeat(1, 1fr)" : "repeat(2, 1fr)",
+    md: isSeller ? "repeat(2, 1fr)" : isCustomer ? "repeat(1, 1fr)" : "repeat(2, 1fr)",
+    lg: isSeller ? "repeat(3, 1fr)" : isCustomer ? "repeat(2, 1fr)" : "repeat(4, 1fr)"
+  };
+  return /* @__PURE__ */ jsxs(
+    Grid,
+    {
+      templateColumns,
+      gap: 6,
+      sx: {
+        cursor: "pointer"
+      },
+      onClick: () => {
+        handleToggleDetails();
+      },
+      children: [
+        /* @__PURE__ */ jsx(GridItem, { colSpan: fullWidthColSpan, children: /* @__PURE__ */ jsx(Heading, { size: "md", textTransform: "uppercase", children: descripcion }) }),
+        !isCustomer && /* @__PURE__ */ jsxs(GridItem, { children: [
+          /* @__PURE__ */ jsxs(Heading, { size: "sm", children: [
+            "Cliente ",
+            codigo_cliente
+          ] }),
+          /* @__PURE__ */ jsx(TextWordBreak, { children: nombre_cliente })
+        ] }),
+        !isSeller && !isCustomer && /* @__PURE__ */ jsxs(GridItem, { children: [
+          /* @__PURE__ */ jsxs(Heading, { size: "sm", children: [
+            "Vendedor ",
+            codigo_vendedor
+          ] }),
+          /* @__PURE__ */ jsx(TextWordBreak, { children: nombre_vendedor })
+        ] }),
+        /* @__PURE__ */ jsxs(GridItem, { children: [
+          /* @__PURE__ */ jsxs(Heading, { size: "sm", children: [
+            "Transporte ",
+            codigo_transporte
+          ] }),
+          /* @__PURE__ */ jsx(TextWordBreak, { children: nombre_transporte })
+        ] }),
+        /* @__PURE__ */ jsxs(GridItem, { children: [
+          /* @__PURE__ */ jsxs(
+            Heading,
+            {
+              size: "sm",
+              sx: {
+                textTransform: "uppercase",
+                color: estado === EstadoPedido.APROBADO && "green.400",
+                whiteSpace: "normal"
+              },
+              children: [
+                "Total ",
+                descuento > 0 && /* @__PURE__ */ jsx(Fragment, { children: ` -${descuento}%` }),
+                /* @__PURE__ */ jsxs("span", { style: { fontSize: "small" }, children: [
+                  " ",
+                  `(${formatTaxesLabel(sin_iva, sin_ii)})`
+                ] })
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsx(
+            Heading,
+            {
+              size: "sm",
+              sx: {
+                fontWeight: "bolder",
+                color: estado === EstadoPedido.APROBADO && "green.400"
+              },
+              children: total != null && /* @__PURE__ */ jsx(TextPriceNative, { precio: total, moneda: "$" })
+            }
+          )
+        ] }),
+        showComments && /* @__PURE__ */ jsx(
+          GridItem,
+          {
+            colSpan: {
+              base: 2,
+              lg: 4
+            },
+            children: /* @__PURE__ */ jsx(Alert, { status: "info", children: /* @__PURE__ */ jsx(
+              AlertDescription,
+              {
+                dangerouslySetInnerHTML: { __html: nlToBr(comentarios) },
+                sx: {
+                  whiteSpace: "normal"
+                }
+              }
+            ) })
+          }
+        )
+      ]
+    }
+  );
+};
+function calculateRealOrderTotal(pedido, stateRenglones) {
+  if (!stateRenglones.isSuccess())
+    return null;
+  return realOrderTotal(pedido, stateRenglones.data[pedido.id]);
+}
 const Pedido = ({
   index,
   app,
   draft,
   pedido,
   stateRenglones,
-  onDelete,
+  handleDelete,
+  handleMarkAsFavorite,
   isHidden
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [checked, setChecked] = useState(false);
   const checkboxBorderColor = useColorModeValue("gray.800", "white");
   const wasOpen = useRef(false);
-  const realOrderStatus2 = calculateRealOrderStatus(pedido, stateRenglones);
+  const estado = calculateRealOrderStatus(pedido, stateRenglones);
+  const total = pedido.total != null ? pedido.total : calculateRealOrderTotal(pedido, stateRenglones);
   const renglonesComponent = useMemo(
     () => /* @__PURE__ */ jsx(
       Renglones,
@@ -14688,27 +15627,8 @@ const Pedido = ({
       eventBus.removeListener("togglePedidoDetails", handleEvent);
     };
   }, []);
-  const {
-    id,
-    numero_pedido,
-    fecha_alta,
-    fecha_entrega,
-    codigo_cliente,
-    codigo_vendedor,
-    codigo_transporte,
-    nombre_cliente,
-    nombre_vendedor,
-    nombre_transporte,
-    total,
-    descuento,
-    comentarios,
-    descripcion
-  } = pedido;
-  const estado = realOrderStatus2;
-  const showComments = comentarios != null && comentarios.length > 0;
-  app.authState.isAdmin();
-  const isVendor = app.authState.isVendor();
-  const isCustomer = app.authState.isCustomer();
+  const { id, es_favorito } = pedido;
+  const isFavorite = draft && es_favorito;
   return /* @__PURE__ */ jsx(
     Tr,
     {
@@ -14723,9 +15643,13 @@ const Pedido = ({
           sx: {
             py: 6,
             position: "relative",
-            borderTopWidth: { base: "3px", md: "4px" },
-            borderTopStyle: "solid",
-            borderTopColor: `${draft ? "blue.500 !important" : getEstadoPedidoColor(estado, ".500 !important")}`
+            //backgroundColor: draft ? 'red' : undefined,
+            borderTopWidth: !draft ? { base: "3px", md: "4px" } : void 0,
+            borderTopStyle: !draft ? "solid" : void 0,
+            borderTopColor: !draft ? getEstadoPedidoColor(estado, ".500 !important") : void 0,
+            borderWidth: draft ? { base: "2px", md: "3px" } : void 0,
+            borderStyle: draft ? "dashed" : void 0,
+            borderColor: draft ? !es_favorito ? "blue.500 !important" : "orange.500 !important" : void 0
           },
           children: [
             /* @__PURE__ */ jsxs(
@@ -14734,7 +15658,7 @@ const Pedido = ({
                 display: "flex",
                 sx: {
                   position: "absolute",
-                  right: 5,
+                  right: 2,
                   top: 5
                 },
                 flexDirection: "column",
@@ -14743,11 +15667,17 @@ const Pedido = ({
                     PedidoMenu,
                     {
                       app,
-                      draft,
+                      isDraft: draft,
                       pedido,
-                      onDelete
+                      onDelete: handleDelete,
+                      onMarkAsFavorite: handleMarkAsFavorite
                     }
                   ),
+                  isFavorite && /* @__PURE__ */ jsx(Flex, { backgroundColor: "orange", justifyContent: "center", alignItems: "center", sx: {
+                    mt: 2,
+                    borderRadius: 4,
+                    aspectRatio: 1
+                  }, children: /* @__PURE__ */ jsx(Icon, { as: StarIcon, boxSize: 4, color: "white" }) }),
                   !draft && /* @__PURE__ */ jsx(
                     Checkbox,
                     {
@@ -14766,104 +15696,23 @@ const Pedido = ({
                 ]
               }
             ),
-            /* @__PURE__ */ jsxs(
-              Grid,
+            !draft ? /* @__PURE__ */ jsx(
+              OrdersGrid,
               {
-                templateColumns: {
-                  base: "repeat(2, 1fr)",
-                  md: "repeat(4, 1fr)"
-                },
-                gap: 6,
-                sx: {
-                  cursor: "pointer"
-                },
-                onClick: () => {
-                  handleToggleDetails();
-                },
-                children: [
-                  draft ? /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx(GridItem, { colSpan: { base: 2, md: 4 }, children: /* @__PURE__ */ jsx(Heading, { size: "md", textTransform: "uppercase", children: descripcion }) }) }) : /* @__PURE__ */ jsxs(Fragment, { children: [
-                    /* @__PURE__ */ jsxs(GridItem, { children: [
-                      /* @__PURE__ */ jsx(Heading, { size: "sm", children: "Pedido" }),
-                      /* @__PURE__ */ jsx(Text, { children: numero_pedido })
-                    ] }),
-                    /* @__PURE__ */ jsxs(GridItem, { children: [
-                      /* @__PURE__ */ jsx(Heading, { size: "sm", children: "Estado" }),
-                      /* @__PURE__ */ jsx(BadgePedidosEstado, { estado })
-                    ] }),
-                    /* @__PURE__ */ jsxs(GridItem, { children: [
-                      /* @__PURE__ */ jsx(Heading, { size: "sm", children: "Emisión" }),
-                      /* @__PURE__ */ jsx(Text, { children: dateToLocale(fecha_alta) })
-                    ] }),
-                    /* @__PURE__ */ jsxs(GridItem, { children: [
-                      /* @__PURE__ */ jsx(Heading, { size: "sm", children: "Entrega" }),
-                      /* @__PURE__ */ jsx(Text, { children: dateToLocale(fecha_entrega) })
-                    ] })
-                  ] }),
-                  !isCustomer && /* @__PURE__ */ jsxs(GridItem, { ...isVendor && { colSpan: 2 }, children: [
-                    /* @__PURE__ */ jsxs(Heading, { size: "sm", children: [
-                      "Cliente: ",
-                      codigo_cliente
-                    ] }),
-                    /* @__PURE__ */ jsx(TextWordBreak, { children: nombre_cliente })
-                  ] }),
-                  !isVendor && !isCustomer && /* @__PURE__ */ jsxs(GridItem, { children: [
-                    /* @__PURE__ */ jsxs(Heading, { size: "sm", children: [
-                      "Vendedor: ",
-                      codigo_vendedor
-                    ] }),
-                    /* @__PURE__ */ jsx(TextWordBreak, { children: nombre_vendedor })
-                  ] }),
-                  /* @__PURE__ */ jsxs(GridItem, { ...isCustomer && { colSpan: 3 }, children: [
-                    /* @__PURE__ */ jsxs(Heading, { size: "sm", children: [
-                      "Transporte: ",
-                      codigo_transporte
-                    ] }),
-                    /* @__PURE__ */ jsx(TextWordBreak, { children: nombre_transporte })
-                  ] }),
-                  /* @__PURE__ */ jsxs(GridItem, { children: [
-                    /* @__PURE__ */ jsxs(
-                      Heading,
-                      {
-                        size: "md",
-                        sx: {
-                          textTransform: "uppercase",
-                          color: estado === EstadoPedido.APROBADO && "green.400"
-                        },
-                        children: [
-                          "Total",
-                          descuento != null && /* @__PURE__ */ jsxs(Fragment, { children: [
-                            " ",
-                            `-${descuento}%`
-                          ] })
-                        ]
-                      }
-                    ),
-                    /* @__PURE__ */ jsx(
-                      Heading,
-                      {
-                        size: "md",
-                        sx: {
-                          fontWeight: "bolder",
-                          color: estado === EstadoPedido.APROBADO && "green.400"
-                        },
-                        children: /* @__PURE__ */ jsx(TextPriceNative, { precio: total, moneda: "$" })
-                      }
-                    )
-                  ] }),
-                  showComments && /* @__PURE__ */ jsx(
-                    GridItem,
-                    {
-                      colSpan: {
-                        base: 2,
-                        md: 4
-                      },
-                      children: /* @__PURE__ */ jsxs(Alert, { status: "info", children: [
-                        /* @__PURE__ */ jsx(AlertIcon, {}),
-                        /* @__PURE__ */ jsx(AlertDescription, { children: comentarios })
-                      ] })
-                    }
-                  )
-                ]
+                app,
+                pedido,
+                estado,
+                total,
+                handleToggleDetails
+              }
+            ) : /* @__PURE__ */ jsx(
+              DraftsGrid,
+              {
+                app,
+                pedido,
+                estado,
+                total,
+                handleToggleDetails
               }
             ),
             /* @__PURE__ */ jsx(Box, { children: /* @__PURE__ */ jsx(Box, { sx: { display: isOpen ? "block" : "none" }, children: renglonesComponent }) }, `pedido-details-${index}`)
@@ -14877,20 +15726,23 @@ function PedidoList(props) {
   const app = useAppResources();
   const user = app.authState.userInfo;
   const deleteOrder = user.borrar_pedido_al_anular.valueOf();
-  const { draft, unfilteredPedidos, filteredPedidos, isFiltering, stateRenglones, reloadData } = props;
+  const {
+    draft,
+    unfilteredPedidos,
+    filteredPedidos,
+    isFiltering,
+    stateRenglones,
+    reloadData
+  } = props;
   const toast = useToast();
-  const deleteDialogDisclouse = useDisclosure();
-  const { isOpen: isDeleteDialogOpen, onOpen: onDeleteDialogOpen, onClose: onDeleteDialogClose } = deleteDialogDisclouse;
-  const orderIdToDelete = useRef(null);
-  const handleDeleteRequest = (orderId) => {
-    orderIdToDelete.current = orderId;
-    onDeleteDialogOpen();
-  };
-  const handleDeleteConfirmation = async () => {
-    const orderId = orderIdToDelete.current;
-    if (orderId != null) {
+  const confirmationDialog = useConfirmationDialog();
+  const handleDelete = async (orderId) => {
+    const dialogResult = await confirmationDialog({
+      title: draft ? PEDIDO_DELETE_DRAFT : deleteOrder ? PEDIDO_DELETE_ORDER : PEDIDO_CANCEL_ORDER,
+      message: draft ? PEDIDO_DELETE_DRAFT_CONFIRM : deleteOrder ? PEDIDO_DELETE_ORDER_CONFIRM : PEDIDO_CANCEL_ORDER_CONFIRM
+    });
+    if (dialogResult == ConfirmationDialogResult.accept) {
       const result = draft ? await deleteDraftRequest(orderId, app) : await deleteOrderRequest(orderId, app);
-      console.log(result);
       result.map({
         success: (_2) => {
           toast({
@@ -14908,62 +15760,65 @@ function PedidoList(props) {
       if (result.isSuccess()) {
         await reloadData();
       }
-      onDeleteDialogClose();
     }
   };
-  return /* @__PURE__ */ jsxs(TableContainer, { sx: { p: 0, m: 0 }, children: [
-    /* @__PURE__ */ jsx(
-      Table,
-      {
-        variant: "stripedOverCard",
-        colorScheme: "gray",
-        size: "md",
-        sx: {
-          borderCollapse: "separate",
-          borderSpacing: "0 1rem"
-        },
-        children: /* @__PURE__ */ jsxs(Tbody, { children: [
-          unfilteredPedidos.map((pedido, index) => {
-            return /* @__PURE__ */ jsx(
-              Pedido,
-              {
-                index,
-                draft,
-                app,
-                pedido,
-                stateRenglones,
-                onDelete: handleDeleteRequest,
-                isHidden: isFiltering && !filteredPedidos.includes(pedido)
-              },
-              `pedido-${pedido.id}`
-            );
-          }),
-          !filteredPedidos.length && /* @__PURE__ */ jsx(Tr, { children: /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsxs(Alert, { status: "info", children: [
-            /* @__PURE__ */ jsx(AlertIcon, {}),
-            /* @__PURE__ */ jsx(AlertDescription, { children: isFiltering ? FILTER_NO_RESULTS : draft ? NO_BORRADORES : NO_PEDIDOS })
-          ] }) }) })
-        ] })
-      }
-    ),
-    /* @__PURE__ */ jsx(
-      DeleteDialog,
-      {
-        isOpen: isDeleteDialogOpen,
-        onClose: onDeleteDialogClose,
-        handleDeletion: handleDeleteConfirmation,
-        message: {
-          title: draft ? PEDIDO_DELETE_DRAFT : deleteOrder ? PEDIDO_DELETE_ORDER : PEDIDO_CANCEL_ORDER,
-          body: draft ? PEDIDO_DELETE_DRAFT_CONFIRM : deleteOrder ? PEDIDO_DELETE_ORDER_CONFIRM : PEDIDO_CANCEL_ORDER_CONFIRM
-        }
-      }
-    )
-  ] });
+  const handleMarkAsFavorite = async (draftId, isFavorite) => {
+    if (isFavorite) {
+      const result = await markDraftAsFavoriteRequest(draftId, app);
+      if (result.isSuccess())
+        await reloadData();
+      return;
+    }
+    const dialogResult = await confirmationDialog({
+      title: PEDIDO_REMOVE_DRAFT_FAVORITE_MARK,
+      message: PEDIDO_REMOVE_DRAFT_FAVORITE_MARK_CONFIRM
+    });
+    if (dialogResult == ConfirmationDialogResult.accept) {
+      const result = await removeDraftFavoriteMarkRequest(draftId, app);
+      if (result.isSuccess())
+        await reloadData();
+    }
+  };
+  return /* @__PURE__ */ jsx(TableContainer, { sx: { p: 0, m: 0 }, children: /* @__PURE__ */ jsx(
+    Table,
+    {
+      variant: "stripedOverCard",
+      colorScheme: "gray",
+      size: "md",
+      sx: {
+        borderCollapse: "separate",
+        borderSpacing: "0 1rem"
+      },
+      children: /* @__PURE__ */ jsxs(Tbody, { children: [
+        unfilteredPedidos.map((pedido, index) => {
+          return /* @__PURE__ */ jsx(
+            Pedido,
+            {
+              index,
+              draft,
+              app,
+              pedido,
+              stateRenglones,
+              handleDelete,
+              handleMarkAsFavorite,
+              isHidden: isFiltering && !filteredPedidos.includes(pedido)
+            },
+            `pedido-${pedido.id}`
+          );
+        }),
+        !filteredPedidos.length && /* @__PURE__ */ jsx(Tr, { children: /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsxs(Alert, { status: "info", children: [
+          /* @__PURE__ */ jsx(AlertIcon, {}),
+          /* @__PURE__ */ jsx(AlertDescription, { children: isFiltering ? FILTER_NO_RESULTS : draft ? NO_BORRADORES : NO_PEDIDOS })
+        ] }) }) })
+      ] })
+    }
+  ) });
 }
 const OrdersReady = (props) => {
   const { showDrafts, pedidos, reloadData } = props;
   const user = useAuth().state.userOrThrow();
   const isAdmin = user.role == UserRole.admin;
-  user.role == UserRole.vendor;
+  user.role == UserRole.seller;
   const isCustomer = user.role == UserRole.customer;
   const {
     filteredData: filteredPedidos,
@@ -15027,31 +15882,288 @@ const OrdersPage = (props) => {
         cancelAndNavigateTo: URL_PEDIDOS_PATH
       }
     ),
-    success: (state2) => /* @__PURE__ */ jsx(OrdersReady, { showDrafts, pedidos: state2.data, reloadData: reload })
+    success: (state2) => {
+      const sortedBuyLists = showDrafts ? state2.data.sort(_draftCmp) : state2.data.sort(_orderCmp);
+      return /* @__PURE__ */ jsx(OrdersReady, { showDrafts, pedidos: sortedBuyLists, reloadData: reload });
+    }
   });
 };
+function _draftCmp(a, b) {
+  const aFav = a.es_favorito ? 1 : 0;
+  const bFav = b.es_favorito ? 1 : 0;
+  const favDif = aFav - bFav;
+  if (favDif != 0)
+    return favDif;
+  const aIngreso = new Date(a.fecha_ingreso).getTime();
+  const bIngreso = new Date(b.fecha_ingreso).getTime();
+  return bIngreso - aIngreso;
+}
+function _orderCmp(a, b) {
+  const estadoDif = a.estado - b.estado;
+  if (estadoDif != 0)
+    return estadoDif;
+  const aEntrega = a.fecha_entrega != null ? new Date(a.fecha_entrega).getTime() : 0;
+  const bEntrega = b.fecha_entrega != null ? new Date(b.fecha_entrega).getTime() : 0;
+  const entregaDif = aEntrega - bEntrega;
+  if (entregaDif != 0)
+    return entregaDif;
+  const aAlta = new Date(a.fecha_alta).getTime();
+  const bAlta = new Date(b.fecha_alta).getTime();
+  return aAlta - bAlta;
+}
 function OrdersList$1() {
   return /* @__PURE__ */ jsx(OrdersPage, { showDrafts: true });
 }
-const route31 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route34 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: OrdersList$1
 }, Symbol.toStringTag, { value: "Module" }));
 function OrdersList() {
   return /* @__PURE__ */ jsx(OrdersPage, {});
 }
-const route32 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route35 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: OrdersList
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$n({ request, params }) {
+const SkeletonFormatted = () => /* @__PURE__ */ jsx(Skeleton, { width: "full", height: "20px" });
+const OrdersPrintLoading = () => /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs(
+  Box,
+  {
+    width: "full",
+    sx: {
+      backgroundColor: "white"
+    },
+    children: [
+      /* @__PURE__ */ jsx(Table, { children: /* @__PURE__ */ jsx(Tbody, { children: /* @__PURE__ */ jsxs(Tr, { children: [
+        /* @__PURE__ */ jsx(Td, { width: "23%", children: /* @__PURE__ */ jsx(SkeletonFormatted, {}) }),
+        /* @__PURE__ */ jsx(Td, { width: "18%", children: /* @__PURE__ */ jsx(SkeletonFormatted, {}) }),
+        /* @__PURE__ */ jsx(Td, { width: "18%", children: /* @__PURE__ */ jsx(SkeletonFormatted, {}) }),
+        /* @__PURE__ */ jsx(Td, { width: "18%", children: /* @__PURE__ */ jsx(SkeletonFormatted, {}) }),
+        /* @__PURE__ */ jsx(Td, { width: "23%", children: /* @__PURE__ */ jsx(SkeletonFormatted, {}) })
+      ] }) }) }),
+      /* @__PURE__ */ jsx(Table, { children: /* @__PURE__ */ jsx(Tbody, { children: /* @__PURE__ */ jsxs(Tr, { children: [
+        /* @__PURE__ */ jsx(Td, { width: "50%", children: /* @__PURE__ */ jsx(SkeletonFormatted, {}) }),
+        /* @__PURE__ */ jsx(Td, { width: "50%", children: /* @__PURE__ */ jsx(SkeletonFormatted, {}) })
+      ] }) }) }),
+      /* @__PURE__ */ jsx(Table, { children: /* @__PURE__ */ jsx(Tbody, { children: [...Array(10)].map((_2, index) => /* @__PURE__ */ jsxs(Tr, { children: [
+        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx(SkeletonFormatted, {}) }),
+        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx(SkeletonFormatted, {}) }),
+        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx(SkeletonFormatted, {}) }),
+        /* @__PURE__ */ jsx(Td, { children: /* @__PURE__ */ jsx(SkeletonFormatted, {}) })
+      ] }, `loading-${index}`)) }) })
+    ]
+  }
+) });
+const PrintBar = ({ handlePageBreaks, pageBreaks }) => {
+  const handlePrint = () => {
+    window.print();
+  };
+  useEffect(() => {
+    const beforePrintHandler = () => {
+      window.scrollTo(0, 0);
+    };
+    window.addEventListener("beforeprint", beforePrintHandler);
+    return () => {
+      window.removeEventListener("beforeprint", beforePrintHandler);
+    };
+  }, []);
+  return /* @__PURE__ */ jsx(Flex, { bgColor: "white", className: "hidden-print", justifyContent: "start", sx: { p: 4, position: "sticky", top: 0, w: "100%", h: 20 }, children: /* @__PURE__ */ jsxs(HStack, { children: [
+    /* @__PURE__ */ jsx(Button, { onClick: handlePrint, boxShadow: "md", size: "sm", pl: 6, pr: 6, colorScheme: "blue", leftIcon: /* @__PURE__ */ jsx(Icon, { as: PrinterIcon }), children: PRINT }),
+    /* @__PURE__ */ jsxs(
+      Box,
+      {
+        display: "flex",
+        alignItems: "center",
+        p: 1,
+        height: 8,
+        borderColor: "blue.500",
+        borderWidth: 1,
+        borderRadius: "md",
+        boxShadow: 0,
+        children: [
+          /* @__PURE__ */ jsx(Switch, { id: "page_break", onChange: handlePageBreaks, isChecked: pageBreaks }),
+          /* @__PURE__ */ jsx(
+            FormLabel,
+            {
+              display: "block",
+              htmlFor: "page_break",
+              flexShrink: 1,
+              ml: 2,
+              mb: 0,
+              color: "blue.900",
+              textOverflow: "ellipsis",
+              overflow: "hidden",
+              whiteSpace: "nowrap",
+              maxWidth: "100%",
+              children: PEDIDO_PRINT_PAGE_BREAKS
+            }
+          )
+        ]
+      }
+    )
+  ] }) });
+};
+const OrdersPrintReady = (props) => {
+  const { orders } = props;
+  const [pageBreaks, setPageBreaks] = useState(false);
+  const handlePageBreaks = () => {
+    setPageBreaks(!pageBreaks);
+  };
+  return /* @__PURE__ */ jsxs(Box, { sx: { backgroundColor: "white", minHeight: "100vh" }, children: [
+    /* @__PURE__ */ jsx(PrintBar, { handlePageBreaks, pageBreaks }),
+    orders.map((order, index) => {
+      const {
+        id,
+        numero_pedido,
+        fecha_alta,
+        fecha_entrega,
+        descuento,
+        estado,
+        total,
+        codigo_cliente,
+        nombre_cliente,
+        codigo_transporte,
+        nombre_transporte
+      } = order.cabecera;
+      const pageBreakElement = index > 0 ? /* @__PURE__ */ jsx("div", { style: { pageBreakBefore: "always" } }) : /* @__PURE__ */ jsx(Fragment, {});
+      return /* @__PURE__ */ jsxs(React.Fragment, { children: [
+        pageBreaks && pageBreakElement,
+        index > 0 && /* @__PURE__ */ jsx(Box, { className: pageBreaks ? "hidden-print" : "", sx: { height: "40px" } }),
+        /* @__PURE__ */ jsxs(TableContainer, { sx: { p: 2, overflowX: "hidden" }, children: [
+          /* @__PURE__ */ jsx(Table, { variant: "basicPrintable", children: /* @__PURE__ */ jsx(Tbody, { children: /* @__PURE__ */ jsxs(Tr, { children: [
+            /* @__PURE__ */ jsxs(Td, { width: "23%", children: [
+              "Pedido: ",
+              /* @__PURE__ */ jsx("strong", { children: numero_pedido })
+            ] }),
+            /* @__PURE__ */ jsxs(Td, { width: "18%", children: [
+              "Emisión: ",
+              /* @__PURE__ */ jsx("strong", { children: dateToLocale(fecha_alta) })
+            ] }),
+            /* @__PURE__ */ jsxs(Td, { width: "18%", children: [
+              "Entrega: ",
+              /* @__PURE__ */ jsx("strong", { children: dateToLocale(fecha_entrega) })
+            ] }),
+            /* @__PURE__ */ jsx(Td, { width: "18%", children: descuento != 0 && /* @__PURE__ */ jsxs(Fragment, { children: [
+              "Bonificación: ",
+              /* @__PURE__ */ jsxs("strong", { children: [
+                descuento,
+                "%"
+              ] })
+            ] }) }),
+            /* @__PURE__ */ jsxs(Td, { width: "23%", children: [
+              "Estado: ",
+              /* @__PURE__ */ jsx("strong", { style: { textTransform: "uppercase" }, children: getEstadoPedidoText(estado) })
+            ] })
+          ] }) }) }),
+          /* @__PURE__ */ jsx(Table, { variant: "basicPrintable", children: /* @__PURE__ */ jsx(Tbody, { children: /* @__PURE__ */ jsxs(Tr, { children: [
+            /* @__PURE__ */ jsxs(Td, { width: "50%", children: [
+              "Cliente: ",
+              /* @__PURE__ */ jsx("strong", { children: formatCliente(codigo_cliente, nombre_cliente) })
+            ] }),
+            /* @__PURE__ */ jsxs(Td, { width: "50%", children: [
+              "Transporte: ",
+              /* @__PURE__ */ jsx("strong", { children: formatAuxiliares(codigo_transporte, nombre_transporte) })
+            ] })
+          ] }) }) }),
+          order.renglones != null && /* @__PURE__ */ jsxs(Table, { variant: "basicPrintable", children: [
+            /* @__PURE__ */ jsx(Thead, { children: /* @__PURE__ */ jsxs(Tr, { children: [
+              /* @__PURE__ */ jsx(Th, { children: "Artículo" }),
+              /* @__PURE__ */ jsx(Th, { textAlign: "center", width: "80px", children: "Cantidad" }),
+              /* @__PURE__ */ jsx(Th, { textAlign: "right", width: "100px", children: "Precio Unitario" }),
+              /* @__PURE__ */ jsx(Th, { textAlign: "right", width: "100px", children: "Importe" })
+            ] }) }),
+            /* @__PURE__ */ jsxs(Tbody, { children: [
+              order.renglones.map((renglon) => {
+                const {
+                  id_articulo,
+                  nombre_articulo,
+                  codigo_articulo,
+                  descripcion_adicional,
+                  precio,
+                  cantidad,
+                  bulto,
+                  subtotal
+                } = renglon;
+                const boxesAndUnits = calculateBoxesAndUnits(cantidad, bulto);
+                return /* @__PURE__ */ jsxs(Tr, { children: [
+                  /* @__PURE__ */ jsx(Td, { children: formatNombreArticulo(nombre_articulo, codigo_articulo, descripcion_adicional) }),
+                  /* @__PURE__ */ jsxs(Td, { textAlign: "center", children: [
+                    cantidad,
+                    boxesAndUnits && /* @__PURE__ */ jsxs(Fragment, { children: [
+                      " [",
+                      boxesAndUnits,
+                      "]"
+                    ] })
+                  ] }),
+                  /* @__PURE__ */ jsx(Td, { textAlign: "right", children: /* @__PURE__ */ jsx(TextPriceNative, { moneda: "$", precio }) }),
+                  /* @__PURE__ */ jsx(Td, { textAlign: "right", children: /* @__PURE__ */ jsx(TextPriceNative, { moneda: "$", precio: subtotal }) })
+                ] }, `renglon-${id}_${id_articulo}`);
+              }),
+              /* @__PURE__ */ jsxs(Tr, { children: [
+                /* @__PURE__ */ jsx(Td, { colSpan: 3, fontWeight: "bold", children: "TOTAL CON BONIFICACIÓN" }),
+                /* @__PURE__ */ jsx(Td, { textAlign: "right", fontWeight: "bold", children: /* @__PURE__ */ jsx(TextPriceNative, { moneda: "$", precio: total }) })
+              ] })
+            ] })
+          ] })
+        ] })
+      ] }, `pedido-${id}`);
+    })
+  ] });
+};
+const PrintOrderPage = (props) => {
+  const { orders } = props;
+  if (orders != null && Array.isArray(orders)) {
+    const safeOrders = [];
+    orders.forEach((order) => {
+      const idValidated = tryVOValue(() => new VOInteger(order), null);
+      if (idValidated != null)
+        safeOrders.push(idValidated);
+    });
+    if (safeOrders.length > 0)
+      return /* @__PURE__ */ jsx(_PrintOrderPage, { orders: safeOrders });
+  }
+  return /* @__PURE__ */ jsx(
+    CommonErrors,
+    {
+      error: UNKNOW_ERROR
+    }
+  );
+};
+const _PrintOrderPage = (props) => {
+  const { orders } = props;
+  const { state, retry } = usePedidoGetByIds(orders);
+  return state.map({
+    loading: (_2) => /* @__PURE__ */ jsx(OrdersPrintLoading, {}),
+    error: ({ error }) => /* @__PURE__ */ jsx(
+      ApiErrors,
+      {
+        error,
+        retry,
+        cancelAndNavigateTo: URL_PEDIDOS_PATH
+      }
+    ),
+    success: (ordersState) => {
+      return /* @__PURE__ */ jsx(OrdersPrintReady, { orders: ordersState.data });
+    }
+  });
+};
+function OrdersPrint() {
+  const [searchParams] = useSearchParams();
+  const ordersIds = searchParams.getAll("orderId");
+  return /* @__PURE__ */ jsx(PrintOrderPage, { orders: ordersIds });
+}
+const route36 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: OrdersPrint
+}, Symbol.toStringTag, { value: "Module" }));
+async function loader$o({ request, params }) {
   return await dxtVendedorGetCustomersEndpoint.get(request, params);
 }
-const action$n = unimplementedApiResponse;
-const route33 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const action$o = unimplementedApiResponse;
+const route37 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$n,
-  loader: loader$n
+  action: action$o,
+  loader: loader$o
 }, Symbol.toStringTag, { value: "Module" }));
 const getProgramConfigFileEndpoint = createApiEndpoint(
   adminRootController,
@@ -15061,14 +16173,14 @@ const getProgramConfigFileEndpoint = createApiEndpoint(
     return storedDBSettings;
   }
 );
-async function loader$m({ request, params }) {
+async function loader$n({ request, params }) {
   return await getProgramConfigFileEndpoint.get(request, params);
 }
-const action$m = unimplementedApiResponse;
-const route34 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const action$n = unimplementedApiResponse;
+const route38 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$m,
-  loader: loader$m
+  action: action$n,
+  loader: loader$n
 }, Symbol.toStringTag, { value: "Module" }));
 const API_DICTIONARY_GET_ALL = apiEndpoint("/dictionary", "GET");
 const API_ACTIVE_COMPANY_UPDATE = apiEndpoint("/dictionary/active_company", "POST");
@@ -15209,7 +16321,7 @@ function Company() {
     /* @__PURE__ */ jsx(SettingsCompanyReady, {})
   ] });
 }
-const route35 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route39 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Company
 }, Symbol.toStringTag, { value: "Module" }));
@@ -15345,7 +16457,7 @@ ${stateData.company_error_details}` : ""}` : void 0;
               fullWidth: true,
               buttonState: configSuccessful ? SettingsActionButtonState.enabled : SettingsActionButtonState.disabled,
               onClick: () => {
-                navigate(URL_SETTINGS_VENDORS_PATH);
+                navigate(URL_SETTINGS_SELLERS_PATH);
               },
               children: SELLERS_ADMIN
             }
@@ -15398,21 +16510,21 @@ function Settings() {
     success: (state2) => /* @__PURE__ */ jsx(SettingsReady, { stateData: state2.data })
   }) });
 }
-const route36 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route40 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Settings
 }, Symbol.toStringTag, { value: "Module" }));
 function OrdersAdd$1() {
   return /* @__PURE__ */ jsx(CreateDraftPage, {});
 }
-const route37 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route41 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: OrdersAdd$1
 }, Symbol.toStringTag, { value: "Module" }));
 function OrdersAdd() {
   return /* @__PURE__ */ jsx(CreateOrderPage, {});
 }
-const route38 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route42 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: OrdersAdd
 }, Symbol.toStringTag, { value: "Module" }));
@@ -15675,7 +16787,7 @@ const SettingsTango = () => {
     success: (state2) => /* @__PURE__ */ jsx(SettingsTangoReady, { stateData: state2.data })
   });
 };
-function Tango() {
+function Tango$1() {
   const navigate = useNavigate();
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsx(
@@ -15694,21 +16806,60 @@ function Tango() {
     /* @__PURE__ */ jsx(SettingsTango, {})
   ] });
 }
-const route39 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route43 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: Tango$1
+}, Symbol.toStringTag, { value: "Module" }));
+function DownloadButton(props) {
+  const { filename } = props;
+  return /* @__PURE__ */ jsx(
+    Button,
+    {
+      leftIcon: /* @__PURE__ */ jsx(Icon, { as: FileIcon, boxSize: 10 }),
+      size: "lg",
+      width: "full",
+      colorScheme: "gray",
+      loadingText: DOWNLOADING,
+      sx: {
+        height: "auto",
+        p: 4,
+        whiteSpace: "break-spaces",
+        border: "1px solid"
+      },
+      children: /* @__PURE__ */ jsx(Flex, { flex: 1, justifyContent: "center", children: filename })
+    }
+  );
+}
+const DownloadsReady = () => {
+  return /* @__PURE__ */ jsx(Box, { children: /* @__PURE__ */ jsx(CommonCard, { children: /* @__PURE__ */ jsx(LightMode, { children: /* @__PURE__ */ jsxs(VStack, { spacing: 4, children: [
+    /* @__PURE__ */ jsx(DownloadButton, { filename: "Nombre del archivo a descargar sin extension" }),
+    /* @__PURE__ */ jsx(DownloadButton, { filename: "Lista de precios Junio 2024" })
+  ] }) }) }) });
+};
+function Tango() {
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx(Navbar, {}),
+    /* @__PURE__ */ jsxs(Container, { maxW: "2xl", sx: { my: 4 }, children: [
+      /* @__PURE__ */ jsx(SettingsFormHeading, { title: DOWNLOADS }),
+      /* @__PURE__ */ jsx(DownloadsReady, {})
+    ] })
+  ] });
+}
+const route44 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Tango
 }, Symbol.toStringTag, { value: "Module" }));
-const loader$l = unimplementedApiResponse;
-async function action$l({ request, params }) {
+const loader$m = unimplementedApiResponse;
+async function action$m({ request, params }) {
   return await mapEndpoint(request, params, {
     delete: cancelOrderEndpoint,
     patch: updateOrderEndpoint
   });
 }
-const route40 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route45 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$l,
-  loader: loader$l
+  action: action$m,
+  loader: loader$m
 }, Symbol.toStringTag, { value: "Module" }));
 const SettingsMiscLoading = () => /* @__PURE__ */ jsx(
   Box,
@@ -16096,57 +17247,57 @@ function Misc() {
     /* @__PURE__ */ jsx(SettingsMisc, {})
   ] });
 }
-const route41 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route46 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Misc
 }, Symbol.toStringTag, { value: "Module" }));
-const loader$k = unimplementedApiResponse;
-async function action$k({ request, params }) {
+const loader$l = unimplementedApiResponse;
+async function action$l({ request, params }) {
   return await mapEndpoint(request, params, {
     delete: cancelDraftEndpoint,
     patch: updateDraftEndpoint
   });
 }
-const route42 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route47 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  action: action$l,
+  loader: loader$l
+}, Symbol.toStringTag, { value: "Module" }));
+async function loader$k({ request, params }) {
+  return await getOrderRowsEndpoint.run(request, params);
+}
+const action$k = unimplementedApiResponse;
+const route48 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$k,
   loader: loader$k
 }, Symbol.toStringTag, { value: "Module" }));
 async function loader$j({ request, params }) {
-  return await getOrderRowsEndpoint.run(request, params);
+  return await startNewOrderEndpoint.get(request, params);
 }
 const action$j = unimplementedApiResponse;
-const route43 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route49 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$j,
   loader: loader$j
 }, Symbol.toStringTag, { value: "Module" }));
 async function loader$i({ request, params }) {
-  return await startNewOrderEndpoint.get(request, params);
+  return await getDraftRowsEndpoint.run(request, params);
 }
 const action$i = unimplementedApiResponse;
-const route44 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route50 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$i,
   loader: loader$i
 }, Symbol.toStringTag, { value: "Module" }));
 async function loader$h({ request, params }) {
-  return await getDraftRowsEndpoint.run(request, params);
+  return await startNewDraftEndpoint.get(request, params);
 }
 const action$h = unimplementedApiResponse;
-const route45 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route51 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$h,
   loader: loader$h
-}, Symbol.toStringTag, { value: "Module" }));
-async function loader$g({ request, params }) {
-  return await startNewDraftEndpoint.get(request, params);
-}
-const action$g = unimplementedApiResponse;
-const route46 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  action: action$g,
-  loader: loader$g
 }, Symbol.toStringTag, { value: "Module" }));
 function createCompanyGetAllEndpoint(controller, repository) {
   return createApiEndpoint(
@@ -16185,12 +17336,12 @@ const tangoVendedorGetAllEndpoint = createCompanyGetAllEndpoint(
   adminRootController,
   vendedorRepository
 );
-const loader$f = async (o) => await tangoVendedorGetAllEndpoint.get(o.request, o.params);
-const action$f = unimplementedApiResponse;
-const route47 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const loader$g = async (o) => await tangoVendedorGetAllEndpoint.get(o.request, o.params);
+const action$g = unimplementedApiResponse;
+const route52 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$f,
-  loader: loader$f
+  action: action$g,
+  loader: loader$g
 }, Symbol.toStringTag, { value: "Module" }));
 const changePasswordInputValidationSchema = {
   old_password: (v) => new VODXTPassword(v),
@@ -16246,11 +17397,43 @@ const authChangePasswordEndpoint = createApiEndpoint(
   }
   /* *************************************************************************************************************** */
 );
-const loader$e = unimplementedApiResponse;
-async function action$e({ request, params }) {
+const loader$f = unimplementedApiResponse;
+async function action$f({ request, params }) {
   return await authChangePasswordEndpoint.patch(request, params);
 }
-const route48 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route53 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  action: action$f,
+  loader: loader$f
+}, Symbol.toStringTag, { value: "Module" }));
+async function getPedidosByIds(user, ids) {
+  const orders = await pedidoRepository.getAllByUser(user);
+  const rows = await renglonPedidoRepository.getAllByUser(user);
+  return ids.map((id) => {
+    const order = orders[id];
+    const orderRows = rows[id];
+    if (order == null && orderRows == null)
+      return null;
+    return {
+      cabecera: order,
+      renglones: orderRows
+    };
+  }).filter((e) => e != null);
+}
+const getOrdersByIdsEndpoint = createApiEndpoint(
+  authenticatedRootController,
+  {
+    validation: {
+      body: validateGetOrdersByIdsInput
+    }
+  },
+  async (req) => await getPedidosByIds(req.auth.user, req.validated.body.ids)
+);
+const loader$e = unimplementedApiResponse;
+async function action$e({ request, params }) {
+  return await getOrdersByIdsEndpoint.post(request, params);
+}
+const route54 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$e,
   loader: loader$e
@@ -16325,14 +17508,14 @@ async function loader$d({ request, params }) {
 async function action$d({ request, params }) {
   return await updateMiscSettingsEndpoint.post(request, params);
 }
-const route49 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route55 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$d,
   loader: loader$d
 }, Symbol.toStringTag, { value: "Module" }));
 const loader$c = async (o) => await tangoClienteGetAllEndpoint.get(o.request, o.params);
 const action$c = unimplementedApiResponse;
-const route50 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route56 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$c,
   loader: loader$c
@@ -16392,7 +17575,7 @@ async function loader$b({ request, params }) {
   return await getAdminStatusEndpoint.get(request, params);
 }
 const action$b = unimplementedApiResponse;
-const route51 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route57 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$b,
   loader: loader$b
@@ -16406,7 +17589,7 @@ const loader$a = unimplementedApiResponse;
 async function action$a({ request, params }) {
   return await authConnectEndpoint.post(request, params);
 }
-const route52 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route58 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$a,
   loader: loader$a
@@ -16417,7 +17600,7 @@ async function loader$9({ request, params }) {
 async function action$9({ request, params }) {
   return await dxtVendedorCreateEndpoint.post(request, params);
 }
-const route53 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route59 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$9,
   loader: loader$9
@@ -16432,7 +17615,7 @@ const tangoListaDePreciosAllEndpoint = createCompanyGetAllEndpoint(
 );
 const loader$8 = async (o) => await tangoPerfilGetAllEndpoint.get(o.request, o.params);
 const action$8 = unimplementedApiResponse;
-const route54 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route60 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$8,
   loader: loader$8
@@ -16449,7 +17632,7 @@ const loader$7 = unimplementedApiResponse;
 async function action$7({ request, params }) {
   return await authLogoutEndpoint.post(request, params);
 }
-const route55 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route61 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$7,
   loader: loader$7
@@ -16460,7 +17643,7 @@ async function loader$6({ request, params }) {
 async function action$6({ request, params }) {
   return await dxtClienteCreateEndpoint.post(request, params);
 }
-const route56 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route62 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$6,
   loader: loader$6
@@ -16526,14 +17709,14 @@ async function loader$5({ request, params }) {
 async function action$5({ request, params }) {
   return await updateDBSettingsEndpoint.post(request, params);
 }
-const route57 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route63 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$5,
   loader: loader$5
 }, Symbol.toStringTag, { value: "Module" }));
 const loader$4 = async (o) => await tangoListaDePreciosAllEndpoint.get(o.request, o.params);
 const action$4 = unimplementedApiResponse;
-const route58 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route64 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$4,
   loader: loader$4
@@ -16561,7 +17744,7 @@ const loader$3 = unimplementedApiResponse;
 async function action$3({ request, params }) {
   return await authLoginEndpoint.post(request, params);
 }
-const route59 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route65 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$3,
   loader: loader$3
@@ -16577,7 +17760,7 @@ async function loader$2({ request, params }) {
   return await getCompaniesEndpoint.get(request, params);
 }
 const action$2 = unimplementedApiResponse;
-const route60 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route66 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$2,
   loader: loader$2
@@ -16593,7 +17776,7 @@ const AuthGuard = (props) => {
       return;
     }
     if (authState.isDisconnectedAndNotRedirecting()) {
-      redirectLoginWithReturnUrl(navigate);
+      redirectLogin(navigate);
     }
   }, [location, authState.constructor.name]);
   if (authState.isLoggedIn()) {
@@ -16617,7 +17800,7 @@ function ClientOnly({ children, fallback = null }) {
 function AuthorizedLayout() {
   return /* @__PURE__ */ jsx(ClientOnly, { children: /* @__PURE__ */ jsx(AuthGuard, { children: /* @__PURE__ */ jsx(Outlet, {}) }) });
 }
-const route61 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route67 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: AuthorizedLayout
 }, Symbol.toStringTag, { value: "Module" }));
@@ -16627,7 +17810,7 @@ async function loader$1({ request, params }) {
 async function action$1({ request, params }) {
   return await createOrderEndpoint.post(request, params);
 }
-const route62 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route68 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$1,
   loader: loader$1
@@ -16638,7 +17821,7 @@ async function loader({ request, params }) {
 async function action({ request, params }) {
   return await createDraftEndpoint.post(request, params);
 }
-const route63 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route69 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action,
   loader
@@ -16649,7 +17832,7 @@ function AdminLayout() {
     /* @__PURE__ */ jsx(Container, { maxW: "2xl", sx: { my: 4 }, children: /* @__PURE__ */ jsx(Outlet, {}) })
   ] }) });
 }
-const route64 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route70 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: AdminLayout
 }, Symbol.toStringTag, { value: "Module" }));
@@ -16657,48 +17840,6 @@ const LogoImage = (props) => {
   const logo = useColorModeValue("/logo-light.svg", "/logo-dark.svg");
   return /* @__PURE__ */ jsx(Image, { src: logo, ...props });
 };
-const MessageToUserAlert = (props) => {
-  const { type, title, content } = props;
-  const icons = {
-    info: InfoIcon,
-    warning: WarningIcon,
-    error: ErrorIcon
-  };
-  const IconType = icons[type] ?? null;
-  return /* @__PURE__ */ jsxs(Box, { textAlign: "center", py: 10, px: 6, children: [
-    IconType != null && /* @__PURE__ */ jsx(Icon, { as: IconType, boxSize: 12 }),
-    /* @__PURE__ */ jsx(Heading, { as: "h2", size: "xl", mt: 4, mb: 2, children: title }),
-    /* @__PURE__ */ jsx(Text, { color: "gray.500", children: content })
-  ] });
-};
-const MessageToUserDialog = ({
-  title,
-  message,
-  onResolve
-}) => {
-  const handleCancel = () => {
-    onResolve(
-      0
-      /* close */
-    );
-  };
-  return /* @__PURE__ */ jsx(
-    CustomDialog,
-    {
-      isOpen: true,
-      dialogTitle: title,
-      dialogContents: message,
-      hideButtons: true,
-      handleCancel,
-      handleCancelWording: CLOSE
-    }
-  );
-};
-function useMessageToUserDialog() {
-  return useModal(
-    MessageToUserDialog
-  );
-}
 const validationSchema = yup.object({
   username: yup.string().required("Ingrese su nombre de usuario").test("test", "Usuario no valido", (v) => yupVOValidation(VOUserName, v)),
   password: yup.string().required("Ingrese su contraseña")
@@ -16803,7 +17944,8 @@ function Index() {
                       id: "username",
                       type: "text",
                       placeholder: "Usuario",
-                      autoCapitalize: "off"
+                      autoCapitalize: "off",
+                      autoComplete: "username"
                     },
                     formControlProps: {
                       isDisabled: isSubmitting
@@ -16821,7 +17963,8 @@ function Index() {
                       name: "password",
                       id: "password",
                       type: "password",
-                      placeholder: "Contraseña"
+                      placeholder: "Contraseña",
+                      autoComplete: "current-password"
                     },
                     formControlProps: {
                       isDisabled: isSubmitting
@@ -16838,11 +17981,11 @@ function Index() {
     )
   ] });
 }
-const route65 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route71 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Index
 }, Symbol.toStringTag, { value: "Module" }));
-const serverManifest = { "entry": { "module": "/assets/entry.client-BnEjOv19.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/index-CHQWpWvG.js", "/assets/styleContexts-DaccyL6K.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": true, "module": "/assets/root-B4lKEfw8.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/index-CHQWpWvG.js", "/assets/styleContexts-DaccyL6K.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-MFVQSVQB-BSFcmmoO.js", "/assets/chunk-3Y4YXCR2-K1dpGGRN.js", "/assets/chunk-NTCQBYKE-DltSH_Ws.js", "/assets/chunk-2OOHT3W5-B6Vi5BjQ.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js"], "css": ["/assets/root-iSW8ledt.css"] }, "routes/_admin.settings.users.customers.$id.edit": { "id": "routes/_admin.settings.users.customers.$id.edit", "parentId": "routes/_admin", "path": "settings/users/customers/:id/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CdEJBg2z.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/useDXTApiFetch-BjHmfZbr.js", "/assets/AccountCancelIcon-BwrrLNSn.js", "/assets/app-B420985G.js", "/assets/index.esm-DLycO5Xl.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/chunk-MFVQSVQB-BSFcmmoO.js", "/assets/chunk-YQO7BFFX-CrbUtirh.js", "/assets/chunk-3Y4YXCR2-K1dpGGRN.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/CommonCard-C2byJLAu.js", "/assets/app_resources-CEgZe0CK.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/chunk-BL2ZZSHG-BUdH9WQK.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/chunk-3ASUQ6PA-BAcdPhwD.js", "/assets/chunk-2OOHT3W5-B6Vi5BjQ.js", "/assets/ApiErrors-DeZcFLHr.js", "/assets/chunk-56K2BSAJ-8vSmiqh4.js", "/assets/yup-BdZyDz3M.js", "/assets/chunk-6CVSDS6C-ClQyf_Ch.js", "/assets/ControlledInput-BWCaGqUR.js", "/assets/chunk-2ZHRCML3-DqPZ_H3Z.js", "/assets/chunk-Z6RXEUPO-I6sIG1fJ.js", "/assets/chunk-7D6N5TE5-DSLyEd9l.js", "/assets/index.esm-DZ5Rht_2.js", "/assets/chunk-W7WUSNWJ-DDHZDhn1.js", "/assets/chunk-HB6KBUMZ-B8DBlAPS.js", "/assets/select-rNofBLKa.js", "/assets/chunk-46CXQZ4E-CsbUyZmS.js", "/assets/FormSkeletons-D_WNCpXW.js", "/assets/chunk-ZPFGWTBB-qFhw8OhE.js", "/assets/validation-BHlFUWUY.js", "/assets/PasswordWithStatus-DKSTs8vM.js", "/assets/utils-DihYaFf6.js", "/assets/ControlledSwitch-BYzMyLCt.js", "/assets/ControlledSelect-fjUlVCrq.js", "/assets/FormErrors-BaCwbtS0.js", "/assets/InlineError-rXH3I37w.js", "/assets/SettingsFormButtons-CthONgBp.js", "/assets/CommonErrors-EkZQf0Xy.js", "/assets/SettingsFormHeading-5SiLHHxE.js", "/assets/index-ZH-lvdWx.js"], "css": [] }, "routes/_admin.settings.users.vendors.$id.edit": { "id": "routes/_admin.settings.users.vendors.$id.edit", "parentId": "routes/_admin", "path": "settings/users/vendors/:id/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-MKyL7-Z0.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/useDXTApiFetch-BjHmfZbr.js", "/assets/AccountCancelIcon-BwrrLNSn.js", "/assets/app-B420985G.js", "/assets/index.esm-DLycO5Xl.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/chunk-MFVQSVQB-BSFcmmoO.js", "/assets/chunk-YQO7BFFX-CrbUtirh.js", "/assets/chunk-3Y4YXCR2-K1dpGGRN.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/CommonCard-C2byJLAu.js", "/assets/app_resources-CEgZe0CK.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/chunk-BL2ZZSHG-BUdH9WQK.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/chunk-3ASUQ6PA-BAcdPhwD.js", "/assets/chunk-2OOHT3W5-B6Vi5BjQ.js", "/assets/ApiErrors-DeZcFLHr.js", "/assets/chunk-56K2BSAJ-8vSmiqh4.js", "/assets/yup-BdZyDz3M.js", "/assets/chunk-6CVSDS6C-ClQyf_Ch.js", "/assets/ControlledInput-BWCaGqUR.js", "/assets/chunk-2ZHRCML3-DqPZ_H3Z.js", "/assets/chunk-Z6RXEUPO-I6sIG1fJ.js", "/assets/chunk-7D6N5TE5-DSLyEd9l.js", "/assets/index.esm-DZ5Rht_2.js", "/assets/chunk-W7WUSNWJ-DDHZDhn1.js", "/assets/chunk-HB6KBUMZ-B8DBlAPS.js", "/assets/select-rNofBLKa.js", "/assets/chunk-46CXQZ4E-CsbUyZmS.js", "/assets/FormSkeletons-D_WNCpXW.js", "/assets/chunk-ZPFGWTBB-qFhw8OhE.js", "/assets/validation-BHlFUWUY.js", "/assets/PasswordWithStatus-DKSTs8vM.js", "/assets/utils-DihYaFf6.js", "/assets/ControlledSwitch-BYzMyLCt.js", "/assets/ControlledSelect-fjUlVCrq.js", "/assets/FormErrors-BaCwbtS0.js", "/assets/InlineError-rXH3I37w.js", "/assets/SettingsFormButtons-CthONgBp.js", "/assets/CommonErrors-EkZQf0Xy.js", "/assets/SettingsFormHeading-5SiLHHxE.js", "/assets/index-ZH-lvdWx.js"], "css": [] }, "routes/api.pedido.$id_pedido.start_new_draft": { "id": "routes/api.pedido.$id_pedido.start_new_draft", "parentId": "routes/api.pedido.$id_pedido", "path": "start_new_draft", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_new_draft-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.$id_pedido.start_new_order": { "id": "routes/api.draft.$id_pedido.start_new_order", "parentId": "routes/api.draft.$id_pedido", "path": "start_new_order", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_new_order-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.users.customers.add": { "id": "routes/_admin.settings.users.customers.add", "parentId": "routes/_admin", "path": "settings/users/customers/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-mO62edED.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/useDXTApiFetch-BjHmfZbr.js", "/assets/AccountCancelIcon-BwrrLNSn.js", "/assets/app-B420985G.js", "/assets/index.esm-DLycO5Xl.js", "/assets/chunk-MFVQSVQB-BSFcmmoO.js", "/assets/chunk-YQO7BFFX-CrbUtirh.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/chunk-3Y4YXCR2-K1dpGGRN.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/CommonCard-C2byJLAu.js", "/assets/app_resources-CEgZe0CK.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/chunk-BL2ZZSHG-BUdH9WQK.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/chunk-56K2BSAJ-8vSmiqh4.js", "/assets/yup-BdZyDz3M.js", "/assets/chunk-6CVSDS6C-ClQyf_Ch.js", "/assets/ControlledInput-BWCaGqUR.js", "/assets/chunk-2ZHRCML3-DqPZ_H3Z.js", "/assets/chunk-Z6RXEUPO-I6sIG1fJ.js", "/assets/chunk-7D6N5TE5-DSLyEd9l.js", "/assets/index.esm-DZ5Rht_2.js", "/assets/chunk-W7WUSNWJ-DDHZDhn1.js", "/assets/chunk-HB6KBUMZ-B8DBlAPS.js", "/assets/select-rNofBLKa.js", "/assets/chunk-46CXQZ4E-CsbUyZmS.js", "/assets/validation-BHlFUWUY.js", "/assets/PasswordWithStatus-DKSTs8vM.js", "/assets/utils-DihYaFf6.js", "/assets/ControlledSwitch-BYzMyLCt.js", "/assets/ControlledSelect-fjUlVCrq.js", "/assets/FormErrors-BaCwbtS0.js", "/assets/InlineError-rXH3I37w.js", "/assets/SettingsFormButtons-CthONgBp.js", "/assets/chunk-ZPFGWTBB-qFhw8OhE.js", "/assets/chunk-3ASUQ6PA-BAcdPhwD.js", "/assets/SettingsFormHeading-5SiLHHxE.js", "/assets/index-C2f49d5y.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.order": { "id": "routes/_authorized.drafts.$id_pedido.order", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/order", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DNANFhSy.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-5MKCW436-B32KkSB4.js", "/assets/chunk-2OOHT3W5-B6Vi5BjQ.js", "/assets/chunk-56K2BSAJ-8vSmiqh4.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/chunk-3Y4YXCR2-K1dpGGRN.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/chunk-3ASUQ6PA-BAcdPhwD.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/app-B420985G.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/chunk-6CVSDS6C-ClQyf_Ch.js", "/assets/ApiErrors-DeZcFLHr.js", "/assets/chunk-2ZHRCML3-DqPZ_H3Z.js", "/assets/chunk-46CXQZ4E-CsbUyZmS.js", "/assets/ColorModeSelector-CJRct6HX.js", "/assets/chunk-HB6KBUMZ-B8DBlAPS.js", "/assets/chunk-BL2ZZSHG-BUdH9WQK.js", "/assets/index.esm-DZ5Rht_2.js", "/assets/app_resources-CEgZe0CK.js", "/assets/chunk-W7WUSNWJ-DDHZDhn1.js", "/assets/useDXTApiFetch-BjHmfZbr.js", "/assets/yup-BdZyDz3M.js", "/assets/select-rNofBLKa.js", "/assets/chunk-MFVQSVQB-BSFcmmoO.js", "/assets/chunk-YQO7BFFX-CrbUtirh.js", "/assets/pedidos-B6DIYHPv.js", "/assets/SearchField-CFxZBq2H.js", "/assets/FormErrors-BaCwbtS0.js", "/assets/Navbar-CA3F-e3V.js", "/assets/index.esm-DLycO5Xl.js", "/assets/ControlledSelect-fjUlVCrq.js", "/assets/CommonCard-C2byJLAu.js", "/assets/chunk-ZPFGWTBB-qFhw8OhE.js", "/assets/chunk-NTCQBYKE-DltSH_Ws.js", "/assets/ControlledInput-BWCaGqUR.js", "/assets/ControlledTextarea-CBiS41ck.js", "/assets/index-rATjf0mL.js", "/assets/chunk-Z6RXEUPO-I6sIG1fJ.js", "/assets/FormSkeletons-D_WNCpXW.js", "/assets/CommonErrors-EkZQf0Xy.js", "/assets/index-DDtuOn3v.js", "/assets/index-CHQWpWvG.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.draft": { "id": "routes/_authorized.orders.$id_pedido.draft", "parentId": "routes/_authorized", "path": "orders/:id_pedido/draft", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DCtIcMkZ.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-5MKCW436-B32KkSB4.js", "/assets/chunk-2OOHT3W5-B6Vi5BjQ.js", "/assets/chunk-56K2BSAJ-8vSmiqh4.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/chunk-3Y4YXCR2-K1dpGGRN.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/chunk-3ASUQ6PA-BAcdPhwD.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/app-B420985G.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/chunk-6CVSDS6C-ClQyf_Ch.js", "/assets/ApiErrors-DeZcFLHr.js", "/assets/chunk-2ZHRCML3-DqPZ_H3Z.js", "/assets/chunk-46CXQZ4E-CsbUyZmS.js", "/assets/ColorModeSelector-CJRct6HX.js", "/assets/chunk-HB6KBUMZ-B8DBlAPS.js", "/assets/chunk-BL2ZZSHG-BUdH9WQK.js", "/assets/index.esm-DZ5Rht_2.js", "/assets/app_resources-CEgZe0CK.js", "/assets/chunk-W7WUSNWJ-DDHZDhn1.js", "/assets/useDXTApiFetch-BjHmfZbr.js", "/assets/yup-BdZyDz3M.js", "/assets/select-rNofBLKa.js", "/assets/chunk-MFVQSVQB-BSFcmmoO.js", "/assets/chunk-YQO7BFFX-CrbUtirh.js", "/assets/pedidos-B6DIYHPv.js", "/assets/SearchField-CFxZBq2H.js", "/assets/FormErrors-BaCwbtS0.js", "/assets/Navbar-CA3F-e3V.js", "/assets/index.esm-DLycO5Xl.js", "/assets/ControlledSelect-fjUlVCrq.js", "/assets/CommonCard-C2byJLAu.js", "/assets/chunk-ZPFGWTBB-qFhw8OhE.js", "/assets/chunk-NTCQBYKE-DltSH_Ws.js", "/assets/ControlledInput-BWCaGqUR.js", "/assets/ControlledTextarea-CBiS41ck.js", "/assets/index-rATjf0mL.js", "/assets/chunk-Z6RXEUPO-I6sIG1fJ.js", "/assets/FormSkeletons-D_WNCpXW.js", "/assets/CommonErrors-EkZQf0Xy.js", "/assets/index-DDtuOn3v.js"], "css": [] }, "routes/_admin.settings.product_list.$type": { "id": "routes/_admin.settings.product_list.$type", "parentId": "routes/_admin", "path": "settings/product_list/:type", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-B_qDAhzy.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/app-B420985G.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/chunk-MFVQSVQB-BSFcmmoO.js", "/assets/chunk-YQO7BFFX-CrbUtirh.js", "/assets/chunk-3Y4YXCR2-K1dpGGRN.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/CommonCard-C2byJLAu.js", "/assets/app_resources-CEgZe0CK.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/chunk-BL2ZZSHG-BUdH9WQK.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/chunk-3ASUQ6PA-BAcdPhwD.js", "/assets/chunk-2OOHT3W5-B6Vi5BjQ.js", "/assets/ApiErrors-DeZcFLHr.js", "/assets/chunk-56K2BSAJ-8vSmiqh4.js", "/assets/yup-BdZyDz3M.js", "/assets/chunk-46CXQZ4E-CsbUyZmS.js", "/assets/paths-Cp9jAs9D.js", "/assets/useDXTApiFetch-BjHmfZbr.js", "/assets/CommonErrors-EkZQf0Xy.js", "/assets/SettingsFormHeading-5SiLHHxE.js", "/assets/FormSkeletons-D_WNCpXW.js", "/assets/chunk-ZPFGWTBB-qFhw8OhE.js", "/assets/ControlledTextarea-CBiS41ck.js", "/assets/FormErrors-BaCwbtS0.js", "/assets/SettingsFormButtons-CthONgBp.js", "/assets/index-rATjf0mL.js", "/assets/index.esm-DLycO5Xl.js"], "css": [] }, "routes/_admin.settings.users.$type._index": { "id": "routes/_admin.settings.users.$type._index", "parentId": "routes/_admin", "path": "settings/users/:type", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-Da6RBHIW.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/useDXTApiFetch-BjHmfZbr.js", "/assets/AccountCancelIcon-BwrrLNSn.js", "/assets/app-B420985G.js", "/assets/index.esm-DLycO5Xl.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/chunk-MFVQSVQB-BSFcmmoO.js", "/assets/chunk-YQO7BFFX-CrbUtirh.js", "/assets/chunk-3Y4YXCR2-K1dpGGRN.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/CommonCard-C2byJLAu.js", "/assets/app_resources-CEgZe0CK.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/chunk-BL2ZZSHG-BUdH9WQK.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/chunk-3ASUQ6PA-BAcdPhwD.js", "/assets/chunk-2OOHT3W5-B6Vi5BjQ.js", "/assets/ApiErrors-DeZcFLHr.js", "/assets/chunk-56K2BSAJ-8vSmiqh4.js", "/assets/chunk-6CVSDS6C-ClQyf_Ch.js", "/assets/chunk-2ZHRCML3-DqPZ_H3Z.js", "/assets/validation-BHlFUWUY.js", "/assets/CommonErrors-EkZQf0Xy.js", "/assets/SettingsFormHeading-5SiLHHxE.js", "/assets/FormSkeletons-D_WNCpXW.js", "/assets/chunk-ZPFGWTBB-qFhw8OhE.js", "/assets/TextWordBreak-DSr4qhOr.js", "/assets/SearchField-CFxZBq2H.js", "/assets/chunk-NTCQBYKE-DltSH_Ws.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.copy": { "id": "routes/_authorized.drafts.$id_pedido.copy", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/copy", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-RrTp39i2.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-5MKCW436-B32KkSB4.js", "/assets/chunk-2OOHT3W5-B6Vi5BjQ.js", "/assets/chunk-56K2BSAJ-8vSmiqh4.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/chunk-3Y4YXCR2-K1dpGGRN.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/chunk-3ASUQ6PA-BAcdPhwD.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/app-B420985G.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/chunk-6CVSDS6C-ClQyf_Ch.js", "/assets/ApiErrors-DeZcFLHr.js", "/assets/chunk-2ZHRCML3-DqPZ_H3Z.js", "/assets/chunk-46CXQZ4E-CsbUyZmS.js", "/assets/ColorModeSelector-CJRct6HX.js", "/assets/chunk-HB6KBUMZ-B8DBlAPS.js", "/assets/chunk-BL2ZZSHG-BUdH9WQK.js", "/assets/index.esm-DZ5Rht_2.js", "/assets/app_resources-CEgZe0CK.js", "/assets/chunk-W7WUSNWJ-DDHZDhn1.js", "/assets/useDXTApiFetch-BjHmfZbr.js", "/assets/yup-BdZyDz3M.js", "/assets/select-rNofBLKa.js", "/assets/chunk-MFVQSVQB-BSFcmmoO.js", "/assets/chunk-YQO7BFFX-CrbUtirh.js", "/assets/pedidos-B6DIYHPv.js", "/assets/SearchField-CFxZBq2H.js", "/assets/FormErrors-BaCwbtS0.js", "/assets/Navbar-CA3F-e3V.js", "/assets/index.esm-DLycO5Xl.js", "/assets/ControlledSelect-fjUlVCrq.js", "/assets/CommonCard-C2byJLAu.js", "/assets/chunk-ZPFGWTBB-qFhw8OhE.js", "/assets/chunk-NTCQBYKE-DltSH_Ws.js", "/assets/ControlledInput-BWCaGqUR.js", "/assets/ControlledTextarea-CBiS41ck.js", "/assets/index-rATjf0mL.js", "/assets/chunk-Z6RXEUPO-I6sIG1fJ.js", "/assets/FormSkeletons-D_WNCpXW.js", "/assets/CommonErrors-EkZQf0Xy.js", "/assets/index-DDtuOn3v.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.edit": { "id": "routes/_authorized.drafts.$id_pedido.edit", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-0lrxu8wu.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-5MKCW436-B32KkSB4.js", "/assets/chunk-2OOHT3W5-B6Vi5BjQ.js", "/assets/chunk-56K2BSAJ-8vSmiqh4.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/chunk-3Y4YXCR2-K1dpGGRN.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/chunk-3ASUQ6PA-BAcdPhwD.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/app-B420985G.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/chunk-6CVSDS6C-ClQyf_Ch.js", "/assets/ApiErrors-DeZcFLHr.js", "/assets/chunk-2ZHRCML3-DqPZ_H3Z.js", "/assets/chunk-46CXQZ4E-CsbUyZmS.js", "/assets/ColorModeSelector-CJRct6HX.js", "/assets/chunk-HB6KBUMZ-B8DBlAPS.js", "/assets/chunk-BL2ZZSHG-BUdH9WQK.js", "/assets/index.esm-DZ5Rht_2.js", "/assets/app_resources-CEgZe0CK.js", "/assets/chunk-W7WUSNWJ-DDHZDhn1.js", "/assets/useDXTApiFetch-BjHmfZbr.js", "/assets/yup-BdZyDz3M.js", "/assets/select-rNofBLKa.js", "/assets/chunk-MFVQSVQB-BSFcmmoO.js", "/assets/chunk-YQO7BFFX-CrbUtirh.js", "/assets/pedidos-B6DIYHPv.js", "/assets/SearchField-CFxZBq2H.js", "/assets/FormErrors-BaCwbtS0.js", "/assets/Navbar-CA3F-e3V.js", "/assets/index.esm-DLycO5Xl.js", "/assets/ControlledSelect-fjUlVCrq.js", "/assets/CommonCard-C2byJLAu.js", "/assets/chunk-ZPFGWTBB-qFhw8OhE.js", "/assets/chunk-NTCQBYKE-DltSH_Ws.js", "/assets/ControlledInput-BWCaGqUR.js", "/assets/ControlledTextarea-CBiS41ck.js", "/assets/index-rATjf0mL.js", "/assets/chunk-Z6RXEUPO-I6sIG1fJ.js", "/assets/FormSkeletons-D_WNCpXW.js", "/assets/CommonErrors-EkZQf0Xy.js", "/assets/index-DDtuOn3v.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.copy": { "id": "routes/_authorized.orders.$id_pedido.copy", "parentId": "routes/_authorized", "path": "orders/:id_pedido/copy", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CnG3wRSh.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-5MKCW436-B32KkSB4.js", "/assets/chunk-2OOHT3W5-B6Vi5BjQ.js", "/assets/chunk-56K2BSAJ-8vSmiqh4.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/chunk-3Y4YXCR2-K1dpGGRN.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/chunk-3ASUQ6PA-BAcdPhwD.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/app-B420985G.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/chunk-6CVSDS6C-ClQyf_Ch.js", "/assets/ApiErrors-DeZcFLHr.js", "/assets/chunk-2ZHRCML3-DqPZ_H3Z.js", "/assets/chunk-46CXQZ4E-CsbUyZmS.js", "/assets/ColorModeSelector-CJRct6HX.js", "/assets/chunk-HB6KBUMZ-B8DBlAPS.js", "/assets/chunk-BL2ZZSHG-BUdH9WQK.js", "/assets/index.esm-DZ5Rht_2.js", "/assets/app_resources-CEgZe0CK.js", "/assets/chunk-W7WUSNWJ-DDHZDhn1.js", "/assets/useDXTApiFetch-BjHmfZbr.js", "/assets/yup-BdZyDz3M.js", "/assets/select-rNofBLKa.js", "/assets/chunk-MFVQSVQB-BSFcmmoO.js", "/assets/chunk-YQO7BFFX-CrbUtirh.js", "/assets/pedidos-B6DIYHPv.js", "/assets/SearchField-CFxZBq2H.js", "/assets/FormErrors-BaCwbtS0.js", "/assets/Navbar-CA3F-e3V.js", "/assets/index.esm-DLycO5Xl.js", "/assets/ControlledSelect-fjUlVCrq.js", "/assets/CommonCard-C2byJLAu.js", "/assets/chunk-ZPFGWTBB-qFhw8OhE.js", "/assets/chunk-NTCQBYKE-DltSH_Ws.js", "/assets/ControlledInput-BWCaGqUR.js", "/assets/ControlledTextarea-CBiS41ck.js", "/assets/index-rATjf0mL.js", "/assets/chunk-Z6RXEUPO-I6sIG1fJ.js", "/assets/FormSkeletons-D_WNCpXW.js", "/assets/CommonErrors-EkZQf0Xy.js", "/assets/index-DDtuOn3v.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.edit": { "id": "routes/_authorized.orders.$id_pedido.edit", "parentId": "routes/_authorized", "path": "orders/:id_pedido/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BEOoXbId.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-5MKCW436-B32KkSB4.js", "/assets/chunk-2OOHT3W5-B6Vi5BjQ.js", "/assets/chunk-56K2BSAJ-8vSmiqh4.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/chunk-3Y4YXCR2-K1dpGGRN.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/chunk-3ASUQ6PA-BAcdPhwD.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/app-B420985G.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/chunk-6CVSDS6C-ClQyf_Ch.js", "/assets/ApiErrors-DeZcFLHr.js", "/assets/chunk-2ZHRCML3-DqPZ_H3Z.js", "/assets/chunk-46CXQZ4E-CsbUyZmS.js", "/assets/ColorModeSelector-CJRct6HX.js", "/assets/chunk-HB6KBUMZ-B8DBlAPS.js", "/assets/chunk-BL2ZZSHG-BUdH9WQK.js", "/assets/index.esm-DZ5Rht_2.js", "/assets/app_resources-CEgZe0CK.js", "/assets/chunk-W7WUSNWJ-DDHZDhn1.js", "/assets/useDXTApiFetch-BjHmfZbr.js", "/assets/yup-BdZyDz3M.js", "/assets/select-rNofBLKa.js", "/assets/chunk-MFVQSVQB-BSFcmmoO.js", "/assets/chunk-YQO7BFFX-CrbUtirh.js", "/assets/pedidos-B6DIYHPv.js", "/assets/SearchField-CFxZBq2H.js", "/assets/FormErrors-BaCwbtS0.js", "/assets/Navbar-CA3F-e3V.js", "/assets/index.esm-DLycO5Xl.js", "/assets/ControlledSelect-fjUlVCrq.js", "/assets/CommonCard-C2byJLAu.js", "/assets/chunk-ZPFGWTBB-qFhw8OhE.js", "/assets/chunk-NTCQBYKE-DltSH_Ws.js", "/assets/ControlledInput-BWCaGqUR.js", "/assets/ControlledTextarea-CBiS41ck.js", "/assets/index-rATjf0mL.js", "/assets/chunk-Z6RXEUPO-I6sIG1fJ.js", "/assets/FormSkeletons-D_WNCpXW.js", "/assets/CommonErrors-EkZQf0Xy.js", "/assets/index-DDtuOn3v.js"], "css": [] }, "routes/api.pedido.$id_pedido.start_update": { "id": "routes/api.pedido.$id_pedido.start_update", "parentId": "routes/api.pedido.$id_pedido", "path": "start_update", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_update-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.users.vendors.add": { "id": "routes/_admin.settings.users.vendors.add", "parentId": "routes/_admin", "path": "settings/users/vendors/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-Bwk20Hkm.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/useDXTApiFetch-BjHmfZbr.js", "/assets/AccountCancelIcon-BwrrLNSn.js", "/assets/app-B420985G.js", "/assets/index.esm-DLycO5Xl.js", "/assets/chunk-MFVQSVQB-BSFcmmoO.js", "/assets/chunk-YQO7BFFX-CrbUtirh.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/chunk-3Y4YXCR2-K1dpGGRN.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/CommonCard-C2byJLAu.js", "/assets/app_resources-CEgZe0CK.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/chunk-BL2ZZSHG-BUdH9WQK.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/chunk-56K2BSAJ-8vSmiqh4.js", "/assets/yup-BdZyDz3M.js", "/assets/chunk-6CVSDS6C-ClQyf_Ch.js", "/assets/ControlledInput-BWCaGqUR.js", "/assets/chunk-2ZHRCML3-DqPZ_H3Z.js", "/assets/chunk-Z6RXEUPO-I6sIG1fJ.js", "/assets/chunk-7D6N5TE5-DSLyEd9l.js", "/assets/index.esm-DZ5Rht_2.js", "/assets/chunk-W7WUSNWJ-DDHZDhn1.js", "/assets/chunk-HB6KBUMZ-B8DBlAPS.js", "/assets/select-rNofBLKa.js", "/assets/chunk-46CXQZ4E-CsbUyZmS.js", "/assets/validation-BHlFUWUY.js", "/assets/PasswordWithStatus-DKSTs8vM.js", "/assets/utils-DihYaFf6.js", "/assets/ControlledSwitch-BYzMyLCt.js", "/assets/ControlledSelect-fjUlVCrq.js", "/assets/FormErrors-BaCwbtS0.js", "/assets/InlineError-rXH3I37w.js", "/assets/SettingsFormButtons-CthONgBp.js", "/assets/chunk-ZPFGWTBB-qFhw8OhE.js", "/assets/chunk-3ASUQ6PA-BAcdPhwD.js", "/assets/SettingsFormHeading-5SiLHHxE.js", "/assets/index-C2f49d5y.js"], "css": [] }, "routes/api.draft.$id_pedido.start_update": { "id": "routes/api.draft.$id_pedido.start_update", "parentId": "routes/api.draft.$id_pedido", "path": "start_update", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_update-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.$id_pedido.start_copy": { "id": "routes/api.pedido.$id_pedido.start_copy", "parentId": "routes/api.pedido.$id_pedido", "path": "start_copy", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_copy-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.start_new.$id_cliente": { "id": "routes/api.pedido.start_new.$id_cliente", "parentId": "routes/api.pedido.start_new", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.start_new._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.$id_pedido.start_copy": { "id": "routes/api.draft.$id_pedido.start_copy", "parentId": "routes/api.draft.$id_pedido", "path": "start_copy", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_copy-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.start_new.$id_cliente": { "id": "routes/api.draft.start_new.$id_cliente", "parentId": "routes/api.draft.start_new", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.start_new._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.articulo.print_list.ids": { "id": "routes/api.dxt.articulo.print_list.ids", "parentId": "routes/api.dxt.articulo.print_list", "path": "ids", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.print_list.ids-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.drafts.$client.add": { "id": "routes/_authorized.drafts.$client.add", "parentId": "routes/_authorized", "path": "drafts/:client/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-D-Tw_eIS.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-5MKCW436-B32KkSB4.js", "/assets/chunk-2OOHT3W5-B6Vi5BjQ.js", "/assets/chunk-56K2BSAJ-8vSmiqh4.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/chunk-3Y4YXCR2-K1dpGGRN.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/chunk-3ASUQ6PA-BAcdPhwD.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/app-B420985G.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/chunk-6CVSDS6C-ClQyf_Ch.js", "/assets/ApiErrors-DeZcFLHr.js", "/assets/chunk-2ZHRCML3-DqPZ_H3Z.js", "/assets/chunk-46CXQZ4E-CsbUyZmS.js", "/assets/ColorModeSelector-CJRct6HX.js", "/assets/chunk-HB6KBUMZ-B8DBlAPS.js", "/assets/chunk-BL2ZZSHG-BUdH9WQK.js", "/assets/index.esm-DZ5Rht_2.js", "/assets/app_resources-CEgZe0CK.js", "/assets/chunk-W7WUSNWJ-DDHZDhn1.js", "/assets/useDXTApiFetch-BjHmfZbr.js", "/assets/yup-BdZyDz3M.js", "/assets/select-rNofBLKa.js", "/assets/chunk-MFVQSVQB-BSFcmmoO.js", "/assets/chunk-YQO7BFFX-CrbUtirh.js", "/assets/pedidos-B6DIYHPv.js", "/assets/SearchField-CFxZBq2H.js", "/assets/FormErrors-BaCwbtS0.js", "/assets/Navbar-CA3F-e3V.js", "/assets/index.esm-DLycO5Xl.js", "/assets/ControlledSelect-fjUlVCrq.js", "/assets/CommonCard-C2byJLAu.js", "/assets/chunk-ZPFGWTBB-qFhw8OhE.js", "/assets/chunk-NTCQBYKE-DltSH_Ws.js", "/assets/ControlledInput-BWCaGqUR.js", "/assets/ControlledTextarea-CBiS41ck.js", "/assets/index-rATjf0mL.js", "/assets/chunk-Z6RXEUPO-I6sIG1fJ.js", "/assets/FormSkeletons-D_WNCpXW.js", "/assets/CommonErrors-EkZQf0Xy.js", "/assets/index-DDtuOn3v.js"], "css": [] }, "routes/_authorized.orders.$client.add": { "id": "routes/_authorized.orders.$client.add", "parentId": "routes/_authorized", "path": "orders/:client/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-Cd_dbF1D.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-5MKCW436-B32KkSB4.js", "/assets/chunk-2OOHT3W5-B6Vi5BjQ.js", "/assets/chunk-56K2BSAJ-8vSmiqh4.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/chunk-3Y4YXCR2-K1dpGGRN.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/chunk-3ASUQ6PA-BAcdPhwD.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/app-B420985G.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/chunk-6CVSDS6C-ClQyf_Ch.js", "/assets/ApiErrors-DeZcFLHr.js", "/assets/chunk-2ZHRCML3-DqPZ_H3Z.js", "/assets/chunk-46CXQZ4E-CsbUyZmS.js", "/assets/ColorModeSelector-CJRct6HX.js", "/assets/chunk-HB6KBUMZ-B8DBlAPS.js", "/assets/chunk-BL2ZZSHG-BUdH9WQK.js", "/assets/index.esm-DZ5Rht_2.js", "/assets/app_resources-CEgZe0CK.js", "/assets/chunk-W7WUSNWJ-DDHZDhn1.js", "/assets/useDXTApiFetch-BjHmfZbr.js", "/assets/yup-BdZyDz3M.js", "/assets/select-rNofBLKa.js", "/assets/chunk-MFVQSVQB-BSFcmmoO.js", "/assets/chunk-YQO7BFFX-CrbUtirh.js", "/assets/pedidos-B6DIYHPv.js", "/assets/SearchField-CFxZBq2H.js", "/assets/FormErrors-BaCwbtS0.js", "/assets/Navbar-CA3F-e3V.js", "/assets/index.esm-DLycO5Xl.js", "/assets/ControlledSelect-fjUlVCrq.js", "/assets/CommonCard-C2byJLAu.js", "/assets/chunk-ZPFGWTBB-qFhw8OhE.js", "/assets/chunk-NTCQBYKE-DltSH_Ws.js", "/assets/ControlledInput-BWCaGqUR.js", "/assets/ControlledTextarea-CBiS41ck.js", "/assets/index-rATjf0mL.js", "/assets/chunk-Z6RXEUPO-I6sIG1fJ.js", "/assets/FormSkeletons-D_WNCpXW.js", "/assets/CommonErrors-EkZQf0Xy.js", "/assets/index-DDtuOn3v.js"], "css": [] }, "routes/api.dictionary.active_company": { "id": "routes/api.dictionary.active_company", "parentId": "routes/api.dictionary", "path": "active_company", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dictionary.active_company-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.vendedor.$id_vendedor": { "id": "routes/api.dxt.vendedor.$id_vendedor", "parentId": "routes/api.dxt.vendedor", "path": ":id_vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor._id_vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.change_password": { "id": "routes/_authorized.change_password", "parentId": "routes/_authorized", "path": "change_password", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DPXatMpY.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/chunk-MFVQSVQB-BSFcmmoO.js", "/assets/chunk-YQO7BFFX-CrbUtirh.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/chunk-3Y4YXCR2-K1dpGGRN.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/CommonCard-C2byJLAu.js", "/assets/app_resources-CEgZe0CK.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/chunk-BL2ZZSHG-BUdH9WQK.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/chunk-56K2BSAJ-8vSmiqh4.js", "/assets/chunk-46CXQZ4E-CsbUyZmS.js", "/assets/app-B420985G.js", "/assets/yup-BdZyDz3M.js", "/assets/chunk-6CVSDS6C-ClQyf_Ch.js", "/assets/ControlledInput-BWCaGqUR.js", "/assets/chunk-2ZHRCML3-DqPZ_H3Z.js", "/assets/chunk-Z6RXEUPO-I6sIG1fJ.js", "/assets/SettingsFormHeading-5SiLHHxE.js", "/assets/refresh_all-zNiOAdg0.js", "/assets/FormErrors-BaCwbtS0.js", "/assets/PasswordWithStatus-DKSTs8vM.js", "/assets/SettingsFormButtons-CthONgBp.js", "/assets/utils-DihYaFf6.js", "/assets/index.esm-DLycO5Xl.js", "/assets/chunk-ZPFGWTBB-qFhw8OhE.js", "/assets/chunk-5MKCW436-B32KkSB4.js"], "css": [] }, "routes/api.dxt.articulo.print_list": { "id": "routes/api.dxt.articulo.print_list", "parentId": "root", "path": "api/dxt/articulo/print_list", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.print_list-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.cliente.$id_cliente": { "id": "routes/api.dxt.cliente.$id_cliente", "parentId": "routes/api.dxt.cliente", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.articulo.edit_list": { "id": "routes/api.dxt.articulo.edit_list", "parentId": "root", "path": "api/dxt/articulo/edit_list", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.edit_list-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.usuario.auxiliares": { "id": "routes/api.dxt.usuario.auxiliares", "parentId": "root", "path": "api/dxt/usuario/auxiliares", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.usuario.auxiliares-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.drafts._index": { "id": "routes/_authorized.drafts._index", "parentId": "routes/_authorized", "path": "drafts", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-GM0x5F6m.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-5MKCW436-B32KkSB4.js", "/assets/chunk-2OOHT3W5-B6Vi5BjQ.js", "/assets/chunk-3ASUQ6PA-BAcdPhwD.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/app-B420985G.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/ApiErrors-DeZcFLHr.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/ColorModeSelector-CJRct6HX.js", "/assets/chunk-HB6KBUMZ-B8DBlAPS.js", "/assets/chunk-BL2ZZSHG-BUdH9WQK.js", "/assets/chunk-56K2BSAJ-8vSmiqh4.js", "/assets/chunk-6CVSDS6C-ClQyf_Ch.js", "/assets/chunk-2ZHRCML3-DqPZ_H3Z.js", "/assets/chunk-3Y4YXCR2-K1dpGGRN.js", "/assets/useDXTApiFetch-BjHmfZbr.js", "/assets/chunk-7D6N5TE5-DSLyEd9l.js", "/assets/pedidos-B6DIYHPv.js", "/assets/FormSkeletons-D_WNCpXW.js", "/assets/Navbar-CA3F-e3V.js", "/assets/chunk-ZPFGWTBB-qFhw8OhE.js", "/assets/SearchField-CFxZBq2H.js", "/assets/app_resources-CEgZe0CK.js", "/assets/AccountCancelIcon-BwrrLNSn.js", "/assets/TextWordBreak-DSr4qhOr.js", "/assets/index.esm-DZ5Rht_2.js", "/assets/chunk-46CXQZ4E-CsbUyZmS.js", "/assets/chunk-NTCQBYKE-DltSH_Ws.js", "/assets/vo_user_name-BxAuo4rt.js", "/assets/chunk-Z6RXEUPO-I6sIG1fJ.js", "/assets/chunk-CWVAJCXJ-D2F6Xv32.js", "/assets/index-DDGpox0F.js"], "css": [] }, "routes/_authorized.orders._index": { "id": "routes/_authorized.orders._index", "parentId": "routes/_authorized", "path": "orders", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BPmFMYck.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-5MKCW436-B32KkSB4.js", "/assets/chunk-2OOHT3W5-B6Vi5BjQ.js", "/assets/chunk-3ASUQ6PA-BAcdPhwD.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/app-B420985G.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/ApiErrors-DeZcFLHr.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/ColorModeSelector-CJRct6HX.js", "/assets/chunk-HB6KBUMZ-B8DBlAPS.js", "/assets/chunk-BL2ZZSHG-BUdH9WQK.js", "/assets/chunk-56K2BSAJ-8vSmiqh4.js", "/assets/chunk-6CVSDS6C-ClQyf_Ch.js", "/assets/chunk-2ZHRCML3-DqPZ_H3Z.js", "/assets/chunk-3Y4YXCR2-K1dpGGRN.js", "/assets/useDXTApiFetch-BjHmfZbr.js", "/assets/chunk-7D6N5TE5-DSLyEd9l.js", "/assets/pedidos-B6DIYHPv.js", "/assets/FormSkeletons-D_WNCpXW.js", "/assets/Navbar-CA3F-e3V.js", "/assets/chunk-ZPFGWTBB-qFhw8OhE.js", "/assets/SearchField-CFxZBq2H.js", "/assets/app_resources-CEgZe0CK.js", "/assets/AccountCancelIcon-BwrrLNSn.js", "/assets/TextWordBreak-DSr4qhOr.js", "/assets/index.esm-DZ5Rht_2.js", "/assets/chunk-46CXQZ4E-CsbUyZmS.js", "/assets/chunk-NTCQBYKE-DltSH_Ws.js", "/assets/vo_user_name-BxAuo4rt.js", "/assets/chunk-Z6RXEUPO-I6sIG1fJ.js", "/assets/chunk-CWVAJCXJ-D2F6Xv32.js", "/assets/index-DDGpox0F.js"], "css": [] }, "routes/api.dxt.vendedor.cliente": { "id": "routes/api.dxt.vendedor.cliente", "parentId": "routes/api.dxt.vendedor", "path": "cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.config_file": { "id": "routes/api.settings.config_file", "parentId": "root", "path": "api/settings/config_file", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.config_file-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.company": { "id": "routes/_admin.settings.company", "parentId": "routes/_admin", "path": "settings/company", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-Buk_16vm.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/chunk-MFVQSVQB-BSFcmmoO.js", "/assets/chunk-YQO7BFFX-CrbUtirh.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/chunk-3Y4YXCR2-K1dpGGRN.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/CommonCard-C2byJLAu.js", "/assets/app_resources-CEgZe0CK.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/chunk-BL2ZZSHG-BUdH9WQK.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/chunk-56K2BSAJ-8vSmiqh4.js", "/assets/index.esm-DZ5Rht_2.js", "/assets/app-B420985G.js", "/assets/chunk-W7WUSNWJ-DDHZDhn1.js", "/assets/chunk-HB6KBUMZ-B8DBlAPS.js", "/assets/useDXTApiFetch-BjHmfZbr.js", "/assets/yup-BdZyDz3M.js", "/assets/select-rNofBLKa.js", "/assets/chunk-46CXQZ4E-CsbUyZmS.js", "/assets/chunk-Z6RXEUPO-I6sIG1fJ.js", "/assets/SettingsFormHeading-5SiLHHxE.js", "/assets/ControlledSelect-fjUlVCrq.js", "/assets/FormErrors-BaCwbtS0.js", "/assets/InlineError-rXH3I37w.js", "/assets/SettingsFormButtons-CthONgBp.js", "/assets/index.esm-DLycO5Xl.js", "/assets/chunk-ZPFGWTBB-qFhw8OhE.js"], "css": [] }, "routes/_admin.settings._index": { "id": "routes/_admin.settings._index", "parentId": "routes/_admin", "path": "settings", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DczTkKQP.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-3ASUQ6PA-BAcdPhwD.js", "/assets/chunk-2OOHT3W5-B6Vi5BjQ.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/app-B420985G.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/chunk-MFVQSVQB-BSFcmmoO.js", "/assets/useDXTApiFetch-BjHmfZbr.js", "/assets/ApiErrors-DeZcFLHr.js", "/assets/chunk-NTCQBYKE-DltSH_Ws.js", "/assets/chunk-YQO7BFFX-CrbUtirh.js", "/assets/chunk-ZPFGWTBB-qFhw8OhE.js", "/assets/chunk-Z6RXEUPO-I6sIG1fJ.js"], "css": [] }, "routes/_authorized.drafts.add": { "id": "routes/_authorized.drafts.add", "parentId": "routes/_authorized", "path": "drafts/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BnlrjExV.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-5MKCW436-B32KkSB4.js", "/assets/chunk-2OOHT3W5-B6Vi5BjQ.js", "/assets/chunk-56K2BSAJ-8vSmiqh4.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/chunk-3Y4YXCR2-K1dpGGRN.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/chunk-3ASUQ6PA-BAcdPhwD.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/app-B420985G.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/chunk-6CVSDS6C-ClQyf_Ch.js", "/assets/ApiErrors-DeZcFLHr.js", "/assets/chunk-2ZHRCML3-DqPZ_H3Z.js", "/assets/chunk-46CXQZ4E-CsbUyZmS.js", "/assets/ColorModeSelector-CJRct6HX.js", "/assets/chunk-HB6KBUMZ-B8DBlAPS.js", "/assets/chunk-BL2ZZSHG-BUdH9WQK.js", "/assets/index.esm-DZ5Rht_2.js", "/assets/app_resources-CEgZe0CK.js", "/assets/chunk-W7WUSNWJ-DDHZDhn1.js", "/assets/useDXTApiFetch-BjHmfZbr.js", "/assets/yup-BdZyDz3M.js", "/assets/select-rNofBLKa.js", "/assets/chunk-MFVQSVQB-BSFcmmoO.js", "/assets/chunk-YQO7BFFX-CrbUtirh.js", "/assets/pedidos-B6DIYHPv.js", "/assets/SearchField-CFxZBq2H.js", "/assets/FormErrors-BaCwbtS0.js", "/assets/Navbar-CA3F-e3V.js", "/assets/index.esm-DLycO5Xl.js", "/assets/ControlledSelect-fjUlVCrq.js", "/assets/CommonCard-C2byJLAu.js", "/assets/chunk-ZPFGWTBB-qFhw8OhE.js", "/assets/chunk-NTCQBYKE-DltSH_Ws.js", "/assets/ControlledInput-BWCaGqUR.js", "/assets/ControlledTextarea-CBiS41ck.js", "/assets/index-rATjf0mL.js", "/assets/chunk-Z6RXEUPO-I6sIG1fJ.js", "/assets/FormSkeletons-D_WNCpXW.js", "/assets/CommonErrors-EkZQf0Xy.js", "/assets/index-DDtuOn3v.js"], "css": [] }, "routes/_authorized.orders.add": { "id": "routes/_authorized.orders.add", "parentId": "routes/_authorized", "path": "orders/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DL40u3fO.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-5MKCW436-B32KkSB4.js", "/assets/chunk-2OOHT3W5-B6Vi5BjQ.js", "/assets/chunk-56K2BSAJ-8vSmiqh4.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/chunk-3Y4YXCR2-K1dpGGRN.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/chunk-3ASUQ6PA-BAcdPhwD.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/app-B420985G.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/chunk-6CVSDS6C-ClQyf_Ch.js", "/assets/ApiErrors-DeZcFLHr.js", "/assets/chunk-2ZHRCML3-DqPZ_H3Z.js", "/assets/chunk-46CXQZ4E-CsbUyZmS.js", "/assets/ColorModeSelector-CJRct6HX.js", "/assets/chunk-HB6KBUMZ-B8DBlAPS.js", "/assets/chunk-BL2ZZSHG-BUdH9WQK.js", "/assets/index.esm-DZ5Rht_2.js", "/assets/app_resources-CEgZe0CK.js", "/assets/chunk-W7WUSNWJ-DDHZDhn1.js", "/assets/useDXTApiFetch-BjHmfZbr.js", "/assets/yup-BdZyDz3M.js", "/assets/select-rNofBLKa.js", "/assets/chunk-MFVQSVQB-BSFcmmoO.js", "/assets/chunk-YQO7BFFX-CrbUtirh.js", "/assets/pedidos-B6DIYHPv.js", "/assets/SearchField-CFxZBq2H.js", "/assets/FormErrors-BaCwbtS0.js", "/assets/Navbar-CA3F-e3V.js", "/assets/index.esm-DLycO5Xl.js", "/assets/ControlledSelect-fjUlVCrq.js", "/assets/CommonCard-C2byJLAu.js", "/assets/chunk-ZPFGWTBB-qFhw8OhE.js", "/assets/chunk-NTCQBYKE-DltSH_Ws.js", "/assets/ControlledInput-BWCaGqUR.js", "/assets/ControlledTextarea-CBiS41ck.js", "/assets/index-rATjf0mL.js", "/assets/chunk-Z6RXEUPO-I6sIG1fJ.js", "/assets/FormSkeletons-D_WNCpXW.js", "/assets/CommonErrors-EkZQf0Xy.js", "/assets/index-DDtuOn3v.js"], "css": [] }, "routes/_admin.settings.tango": { "id": "routes/_admin.settings.tango", "parentId": "routes/_admin", "path": "settings/tango", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-UYUXWKwI.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/chunk-MFVQSVQB-BSFcmmoO.js", "/assets/chunk-YQO7BFFX-CrbUtirh.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/chunk-3Y4YXCR2-K1dpGGRN.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/CommonCard-C2byJLAu.js", "/assets/app_resources-CEgZe0CK.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/chunk-BL2ZZSHG-BUdH9WQK.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/chunk-3ASUQ6PA-BAcdPhwD.js", "/assets/chunk-2OOHT3W5-B6Vi5BjQ.js", "/assets/app-B420985G.js", "/assets/ApiErrors-DeZcFLHr.js", "/assets/chunk-56K2BSAJ-8vSmiqh4.js", "/assets/yup-BdZyDz3M.js", "/assets/chunk-6CVSDS6C-ClQyf_Ch.js", "/assets/chunk-46CXQZ4E-CsbUyZmS.js", "/assets/SettingsFormHeading-5SiLHHxE.js", "/assets/index-Bk9JrTOU.js", "/assets/useDXTApiFetch-BjHmfZbr.js", "/assets/FormSkeletons-D_WNCpXW.js", "/assets/chunk-ZPFGWTBB-qFhw8OhE.js", "/assets/ControlledInput-BWCaGqUR.js", "/assets/FormErrors-BaCwbtS0.js", "/assets/SettingsFormButtons-CthONgBp.js", "/assets/utils-DihYaFf6.js", "/assets/index.esm-DLycO5Xl.js"], "css": [] }, "routes/api.pedido.$id_pedido": { "id": "routes/api.pedido.$id_pedido", "parentId": "routes/api.pedido", "path": ":id_pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.misc": { "id": "routes/_admin.settings.misc", "parentId": "routes/_admin", "path": "settings/misc", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DBMR8DBa.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/chunk-MFVQSVQB-BSFcmmoO.js", "/assets/chunk-YQO7BFFX-CrbUtirh.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/chunk-3Y4YXCR2-K1dpGGRN.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/CommonCard-C2byJLAu.js", "/assets/app_resources-CEgZe0CK.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/chunk-BL2ZZSHG-BUdH9WQK.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/chunk-3ASUQ6PA-BAcdPhwD.js", "/assets/chunk-2OOHT3W5-B6Vi5BjQ.js", "/assets/app-B420985G.js", "/assets/ApiErrors-DeZcFLHr.js", "/assets/chunk-56K2BSAJ-8vSmiqh4.js", "/assets/chunk-7D6N5TE5-DSLyEd9l.js", "/assets/yup-BdZyDz3M.js", "/assets/chunk-6CVSDS6C-ClQyf_Ch.js", "/assets/chunk-46CXQZ4E-CsbUyZmS.js", "/assets/SettingsFormHeading-5SiLHHxE.js", "/assets/index-Bk9JrTOU.js", "/assets/useDXTApiFetch-BjHmfZbr.js", "/assets/FormSkeletons-D_WNCpXW.js", "/assets/chunk-ZPFGWTBB-qFhw8OhE.js", "/assets/chunk-W7WUSNWJ-DDHZDhn1.js", "/assets/chunk-CWVAJCXJ-D2F6Xv32.js", "/assets/ControlledInput-BWCaGqUR.js", "/assets/ControlledTextarea-CBiS41ck.js", "/assets/FormErrors-BaCwbtS0.js", "/assets/SettingsFormButtons-CthONgBp.js", "/assets/utils-DihYaFf6.js", "/assets/index.esm-DLycO5Xl.js"], "css": [] }, "routes/api.draft.$id_pedido": { "id": "routes/api.draft.$id_pedido", "parentId": "routes/api.draft", "path": ":id_pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.renglones": { "id": "routes/api.pedido.renglones", "parentId": "routes/api.pedido", "path": "renglones", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.renglones-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.start_new": { "id": "routes/api.pedido.start_new", "parentId": "routes/api.pedido", "path": "start_new", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.start_new-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.renglones": { "id": "routes/api.draft.renglones", "parentId": "routes/api.draft", "path": "renglones", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.renglones-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.start_new": { "id": "routes/api.draft.start_new", "parentId": "routes/api.draft", "path": "start_new", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.start_new-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.vendedor": { "id": "routes/api.tango.vendedor", "parentId": "root", "path": "api/tango/vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.password": { "id": "routes/api.auth.password", "parentId": "root", "path": "api/auth/password", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.password-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.misc": { "id": "routes/api.settings.misc", "parentId": "root", "path": "api/settings/misc", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.misc-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.cliente": { "id": "routes/api.tango.cliente", "parentId": "root", "path": "api/tango/cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.admin.status": { "id": "routes/api.admin.status", "parentId": "root", "path": "api/admin/status", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.admin.status-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.connect": { "id": "routes/api.auth.connect", "parentId": "root", "path": "api/auth/connect", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.connect-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.vendedor": { "id": "routes/api.dxt.vendedor", "parentId": "root", "path": "api/dxt/vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.perfil": { "id": "routes/api.tango.perfil", "parentId": "root", "path": "api/tango/perfil", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.perfil-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.logout": { "id": "routes/api.auth.logout", "parentId": "root", "path": "api/auth/logout", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.logout-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.cliente": { "id": "routes/api.dxt.cliente", "parentId": "root", "path": "api/dxt/cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.db": { "id": "routes/api.settings.db", "parentId": "root", "path": "api/settings/db", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.db-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.lista": { "id": "routes/api.tango.lista", "parentId": "root", "path": "api/tango/lista", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.lista-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.login": { "id": "routes/api.auth.login", "parentId": "root", "path": "api/auth/login", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.login-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dictionary": { "id": "routes/api.dictionary", "parentId": "root", "path": "api/dictionary", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dictionary-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized": { "id": "routes/_authorized", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-mIK2jtWA.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/refresh_all-zNiOAdg0.js", "/assets/ClientOnly-CKUVyK_C.js"], "css": [] }, "routes/api.pedido": { "id": "routes/api.pedido", "parentId": "root", "path": "api/pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft": { "id": "routes/api.draft", "parentId": "root", "path": "api/draft", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin": { "id": "routes/_admin", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DnXtEe1N.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/refresh_all-zNiOAdg0.js", "/assets/app-B420985G.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-QURMB2UJ-CfPn0lni.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/ColorModeSelector-CJRct6HX.js", "/assets/chunk-KRPLQIP4-Cm2LXMK6.js", "/assets/chunk-HB6KBUMZ-B8DBlAPS.js", "/assets/chunk-3ASUQ6PA-BAcdPhwD.js", "/assets/chunk-2OOHT3W5-B6Vi5BjQ.js", "/assets/chunk-BL2ZZSHG-BUdH9WQK.js", "/assets/ClientOnly-CKUVyK_C.js", "/assets/Navbar-CA3F-e3V.js", "/assets/chunk-5MKCW436-B32KkSB4.js"], "css": [] }, "routes/_index": { "id": "routes/_index", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-Bz7tJnrg.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Bukkp3pI.js", "/assets/auth_context-D8ug2Qcd.js", "/assets/chunk-56K2BSAJ-8vSmiqh4.js", "/assets/app-B420985G.js", "/assets/chunk-6QYXN73V-BQTiQyuX.js", "/assets/chunk-ZHMYA64R-D24w8AgT.js", "/assets/yup-BdZyDz3M.js", "/assets/chunk-6CVSDS6C-ClQyf_Ch.js", "/assets/chunk-MFVQSVQB-BSFcmmoO.js", "/assets/utils-DihYaFf6.js", "/assets/index.esm-DLycO5Xl.js", "/assets/vo_user_name-BxAuo4rt.js", "/assets/ColorModeSelector-CJRct6HX.js", "/assets/ControlledInput-BWCaGqUR.js", "/assets/chunk-7OLJDQMT-W4l9hI3h.js", "/assets/chunk-2OOHT3W5-B6Vi5BjQ.js", "/assets/chunk-YQO7BFFX-CrbUtirh.js", "/assets/chunk-46CXQZ4E-CsbUyZmS.js", "/assets/chunk-NTCQBYKE-DltSH_Ws.js", "/assets/chunk-5MKCW436-B32KkSB4.js", "/assets/chunk-3KCBMPN5-C6G4MaXF.js", "/assets/chunk-2ZHRCML3-DqPZ_H3Z.js"], "css": [] } }, "url": "/assets/manifest-86d86931.js", "version": "86d86931" };
+const serverManifest = { "entry": { "module": "/assets/entry.client-CQlch1AQ.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/index-Cn3NNzlD.js", "/assets/styleContexts-DzAEGv-0.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": true, "module": "/assets/root-CkwXEuRH.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/index-Cn3NNzlD.js", "/assets/styleContexts-DzAEGv-0.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-AMBGAKG2-DNImCCvC.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js"], "css": ["/assets/root-Y9hu6Btz.css"] }, "routes/api.dxt.cliente.$id_cliente.siblings.$tango_id": { "id": "routes/api.dxt.cliente.$id_cliente.siblings.$tango_id", "parentId": "routes/api.dxt.cliente.$id_cliente", "path": "siblings/:tango_id", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente._id_cliente.siblings._tango_id-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.users.customers.$id.edit": { "id": "routes/_admin.settings.users.customers.$id.edit", "parentId": "routes/_admin", "path": "settings/users/customers/:id/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-ucLzYS1k.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/AccountCancelIcon-hUm3w097.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/chunk-7D6N5TE5-D0DQFTJl.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/app_resources-CDkSSx5t.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/chunk-VTV6N5LE-B6EGXpGg.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/vo_dxt_password-DAHb5cpG.js", "/assets/InlineError-DCz4eDK0.js", "/assets/SettingsFormButtons-Cbuywpud.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-DWPGqLsA.js", "/assets/settings-JPG_dToq.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/SettingsFormHeading-oznEKY0V.js", "/assets/schema_transformers-CWX8AjcS.js", "/assets/utils-DTXYOP_7.js"], "css": [] }, "routes/_admin.settings.users.sellers.$id.edit": { "id": "routes/_admin.settings.users.sellers.$id.edit", "parentId": "routes/_admin", "path": "settings/users/sellers/:id/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BZ8uJOeM.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/AccountCancelIcon-hUm3w097.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/chunk-7D6N5TE5-D0DQFTJl.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/app_resources-CDkSSx5t.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/chunk-VTV6N5LE-B6EGXpGg.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/vo_dxt_password-DAHb5cpG.js", "/assets/InlineError-DCz4eDK0.js", "/assets/SettingsFormButtons-Cbuywpud.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-DWPGqLsA.js", "/assets/settings-JPG_dToq.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/SettingsFormHeading-oznEKY0V.js", "/assets/schema_transformers-CWX8AjcS.js", "/assets/utils-DTXYOP_7.js"], "css": [] }, "routes/api.pedido.$id_pedido.start_new_draft": { "id": "routes/api.pedido.$id_pedido.start_new_draft", "parentId": "routes/api.pedido.$id_pedido", "path": "start_new_draft", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_new_draft-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.$id_pedido.start_new_order": { "id": "routes/api.draft.$id_pedido.start_new_order", "parentId": "routes/api.draft.$id_pedido", "path": "start_new_order", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_new_order-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.users.customers.add": { "id": "routes/_admin.settings.users.customers.add", "parentId": "routes/_admin", "path": "settings/users/customers/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-D8UCX5bE.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/AccountCancelIcon-hUm3w097.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/chunk-7D6N5TE5-D0DQFTJl.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/app_resources-CDkSSx5t.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-VTV6N5LE-B6EGXpGg.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/vo_dxt_password-DAHb5cpG.js", "/assets/InlineError-DCz4eDK0.js", "/assets/SettingsFormButtons-Cbuywpud.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-DWPGqLsA.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/settings-JPG_dToq.js", "/assets/schema_transformers-CWX8AjcS.js", "/assets/SettingsFormHeading-oznEKY0V.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.order": { "id": "routes/_authorized.drafts.$id_pedido.order", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/order", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-tNon5oiQ.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/TextPrice-BKP0caI3.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/order.api_hooks-CSsqO2_h.js", "/assets/events-l6No6g-S.js", "/assets/app_resources-CDkSSx5t.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/Navbar-BPoDUv4m.js", "/assets/MessageToUserDialog-CBQLHKHO.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/index-DtHspM0R.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/index-DtWsygUi.js", "/assets/index-Cn3NNzlD.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.draft": { "id": "routes/_authorized.orders.$id_pedido.draft", "parentId": "routes/_authorized", "path": "orders/:id_pedido/draft", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DW0S99Xf.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/TextPrice-BKP0caI3.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/order.api_hooks-CSsqO2_h.js", "/assets/events-l6No6g-S.js", "/assets/app_resources-CDkSSx5t.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/Navbar-BPoDUv4m.js", "/assets/MessageToUserDialog-CBQLHKHO.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/index-DtHspM0R.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/index-DtWsygUi.js"], "css": [] }, "routes/_admin.settings.product_list.$type": { "id": "routes/_admin.settings.product_list.$type", "parentId": "routes/_admin", "path": "settings/product_list/:type", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-D83MYNcm.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/index.esm-DXKbKlYo.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/SettingsFormHeading-oznEKY0V.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/app_resources-CDkSSx5t.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/SettingsFormButtons-Cbuywpud.js", "/assets/index-DtHspM0R.js"], "css": [] }, "routes/_admin.settings.users.$type._index": { "id": "routes/_admin.settings.users.$type._index", "parentId": "routes/_admin", "path": "settings/users/:type", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DBB8SUDu.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/AccountCancelIcon-hUm3w097.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/settings-JPG_dToq.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/SettingsFormHeading-oznEKY0V.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/ConfirmationDialog-DIsNCiqw.js", "/assets/app_resources-CDkSSx5t.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/chunk-MGVPL3OH-aLfQ7SVE.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.copy": { "id": "routes/_authorized.drafts.$id_pedido.copy", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/copy", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BL4jwxdn.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/TextPrice-BKP0caI3.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/order.api_hooks-CSsqO2_h.js", "/assets/events-l6No6g-S.js", "/assets/app_resources-CDkSSx5t.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/Navbar-BPoDUv4m.js", "/assets/MessageToUserDialog-CBQLHKHO.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/index-DtHspM0R.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/index-DtWsygUi.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.edit": { "id": "routes/_authorized.drafts.$id_pedido.edit", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DJ2t-xRV.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/TextPrice-BKP0caI3.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/order.api_hooks-CSsqO2_h.js", "/assets/events-l6No6g-S.js", "/assets/app_resources-CDkSSx5t.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/Navbar-BPoDUv4m.js", "/assets/MessageToUserDialog-CBQLHKHO.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/index-DtHspM0R.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/index-DtWsygUi.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.copy": { "id": "routes/_authorized.orders.$id_pedido.copy", "parentId": "routes/_authorized", "path": "orders/:id_pedido/copy", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BTn7bUX6.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/TextPrice-BKP0caI3.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/order.api_hooks-CSsqO2_h.js", "/assets/events-l6No6g-S.js", "/assets/app_resources-CDkSSx5t.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/Navbar-BPoDUv4m.js", "/assets/MessageToUserDialog-CBQLHKHO.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/index-DtHspM0R.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/index-DtWsygUi.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.edit": { "id": "routes/_authorized.orders.$id_pedido.edit", "parentId": "routes/_authorized", "path": "orders/:id_pedido/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CEQqH_Kp.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/TextPrice-BKP0caI3.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/order.api_hooks-CSsqO2_h.js", "/assets/events-l6No6g-S.js", "/assets/app_resources-CDkSSx5t.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/Navbar-BPoDUv4m.js", "/assets/MessageToUserDialog-CBQLHKHO.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/index-DtHspM0R.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/index-DtWsygUi.js"], "css": [] }, "routes/api.dxt.cliente.siblings.$tango_id": { "id": "routes/api.dxt.cliente.siblings.$tango_id", "parentId": "routes/api.dxt.cliente", "path": "siblings/:tango_id", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente.siblings._tango_id-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.$id_pedido.start_update": { "id": "routes/api.pedido.$id_pedido.start_update", "parentId": "routes/api.pedido.$id_pedido", "path": "start_update", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_update-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.users.sellers.add": { "id": "routes/_admin.settings.users.sellers.add", "parentId": "routes/_admin", "path": "settings/users/sellers/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-B_CViVIV.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/AccountCancelIcon-hUm3w097.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/chunk-7D6N5TE5-D0DQFTJl.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/app_resources-CDkSSx5t.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-VTV6N5LE-B6EGXpGg.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/vo_dxt_password-DAHb5cpG.js", "/assets/InlineError-DCz4eDK0.js", "/assets/SettingsFormButtons-Cbuywpud.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-DWPGqLsA.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/settings-JPG_dToq.js", "/assets/schema_transformers-CWX8AjcS.js", "/assets/SettingsFormHeading-oznEKY0V.js"], "css": [] }, "routes/api.draft.$id_pedido.start_update": { "id": "routes/api.draft.$id_pedido.start_update", "parentId": "routes/api.draft.$id_pedido", "path": "start_update", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_update-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.$id_pedido.start_copy": { "id": "routes/api.pedido.$id_pedido.start_copy", "parentId": "routes/api.pedido.$id_pedido", "path": "start_copy", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_copy-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.start_new.$id_cliente": { "id": "routes/api.pedido.start_new.$id_cliente", "parentId": "routes/api.pedido.start_new", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.start_new._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.$id_pedido.start_copy": { "id": "routes/api.draft.$id_pedido.start_copy", "parentId": "routes/api.draft.$id_pedido", "path": "start_copy", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_copy-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.start_new.$id_cliente": { "id": "routes/api.draft.start_new.$id_cliente", "parentId": "routes/api.draft.start_new", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.start_new._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.articulo.print_list.ids": { "id": "routes/api.dxt.articulo.print_list.ids", "parentId": "routes/api.dxt.articulo.print_list", "path": "ids", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.print_list.ids-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.drafts.$client.add": { "id": "routes/_authorized.drafts.$client.add", "parentId": "routes/_authorized", "path": "drafts/:client/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DSvA5seJ.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/TextPrice-BKP0caI3.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/order.api_hooks-CSsqO2_h.js", "/assets/events-l6No6g-S.js", "/assets/app_resources-CDkSSx5t.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/Navbar-BPoDUv4m.js", "/assets/MessageToUserDialog-CBQLHKHO.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/index-DtHspM0R.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/index-DtWsygUi.js"], "css": [] }, "routes/_authorized.orders.$client.add": { "id": "routes/_authorized.orders.$client.add", "parentId": "routes/_authorized", "path": "orders/:client/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DAo5puAI.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/TextPrice-BKP0caI3.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/order.api_hooks-CSsqO2_h.js", "/assets/events-l6No6g-S.js", "/assets/app_resources-CDkSSx5t.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/Navbar-BPoDUv4m.js", "/assets/MessageToUserDialog-CBQLHKHO.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/index-DtHspM0R.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/index-DtWsygUi.js"], "css": [] }, "routes/api.dictionary.active_company": { "id": "routes/api.dictionary.active_company", "parentId": "routes/api.dictionary", "path": "active_company", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dictionary.active_company-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.$id_pedido.favorite": { "id": "routes/api.draft.$id_pedido.favorite", "parentId": "routes/api.draft.$id_pedido", "path": "favorite", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.favorite-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.vendedor.$id_vendedor": { "id": "routes/api.dxt.vendedor.$id_vendedor", "parentId": "routes/api.dxt.vendedor", "path": ":id_vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor._id_vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.change_password": { "id": "routes/_authorized.change_password", "parentId": "routes/_authorized", "path": "change_password", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BxOUq28q.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/index.esm-DXKbKlYo.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/Navbar-BPoDUv4m.js", "/assets/SettingsFormHeading-oznEKY0V.js", "/assets/app_resources-CDkSSx5t.js", "/assets/refresh_all-Bi1PYNQW.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/vo_dxt_password-DAHb5cpG.js", "/assets/SettingsFormButtons-Cbuywpud.js", "/assets/utils-DihYaFf6.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js"], "css": [] }, "routes/api.dxt.articulo.print_list": { "id": "routes/api.dxt.articulo.print_list", "parentId": "root", "path": "api/dxt/articulo/print_list", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.print_list-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.cliente.$id_cliente": { "id": "routes/api.dxt.cliente.$id_cliente", "parentId": "routes/api.dxt.cliente", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.articulo.edit_list": { "id": "routes/api.dxt.articulo.edit_list", "parentId": "root", "path": "api/dxt/articulo/edit_list", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.edit_list-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.usuario.auxiliares": { "id": "routes/api.dxt.usuario.auxiliares", "parentId": "root", "path": "api/dxt/usuario/auxiliares", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.usuario.auxiliares-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.drafts._index": { "id": "routes/_authorized.drafts._index", "parentId": "routes/_authorized", "path": "drafts", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-amJHnq4N.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/TextPrice-BKP0caI3.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/vo_user_name-DWPGqLsA.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/chunk-7D6N5TE5-D0DQFTJl.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/Navbar-BPoDUv4m.js", "/assets/events-l6No6g-S.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/index-DcejMdNG.js", "/assets/app_resources-CDkSSx5t.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/AccountCancelIcon-hUm3w097.js", "/assets/ConfirmationDialog-DIsNCiqw.js", "/assets/index.esm-CpzYlNdn.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/chunk-CWVAJCXJ-BEmBpbZv.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/index-CRMkCGb6.js"], "css": [] }, "routes/_authorized.orders._index": { "id": "routes/_authorized.orders._index", "parentId": "routes/_authorized", "path": "orders", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CU8YAMk_.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/TextPrice-BKP0caI3.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/vo_user_name-DWPGqLsA.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/chunk-7D6N5TE5-D0DQFTJl.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/Navbar-BPoDUv4m.js", "/assets/events-l6No6g-S.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/index-DcejMdNG.js", "/assets/app_resources-CDkSSx5t.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/AccountCancelIcon-hUm3w097.js", "/assets/ConfirmationDialog-DIsNCiqw.js", "/assets/index.esm-CpzYlNdn.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/chunk-CWVAJCXJ-BEmBpbZv.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/index-CRMkCGb6.js"], "css": [] }, "routes/_authorized.orders.print": { "id": "routes/_authorized.orders.print", "parentId": "routes/_authorized", "path": "orders/print", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DosEM6qE.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/TextPrice-BKP0caI3.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/vo_user_name-DWPGqLsA.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-7D6N5TE5-D0DQFTJl.js", "/assets/utils-DTXYOP_7.js", "/assets/order.api_hooks-CSsqO2_h.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/index-DcejMdNG.js", "/assets/chunk-MGVPL3OH-aLfQ7SVE.js", "/assets/chunk-VTV6N5LE-B6EGXpGg.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/index-Cn3NNzlD.js"], "css": [] }, "routes/api.dxt.vendedor.cliente": { "id": "routes/api.dxt.vendedor.cliente", "parentId": "routes/api.dxt.vendedor", "path": "cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.config_file": { "id": "routes/api.settings.config_file", "parentId": "root", "path": "api/settings/config_file", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.config_file-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.company": { "id": "routes/_admin.settings.company", "parentId": "routes/_admin", "path": "settings/company", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CHmjEZ4z.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/SettingsFormHeading-oznEKY0V.js", "/assets/app_resources-CDkSSx5t.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/InlineError-DCz4eDK0.js", "/assets/SettingsFormButtons-Cbuywpud.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js"], "css": [] }, "routes/_admin.settings._index": { "id": "routes/_admin.settings._index", "parentId": "routes/_admin", "path": "settings", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CSN2NgNv.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js"], "css": [] }, "routes/_authorized.drafts.add": { "id": "routes/_authorized.drafts.add", "parentId": "routes/_authorized", "path": "drafts/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-xy92I8dQ.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/TextPrice-BKP0caI3.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/order.api_hooks-CSsqO2_h.js", "/assets/events-l6No6g-S.js", "/assets/app_resources-CDkSSx5t.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/Navbar-BPoDUv4m.js", "/assets/MessageToUserDialog-CBQLHKHO.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/index-DtHspM0R.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/index-DtWsygUi.js"], "css": [] }, "routes/_authorized.orders.add": { "id": "routes/_authorized.orders.add", "parentId": "routes/_authorized", "path": "orders/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DbQVvg2G.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/TextPrice-BKP0caI3.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/order.api_hooks-CSsqO2_h.js", "/assets/events-l6No6g-S.js", "/assets/app_resources-CDkSSx5t.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/Navbar-BPoDUv4m.js", "/assets/MessageToUserDialog-CBQLHKHO.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/index-DtHspM0R.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/index-DtWsygUi.js"], "css": [] }, "routes/_admin.settings.tango": { "id": "routes/_admin.settings.tango", "parentId": "routes/_admin", "path": "settings/tango", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-LbapKX-U.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/app-BdYyDs5S.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/index.esm-DXKbKlYo.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/SettingsFormHeading-oznEKY0V.js", "/assets/index-B-BLzzSh.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/app_resources-CDkSSx5t.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/SettingsFormButtons-Cbuywpud.js", "/assets/utils-DihYaFf6.js"], "css": [] }, "routes/_authorized.downloads": { "id": "routes/_authorized.downloads", "parentId": "routes/_authorized", "path": "downloads", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-_1BHXAk-.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/Navbar-BPoDUv4m.js", "/assets/SettingsFormHeading-oznEKY0V.js", "/assets/chunk-AMBGAKG2-DNImCCvC.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js"], "css": [] }, "routes/api.pedido.$id_pedido": { "id": "routes/api.pedido.$id_pedido", "parentId": "routes/api.pedido", "path": ":id_pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.misc": { "id": "routes/_admin.settings.misc", "parentId": "routes/_admin", "path": "settings/misc", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-1Fg2ZoeE.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/app-BdYyDs5S.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-7D6N5TE5-D0DQFTJl.js", "/assets/index.esm-DXKbKlYo.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/SettingsFormHeading-oznEKY0V.js", "/assets/index-B-BLzzSh.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/app_resources-CDkSSx5t.js", "/assets/chunk-CWVAJCXJ-BEmBpbZv.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/SettingsFormButtons-Cbuywpud.js", "/assets/utils-DihYaFf6.js"], "css": [] }, "routes/api.draft.$id_pedido": { "id": "routes/api.draft.$id_pedido", "parentId": "routes/api.draft", "path": ":id_pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.renglones": { "id": "routes/api.pedido.renglones", "parentId": "routes/api.pedido", "path": "renglones", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.renglones-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.start_new": { "id": "routes/api.pedido.start_new", "parentId": "routes/api.pedido", "path": "start_new", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.start_new-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.renglones": { "id": "routes/api.draft.renglones", "parentId": "routes/api.draft", "path": "renglones", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.renglones-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.start_new": { "id": "routes/api.draft.start_new", "parentId": "routes/api.draft", "path": "start_new", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.start_new-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.vendedor": { "id": "routes/api.tango.vendedor", "parentId": "root", "path": "api/tango/vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.password": { "id": "routes/api.auth.password", "parentId": "root", "path": "api/auth/password", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.password-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.by_ids": { "id": "routes/api.pedido.by_ids", "parentId": "routes/api.pedido", "path": "by_ids", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.by_ids-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.misc": { "id": "routes/api.settings.misc", "parentId": "root", "path": "api/settings/misc", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.misc-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.cliente": { "id": "routes/api.tango.cliente", "parentId": "root", "path": "api/tango/cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.admin.status": { "id": "routes/api.admin.status", "parentId": "root", "path": "api/admin/status", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.admin.status-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.connect": { "id": "routes/api.auth.connect", "parentId": "root", "path": "api/auth/connect", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.connect-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.vendedor": { "id": "routes/api.dxt.vendedor", "parentId": "root", "path": "api/dxt/vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.perfil": { "id": "routes/api.tango.perfil", "parentId": "root", "path": "api/tango/perfil", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.perfil-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.logout": { "id": "routes/api.auth.logout", "parentId": "root", "path": "api/auth/logout", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.logout-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.cliente": { "id": "routes/api.dxt.cliente", "parentId": "root", "path": "api/dxt/cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.db": { "id": "routes/api.settings.db", "parentId": "root", "path": "api/settings/db", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.db-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.lista": { "id": "routes/api.tango.lista", "parentId": "root", "path": "api/tango/lista", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.lista-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.login": { "id": "routes/api.auth.login", "parentId": "root", "path": "api/auth/login", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.login-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dictionary": { "id": "routes/api.dictionary", "parentId": "root", "path": "api/dictionary", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dictionary-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized": { "id": "routes/_authorized", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CxVSjWN0.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/refresh_all-Bi1PYNQW.js", "/assets/ClientOnly-DaaI_x4n.js"], "css": [] }, "routes/api.pedido": { "id": "routes/api.pedido", "parentId": "root", "path": "api/pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft": { "id": "routes/api.draft", "parentId": "root", "path": "api/draft", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin": { "id": "routes/_admin", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-LQ47WO9N.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/refresh_all-Bi1PYNQW.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/ClientOnly-DaaI_x4n.js", "/assets/Navbar-BPoDUv4m.js"], "css": [] }, "routes/_index": { "id": "routes/_index", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BttqWQ9T.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/index.esm-DXKbKlYo.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-DWPGqLsA.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/MessageToUserDialog-CBQLHKHO.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js"], "css": [] } }, "url": "/assets/manifest-d86bb14c.js", "version": "d86bb14c" };
 const mode = "production";
 const assetsBuildDirectory = "build/client";
 const basename = "/";
@@ -16859,21 +18002,29 @@ const routes = {
     caseSensitive: void 0,
     module: route0
   },
+  "routes/api.dxt.cliente.$id_cliente.siblings.$tango_id": {
+    id: "routes/api.dxt.cliente.$id_cliente.siblings.$tango_id",
+    parentId: "routes/api.dxt.cliente.$id_cliente",
+    path: "siblings/:tango_id",
+    index: void 0,
+    caseSensitive: void 0,
+    module: route1
+  },
   "routes/_admin.settings.users.customers.$id.edit": {
     id: "routes/_admin.settings.users.customers.$id.edit",
     parentId: "routes/_admin",
     path: "settings/users/customers/:id/edit",
     index: void 0,
     caseSensitive: void 0,
-    module: route1
+    module: route2
   },
-  "routes/_admin.settings.users.vendors.$id.edit": {
-    id: "routes/_admin.settings.users.vendors.$id.edit",
+  "routes/_admin.settings.users.sellers.$id.edit": {
+    id: "routes/_admin.settings.users.sellers.$id.edit",
     parentId: "routes/_admin",
-    path: "settings/users/vendors/:id/edit",
+    path: "settings/users/sellers/:id/edit",
     index: void 0,
     caseSensitive: void 0,
-    module: route2
+    module: route3
   },
   "routes/api.pedido.$id_pedido.start_new_draft": {
     id: "routes/api.pedido.$id_pedido.start_new_draft",
@@ -16881,7 +18032,7 @@ const routes = {
     path: "start_new_draft",
     index: void 0,
     caseSensitive: void 0,
-    module: route3
+    module: route4
   },
   "routes/api.draft.$id_pedido.start_new_order": {
     id: "routes/api.draft.$id_pedido.start_new_order",
@@ -16889,7 +18040,7 @@ const routes = {
     path: "start_new_order",
     index: void 0,
     caseSensitive: void 0,
-    module: route4
+    module: route5
   },
   "routes/_admin.settings.users.customers.add": {
     id: "routes/_admin.settings.users.customers.add",
@@ -16897,7 +18048,7 @@ const routes = {
     path: "settings/users/customers/add",
     index: void 0,
     caseSensitive: void 0,
-    module: route5
+    module: route6
   },
   "routes/_authorized.drafts.$id_pedido.order": {
     id: "routes/_authorized.drafts.$id_pedido.order",
@@ -16905,7 +18056,7 @@ const routes = {
     path: "drafts/:id_pedido/order",
     index: void 0,
     caseSensitive: void 0,
-    module: route6
+    module: route7
   },
   "routes/_authorized.orders.$id_pedido.draft": {
     id: "routes/_authorized.orders.$id_pedido.draft",
@@ -16913,7 +18064,7 @@ const routes = {
     path: "orders/:id_pedido/draft",
     index: void 0,
     caseSensitive: void 0,
-    module: route7
+    module: route8
   },
   "routes/_admin.settings.product_list.$type": {
     id: "routes/_admin.settings.product_list.$type",
@@ -16921,7 +18072,7 @@ const routes = {
     path: "settings/product_list/:type",
     index: void 0,
     caseSensitive: void 0,
-    module: route8
+    module: route9
   },
   "routes/_admin.settings.users.$type._index": {
     id: "routes/_admin.settings.users.$type._index",
@@ -16929,7 +18080,7 @@ const routes = {
     path: "settings/users/:type",
     index: true,
     caseSensitive: void 0,
-    module: route9
+    module: route10
   },
   "routes/_authorized.drafts.$id_pedido.copy": {
     id: "routes/_authorized.drafts.$id_pedido.copy",
@@ -16937,7 +18088,7 @@ const routes = {
     path: "drafts/:id_pedido/copy",
     index: void 0,
     caseSensitive: void 0,
-    module: route10
+    module: route11
   },
   "routes/_authorized.drafts.$id_pedido.edit": {
     id: "routes/_authorized.drafts.$id_pedido.edit",
@@ -16945,7 +18096,7 @@ const routes = {
     path: "drafts/:id_pedido/edit",
     index: void 0,
     caseSensitive: void 0,
-    module: route11
+    module: route12
   },
   "routes/_authorized.orders.$id_pedido.copy": {
     id: "routes/_authorized.orders.$id_pedido.copy",
@@ -16953,7 +18104,7 @@ const routes = {
     path: "orders/:id_pedido/copy",
     index: void 0,
     caseSensitive: void 0,
-    module: route12
+    module: route13
   },
   "routes/_authorized.orders.$id_pedido.edit": {
     id: "routes/_authorized.orders.$id_pedido.edit",
@@ -16961,7 +18112,15 @@ const routes = {
     path: "orders/:id_pedido/edit",
     index: void 0,
     caseSensitive: void 0,
-    module: route13
+    module: route14
+  },
+  "routes/api.dxt.cliente.siblings.$tango_id": {
+    id: "routes/api.dxt.cliente.siblings.$tango_id",
+    parentId: "routes/api.dxt.cliente",
+    path: "siblings/:tango_id",
+    index: void 0,
+    caseSensitive: void 0,
+    module: route15
   },
   "routes/api.pedido.$id_pedido.start_update": {
     id: "routes/api.pedido.$id_pedido.start_update",
@@ -16969,15 +18128,15 @@ const routes = {
     path: "start_update",
     index: void 0,
     caseSensitive: void 0,
-    module: route14
+    module: route16
   },
-  "routes/_admin.settings.users.vendors.add": {
-    id: "routes/_admin.settings.users.vendors.add",
+  "routes/_admin.settings.users.sellers.add": {
+    id: "routes/_admin.settings.users.sellers.add",
     parentId: "routes/_admin",
-    path: "settings/users/vendors/add",
+    path: "settings/users/sellers/add",
     index: void 0,
     caseSensitive: void 0,
-    module: route15
+    module: route17
   },
   "routes/api.draft.$id_pedido.start_update": {
     id: "routes/api.draft.$id_pedido.start_update",
@@ -16985,7 +18144,7 @@ const routes = {
     path: "start_update",
     index: void 0,
     caseSensitive: void 0,
-    module: route16
+    module: route18
   },
   "routes/api.pedido.$id_pedido.start_copy": {
     id: "routes/api.pedido.$id_pedido.start_copy",
@@ -16993,7 +18152,7 @@ const routes = {
     path: "start_copy",
     index: void 0,
     caseSensitive: void 0,
-    module: route17
+    module: route19
   },
   "routes/api.pedido.start_new.$id_cliente": {
     id: "routes/api.pedido.start_new.$id_cliente",
@@ -17001,7 +18160,7 @@ const routes = {
     path: ":id_cliente",
     index: void 0,
     caseSensitive: void 0,
-    module: route18
+    module: route20
   },
   "routes/api.draft.$id_pedido.start_copy": {
     id: "routes/api.draft.$id_pedido.start_copy",
@@ -17009,7 +18168,7 @@ const routes = {
     path: "start_copy",
     index: void 0,
     caseSensitive: void 0,
-    module: route19
+    module: route21
   },
   "routes/api.draft.start_new.$id_cliente": {
     id: "routes/api.draft.start_new.$id_cliente",
@@ -17017,7 +18176,7 @@ const routes = {
     path: ":id_cliente",
     index: void 0,
     caseSensitive: void 0,
-    module: route20
+    module: route22
   },
   "routes/api.dxt.articulo.print_list.ids": {
     id: "routes/api.dxt.articulo.print_list.ids",
@@ -17025,7 +18184,7 @@ const routes = {
     path: "ids",
     index: void 0,
     caseSensitive: void 0,
-    module: route21
+    module: route23
   },
   "routes/_authorized.drafts.$client.add": {
     id: "routes/_authorized.drafts.$client.add",
@@ -17033,7 +18192,7 @@ const routes = {
     path: "drafts/:client/add",
     index: void 0,
     caseSensitive: void 0,
-    module: route22
+    module: route24
   },
   "routes/_authorized.orders.$client.add": {
     id: "routes/_authorized.orders.$client.add",
@@ -17041,7 +18200,7 @@ const routes = {
     path: "orders/:client/add",
     index: void 0,
     caseSensitive: void 0,
-    module: route23
+    module: route25
   },
   "routes/api.dictionary.active_company": {
     id: "routes/api.dictionary.active_company",
@@ -17049,7 +18208,15 @@ const routes = {
     path: "active_company",
     index: void 0,
     caseSensitive: void 0,
-    module: route24
+    module: route26
+  },
+  "routes/api.draft.$id_pedido.favorite": {
+    id: "routes/api.draft.$id_pedido.favorite",
+    parentId: "routes/api.draft.$id_pedido",
+    path: "favorite",
+    index: void 0,
+    caseSensitive: void 0,
+    module: route27
   },
   "routes/api.dxt.vendedor.$id_vendedor": {
     id: "routes/api.dxt.vendedor.$id_vendedor",
@@ -17057,7 +18224,7 @@ const routes = {
     path: ":id_vendedor",
     index: void 0,
     caseSensitive: void 0,
-    module: route25
+    module: route28
   },
   "routes/_authorized.change_password": {
     id: "routes/_authorized.change_password",
@@ -17065,7 +18232,7 @@ const routes = {
     path: "change_password",
     index: void 0,
     caseSensitive: void 0,
-    module: route26
+    module: route29
   },
   "routes/api.dxt.articulo.print_list": {
     id: "routes/api.dxt.articulo.print_list",
@@ -17073,7 +18240,7 @@ const routes = {
     path: "api/dxt/articulo/print_list",
     index: void 0,
     caseSensitive: void 0,
-    module: route27
+    module: route30
   },
   "routes/api.dxt.cliente.$id_cliente": {
     id: "routes/api.dxt.cliente.$id_cliente",
@@ -17081,7 +18248,7 @@ const routes = {
     path: ":id_cliente",
     index: void 0,
     caseSensitive: void 0,
-    module: route28
+    module: route31
   },
   "routes/api.dxt.articulo.edit_list": {
     id: "routes/api.dxt.articulo.edit_list",
@@ -17089,7 +18256,7 @@ const routes = {
     path: "api/dxt/articulo/edit_list",
     index: void 0,
     caseSensitive: void 0,
-    module: route29
+    module: route32
   },
   "routes/api.dxt.usuario.auxiliares": {
     id: "routes/api.dxt.usuario.auxiliares",
@@ -17097,7 +18264,7 @@ const routes = {
     path: "api/dxt/usuario/auxiliares",
     index: void 0,
     caseSensitive: void 0,
-    module: route30
+    module: route33
   },
   "routes/_authorized.drafts._index": {
     id: "routes/_authorized.drafts._index",
@@ -17105,7 +18272,7 @@ const routes = {
     path: "drafts",
     index: true,
     caseSensitive: void 0,
-    module: route31
+    module: route34
   },
   "routes/_authorized.orders._index": {
     id: "routes/_authorized.orders._index",
@@ -17113,7 +18280,15 @@ const routes = {
     path: "orders",
     index: true,
     caseSensitive: void 0,
-    module: route32
+    module: route35
+  },
+  "routes/_authorized.orders.print": {
+    id: "routes/_authorized.orders.print",
+    parentId: "routes/_authorized",
+    path: "orders/print",
+    index: void 0,
+    caseSensitive: void 0,
+    module: route36
   },
   "routes/api.dxt.vendedor.cliente": {
     id: "routes/api.dxt.vendedor.cliente",
@@ -17121,7 +18296,7 @@ const routes = {
     path: "cliente",
     index: void 0,
     caseSensitive: void 0,
-    module: route33
+    module: route37
   },
   "routes/api.settings.config_file": {
     id: "routes/api.settings.config_file",
@@ -17129,7 +18304,7 @@ const routes = {
     path: "api/settings/config_file",
     index: void 0,
     caseSensitive: void 0,
-    module: route34
+    module: route38
   },
   "routes/_admin.settings.company": {
     id: "routes/_admin.settings.company",
@@ -17137,7 +18312,7 @@ const routes = {
     path: "settings/company",
     index: void 0,
     caseSensitive: void 0,
-    module: route35
+    module: route39
   },
   "routes/_admin.settings._index": {
     id: "routes/_admin.settings._index",
@@ -17145,7 +18320,7 @@ const routes = {
     path: "settings",
     index: true,
     caseSensitive: void 0,
-    module: route36
+    module: route40
   },
   "routes/_authorized.drafts.add": {
     id: "routes/_authorized.drafts.add",
@@ -17153,7 +18328,7 @@ const routes = {
     path: "drafts/add",
     index: void 0,
     caseSensitive: void 0,
-    module: route37
+    module: route41
   },
   "routes/_authorized.orders.add": {
     id: "routes/_authorized.orders.add",
@@ -17161,7 +18336,7 @@ const routes = {
     path: "orders/add",
     index: void 0,
     caseSensitive: void 0,
-    module: route38
+    module: route42
   },
   "routes/_admin.settings.tango": {
     id: "routes/_admin.settings.tango",
@@ -17169,7 +18344,15 @@ const routes = {
     path: "settings/tango",
     index: void 0,
     caseSensitive: void 0,
-    module: route39
+    module: route43
+  },
+  "routes/_authorized.downloads": {
+    id: "routes/_authorized.downloads",
+    parentId: "routes/_authorized",
+    path: "downloads",
+    index: void 0,
+    caseSensitive: void 0,
+    module: route44
   },
   "routes/api.pedido.$id_pedido": {
     id: "routes/api.pedido.$id_pedido",
@@ -17177,7 +18360,7 @@ const routes = {
     path: ":id_pedido",
     index: void 0,
     caseSensitive: void 0,
-    module: route40
+    module: route45
   },
   "routes/_admin.settings.misc": {
     id: "routes/_admin.settings.misc",
@@ -17185,7 +18368,7 @@ const routes = {
     path: "settings/misc",
     index: void 0,
     caseSensitive: void 0,
-    module: route41
+    module: route46
   },
   "routes/api.draft.$id_pedido": {
     id: "routes/api.draft.$id_pedido",
@@ -17193,7 +18376,7 @@ const routes = {
     path: ":id_pedido",
     index: void 0,
     caseSensitive: void 0,
-    module: route42
+    module: route47
   },
   "routes/api.pedido.renglones": {
     id: "routes/api.pedido.renglones",
@@ -17201,7 +18384,7 @@ const routes = {
     path: "renglones",
     index: void 0,
     caseSensitive: void 0,
-    module: route43
+    module: route48
   },
   "routes/api.pedido.start_new": {
     id: "routes/api.pedido.start_new",
@@ -17209,7 +18392,7 @@ const routes = {
     path: "start_new",
     index: void 0,
     caseSensitive: void 0,
-    module: route44
+    module: route49
   },
   "routes/api.draft.renglones": {
     id: "routes/api.draft.renglones",
@@ -17217,7 +18400,7 @@ const routes = {
     path: "renglones",
     index: void 0,
     caseSensitive: void 0,
-    module: route45
+    module: route50
   },
   "routes/api.draft.start_new": {
     id: "routes/api.draft.start_new",
@@ -17225,7 +18408,7 @@ const routes = {
     path: "start_new",
     index: void 0,
     caseSensitive: void 0,
-    module: route46
+    module: route51
   },
   "routes/api.tango.vendedor": {
     id: "routes/api.tango.vendedor",
@@ -17233,7 +18416,7 @@ const routes = {
     path: "api/tango/vendedor",
     index: void 0,
     caseSensitive: void 0,
-    module: route47
+    module: route52
   },
   "routes/api.auth.password": {
     id: "routes/api.auth.password",
@@ -17241,7 +18424,15 @@ const routes = {
     path: "api/auth/password",
     index: void 0,
     caseSensitive: void 0,
-    module: route48
+    module: route53
+  },
+  "routes/api.pedido.by_ids": {
+    id: "routes/api.pedido.by_ids",
+    parentId: "routes/api.pedido",
+    path: "by_ids",
+    index: void 0,
+    caseSensitive: void 0,
+    module: route54
   },
   "routes/api.settings.misc": {
     id: "routes/api.settings.misc",
@@ -17249,7 +18440,7 @@ const routes = {
     path: "api/settings/misc",
     index: void 0,
     caseSensitive: void 0,
-    module: route49
+    module: route55
   },
   "routes/api.tango.cliente": {
     id: "routes/api.tango.cliente",
@@ -17257,7 +18448,7 @@ const routes = {
     path: "api/tango/cliente",
     index: void 0,
     caseSensitive: void 0,
-    module: route50
+    module: route56
   },
   "routes/api.admin.status": {
     id: "routes/api.admin.status",
@@ -17265,7 +18456,7 @@ const routes = {
     path: "api/admin/status",
     index: void 0,
     caseSensitive: void 0,
-    module: route51
+    module: route57
   },
   "routes/api.auth.connect": {
     id: "routes/api.auth.connect",
@@ -17273,7 +18464,7 @@ const routes = {
     path: "api/auth/connect",
     index: void 0,
     caseSensitive: void 0,
-    module: route52
+    module: route58
   },
   "routes/api.dxt.vendedor": {
     id: "routes/api.dxt.vendedor",
@@ -17281,7 +18472,7 @@ const routes = {
     path: "api/dxt/vendedor",
     index: void 0,
     caseSensitive: void 0,
-    module: route53
+    module: route59
   },
   "routes/api.tango.perfil": {
     id: "routes/api.tango.perfil",
@@ -17289,7 +18480,7 @@ const routes = {
     path: "api/tango/perfil",
     index: void 0,
     caseSensitive: void 0,
-    module: route54
+    module: route60
   },
   "routes/api.auth.logout": {
     id: "routes/api.auth.logout",
@@ -17297,7 +18488,7 @@ const routes = {
     path: "api/auth/logout",
     index: void 0,
     caseSensitive: void 0,
-    module: route55
+    module: route61
   },
   "routes/api.dxt.cliente": {
     id: "routes/api.dxt.cliente",
@@ -17305,7 +18496,7 @@ const routes = {
     path: "api/dxt/cliente",
     index: void 0,
     caseSensitive: void 0,
-    module: route56
+    module: route62
   },
   "routes/api.settings.db": {
     id: "routes/api.settings.db",
@@ -17313,7 +18504,7 @@ const routes = {
     path: "api/settings/db",
     index: void 0,
     caseSensitive: void 0,
-    module: route57
+    module: route63
   },
   "routes/api.tango.lista": {
     id: "routes/api.tango.lista",
@@ -17321,7 +18512,7 @@ const routes = {
     path: "api/tango/lista",
     index: void 0,
     caseSensitive: void 0,
-    module: route58
+    module: route64
   },
   "routes/api.auth.login": {
     id: "routes/api.auth.login",
@@ -17329,7 +18520,7 @@ const routes = {
     path: "api/auth/login",
     index: void 0,
     caseSensitive: void 0,
-    module: route59
+    module: route65
   },
   "routes/api.dictionary": {
     id: "routes/api.dictionary",
@@ -17337,7 +18528,7 @@ const routes = {
     path: "api/dictionary",
     index: void 0,
     caseSensitive: void 0,
-    module: route60
+    module: route66
   },
   "routes/_authorized": {
     id: "routes/_authorized",
@@ -17345,7 +18536,7 @@ const routes = {
     path: void 0,
     index: void 0,
     caseSensitive: void 0,
-    module: route61
+    module: route67
   },
   "routes/api.pedido": {
     id: "routes/api.pedido",
@@ -17353,7 +18544,7 @@ const routes = {
     path: "api/pedido",
     index: void 0,
     caseSensitive: void 0,
-    module: route62
+    module: route68
   },
   "routes/api.draft": {
     id: "routes/api.draft",
@@ -17361,7 +18552,7 @@ const routes = {
     path: "api/draft",
     index: void 0,
     caseSensitive: void 0,
-    module: route63
+    module: route69
   },
   "routes/_admin": {
     id: "routes/_admin",
@@ -17369,7 +18560,7 @@ const routes = {
     path: void 0,
     index: void 0,
     caseSensitive: void 0,
-    module: route64
+    module: route70
   },
   "routes/_index": {
     id: "routes/_index",
@@ -17377,7 +18568,7 @@ const routes = {
     path: void 0,
     index: true,
     caseSensitive: void 0,
-    module: route65
+    module: route71
   }
 };
 export {

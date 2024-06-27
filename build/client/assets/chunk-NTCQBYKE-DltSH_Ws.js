@@ -1,1 +1,0 @@
-import{S as o}from"./chunk-ZHMYA64R-D24w8AgT.js";import{f as t}from"./auth_context-D8ug2Qcd.js";import{j as m}from"./emotion-element-43c6fea0.browser.esm-Bukkp3pI.js";var i=t((r,a)=>m.jsx(o,{align:"center",...r,direction:"column",ref:a}));i.displayName="VStack";export{i as V};
