@@ -1,10 +1,9 @@
-import * as path from 'node:path';
-import { readFile } from 'node:fs/promises';
-import { parse } from 'ini';
-import express from 'express';
-import { createRequestHandler } from '@remix-run/express';
-import compression from 'compression';
-
+import * as path from "node:path";
+import { readFile } from "node:fs/promises";
+import { parse } from "ini";
+import express from "express";
+import { createRequestHandler } from "@remix-run/express";
+import compression from "compression";
 const DEFAULT_PROGRAM_PORT = 3e3;
 function toNumber(raw) {
   if (raw === void 0)
@@ -47,5 +46,6 @@ async function main() {
   });
 }
 await main();
-
-export { toNumber };
+export {
+  toNumber
+};

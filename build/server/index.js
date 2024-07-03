@@ -1,8 +1,7 @@
-var _a, _b;
 import { jsxs, jsx, Fragment } from "react/jsx-runtime";
 import "dotenv/config";
 import { createReadableStreamFromReadable } from "@remix-run/node";
-import { RemixServer, useLocation, useNavigate, Meta, Links, ScrollRestoration, Scripts, useLoaderData, Outlet, useRouteError, useParams, useSearchParams } from "@remix-run/react";
+import { RemixServer, useLocation, useNavigate, Meta, Links, ScrollRestoration, Scripts, useLoaderData, Outlet, useRouteError, useMatches, useParams, useSearchParams } from "@remix-run/react";
 import { CacheProvider, withEmotionCache } from "@emotion/react";
 import createEmotionServer from "@emotion/server/create-instance";
 import { PassThrough } from "stream";
@@ -10,28 +9,28 @@ import { renderToPipeableStream } from "react-dom/server";
 import Buffer from "vite-plugin-node-polyfills/shims/buffer";
 import validator from "validator";
 import path from "pathe";
+import Nanobus from "nanobus";
 import createCache from "@emotion/cache";
 import { cssBundleHref } from "@remix-run/css-bundle";
 import "@leichtgewicht/ip-codec";
 import React, { useState, useCallback, useEffect, useRef, createContext, useMemo, useContext, memo, Children, Fragment as Fragment$1, useSyncExternalStore } from "react";
 import md5 from "md5";
 import _ from "lodash";
-import Nanobus from "nanobus";
 import { useModal, ModalProvider } from "react-hooks-async-modal";
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, createMultiStyleConfigHelpers, defineStyle, defineStyleConfig, extendTheme, useConst, cookieStorageManagerSSR, localStorageManager, ChakraProvider, VStack, Heading, Text, Box, Alert, AlertIcon, AlertDescription, useColorModeValue, Card, CardBody, useBreakpointValue, IconButton, Icon, Flex, Spacer, HStack, Skeleton, Grid, GridItem, Divider, Stack, FormControl, FormLabel, InputGroup, Input, FormHelperText, RadioGroup, Radio, useMultiStyleConfig, useTheme, Switch, UnorderedList, ListItem, InputRightElement, Badge, useToast, useColorMode, AlertTitle, Menu, MenuButton, MenuList, MenuItem, MenuDivider, Avatar, InputLeftElement, Container, TableContainer, Table, Tbody, Tr, Td, SimpleGrid, useDisclosure, Portal, Popover, PopoverTrigger, PopoverAnchor, PopoverContent, PopoverBody, Textarea, Collapse, AccordionPanel, Accordion, AccordionItem, AccordionButton, AccordionIcon, Thead, Th, List, Link, ListIcon, Tag, TagLabel, Checkbox, LightMode, Image, CardHeader, Center } from "@chakra-ui/react";
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, createMultiStyleConfigHelpers, defineStyle, defineStyleConfig, extendTheme, useConst, cookieStorageManagerSSR, localStorageManager, ChakraProvider, Flex, Box, Icon, Text, VStack, Heading, useColorModeValue, Card, CardBody, useBreakpointValue, IconButton, Spacer, HStack, Divider, Skeleton, Grid, GridItem, Stack, FormControl, FormLabel, InputGroup, Input, FormHelperText, RadioGroup, Radio, useMultiStyleConfig, useTheme, Switch, Alert, UnorderedList, ListItem, InputRightElement, Badge, useToast, useColorMode, AlertIcon, AlertTitle, AlertDescription, Menu, MenuButton, MenuList, MenuItem, MenuDivider, Avatar, InputLeftElement, Container, TableContainer, Table, Tbody, Tr, Td, SimpleGrid, useDisclosure, Portal, Popover, PopoverTrigger, PopoverAnchor, PopoverContent, PopoverBody, Textarea, Collapse, AccordionPanel, Accordion, AccordionItem, AccordionButton, AccordionIcon, Thead, Th, List, Link, ListIcon, Tag, TagLabel, Checkbox, LightMode, Image, CardHeader, Center } from "@chakra-ui/react";
 import axios, { AxiosError } from "axios";
 import { inputAnatomy, tableAnatomy, alertAnatomy, cardAnatomy, checkboxAnatomy, switchAnatomy, radioAnatomy } from "@chakra-ui/anatomy";
 import { mode as mode$1, getColorVar } from "@chakra-ui/theme-tools";
+import CloseIcon from "mdi-react/CloseIcon.js";
 import envPaths from "env-paths";
-import path$1, { join } from "path";
-import { readFile, mkdir, writeFile, opendir, stat, unlink, open } from "fs/promises";
+import { stat, readFile, mkdir, writeFile, opendir, unlink, open, readdir } from "fs/promises";
 import { parse, stringify } from "ini";
-import { readFileSync, mkdirSync, writeFileSync } from "fs";
+import fs, { readFileSync, mkdirSync, writeFileSync } from "fs";
 import knex from "knex";
 import { TYPES } from "tedious";
 import * as crypto from "crypto";
+import path$1, { join } from "path";
 import ChevronLeftIcon from "mdi-react/ChevronLeftIcon.js";
-import CloseIcon from "mdi-react/CloseIcon.js";
 import { yupResolver } from "@hookform/resolvers/yup";
 import AccountCancelIcon from "mdi-react/AccountCancelIcon.js";
 import CancelIcon from "mdi-react/CancelIcon.js";
@@ -82,8 +81,7 @@ function isNavigator() {
   return typeof window !== "undefined" && isRealObject(window.location);
 }
 function isNode() {
-  var _a2;
-  return typeof process !== "undefined" && typeof ((_a2 = process.versions) == null ? void 0 : _a2.node) === "string";
+  return typeof process !== "undefined" && typeof process.versions?.node === "string";
 }
 function windowOrNull() {
   return typeof window !== "undefined" ? window : null;
@@ -107,7 +105,6 @@ function parseJSON(text, reviver) {
 const isStr = (value) => typeof value === "string";
 const isNotEmptyStr = (value) => typeof value === "string" && value.length > 0;
 function valueToString(value, includeStringQuotes) {
-  var _a2;
   if (Array.isArray(value) || isObj(value))
     return stringifyJSON(value);
   if (typeof value === "symbol")
@@ -116,7 +113,7 @@ function valueToString(value, includeStringQuotes) {
     return `'${value}'`;
   if (value === null)
     return "[null]";
-  return ((_a2 = value == null ? void 0 : value.toString) == null ? void 0 : _a2.call(value)) ?? "[undefined]";
+  return value?.toString?.() ?? "[undefined]";
 }
 class ValidationException extends Error {
   constructor(message) {
@@ -381,6 +378,7 @@ var DXTErrorCode = /* @__PURE__ */ ((DXTErrorCode2) => {
   DXTErrorCode2[DXTErrorCode2["ORDER_CUSTOMER_DOES_NOT_BELONGS_TO_SELLER"] = 101014] = "ORDER_CUSTOMER_DOES_NOT_BELONGS_TO_SELLER";
   DXTErrorCode2[DXTErrorCode2["USER_CANNOT_DELETE_ORDER_IN_CURRENT_STATUS"] = 101015] = "USER_CANNOT_DELETE_ORDER_IN_CURRENT_STATUS";
   DXTErrorCode2[DXTErrorCode2["USER_CANNOT_CANCEL_ORDER_IN_CURRENT_STATUS"] = 101016] = "USER_CANNOT_CANCEL_ORDER_IN_CURRENT_STATUS";
+  DXTErrorCode2[DXTErrorCode2["FILE_INACCESSIBLE"] = 101017] = "FILE_INACCESSIBLE";
   DXTErrorCode2[DXTErrorCode2["TANGO_ERROR"] = 2e5] = "TANGO_ERROR";
   DXTErrorCode2[DXTErrorCode2["TANGO_DB_ACCESS_ERROR"] = 200001] = "TANGO_DB_ACCESS_ERROR";
   DXTErrorCode2[DXTErrorCode2["TANGO_DB_INVALID_DATA"] = 200002] = "TANGO_DB_INVALID_DATA";
@@ -405,6 +403,7 @@ var DXTErrorCode = /* @__PURE__ */ ((DXTErrorCode2) => {
   DXTErrorCode2[DXTErrorCode2["FATAL_UNKNOWN_DB_ERROR"] = 899103] = "FATAL_UNKNOWN_DB_ERROR";
   DXTErrorCode2[DXTErrorCode2["FATAL_SERVER_INITIALIZATION_ERROR"] = 899104] = "FATAL_SERVER_INITIALIZATION_ERROR";
   DXTErrorCode2[DXTErrorCode2["FATAL_CLIENT_INITIALIZATION_ERROR"] = 899105] = "FATAL_CLIENT_INITIALIZATION_ERROR";
+  DXTErrorCode2[DXTErrorCode2["SYSTEM_DISABLED"] = 9e5] = "SYSTEM_DISABLED";
   return DXTErrorCode2;
 })(DXTErrorCode || {});
 const _API_ERROR_MESSAGES = /* @__PURE__ */ new Map([
@@ -473,6 +472,7 @@ const _API_ERROR_MESSAGES = /* @__PURE__ */ new Map([
   [101014, "El cliente asociado al pedido o borrador ya no pertenece al vendedor"],
   [101015, "El usuario no puede eliminar un pedido en el estado actual"],
   [101016, "El usuario no puede anular un pedido en el estado actual"],
+  [101017, "DXTango no puede leer el archivo"],
   [2e5, "Error de acceso a Tango"],
   [200001, "Error de acceso a base de datos de Tango"],
   [200002, "La información en la base de datos de Tango es inconsistente"],
@@ -496,7 +496,8 @@ const _API_ERROR_MESSAGES = /* @__PURE__ */ new Map([
   [899100, "Error crítico. Fallo en consulta a base de datos"],
   [899103, "Error crítico. Fallo desconocido en base de datos"],
   [899105, "Error crítico. Fallo al inicializar el cliente"],
-  [899104, "Error crítico. Fallo al inicializar el servidor"]
+  [899104, "Error crítico. Fallo al inicializar el servidor"],
+  [9e5, "Sistema desactivado"]
 ]);
 const _HTTP_STATUS_TO_API_ERRORS = /* @__PURE__ */ new Map([
   [
@@ -567,7 +568,8 @@ const _API_ERROR_HTTP_STATUS = /* @__PURE__ */ new Map([
   [7e5, HTTP_STATUS_UNAVAILABLE],
   [799e3, HTTP_STATUS_UNAVAILABLE],
   [8e5, HttpStatus.SERVICE_UNAVAILABLE],
-  [899e3, HttpStatus.INTERNAL_SERVER_ERROR]
+  [899e3, HttpStatus.INTERNAL_SERVER_ERROR],
+  [9e5, HttpStatus.SERVICE_UNAVAILABLE]
 ]);
 const _ERRORS_REQUIRING_CONTACTING_ADMIN = [
   0,
@@ -582,8 +584,7 @@ function getGenericErrorCode(errorCode) {
   return errorCode - errorCode % 1e3;
 }
 function getDXTErrorDescription(errorCode) {
-  var _a2, _b2;
-  return ((_a2 = _API_ERROR_MESSAGES.get(errorCode)) == null ? void 0 : _a2.toString()) ?? ((_b2 = _API_ERROR_MESSAGES.get(getGenericErrorCode(errorCode))) == null ? void 0 : _b2.toString()) ?? errorCode.toString();
+  return _API_ERROR_MESSAGES.get(errorCode)?.toString() ?? _API_ERROR_MESSAGES.get(getGenericErrorCode(errorCode))?.toString() ?? errorCode.toString();
 }
 function getHttpStatusFromErrorCode(errorCode) {
   return _API_ERROR_HTTP_STATUS.get(errorCode) ?? _API_ERROR_HTTP_STATUS.get(getGenericErrorCode(errorCode)) ?? HttpStatus.INTERNAL_SERVER_ERROR;
@@ -600,9 +601,9 @@ class DXTError {
     this.generic_error_code = getGenericErrorCode(error_code);
     this.error_description = getDXTErrorDescription(error_code);
     this.status = getHttpStatusFromErrorCode(this.error_code);
-    this.extra = options == null ? void 0 : options.extra;
-    this.is_silent = options == null ? void 0 : options.isSilent;
-    this.message_to_user = options == null ? void 0 : options.messageToUser;
+    this.extra = options?.extra;
+    this.is_silent = options?.isSilent;
+    this.message_to_user = options?.messageToUser;
   }
 }
 class DXTApiMalformedResponse extends Error {
@@ -625,12 +626,12 @@ class DXTException extends Error {
 const IS_CLIENT_ONLINE_CHECK_URL = "https://one.one.one.one/";
 class AxiosRequestPlusError extends Error {
   constructor(originalError, isInternetAlive, message) {
-    const resolvedMessage = message ?? (originalError == null ? void 0 : originalError.message);
+    const resolvedMessage = message ?? originalError?.message;
     super(typeof resolvedMessage === "string" ? resolvedMessage : void 0);
     this.originalError = originalError;
     this.isInternetAlive = isInternetAlive;
     this.name = "AxiosRequestPlusError";
-    this.stack = typeof (originalError == null ? void 0 : originalError.stack) === "string" ? originalError == null ? void 0 : originalError.stack : void 0;
+    this.stack = typeof originalError?.stack === "string" ? originalError?.stack : void 0;
   }
 }
 async function _isInternetAlive() {
@@ -661,14 +662,34 @@ async function axiosRequestPlus(config2) {
     throw new AxiosRequestPlusError(e, isInternetAlive);
   }
 }
+class BusEvent {
+  constructor(name, payload) {
+    this.name = name;
+    this.payload = payload;
+  }
+}
+const eventBus = new Nanobus();
+function emitBusEvent(event) {
+  eventBus.emit(event.name, event);
+}
+class SystemDisabledEvent extends BusEvent {
+  constructor(message) {
+    super(
+      SystemDisabledEvent.name,
+      message
+    );
+    this.message = message;
+  }
+}
 function isErrorInfo(data) {
   const errorInfo = data;
   if (!isRealObject(errorInfo))
     return false;
   const { status, error_code, error_description } = errorInfo;
-  const statusNumber = status && typeof status === "number" ? status : Number.parseInt(status == null ? void 0 : status.toString());
-  const errorCodeNumber = error_code && typeof error_code === "number" ? error_code : Number.parseInt(error_code == null ? void 0 : error_code.toString());
-  return Number.isInteger(statusNumber) && Number.isInteger(errorCodeNumber) && typeof error_description === "string";
+  const statusNumber = status && typeof status === "number" ? status : Number.parseInt(status?.toString());
+  const errorCodeNumber = error_code && typeof error_code === "number" ? error_code : Number.parseInt(error_code?.toString());
+  const isErrorInfo2 = Number.isInteger(statusNumber) && Number.isInteger(errorCodeNumber) && typeof error_description === "string";
+  return isErrorInfo2;
 }
 function isDXTException(e, errorCode) {
   return e instanceof DXTException && (errorCode == null || e.dxtError.error_code === errorCode || e.dxtError.generic_error_code === errorCode);
@@ -677,10 +698,19 @@ function isNotFoundException(e) {
   return isDXTException(e, DXTErrorCode.NOT_FOUND);
 }
 function exceptionToDXTErrorInfo(error) {
-  var _a2, _b2, _c;
-  const originalErrorInfo = (_b2 = (_a2 = error == null ? void 0 : error.originalError) == null ? void 0 : _a2.response) == null ? void 0 : _b2.data;
-  if (isErrorInfo(originalErrorInfo))
+  const originalErrorInfo = error?.originalError?.response?.data;
+  const isErrorInfoRecord = isErrorInfo(originalErrorInfo);
+  if (isErrorInfoRecord) {
+    const { error_code: error_code2 } = originalErrorInfo;
+    if (error_code2 == DXTErrorCode.SYSTEM_DISABLED) {
+      emitBusEvent(
+        new SystemDisabledEvent(
+          originalErrorInfo.extra ?? getDXTErrorDescription(error_code2)
+        )
+      );
+    }
     return originalErrorInfo;
+  }
   if (error instanceof DXTException)
     return error.dxtError;
   if (error instanceof ValidationException) {
@@ -719,7 +749,7 @@ function exceptionToDXTErrorInfo(error) {
   if (error instanceof AxiosError) {
     const error_code2 = isInternetAlive ?? false ? DXTErrorCode.INTERNAL_SERVER_ERROR : DXTErrorCode.CLIENT_CONNECTION_ERROR;
     return {
-      status: ((_c = error.response) == null ? void 0 : _c.status) ?? getHttpStatusFromErrorCode(error_code2),
+      status: error.response?.status ?? getHttpStatusFromErrorCode(error_code2),
       error_description: getDXTErrorDescription(error_code2),
       error_code: error_code2,
       extra: error.message
@@ -742,9 +772,8 @@ var ExecutionMode = /* @__PURE__ */ ((ExecutionMode2) => {
 })(ExecutionMode || {});
 let _executionMode;
 function _initEnvironmentConfig() {
-  var _a2;
   if (isNavigator()) {
-    const executionModeString = window == null ? void 0 : window.dxTangoExecutionMode;
+    const executionModeString = window?.dxTangoExecutionMode;
     if (!executionModeString)
       return;
     _executionMode = stringToEnum(ExecutionMode, executionModeString);
@@ -760,7 +789,7 @@ function _initEnvironmentConfig() {
     _executionMode = 1;
     return;
   }
-  const currentDirectory = path.basename(((_a2 = process == null ? void 0 : process.cwd) == null ? void 0 : _a2.call(process)) ?? "").toLowerCase();
+  const currentDirectory = path.basename(process?.cwd?.() ?? "").toLowerCase();
   const isBeta2 = currentDirectory === "beta";
   if (isBeta2) {
     _executionMode = 2;
@@ -799,7 +828,7 @@ function createChakraEmotionCache() {
 }
 createChakraEmotionCache();
 function jsonResponse(body, init) {
-  (init == null ? void 0 : init.status) ?? HttpStatus.OK;
+  init?.status ?? HttpStatus.OK;
   const response = new Response(stringifyJSON(body), init);
   if (response.ok) {
     response.okBodyObject = body;
@@ -828,7 +857,7 @@ function errorApiResponse(errorCode) {
     { status }
   );
 }
-async function mapEndpoint(request, params, endpoints) {
+async function mapEndpoint(req, params, endpoints) {
   const {
     get: getEndpoint,
     post: postEndpoint,
@@ -836,22 +865,22 @@ async function mapEndpoint(request, params, endpoints) {
     put: putEndpoint,
     delete: deleteEndpoint
   } = endpoints;
-  switch (request.method) {
+  switch (req.method) {
     case "GET":
       if (getEndpoint != null)
-        return await getEndpoint.get(request, params);
+        return await getEndpoint.get(req, params);
     case "POST":
       if (postEndpoint != null)
-        return await postEndpoint.post(request, params);
+        return await postEndpoint.post(req, params);
     case "PATCH":
       if (patchEndpoint != null)
-        return await patchEndpoint.patch(request, params);
+        return await patchEndpoint.patch(req, params);
     case "PUT":
       if (putEndpoint != null)
-        return await putEndpoint.put(request, params);
+        return await putEndpoint.put(req, params);
     case "DELETE":
       if (deleteEndpoint != null)
-        return await deleteEndpoint.delete(request, params);
+        return await deleteEndpoint.delete(req, params);
   }
   return errorApiResponse(DXTErrorCode.NOT_IMPLEMENTED);
 }
@@ -1491,6 +1520,9 @@ class AuthState {
   isDisconnected() {
     return this instanceof AuthStateDisconnected;
   }
+  isSystemDisabled() {
+    return this instanceof AuthStateDisconnected && this.error?.error_code == DXTErrorCode.SYSTEM_DISABLED;
+  }
   isDisconnectedAndNotRedirecting() {
     return this instanceof AuthStateDisconnected && !this.isRedirecting;
   }
@@ -1503,16 +1535,13 @@ class AuthState {
     return this instanceof AuthStateLoggedIn ? this.userInfo : null;
   }
   isAdmin() {
-    var _a2;
-    return ((_a2 = this.userOrNull()) == null ? void 0 : _a2.role) === UserRole.admin;
+    return this.userOrNull()?.role === UserRole.admin;
   }
   isSeller() {
-    var _a2;
-    return ((_a2 = this.userOrNull()) == null ? void 0 : _a2.role) === UserRole.seller;
+    return this.userOrNull()?.role === UserRole.seller;
   }
   isCustomer() {
-    var _a2;
-    return ((_a2 = this.userOrNull()) == null ? void 0 : _a2.role) === UserRole.customer;
+    return this.userOrNull()?.role === UserRole.customer;
   }
   getUserId() {
     return this instanceof AuthStateLoggedIn ? this.userInfo.id : null;
@@ -1528,8 +1557,7 @@ class AuthState {
     return null;
   }
   authTokenString() {
-    var _a2;
-    return (_a2 = this.authTokenOrNull()) == null ? void 0 : _a2.toString();
+    return this.authTokenOrNull()?.toString();
   }
   errorOrNull() {
     if (this instanceof AuthStateDisconnected)
@@ -1537,9 +1565,8 @@ class AuthState {
     return null;
   }
   nonSilentErrorOrNull() {
-    var _a2, _b2;
     const isDisconnected = this instanceof AuthStateDisconnected;
-    const silent = isDisconnected && typeof ((_a2 = this.error) == null ? void 0 : _a2.is_silent) === "boolean" && ((_b2 = this.error) == null ? void 0 : _b2.is_silent);
+    const silent = isDisconnected && typeof this.error?.is_silent === "boolean" && this.error?.is_silent;
     if (isDisconnected && !silent)
       return this.error ?? null;
     return null;
@@ -1573,12 +1600,12 @@ class AuthStateLoggedIn extends AuthState {
 class AuthAction {
 }
 function isBasicAppResources(app) {
-  return (app == null ? void 0 : app.navigate) != null && app.location != null && typeof app.retryCallback === "function";
+  return app?.navigate != null && app.location != null && typeof app.retryCallback === "function";
 }
 const DEFAULT_HOSTNAME = "localhost";
 const DEFAULT_PORT = "3000";
 const DEFAULT_BASE_URL = `http://${DEFAULT_HOSTNAME}:${DEFAULT_PORT}`;
-const baseUrl = (isNode() ? `http://${process.env.HOST ?? DEFAULT_HOSTNAME}:${process.env.PORT ?? DEFAULT_PORT}` : (_b = (_a = windowOrNull()) == null ? void 0 : _a.location) == null ? void 0 : _b.origin) ?? DEFAULT_BASE_URL;
+const baseUrl = (isNode() ? `http://${process.env.HOST ?? DEFAULT_HOSTNAME}:${process.env.PORT ?? DEFAULT_PORT}` : windowOrNull()?.location?.origin) ?? DEFAULT_BASE_URL;
 const dxtApiConfig = {
   baseUrl
 };
@@ -1635,7 +1662,7 @@ function createDXTApiParams(app, options) {
   let url = originalUrl;
   if (typeof url === "string" && pathParams != null) {
     Object.entries(pathParams).forEach(([key, value]) => {
-      url = url == null ? void 0 : url.replaceAll(`:${key}`, encodeURIComponent(value));
+      url = url?.replaceAll(`:${key}`, encodeURIComponent(value));
     });
   }
   let newTransformers = [
@@ -1644,7 +1671,7 @@ function createDXTApiParams(app, options) {
         return parseJSON(data);
     }
   ];
-  const token = app == null ? void 0 : app.authToken;
+  const token = app?.authToken;
   if (Array.isArray(originalTransformers)) {
     newTransformers.push(...originalTransformers);
   } else if (typeof originalTransformers === "function") {
@@ -1667,8 +1694,8 @@ async function dxtApiRequest(params, app) {
   while (retry) {
     try {
       const response = await axiosRequestPlus(dxtParams);
-      if (isErrorInfo(response == null ? void 0 : response.data)) {
-        const dxtApiError = response == null ? void 0 : response.data;
+      if (isErrorInfo(response?.data)) {
+        const dxtApiError = response?.data;
         throw new DXTException(
           new DXTError(dxtApiError.error_code, {
             extra: dxtApiError.extra,
@@ -1676,9 +1703,9 @@ async function dxtApiRequest(params, app) {
           })
         );
       }
-      if ((response == null ? void 0 : response.data) === void 0)
+      if (response?.data === void 0)
         throw new DXTApiMalformedResponse(
-          (response == null ? void 0 : response.status) ?? HTTP_STATUS_UNAVAILABLE
+          response?.status ?? HTTP_STATUS_UNAVAILABLE
         );
       const data = response.data;
       return new DXTApiRequestStateSuccess(data, dxtParams);
@@ -1690,7 +1717,7 @@ async function dxtApiRequest(params, app) {
       );
       if (!app || !isBasicAppResources(app))
         return errorState;
-      if ((params == null ? void 0 : params.silent) ?? false)
+      if (params?.silent ?? false)
         return errorState;
       retry = typeof app.retryCallback === "function" && await app.retryCallback({ message: dxtApiError.error_description });
       if (!retry)
@@ -1707,7 +1734,7 @@ async function dxtApiRequest(params, app) {
 const API_BASE_PATH = "/api";
 function urlJoin(base, ...paths) {
   let result = typeof base === "string" ? base : "/";
-  if ((paths == null ? void 0 : paths.length) > 0) {
+  if (paths?.length > 0) {
     for (let path2 of paths) {
       if (typeof path2 !== "string")
         path2 = "";
@@ -1736,8 +1763,7 @@ const API_AUTH_LOGOUT = apiEndpoint("/auth/logout", "POST");
 const API_AUTH_CONNECT = apiEndpoint("/auth/connect", "POST");
 const API_AUTH_CHANGE_PASSWORD = apiEndpoint("/auth/password", "PATCH");
 const authConnectRequest = async (token, app, silent) => {
-  var _a2, _b2;
-  const originalUserInfo = token === ((_a2 = app.authState) == null ? void 0 : _a2.authToken) ? (_b2 = app.authState) == null ? void 0 : _b2.userInfo : null;
+  const originalUserInfo = token === app.authState?.authToken ? app.authState?.userInfo : null;
   const user_info_updated_at = originalUserInfo ? originalUserInfo.timestamp_modificacion : 0;
   const result = await dxtApiRequest(
     {
@@ -1828,6 +1854,7 @@ class AuthActionLogin extends AuthAction {
 }
 const RETRY = "Reintentar";
 const CANCEL = "Cancelar";
+const LEAVE = "Abandonar";
 const BACK = "Regresar";
 const CLOSE = "Cerrar";
 const SAVE = "Guardar";
@@ -1874,10 +1901,10 @@ function resolveUserStatusColor(user) {
   const { habilitado_en_dxt, habilitado_en_tango, usuario_tango_existe } = user;
   return !habilitado_en_dxt ? "gray.500" : habilitado_en_dxt && !usuario_tango_existe ? "red.400" : habilitado_en_dxt && usuario_tango_existe && habilitado_en_tango === false ? "orange.500" : "green.400";
 }
-function pathParamsToUrl(url, pathParams) {
+function paramsToUrl(url, pathParams) {
   if (typeof url === "string" && pathParams != null) {
     Object.entries(pathParams).forEach(([key, value]) => {
-      url = url == null ? void 0 : url.replaceAll(`:${key}`, encodeURIComponent(value));
+      url = url?.replaceAll(`:${key}`, encodeURIComponent(value));
     });
   }
   return url;
@@ -1886,10 +1913,16 @@ function getSelectedValue(arrayOfObjects, selected, key) {
   if (arrayOfObjects.length === 1)
     return arrayOfObjects[0][key ?? "id"];
   const foundArray = arrayOfObjects.find((arr) => arr[selected ?? "selected"] === true);
-  return foundArray == null ? void 0 : foundArray[key ?? "id"];
+  return foundArray?.[key ?? "id"];
 }
 function nlToBr(text) {
   return text.replace(/\n/g, "<br />");
+}
+function nlToReactBr(text) {
+  return text.split("\n").map((chunk, index) => /* @__PURE__ */ jsxs(React.Fragment, { children: [
+    chunk,
+    /* @__PURE__ */ jsx("br", {})
+  ] }, `chunk-${index}`));
 }
 const URL_ROOT_PATH = "/";
 urlJoin(URL_ROOT_PATH, "auth");
@@ -1972,12 +2005,11 @@ function isTokenError(errorCode) {
   return errorCode === HttpStatus.UNAUTHORIZED || errorCode === HttpStatus.FORBIDDEN;
 }
 const checkTokenErrorAndRedirect = async (app, status) => {
-  var _a2;
   const forceLogin = isTokenError(status);
   if (!forceLogin)
     return false;
   if (app.authState && app.authState instanceof AuthStateLoggedIn) {
-    await ((_a2 = app.authDispatch) == null ? void 0 : _a2.call(void 0, new AuthActionLogout(true)));
+    await app.authDispatch?.call(void 0, new AuthActionLogout(true));
   }
   redirectLogin(app.navigate);
   return true;
@@ -2030,16 +2062,6 @@ class AuthActionRefreshAll extends AuthAction {
       }
     });
   }
-}
-class BusEvent {
-  constructor(name, payload) {
-    this.name = name;
-    this.payload = payload;
-  }
-}
-const eventBus$1 = new Nanobus();
-function emitBusEvent(event) {
-  eventBus$1.emit(event.name, event);
 }
 const VALIDATION_ERROR = "Error de validación de datos";
 const ERRORS_FALLBACK = "Error desconocido. Intente nuevamente en unos momentos";
@@ -2182,8 +2204,8 @@ const AuthProvider = ({ children, onRetry }) => {
     lastAction.current = action2;
     await action2.run(authState, setAuthState, appRef.current, onRetry);
   };
-  eventBus$1.removeAllListeners(AUTH_NEW_TOKEN_EVENT);
-  eventBus$1.on(AUTH_NEW_TOKEN_EVENT, (newToken) => {
+  eventBus.removeAllListeners(AUTH_NEW_TOKEN_EVENT);
+  eventBus.on(AUTH_NEW_TOKEN_EVENT, (newToken) => {
     (async () => {
       await dispatch(new AuthActionChangeToken(newToken, true));
     })().catch((e) => {
@@ -2777,7 +2799,7 @@ const useAppColorManager = (cookies) => {
   };
 };
 function getColorMode(cookies) {
-  const match = cookies == null ? void 0 : cookies.match(
+  const match = cookies?.match(
     new RegExp(`(^| )${CHAKRA_COOKIE_COLOR_KEY}=([^;]+)`)
   );
   return match == null ? void 0 : match[2];
@@ -2794,7 +2816,7 @@ const RootDocument = withEmotionCache(
       tags.forEach((tag) => {
         emotionCache.sheet._insertTag(tag);
       });
-      clientStyleData == null ? void 0 : clientStyleData.reset();
+      clientStyleData?.reset();
     }, []);
     return /* @__PURE__ */ jsxs(
       "html",
@@ -2808,7 +2830,7 @@ const RootDocument = withEmotionCache(
           /* @__PURE__ */ jsxs("head", { children: [
             /* @__PURE__ */ jsx(Meta, {}),
             /* @__PURE__ */ jsx(Links, {}),
-            serverStyleData == null ? void 0 : serverStyleData.map(({ key, ids, css }) => /* @__PURE__ */ jsx(
+            serverStyleData?.map(({ key, ids, css }) => /* @__PURE__ */ jsx(
               "style",
               {
                 "data-emotion": `${key} ${ids.join(" ")}`,
@@ -2849,7 +2871,40 @@ const RootDocument = withEmotionCache(
     );
   }
 );
-const loader$H = async ({ request }) => {
+const CommonErrors = ({ error, buttonProps }) => {
+  return /* @__PURE__ */ jsxs(Flex, { direction: "column", height: "full", justifyContent: "center", alignItems: "center", py: 10, px: 6, children: [
+    /* @__PURE__ */ jsx(Box, { display: "inline-block", children: /* @__PURE__ */ jsx(
+      Flex,
+      {
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        bg: "red.500",
+        rounded: "50px",
+        w: "55px",
+        h: "55px",
+        textAlign: "center",
+        children: /* @__PURE__ */ jsx(Icon, { as: CloseIcon, boxSize: "40px", color: "white" })
+      }
+    ) }),
+    /* @__PURE__ */ jsx(Text, { mt: 6, color: "white", align: "center", children: nlToReactBr(error) }),
+    buttonProps != null && /* @__PURE__ */ jsx(
+      Button,
+      {
+        ...buttonProps,
+        sx: {
+          mt: 4
+        },
+        children: buttonProps.label
+      }
+    )
+  ] });
+};
+const SystemDisabled = (props) => {
+  const { message } = props;
+  return /* @__PURE__ */ jsx(CommonErrors, { error: message });
+};
+const loader$J = async ({ request }) => {
   return request.headers.get("cookie") ?? "";
 };
 const links = () => {
@@ -2866,11 +2921,21 @@ const meta = () => [
   { title: getExecutionModeString() }
 ];
 function App() {
+  const [systemDisabledMessage, setSystemDisabledMessage] = useState(null);
+  useEffect(() => {
+    eventBus.on(SystemDisabledEvent.name, (event) => {
+      setSystemDisabledMessage(event.message);
+    });
+    return () => {
+      eventBus.removeAllListeners(SystemDisabledEvent.name);
+    };
+  }, []);
   let cookies = useLoaderData();
   if (typeof document !== "undefined") {
     cookies = document.cookie;
   }
-  return /* @__PURE__ */ jsx(RootDocument, { cookies, children: /* @__PURE__ */ jsx(ModalProvider, { children: /* @__PURE__ */ jsx(AuthProvider, { children: /* @__PURE__ */ jsx(Outlet, {}) }) }) });
+  const systemDisabled = systemDisabledMessage != null;
+  return systemDisabled ? /* @__PURE__ */ jsx(RootDocument, { cookies, children: /* @__PURE__ */ jsx(SystemDisabled, { message: systemDisabledMessage }) }) : /* @__PURE__ */ jsx(RootDocument, { cookies, children: /* @__PURE__ */ jsx(ModalProvider, { children: /* @__PURE__ */ jsx(AuthProvider, { children: /* @__PURE__ */ jsx(Outlet, {}) }) }) });
 }
 function ErrorBoundary() {
   let cookies = "";
@@ -2878,8 +2943,8 @@ function ErrorBoundary() {
     cookies = document.cookie;
   }
   const error = useRouteError();
-  (error == null ? void 0 : error.status) ?? void 0;
-  const message = (error == null ? void 0 : error.message) ?? "Unknown error";
+  error?.status ?? void 0;
+  const message = error?.message ?? "Unknown error";
   return /* @__PURE__ */ jsx(RootDocument, { cookies, children: /* @__PURE__ */ jsxs(VStack, { h: "100vh", justify: "center", p: 20, children: [
     /* @__PURE__ */ jsx(Heading, { children: "There was an error" }),
     /* @__PURE__ */ jsx(Text, { children: message }),
@@ -2892,7 +2957,7 @@ const route0 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProper
   ErrorBoundary,
   default: App,
   links,
-  loader: loader$H,
+  loader: loader$J,
   meta
 }, Symbol.toStringTag, { value: "Module" }));
 class ApiEndpoint {
@@ -2907,18 +2972,19 @@ class ApiEndpoint {
     jsonPolyfills();
   }
   async run(req, options) {
-    var _a2;
     try {
-      const method = options == null ? void 0 : options.method;
+      const method = options?.method;
       if (method && method !== req.method)
         throw new NotImplementedException();
       const error = await this._prepareRequest(req, options);
       if (error)
         return await this.controller.onError(error, req);
       await this.controller.onRequest(req);
-      const data = await this.handle(req);
-      const status = ((_a2 = this.options) == null ? void 0 : _a2.status) ?? getDefaultHttpStatusFromMethod(options == null ? void 0 : options.method);
-      return jsonResponse(data, {
+      const result = await this.handle(req);
+      if (result instanceof Response)
+        return result;
+      const status = this.options?.status ?? getDefaultHttpStatusFromMethod(options?.method);
+      return jsonResponse(result, {
         status
       });
     } catch (e) {
@@ -2935,7 +3001,7 @@ class ApiEndpoint {
   }
   async _prepareRequest(req, options) {
     const urlObject = new URL(req.url);
-    const params = options == null ? void 0 : options.params;
+    const params = options?.params;
     req.params = params ?? {};
     req.urlObject = urlObject;
     const { searchParams } = urlObject;
@@ -2956,7 +3022,7 @@ class ApiEndpoint {
     });
     req.query = {
       ...queryValues,
-      ...options == null ? void 0 : options.query
+      ...options?.query
     };
     try {
       let requestBody = req.body != null ? await this._streamToString(req.body) : null;
@@ -2965,7 +3031,7 @@ class ApiEndpoint {
         if (requestBody.length === 0)
           requestBody = "{}";
       }
-      req.bodyJson = (options == null ? void 0 : options.body) ?? (requestBody != null ? parseJSON(requestBody) : null);
+      req.bodyJson = options?.body ?? (requestBody != null ? parseJSON(requestBody) : null);
     } catch (e) {
       return new BadRequestException("Invalid JSON");
     }
@@ -3062,8 +3128,8 @@ const dxtUserTableCreationFieldsSQL = {
   mostrar_mensaje_de_advertencia: `bit NOT NULL`,
   habilitado_en_dxt: `bit NOT NULL`,
   timestamp_modificacion: `bigint NOT NULL`,
-  id_lista_prioritaria: `D_ID NULL`,
-  bonificacion_lista_prioritaria: `DECIMAL_TG NULL`,
+  id_lista_adicional: `D_ID NULL`,
+  bonificacion_lista_adicional: `DECIMAL_TG NULL`,
   universal_id: `uniqueidentifier DEFAULT newid() NOT NULL`
 };
 const DXT_CLIENTE_TABLE = "dxt_cliente";
@@ -3071,7 +3137,7 @@ const DXT_CLIENTE_ID_FIELD = "dxt_cliente_id";
 const dxtClienteTableCreationFieldsSQL = {
   dxt_cliente_id: `int IDENTITY(1,1) NOT NULL`,
   password_hash: `varchar(${MD5_LENGTH}) NOT NULL`,
-  lista_prioritaria_vendedor: `bit DEFAULT 0 NOT NULL`,
+  // lista_adicional_vendedor: `bit DEFAULT 0 NOT NULL`,
   ...dxtUserTableCreationFieldsSQL
 };
 const dxtClienteTableCreationIndexesSQL = [
@@ -3207,7 +3273,7 @@ const CLIENTE_NAME_COLUMNS = ["RAZON_SOCI", "NOM_COM"];
 const APP_NAME = "DXTango";
 const appPaths = envPaths(APP_NAME.toLowerCase());
 const configPath = appPaths.config;
-const dataPath = appPaths.data;
+appPaths.data;
 appPaths.log;
 appPaths.temp;
 const cachePath = appPaths.cache;
@@ -3239,7 +3305,6 @@ class UnknownSchemaKeysException extends ValidationException {
   }
 }
 function validateSchema(schema, input, options) {
-  var _a2, _b2;
   if (!isObj(schema))
     throw new InvalidValidationSchemaException();
   const invalidValues = [];
@@ -3275,7 +3340,7 @@ function validateSchema(schema, input, options) {
   }
   if (invalidValues.length > 0) {
     const defaultError = new InvalidSchemaValuesException(invalidValues);
-    const error = ((_a2 = options == null ? void 0 : options.onInvalidValues) == null ? void 0 : _a2.call(options, invalidValues, defaultError)) ?? defaultError;
+    const error = options?.onInvalidValues?.(invalidValues, defaultError) ?? defaultError;
     throw error;
   }
   const valuesKeys = Object.keys(input);
@@ -3286,11 +3351,11 @@ function validateSchema(schema, input, options) {
   }
   if (unknownKeys.length > 0) {
     const defaultError = new UnknownSchemaKeysException(unknownKeys);
-    const error = ((_b2 = options == null ? void 0 : options.onUnknownKeys) == null ? void 0 : _b2.call(options, unknownKeys, defaultError)) ?? defaultError;
+    const error = options?.onUnknownKeys?.(unknownKeys, defaultError) ?? defaultError;
     throw error;
   }
   const result = Object.fromEntries(validatedResult);
-  const extraValidation = options == null ? void 0 : options.extraValidation;
+  const extraValidation = options?.extraValidation;
   if (extraValidation != null) {
     return extraValidation(result);
   }
@@ -3428,14 +3493,14 @@ const DEFAULT_ADMIN_PASSWORD = "admin";
 const DEFAULT_PROGRAM_HOST = "localhost";
 const DEFAULT_PROGRAM_PORT = 80;
 const DEFAULT_PROGRAM_DISABLE_CACHE = false;
-const DEFAULT_PROGRAM_DOWNLOAD_PATH = path$1.join(dataPath, "downloads");
-const DEFAULT_PROGRAM_DISABLE_SYSTEM_FILE = path$1.join(process.cwd(), "disable_system.txt");
+const DEFAULT_PROGRAM_DOWNLOAD_PATH = "";
+const DEFAULT_PROGRAM_DISABLE_SYSTEM_FILE = "";
 const storedProgramConfigSchema = {
   host: (v) => tryVO(() => new VONotEmptyString(v), new VONotEmptyString(DEFAULT_PROGRAM_HOST)),
   port: (v) => tryVO(() => new VOTCPPort(v ?? DEFAULT_PROGRAM_PORT), new VOTCPPort(DEFAULT_PROGRAM_PORT)),
   disable_cache: (v) => tryVO(() => new VOBoolean(v ?? DEFAULT_PROGRAM_DISABLE_CACHE), new VOBoolean(DEFAULT_PROGRAM_DISABLE_CACHE)),
-  downloads_path: (v) => tryVO(() => new VONotEmptyString(v), new VONotEmptyString(DEFAULT_PROGRAM_DOWNLOAD_PATH)),
-  disable_system_file: (v) => tryVO(() => new VONotEmptyString(v), new VONotEmptyString(DEFAULT_PROGRAM_DISABLE_SYSTEM_FILE))
+  downloads_path: (v) => tryVO(() => new VOString(v), new VOString(DEFAULT_PROGRAM_DOWNLOAD_PATH)),
+  disable_system_file: (v) => tryVO(() => new VOString(v), new VOString(DEFAULT_PROGRAM_DISABLE_SYSTEM_FILE))
 };
 class StoredProgramConfigDTO extends DTO {
   validate(input) {
@@ -3474,7 +3539,7 @@ const storedDBSettingsSchema = {
   db_host: (v) => tryVO(() => new VONotEmptyString(v), new VONotEmptyString(DEFAULT_DB_HOST)),
   db_port: (v) => tryVO(() => new VOTCPPort(v ?? DEFAULT_DB_PORT), new VOTCPPort(DEFAULT_DB_PORT)),
   db_user: (v) => tryVO(() => new VONotEmptyString(v), new VONotEmptyString(DEFAULT_DB_USER)),
-  db_password: (v) => tryVO(() => new VOString(v == null ? void 0 : v.trim()), new VOString(DEFAULT_DB_PASSWORD)),
+  db_password: (v) => tryVO(() => new VOString(v?.trim()), new VOString(DEFAULT_DB_PASSWORD)),
   db_connection_timeout_seconds: (v) => tryVO(
     () => new VOIntegerRange(v, DB_CONNECTION_TIMEOUT_MIN_SECONDS, DB_CONNECTION_TIMEOUT_MAX_SECONDS),
     new VOIntegerRange(DEFAULT_DB_CONNECTION_TIMEOUT_SECONDS, DB_CONNECTION_TIMEOUT_MIN_SECONDS, DB_CONNECTION_TIMEOUT_MAX_SECONDS)
@@ -3598,8 +3663,8 @@ class UserEntity extends RootEntity {
       mostrar_mensaje_de_advertencia,
       timestamp_modificacion,
       vendedor_id,
-      id_lista_prioritaria,
-      bonificacion_lista_prioritaria,
+      id_lista_adicional,
+      bonificacion_lista_adicional,
       universal_id
     } = unsafe;
     this.username = new VOUserName(username);
@@ -3631,20 +3696,19 @@ class UserEntity extends RootEntity {
     this.tangoCode = tango_code != null ? new VONotEmptyString(tango_code) : void 0;
     this.habilitadoEnTango = habilitado_en_tango != null ? new VOBoolean(habilitado_en_tango) : void 0;
     this.vendedorId = vendedor_id != null ? new VOUInt32(vendedor_id) : void 0;
-    this.idListaPrioritaria = id_lista_prioritaria != null ? new VOUInt32(id_lista_prioritaria) : void 0;
-    this.bonificacionListaPrioritaria = bonificacion_lista_prioritaria != null ? new VOPositiveNumber(bonificacion_lista_prioritaria) : void 0;
+    this.idListaAdicional = id_lista_adicional != null ? new VOUInt32(id_lista_adicional) : void 0;
+    this.bonificacionListaAdicional = bonificacion_lista_adicional != null ? new VOPositiveNumber(bonificacion_lista_adicional) : void 0;
     this.universalId = new VOHexadecimal(universal_id.replaceAll("-", ""));
   }
   toUnsafe() {
-    var _a2, _b2, _c, _d, _e, _f;
     const result = {
       ...this.parentToUnsafe(),
       username: this.username.valueOf(),
-      tango_id: (_a2 = this.tangoId) == null ? void 0 : _a2.valueOf(),
-      tango_code: (_b2 = this.tangoCode) == null ? void 0 : _b2.valueOf(),
-      habilitado_en_tango: (_c = this.habilitadoEnTango) == null ? void 0 : _c.valueOf(),
+      tango_id: this.tangoId?.valueOf(),
+      tango_code: this.tangoCode?.valueOf(),
+      habilitado_en_tango: this.habilitadoEnTango?.valueOf(),
       screen_name: this.screenName.valueOf(),
-      email: ((_d = this.email) == null ? void 0 : _d.valueOf()) ?? null,
+      email: this.email?.valueOf() ?? null,
       password_hash: this.passwordHash.valueOf(),
       role: userRoleToNumber(this.role.valueOf()),
       habilitado_en_dxt: this.habilitadoEnDXT.valueOf(),
@@ -3659,8 +3723,8 @@ class UserEntity extends RootEntity {
       ver_sin_precio: this.verSinPrecio.valueOf(),
       mostrar_mensaje_de_advertencia: this.mostrarMensajeDeAdvertencia.valueOf(),
       timestamp_modificacion: this.timestampModificacion.valueOf(),
-      id_lista_prioritaria: (_e = this.idListaPrioritaria) == null ? void 0 : _e.valueOf(),
-      bonificacion_lista_prioritaria: (_f = this.bonificacionListaPrioritaria) == null ? void 0 : _f.valueOf(),
+      id_lista_adicional: this.idListaAdicional?.valueOf(),
+      bonificacion_lista_adicional: this.bonificacionListaAdicional?.valueOf(),
       universal_id: this.universalId.valueOf()
     };
     return result;
@@ -3721,11 +3785,10 @@ function createAdminUserEntity(email, passwordHash) {
   });
 }
 async function resolveUserStateException(user, tangoUserNotFoundErrorCode) {
-  var _a2;
   if (!user.tangoUserExists())
     return new DXTException(tangoUserNotFoundErrorCode);
   let errorCode;
-  if (((_a2 = user.habilitadoEnTango) == null ? void 0 : _a2.valueOf()) === false) {
+  if (user.habilitadoEnTango?.valueOf() === false) {
     errorCode = DXTErrorCode.TANGO_USER_DISABLED;
   } else {
     if (!user.habilitadoEnDXT.valueOf()) {
@@ -3754,8 +3817,8 @@ function getPasswordHash(password) {
 }
 const storedMiscSettingsSchema = {
   smtp_host: (v) => tryVO(() => new VOHost(v), new VOHost(DEFAULT_SMTP_HOST)),
-  smtp_username: (v) => new VOString(typeof v === "string" ? v == null ? void 0 : v.trim() : ""),
-  smtp_password: (v) => new VOString(typeof v === "string" ? v == null ? void 0 : v.trim() : ""),
+  smtp_username: (v) => new VOString(typeof v === "string" ? v?.trim() : ""),
+  smtp_password: (v) => new VOString(typeof v === "string" ? v?.trim() : ""),
   smtp_port: (v) => tryVO(() => new VOTCPPort(v), new VOTCPPort(DEFAULT_SMTP_PORT)),
   smtp_use_tls: (v) => tryVO(() => new VOBoolean(v ?? DEFAULT_SMTP_USE_TLS), new VOBoolean(DEFAULT_SMTP_USE_TLS)),
   auth_expiration_days: (v) => tryVO(
@@ -3836,6 +3899,26 @@ class SettingsService {
   getProgramConfigSync() {
     return (this._programConfig ?? (this._programConfig = this._loadProgramConfigSync())).data;
   }
+  async isSystemDisabled() {
+    const { disable_system_file } = await this.getProgramConfig();
+    if (disable_system_file.length == 0)
+      return false;
+    try {
+      const info = await stat(disable_system_file);
+      return info.isFile();
+    } catch (_2) {
+    }
+    return false;
+  }
+  async getSystemDisabledMessage() {
+    const { disable_system_file } = await this.getProgramConfig();
+    try {
+      const message = await readFile(disable_system_file, "utf8");
+      return message;
+    } catch (_2) {
+    }
+    return null;
+  }
   async setProgramConfig(config2) {
     this._programConfig = await this._saveProgramConfig(config2);
     return this._programConfig.data;
@@ -3881,26 +3964,22 @@ class SettingsService {
   }
 }
 const settingsService = new SettingsService();
-const _DBSettingsChangedEvent = class _DBSettingsChangedEvent extends BusEvent {
+class DBSettingsChangedEvent extends BusEvent {
   constructor(payload) {
     super(
-      _DBSettingsChangedEvent.NAME,
+      DBSettingsChangedEvent.name,
       payload
     );
   }
-};
-_DBSettingsChangedEvent.NAME = "DB_SETTINGS_CHANGED";
-let DBSettingsChangedEvent = _DBSettingsChangedEvent;
-const _MiscSettingsChangedEvent = class _MiscSettingsChangedEvent extends BusEvent {
+}
+class MiscSettingsChangedEvent extends BusEvent {
   constructor(payload) {
     super(
-      _MiscSettingsChangedEvent.NAME,
+      MiscSettingsChangedEvent.name,
       payload
     );
   }
-};
-_MiscSettingsChangedEvent.NAME = "DB_SETTINGS_CHANGED";
-let MiscSettingsChangedEvent = _MiscSettingsChangedEvent;
+}
 var TangoConnectionChangeRequired = /* @__PURE__ */ ((TangoConnectionChangeRequired2) => {
   TangoConnectionChangeRequired2[TangoConnectionChangeRequired2["none"] = 0] = "none";
   TangoConnectionChangeRequired2[TangoConnectionChangeRequired2["passiveRefresh"] = 1] = "passiveRefresh";
@@ -3915,18 +3994,16 @@ class TDBProvider {
     this._lastConnectionError = void 0;
   }
   _throwConnectionError(dxErrorCode, error) {
-    var _a2;
-    this._lastConnectionError = new DXTException(dxErrorCode, error != null ? (_a2 = error == null ? void 0 : error.message) == null ? void 0 : _a2.toString() : void 0);
+    this._lastConnectionError = new DXTException(dxErrorCode, error != null ? error?.message?.toString() : void 0);
     throw this._lastConnectionError;
   }
   async initializeKnex(dbName, dbSettings, unknownDBError) {
-    var _a2, _b2;
     const originalConnectionChangeRequired = this.connectionChangeRequired;
     this.connectionChangeRequired = 0;
     const preKnexInstance = this._getKnexInstance(dbSettings);
     try {
       const connectionCheck = await preKnexInstance.raw(`select (1+1) as two`);
-      const connectionOk = Array.isArray(connectionCheck) && connectionCheck.length > 0 && ((_b2 = (_a2 = connectionCheck[0]) == null ? void 0 : _a2.two) == null ? void 0 : _b2.toString()) === "2";
+      const connectionOk = Array.isArray(connectionCheck) && connectionCheck.length > 0 && connectionCheck[0]?.two?.toString() === "2";
       if (!connectionOk) {
         this._throwConnectionError(DXTErrorCode.TANGO_DB_ACCESS_ERROR);
       }
@@ -3989,7 +4066,7 @@ function dbErrorToDXTException(e) {
     return new DXTException(new DXTError(
       DXTErrorCode.UNEXPECTED_ERROR,
       {
-        extra: typeof (e == null ? void 0 : e.toString) === "function" ? e == null ? void 0 : e.toString() : void 0
+        extra: typeof e?.toString === "function" ? e?.toString() : void 0
       }
     ));
   }
@@ -4029,34 +4106,28 @@ const dxtVendedorTableCreationIndexesSQL = [
   `CONSTRAINT pk_dxt_vendedor_username UNIQUE (username)`,
   `CONSTRAINT pk_dxt_vendedor_id PRIMARY KEY (dxt_vendedor_id)`
 ];
-const _DBTablesChangedEvent = class _DBTablesChangedEvent extends BusEvent {
+class DBTablesChangedEvent extends BusEvent {
   constructor(payload) {
     super(
-      _DBTablesChangedEvent.NAME,
+      DBTablesChangedEvent.name,
       payload
     );
   }
-};
-_DBTablesChangedEvent.NAME = "DB_TABLES_CHANGED";
-let DBTablesChangedEvent = _DBTablesChangedEvent;
-const isCacheDisabledGlobally = tryVO(() => {
-  var _a2;
-  return new VOBoolean((_a2 = settingsService.getProgramConfigSync()) == null ? void 0 : _a2.disable_cache);
-}, new VOBoolean(false)).valueOf();
+}
+const isCacheDisabledGlobally = tryVO(() => new VOBoolean(settingsService.getProgramConfigSync()?.disable_cache), new VOBoolean(false)).valueOf();
 class MemoryCache {
   constructor(_cacheOwnerStatus) {
     this._cacheOwnerStatus = _cacheOwnerStatus;
     this._byIdCache = /* @__PURE__ */ new Map();
     this._metadataCache = /* @__PURE__ */ new Map();
     if (!isCacheDisabledGlobally) {
-      eventBus$1.on(DBSettingsChangedEvent.NAME, this.onDBSettingsChanged.bind(this));
-      eventBus$1.on(DBTablesChangedEvent.NAME, this.onTablesChanged.bind(this));
+      eventBus.on(DBSettingsChangedEvent.name, this.onDBSettingsChanged.bind(this));
+      eventBus.on(DBTablesChangedEvent.name, this.onTablesChanged.bind(this));
     }
   }
   _consoleLog(...args) {
-    var _a2;
     if (isDevelopment()) {
-      const tableName = (_a2 = this._cacheOwnerStatus.getTableName()) == null ? void 0 : _a2.toUpperCase();
+      const tableName = this._cacheOwnerStatus.getTableName()?.toUpperCase();
       console.info(`[${tableName}] `, ...args);
     }
   }
@@ -4308,7 +4379,7 @@ class DictionaryRepository extends TDBProvider {
   constructor() {
     super();
     this._tangoCompanies = /* @__PURE__ */ new Map();
-    eventBus$1.on(DBSettingsChangedEvent.NAME, this.onDBSettingsChanged.bind(this));
+    eventBus.on(DBSettingsChangedEvent.name, this.onDBSettingsChanged.bind(this));
   }
   onDBSettingsChanged(event) {
     const { newDictionary, newCompany, passiveDBChanges } = event.payload;
@@ -4329,7 +4400,7 @@ class DictionaryRepository extends TDBProvider {
     this._numeroPedidoLongitud = void 0;
     this._numeroPedidoRange = void 0;
     this._tangoCompanies.clear();
-    await (originalKnexInstance == null ? void 0 : originalKnexInstance.destroy());
+    await originalKnexInstance?.destroy();
     const settings2 = await settingsService.getDBSettings();
     if (this.connectionChangeRequired === TangoConnectionChangeRequired.fullReload) {
       this.cleanConnectionError();
@@ -4347,7 +4418,7 @@ class DictionaryRepository extends TDBProvider {
       await this._prepareNumeroPedido(knex2);
       await this._loadCompaniesFromDictionary(knex2);
     } catch (e) {
-      throw new DXTException(DXTErrorCode.TANGO_DICTIONARY_INITIALIZATION_ERROR, e == null ? void 0 : e.message);
+      throw new DXTException(DXTErrorCode.TANGO_DICTIONARY_INITIALIZATION_ERROR, e?.message);
     }
   }
   async _prepareNumeroPedido(k) {
@@ -4722,7 +4793,7 @@ class CompanyInitProvider extends TDBProvider {
   constructor() {
     super();
     this._dbChanges = /* @__PURE__ */ new Map();
-    eventBus$1.on(DBSettingsChangedEvent.NAME, this.onDBSettingsChanged.bind(this));
+    eventBus.on(DBSettingsChangedEvent.name, this.onDBSettingsChanged.bind(this));
   }
   onDBSettingsChanged(event) {
     if (event.payload.newCompany) {
@@ -4741,7 +4812,7 @@ class CompanyInitProvider extends TDBProvider {
     const originalKnexInstance = this._knexInstance;
     this._knexInstance = void 0;
     this._cleanDBChanges();
-    await (originalKnexInstance == null ? void 0 : originalKnexInstance.destroy());
+    await originalKnexInstance?.destroy();
     if (companyDBName === "")
       throw new DXTException(DXTErrorCode.TANGO_COMPANY_NOT_SELECTED);
     if (this.connectionChangeRequired === TangoConnectionChangeRequired.fullReload) {
@@ -4890,7 +4961,7 @@ const _CompanyProvider = class _CompanyProvider extends CompanyInitProvider {
       ..._collectedProviders.map((p) => isStr(p) ? p : p.config.mainTable)
     ];
     this.cache = new MemoryCache(this);
-    eventBus$1.on(DBSettingsChangedEvent.NAME, this.onDBSettingsChanged.bind(this));
+    eventBus.on(DBSettingsChangedEvent.name, this.onDBSettingsChanged.bind(this));
   }
   getTableName() {
     return this.config.mainTable;
@@ -4913,7 +4984,7 @@ const _CompanyProvider = class _CompanyProvider extends CompanyInitProvider {
   }
   async _getById(id, options) {
     const k = await this.getCompany();
-    const useCache = (options == null ? void 0 : options.useCache) ?? true;
+    const useCache = options?.useCache ?? true;
     if (useCache) {
       const cachedData = await this.cache.getById(id);
       if (cachedData != null)
@@ -4931,8 +5002,8 @@ const _CompanyProvider = class _CompanyProvider extends CompanyInitProvider {
   }
   async getMany(columnName, columnValue, options) {
     const k = await this.getCompany();
-    (options == null ? void 0 : options.useCache) ?? true;
-    const first = (options == null ? void 0 : options.first) ?? false;
+    options?.useCache ?? true;
+    const first = options?.first ?? false;
     const cacheKey = this._getByColumnCacheKey(columnName, columnValue, first ? `_FIRST` : "", options);
     if (cacheKey != null) {
       const cachedData = await this.cache.getMetadata(cacheKey);
@@ -4946,7 +5017,7 @@ const _CompanyProvider = class _CompanyProvider extends CompanyInitProvider {
     } else {
       query = query.select(...columns ?? "*");
     }
-    const where = options == null ? void 0 : options.where;
+    const where = options?.where;
     if (where != null) {
       query = query.where(where.field, where.value);
     }
@@ -5006,18 +5077,18 @@ const _CompanyProvider = class _CompanyProvider extends CompanyInitProvider {
     const { mainTable, columns, sortField } = this.config;
     const k = await this.getCompany();
     let query = k(mainTable);
-    const where = options == null ? void 0 : options.where;
+    const where = options?.where;
     if (where != null) {
       query = query.where(where.field, where.value);
     }
-    const whereIn = options == null ? void 0 : options.whereIn;
+    const whereIn = options?.whereIn;
     if (whereIn != null) {
       query = query.whereIn(whereIn.field, whereIn.values);
     }
     if (sortField != null)
       query = query.orderBy(sortField);
-    if ((options == null ? void 0 : options.offset) != null) {
-      query = query.offset(options == null ? void 0 : options.offset).limit((options == null ? void 0 : options.limit) ?? 10);
+    if (options?.offset != null) {
+      query = query.offset(options?.offset).limit(options?.limit ?? 10);
     }
     const data = await query.select(...columns ?? "*");
     const result = data.map((p) => this.toResult(p));
@@ -5034,29 +5105,28 @@ const _CompanyProvider = class _CompanyProvider extends CompanyInitProvider {
     await this.cache.invalidateById(id);
   }
   getAllByUserCacheKey(role, tangoUserId, options) {
-    const useCache = (options == null ? void 0 : options.useCache) ?? true;
+    const useCache = options?.useCache ?? true;
     if (!useCache)
       return null;
     return `${this.config.mainTable}_BU_${this._getOptionsCacheKey(options)}_${role}_${tangoUserId ?? "A"}`;
   }
   getAllListByUserCacheKey(role, tangoUserId, options) {
-    const useCache = (options == null ? void 0 : options.useCache) ?? true;
+    const useCache = options?.useCache ?? true;
     if (!useCache)
       return null;
     return `${this.config.mainTable}_LBU_${this._getOptionsCacheKey(options)}_${role}_${tangoUserId ?? "A"}`;
   }
   _getByColumnCacheKey(columnName, columnValue, extraKey, options) {
-    var _a2;
-    const useCache = (options == null ? void 0 : options.useCache) ?? true;
+    const useCache = options?.useCache ?? true;
     if (!useCache)
       return null;
-    const finalColumnName = valueToString((_a2 = columnName == null ? void 0 : columnName.toString) == null ? void 0 : _a2.call(columnName));
-    const finalColumnValue = (columnValue == null ? void 0 : columnValue.toString()) ?? _CompanyProvider._noValueCacheKey;
+    const finalColumnName = valueToString(columnName?.toString?.());
+    const finalColumnValue = columnValue?.toString() ?? _CompanyProvider._noValueCacheKey;
     const { mainTable } = this.config;
     return `${mainTable}_BC_${this._getOptionsCacheKey(options)}_${extraKey}_${finalColumnName}_${finalColumnValue}`;
   }
   getAllCacheKey(options) {
-    const useCache = (options == null ? void 0 : options.useCache) ?? true;
+    const useCache = options?.useCache ?? true;
     if (!useCache)
       return null;
     const { mainTable } = this.config;
@@ -5074,10 +5144,10 @@ const _CompanyProvider = class _CompanyProvider extends CompanyInitProvider {
     const chunks = [
       offset ?? "O",
       limit ?? "L",
-      (where == null ? void 0 : where.field) ?? "W",
-      (where == null ? void 0 : where.value) ?? "V",
-      (whereIn == null ? void 0 : whereIn.field) ?? "I",
-      (whereIn == null ? void 0 : whereIn.values.join("-")) ?? "V"
+      where?.field ?? "W",
+      where?.value ?? "V",
+      whereIn?.field ?? "I",
+      whereIn?.values.join("-") ?? "V"
     ];
     return chunks.join("_");
   }
@@ -5141,8 +5211,8 @@ function customerTrulyEnabled(habilitado, sellerExists, fechaInhabilitacion) {
   if (!sellerExists)
     return false;
   const currentTime = now();
-  const year = (fechaInhabilitacion == null ? void 0 : fechaInhabilitacion.getUTCFullYear()) ?? 0;
-  const disableTimestamp = (fechaInhabilitacion == null ? void 0 : fechaInhabilitacion.getTime()) ?? 0;
+  const year = fechaInhabilitacion?.getUTCFullYear() ?? 0;
+  const disableTimestamp = fechaInhabilitacion?.getTime() ?? 0;
   const trulyEnabled = year <= 1900 || currentTime < disableTimestamp;
   return trulyEnabled;
 }
@@ -5175,8 +5245,8 @@ const tangoTalonarioModelMapper = (m) => {
     id,
     code,
     name: DESCRIP ?? code.toString(),
-    comprobante: (COMPROB == null ? void 0 : COMPROB.trim().toUpperCase()) ?? "",
-    tipo: (TIPO == null ? void 0 : TIPO.trim().toUpperCase()) ?? ""
+    comprobante: COMPROB?.trim().toUpperCase() ?? "",
+    tipo: TIPO?.trim().toUpperCase() ?? ""
   };
 };
 const tangoAlicuotaModelMapper = (m) => {
@@ -5464,7 +5534,7 @@ class DXTUserRepository extends CompanyProvider {
   }
   async getUserWithRelationsById(id, tangoUserRequired, options) {
     tangoUserRequired = tangoUserRequired ?? true;
-    const useCache = (options == null ? void 0 : options.useCache) ?? true;
+    const useCache = options?.useCache ?? true;
     const cacheKey = useCache ? this._getUserWithRelationsByIdCacheKey(id, tangoUserRequired) : null;
     if (cacheKey != null) {
       const cachedData = await this.cache.getMetadata(cacheKey);
@@ -5485,7 +5555,7 @@ class DXTUserRepository extends CompanyProvider {
   }
   async getUserWithRelationsByName(username, tangoUserRequired, options) {
     tangoUserRequired = tangoUserRequired ?? true;
-    const useCache = (options == null ? void 0 : options.useCache) ?? true;
+    const useCache = options?.useCache ?? true;
     const cacheKey = useCache ? this._getUserWithRelationsByNameCacheKey(username, tangoUserRequired) : null;
     if (cacheKey != null) {
       const cachedData = await this.cache.getMetadata(cacheKey);
@@ -5535,8 +5605,8 @@ class DXTUserRepository extends CompanyProvider {
     );
     if (sortField != null)
       query = query.orderBy(sortField);
-    if ((options == null ? void 0 : options.offset) != null) {
-      query = query.offset(options == null ? void 0 : options.offset).limit((options == null ? void 0 : options.limit) ?? 10);
+    if (options?.offset != null) {
+      query = query.offset(options?.offset).limit(options?.limit ?? 10);
     }
     const modelAndRelationss = await query.select(
       mainIdField,
@@ -5546,7 +5616,7 @@ class DXTUserRepository extends CompanyProvider {
       `${mainTable}.habilitado_en_dxt`,
       ...(tangoColumns ?? []).map((c) => `${tangoTable}.${c}`)
     );
-    const result = modelAndRelationss == null ? void 0 : modelAndRelationss.map((model) => this.createUserMinimalInfo(model));
+    const result = modelAndRelationss?.map((model) => this.createUserMinimalInfo(model));
     if (cacheKey != null)
       await this.cache.setMetadata(cacheKey, result);
     return result;
@@ -5774,15 +5844,15 @@ class DXTClienteRepository extends DXTUserRepository {
   userCreateInputToModel(input) {
     const data = super.userCreateInputToModel(input);
     return {
-      ...data,
-      lista_prioritaria_vendedor: input.lista_prioritaria_vendedor === true && input.id_lista_prioritaria == null
+      ...data
+      // lista_adicional_vendedor: input.lista_adicional_vendedor === true && input.id_lista_adicional == null,
     };
   }
   userUpdateInputToModel(input) {
     const data = super.userUpdateInputToModel(input);
     return {
-      ...data,
-      lista_prioritaria_vendedor: input.lista_prioritaria_vendedor === true && input.id_lista_prioritaria == null
+      ...data
+      // lista_adicional_vendedor: input.lista_adicional_vendedor === true && input.id_lista_adicional == null,
     };
   }
   async preCreate(k, input) {
@@ -5799,15 +5869,15 @@ class DXTClienteRepository extends DXTUserRepository {
       return;
     const {
       perfil_facturacion_id,
-      id_lista_prioritaria,
-      bonificacion_lista_prioritaria,
-      lista_prioritaria_vendedor
+      id_lista_adicional,
+      bonificacion_lista_adicional
+      // lista_adicional_vendedor,
     } = input;
     const matchedData = {
       perfil_facturacion_id,
-      id_lista_prioritaria,
-      bonificacion_lista_prioritaria,
-      lista_prioritaria_vendedor: lista_prioritaria_vendedor === true && id_lista_prioritaria == null
+      id_lista_adicional,
+      bonificacion_lista_adicional
+      // lista_adicional_vendedor: lista_adicional_vendedor === true && id_lista_adicional == null,
     };
     const { mainTable, mainIdField } = this.config;
     for (const id of ids) {
@@ -5880,7 +5950,7 @@ class ApiController {
     jsonPolyfills();
   }
   async onError(e, req) {
-    const status = e instanceof DXTException ? e.dxtError.status : isAnInteger(e == null ? void 0 : e.status) ? e == null ? void 0 : e.status : HttpStatus.INTERNAL_SERVER_ERROR;
+    const status = e instanceof DXTException ? e.dxtError.status : isAnInteger(e?.status) ? e?.status : HttpStatus.INTERNAL_SERVER_ERROR;
     return jsonResponse(
       {
         status,
@@ -5895,6 +5965,18 @@ class ApiController {
   }
 }
 class RootController extends ApiController {
+  constructor() {
+    super(...arguments);
+    this.systemDisabled = false;
+  }
+  async onRequest(req) {
+    await super.onRequest(req);
+    this.systemDisabled = await settingsService.isSystemDisabled();
+    if (this.systemDisabled) {
+      const message = await settingsService.getSystemDisabledMessage();
+      throw new DXTException(DXTErrorCode.SYSTEM_DISABLED, message ?? void 0);
+    }
+  }
   async onError(e, req) {
     const finalE = e instanceof ValidationException && isProduction() ? new ValidationException(VALIDATION_ERROR) : e;
     const dxtError = exceptionToDXTErrorInfo(finalE);
@@ -5930,7 +6012,6 @@ function sha1ToString(value, secret, encoding = "hex") {
 const AUTH_SECRET = "Ema0PpqK0jMhUl64n5q6ZVhc1WukcYSpKW8GdaQCd1b0W7jh6rwvyopI8UB7DBaU";
 class VOAuthToken extends VOWeakCheckAuthToken {
   validate(rawValue) {
-    var _a2;
     if (rawValue instanceof AuthTokenProps)
       return rawValue;
     if (typeof rawValue === "string") {
@@ -5940,7 +6021,7 @@ class VOAuthToken extends VOWeakCheckAuthToken {
         this.throwError(rawValue);
       const result = super.validate(value);
       const payloadHash = sha1ToString(value.substring(0, p), AUTH_SECRET);
-      const weakCheckTokenHash = (_a2 = this.verificationHash) == null ? void 0 : _a2.toString();
+      const weakCheckTokenHash = this.verificationHash?.toString();
       if (payloadHash !== weakCheckTokenHash)
         this.throwError(rawValue);
       return result;
@@ -5995,14 +6076,12 @@ class AuthTokenRepository {
     return result;
   }
   async _removeExpiredTokens() {
-    var _a2;
     const settings2 = await settingsService.getMiscSettings();
     const expirationInMillis = settings2.auth_expiration_days * (isDevelopment() ? MINUTE_IN_MILLISECONDS : DAY_IN_MILLISECONDS);
     const currentTime = now();
-    (_a2 = this._tokensList) == null ? void 0 : _a2.forEach((creationTime, key) => {
-      var _a3;
+    this._tokensList?.forEach((creationTime, key) => {
       if (creationTime + expirationInMillis < currentTime) {
-        (_a3 = this._tokensList) == null ? void 0 : _a3.delete(key);
+        this._tokensList?.delete(key);
       }
     });
   }
@@ -6178,9 +6257,10 @@ class AuthService {
 const authService = new AuthService();
 class AuthenticatedRootController extends RootController {
   async onRequest(req) {
-    var _a2;
     await super.onRequest(req);
-    let token = (_a2 = req.headers.get("authorization")) == null ? void 0 : _a2.toLowerCase();
+    let token = req.headers.get("authorization")?.toLowerCase();
+    if (typeof token !== "string")
+      token = req.query["auth"];
     if (typeof token !== "string") {
       if (!isAutoLoginEnabled)
         throw new DXTException(DXTErrorCode.UNAUTHORIZED);
@@ -6240,8 +6320,8 @@ const baseUserInputSchema = {
   ver_sin_precio: (v) => new VOBoolean(v),
   mostrar_mensaje_de_advertencia: (v) => new VOBoolean(v),
   habilitado_en_dxt: (v) => new VOBoolean(v),
-  id_lista_prioritaria: (v) => v != null ? new VOUInt32(v) : null,
-  bonificacion_lista_prioritaria: (v) => v != null ? new VOPositiveNumber(v) : null
+  id_lista_adicional: (v) => v != null ? new VOUInt32(v) : null,
+  bonificacion_lista_adicional: (v) => v != null ? new VOPositiveNumber(v) : null
 };
 const updateUserInputSchema = {
   ...baseUserInputSchema
@@ -6255,12 +6335,12 @@ const deleteUserInputSchema = {
 };
 const validateDeleteUserInput = (input) => validateInput(deleteUserInputSchema, input);
 const updateClienteInputSchema = {
-  ...updateUserInputSchema,
-  lista_prioritaria_vendedor: (v) => new VOBoolean(v)
+  ...updateUserInputSchema
+  // lista_adicional_vendedor: (v: boolean) => new VOBoolean(v),
 };
 const createClienteInputSchema = {
-  ...createUserInputSchema,
-  lista_prioritaria_vendedor: (v) => new VOBoolean(v)
+  ...createUserInputSchema
+  // lista_adicional_vendedor: (v: boolean) => new VOBoolean(v),
 };
 const validateUpdateClienteInput = (input) => validateInput(updateClienteInputSchema, input);
 const validateCreateClienteInput = (input) => validateInput(createClienteInputSchema, input);
@@ -6291,7 +6371,7 @@ function _getDXTArticuloListParam(s) {
   if (chunks.length != 2)
     return null;
   const key = chunks[0].trim().toLowerCase();
-  const value = chunks[1].trim();
+  const value = chunks[1].trimEnd();
   if (key.length == 0)
     return null;
   return { key, value };
@@ -6340,7 +6420,7 @@ function tangoArticuloModelMapper(m) {
     descripcion_adicional: DESC_ADIC
   };
 }
-function tangoFullArticleModelMapper(m, prioritaryListId, prioritaryDiscount, overridedDiscount) {
+function tangoFullArticleModelMapper(m, listId1, discount1, listId2, discount2) {
   const {
     PRECIO,
     [LISTA_ID_FIELD]: idLista,
@@ -6353,8 +6433,7 @@ function tangoFullArticleModelMapper(m, prioritaryListId, prioritaryDiscount, ov
     ID_MEDIDA_VENTAS,
     DXTO_PARAMS
   } = m;
-  const idListaIsPrioritary = prioritaryListId != null && idLista === prioritaryListId;
-  const discount = overridedDiscount != null ? overridedDiscount : idListaIsPrioritary ? prioritaryDiscount : null;
+  const discount = idLista === listId1 ? discount1 : idLista === listId2 ? discount2 : null;
   return {
     ...tangoArticuloModelMapper(m),
     id_lista: idLista,
@@ -6370,16 +6449,18 @@ function tangoFullArticleModelMapper(m, prioritaryListId, prioritaryDiscount, ov
     params: strToDXTArticuloListParams(DXTO_PARAMS)
   };
 }
-function tangoFullArticleOrGroupNameModelMapper(m, prioritaryListId, prioritaryDiscount, overridedDiscount) {
+function tangoFullArticleOrGroupNameModelMapper(m, listId1, discount1, listId2, discount2) {
   const { DXTO_CODIGO_ARTICULO, [ARTICULO_CODE_FIELD]: codigoArticulo } = m;
   const isGroupLabel = DXTO_CODIGO_ARTICULO != null && DXTO_CODIGO_ARTICULO !== codigoArticulo;
   if (isGroupLabel)
     return DXTO_CODIGO_ARTICULO.trim();
   return tangoFullArticleModelMapper(
     m,
-    prioritaryListId,
-    prioritaryDiscount,
-    overridedDiscount
+    listId1,
+    discount1,
+    listId2,
+    discount2
+    // overridedDiscount,
   );
 }
 function tangoListaModelMapper(m) {
@@ -6428,13 +6509,13 @@ class ArticuloRepository extends TangoProvider {
   }
   // async getByListIdWithTaxes(
   //   profileListId: number,
-  //   prioritaryListId: number|null|undefined,
-  //   prioritaryDiscount: number|null|undefined,
+  //   additionalListId: number|null|undefined,
+  //   additionalDiscount: number|null|undefined,
   // ): Promise<FullArticleResult[]> {
-  //   const singleListId = prioritaryListId == null;
-  //   const sameOrSinglePriceList = singleListId || profileListId === prioritaryListId;
-  //   const overridedDiscount = singleListId ? null : prioritaryDiscount;
-  //   const aListId = sameOrSinglePriceList ? profileListId : prioritaryListId;
+  //   const singleListId = additionalListId == null;
+  //   const sameOrSinglePriceList = singleListId || profileListId === additionalListId;
+  //   const overridedDiscount = singleListId ? null : additionalDiscount;
+  //   const aListId = sameOrSinglePriceList ? profileListId : additionalListId;
   //   const bListId = sameOrSinglePriceList ? null          : profileListId;
   //   const k = await this.getCompany();
   //   const fullArticuloCodeField = `${ARTICULO_TABLE}.${ARTICULO_CODE_FIELD}`;
@@ -6458,8 +6539,8 @@ class ArticuloRepository extends TangoProvider {
   //   const result: ArticuloWithMultiPriceModel[] = await query.orderBy(fullArticuloCodeField);
   //   return result.map(item => tangoFullArticleModelMapper(
   //     item,
-  //     prioritaryListId,
-  //     prioritaryDiscount,
+  //     additionalListId,
+  //     additionalDiscount,
   //     overridedDiscount,
   //   ));
   // }  
@@ -6584,9 +6665,8 @@ const dxtVendedorGetCustomersEndpoint = createApiEndpoint(
   authenticatedRootController,
   void 0,
   async (req) => {
-    var _a2;
     const { user } = req.auth;
-    const tangoId = (_a2 = user.tangoId) == null ? void 0 : _a2.valueOf();
+    const tangoId = user.tangoId?.valueOf();
     if (!user.role.isSeller())
       throw new DXTException(DXTErrorCode.SELLER_ROLE_REQUIRED);
     if (typeof tangoId !== "number")
@@ -6609,14 +6689,14 @@ const dxtUsuarioGetAuxiliaresEndpoint = createApiEndpoint(
     };
   }
 );
-async function loader$G({ request, params }) {
+async function loader$I({ request, params }) {
   return await dxtClienteGetSiblingsEndpoint.get(request, params);
 }
-const action$G = unimplementedApiResponse;
+const action$I = unimplementedApiResponse;
 const route1 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$G,
-  loader: loader$G
+  action: action$I,
+  loader: loader$I
 }, Symbol.toStringTag, { value: "Module" }));
 apiEndpoint("/dxt/usuario/auxiliares", "GET");
 const _API_DXT_CUSTOMER = "/dxt/cliente";
@@ -6775,11 +6855,10 @@ function useAxiosFetch(params, ...args) {
     await makeRequest();
   };
   const makeRequest = async () => {
-    var _a2;
     const params2 = fetchState.originalRequest;
     try {
       const response = await axiosRequestPlus(params2);
-      const data = ((_a2 = response == null ? void 0 : response.data) == null ? void 0 : _a2.data) ?? (response == null ? void 0 : response.data);
+      const data = response?.data?.data ?? response?.data;
       setFetchState(new FetchStateSuccess(data, params2));
     } catch (err) {
       if (err instanceof AxiosRequestPlusError) {
@@ -6814,7 +6893,7 @@ function useDXTApiFetch(params) {
   );
   useEffect(() => {
     (async () => {
-      const isSilent = (params == null ? void 0 : params.silent) ?? false;
+      const isSilent = params?.silent ?? false;
       if (isSilent)
         return;
       if (!(state instanceof FetchStateError))
@@ -6890,7 +6969,7 @@ const BORRADORES = "Borradores";
 const ADMINISTRACION = "Administración";
 const CHANGE_PASSWORD = "Cambiar contraseña";
 const DOWNLOADS = "Descargas";
-const DOWNLOADING = "Descargando...";
+const NO_DOWNLOADS_AVAILABLE = "No hay descargas disponibles";
 const SELECTED_S = " seleccionado";
 const SELECTED_P = " seleccionados";
 const USER_CREATED = "Usuario creado";
@@ -6968,43 +7047,6 @@ const settings$1 = {
       empty: SELLERS_NO_OPTIONS
     }
   }
-};
-const CommonErrors = ({ error, buttonProps }) => {
-  return /* @__PURE__ */ jsx(
-    Box,
-    {
-      width: "full",
-      sx: {
-        mt: 6
-      },
-      children: /* @__PURE__ */ jsxs(
-        Alert,
-        {
-          status: "error",
-          variant: "subtle",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          textAlign: "center",
-          height: "200px",
-          children: [
-            /* @__PURE__ */ jsx(AlertIcon, { boxSize: "40px", sx: { mr: 0, mb: 4 } }),
-            /* @__PURE__ */ jsx(AlertDescription, { maxWidth: "sm", children: error }),
-            buttonProps != null && /* @__PURE__ */ jsx(
-              Button,
-              {
-                ...buttonProps,
-                sx: {
-                  mt: 4
-                },
-                children: buttonProps.label
-              }
-            )
-          ]
-        }
-      )
-    }
-  );
 };
 const CommonCard = (props) => {
   const { children, cardProps, cardBodyProps } = props;
@@ -7084,14 +7126,34 @@ const SettingsFormHeading = (props) => {
     ] })
   ] }) });
 };
+function useAppResources() {
+  const result = useBasicAppResources();
+  if (!(result.authState instanceof AuthStateLoggedIn))
+    throw new DXTException(
+      new DXTError(DXTErrorCode.INTERNAL_CLIENT_ERROR, {
+        extra: "AuthState is not AuthStateLoggedIn"
+      })
+    );
+  if (typeof result.authDispatch !== "function")
+    throw new DXTException(
+      new DXTError(DXTErrorCode.INTERNAL_CLIENT_ERROR, {
+        extra: "Invalid authDispath in useAppResources()"
+      })
+    );
+  return result;
+}
 const ApiErrors = ({
   error,
   retry,
   cancelAndNavigateTo
 }) => {
-  var _a2, _b2;
-  const navigate = useNavigate();
-  return /* @__PURE__ */ jsxs(Box, { textAlign: "center", py: 10, px: 6, children: [
+  const app = useAppResources();
+  const matches = useMatches();
+  const { pathname: currentRoute } = matches[matches.length - 1];
+  const isAdmin = app.authState.isAdmin();
+  const { error_description: errorMessage, message_to_user } = error;
+  const displayCancel = cancelAndNavigateTo != null && currentRoute !== cancelAndNavigateTo;
+  return /* @__PURE__ */ jsxs(Flex, { direction: "column", height: "full", justifyContent: "center", alignItems: "center", py: 10, px: 6, children: [
     /* @__PURE__ */ jsx(Box, { display: "inline-block", children: /* @__PURE__ */ jsx(
       Flex,
       {
@@ -7106,9 +7168,9 @@ const ApiErrors = ({
         children: /* @__PURE__ */ jsx(Icon, { as: CloseIcon, boxSize: "40px", color: "white" })
       }
     ) }),
-    !error.message_to_user ? /* @__PURE__ */ jsx(Text, { mt: 6, color: "white", children: error.error_description }) : /* @__PURE__ */ jsxs(Fragment, { children: [
-      /* @__PURE__ */ jsx(Heading, { as: "h2", size: "xl", mt: 6, mb: 2, children: (_a2 = error.message_to_user) == null ? void 0 : _a2.title }),
-      /* @__PURE__ */ jsx(Text, { color: "white", children: (_b2 = error.message_to_user) == null ? void 0 : _b2.content })
+    message_to_user == null ? /* @__PURE__ */ jsx(Text, { mt: 6, color: "white", align: "center", children: nlToReactBr(errorMessage) }) : /* @__PURE__ */ jsxs(Fragment, { children: [
+      message_to_user.title != null && /* @__PURE__ */ jsx(Heading, { as: "h2", size: "xl", mt: 6, mb: 2, children: message_to_user.title }),
+      /* @__PURE__ */ jsx(Text, { color: "white", children: message_to_user.content })
     ] }),
     /* @__PURE__ */ jsxs(
       HStack,
@@ -7120,16 +7182,29 @@ const ApiErrors = ({
         justifyContent: "center",
         children: [
           retry && /* @__PURE__ */ jsx(Button, { onClick: retry, colorScheme: "blue", children: RETRY }),
-          cancelAndNavigateTo != null && /* @__PURE__ */ jsx(
+          displayCancel && /* @__PURE__ */ jsx(
             Button,
             {
               onClick: () => {
-                navigate(cancelAndNavigateTo);
+                app.navigate(cancelAndNavigateTo);
               },
               colorScheme: "gray",
-              children: CANCEL
+              children: LEAVE
             }
-          )
+          ),
+          isAdmin && /* @__PURE__ */ jsxs(Fragment, { children: [
+            /* @__PURE__ */ jsx(Divider, { orientation: "vertical" }),
+            /* @__PURE__ */ jsx(
+              Button,
+              {
+                onClick: () => {
+                  app.navigate(URL_SETTINGS_PATH);
+                },
+                colorScheme: "gray",
+                children: ADMINISTRACION
+              }
+            )
+          ] })
         ]
       }
     )
@@ -7197,39 +7272,23 @@ const API_TANGO_LISTA_DE_PRECIOS_GET_ALL = apiEndpoint("/tango/lista", "GET");
 const API_TANGO_PERFIL_GET_ALL = apiEndpoint("/tango/perfil", "GET");
 const API_TANGO_CLIENTE_GET_ALL = apiEndpoint("/tango/cliente", "GET");
 const API_TANGO_VENDEDOR_GET_ALL = apiEndpoint("/tango/vendedor", "GET");
-function useAppResources() {
-  const result = useBasicAppResources();
-  if (!(result.authState instanceof AuthStateLoggedIn))
-    throw new DXTException(
-      new DXTError(DXTErrorCode.INTERNAL_CLIENT_ERROR, {
-        extra: "AuthState is not AuthStateLoggedIn"
-      })
-    );
-  if (typeof result.authDispatch !== "function")
-    throw new DXTException(
-      new DXTError(DXTErrorCode.INTERNAL_CLIENT_ERROR, {
-        extra: "Invalid authDispath in useAppResources()"
-      })
-    );
-  return result;
-}
 const buildSelectOptions = (props) => {
   const { data, fieldsMap, disabledIcon } = props;
   const result = [];
   data.length && data.forEach((data2) => {
-    const label = Array.isArray(fieldsMap == null ? void 0 : fieldsMap.label) ? fieldsMap.label.map((value) => {
+    const label = Array.isArray(fieldsMap?.label) ? fieldsMap.label.map((value) => {
       return data2[value];
-    }).join(" - ") : data2[(fieldsMap == null ? void 0 : fieldsMap.label) ?? "name"];
+    }).join(" - ") : data2[fieldsMap?.label ?? "name"];
     result.push({
       label,
-      value: data2[(fieldsMap == null ? void 0 : fieldsMap.value) ?? "id"],
-      ...(fieldsMap == null ? void 0 : fieldsMap.selected) != null && {
+      value: data2[fieldsMap?.value ?? "id"],
+      ...fieldsMap?.selected != null && {
         selected: data2[fieldsMap.selected]
       },
-      ...(fieldsMap == null ? void 0 : fieldsMap.isEnabled) != null && {
+      ...fieldsMap?.isEnabled != null && {
         isDisabled: !data2[fieldsMap.isEnabled]
       },
-      ...(fieldsMap == null ? void 0 : fieldsMap.isEnabled) != null && disabledIcon != null && !data2[fieldsMap == null ? void 0 : fieldsMap.isEnabled] && {
+      ...fieldsMap?.isEnabled != null && disabledIcon != null && !data2[fieldsMap?.isEnabled] && {
         icon: disabledIcon
       }
     });
@@ -7367,7 +7426,6 @@ const useSize = (size) => {
   return realSize;
 };
 const ChakraReactSelectCustomMenuList = (props) => {
-  var _a2;
   const {
     className,
     cx,
@@ -7399,13 +7457,13 @@ const ChakraReactSelectCustomMenuList = (props) => {
     // maxHeight: `${maxHeight}px`,
     // overflowY: 'auto',
     // This is hacky, but it works. May be removed in the future
-    "--input-border-radius": fieldStyles == null ? void 0 : fieldStyles["--input-border-radius"],
-    borderRadius: (fieldStyles == null ? void 0 : fieldStyles.borderRadius) || ((_a2 = menuStyles.list) == null ? void 0 : _a2.borderRadius),
+    "--input-border-radius": fieldStyles?.["--input-border-radius"],
+    borderRadius: fieldStyles?.borderRadius || menuStyles.list?.borderRadius,
     position: "relative"
     // required for offset[Height, Top] > keyboard scroll
     // WebkitOverflowScrolling: 'touch',
   };
-  const sx = (chakraStyles == null ? void 0 : chakraStyles.menuList) ? chakraStyles.menuList(initialSx, props) : initialSx;
+  const sx = chakraStyles?.menuList ? chakraStyles.menuList(initialSx, props) : initialSx;
   return /* @__PURE__ */ jsx(
     Box,
     {
@@ -7581,10 +7639,7 @@ const FormErrors = React.forwardRef((props, ref) => {
         mb: 4
       },
       ref,
-      children: /* @__PURE__ */ jsx(Alert, { status: "error", variant: "left-accent", sx: { p: 4 }, children: /* @__PURE__ */ jsx(UnorderedList, { fontSize: "sm", spacing: 3, children: Object.values(errors).map((error, key) => {
-        var _a2, _b2;
-        return /* @__PURE__ */ jsx(ListItem, { children: ((_a2 = error == null ? void 0 : error.message) == null ? void 0 : _a2.toString()) ?? ((_b2 = error == null ? void 0 : error.root) == null ? void 0 : _b2.message.toString()) }, key);
-      }) }) })
+      children: /* @__PURE__ */ jsx(Alert, { status: "error", variant: "left-accent", sx: { p: 4 }, children: /* @__PURE__ */ jsx(UnorderedList, { fontSize: "sm", spacing: 3, children: Object.values(errors).map((error, key) => /* @__PURE__ */ jsx(ListItem, { children: error?.message?.toString() ?? error?.root?.message.toString() }, key)) }) })
     }
   ) : /* @__PURE__ */ jsx(Fragment, {});
 });
@@ -7684,7 +7739,6 @@ function useUserValidation(schemaMaker) {
   };
 }
 const DXTUserEditReady = (props) => {
-  var _a2, _b2;
   const { stateData, typeSettings, returnUrl, title, schemaMaker, schemaDataToApiInput, saveUserCall } = props;
   useRef(VOUUIdV4.random().valueOf());
   const app = useAppResources();
@@ -7706,7 +7760,7 @@ const DXTUserEditReady = (props) => {
     },
     disabledIcon: /* @__PURE__ */ jsx(Icon, { as: AccountCancelIcon, color: "red.400", ml: 2, boxSize: 5 })
   });
-  const { state: stateListaPrioritaria, result: resultListaPrioritaria } = useTangoList({
+  const { state: stateListaAdicional, result: resultListaAdicional } = useTangoList({
     endpoint: API_TANGO_LISTA_DE_PRECIOS_GET_ALL,
     fieldsMap: {
       label: "nombre",
@@ -7722,10 +7776,10 @@ const DXTUserEditReady = (props) => {
       username: stateData.username,
       email: stateData.email ?? "",
       tango_id: stateData.tango_id,
-      id_lista_prioritaria: stateData.id_lista_prioritaria === null ? 0 : stateData.id_lista_prioritaria,
-      bonificacion_lista_prioritaria: stateData.bonificacion_lista_prioritaria === null ? 0 : stateData.bonificacion_lista_prioritaria,
-      bonificacion_lista_prioritaria_switch: stateData.bonificacion_lista_prioritaria != null,
-      lista_prioritaria_vendedor: stateData.lista_prioritaria_vendedor != null ? stateData.lista_prioritaria_vendedor : false,
+      id_lista_adicional: stateData.id_lista_adicional === null ? 0 : stateData.id_lista_adicional,
+      bonificacion_lista_adicional: stateData.bonificacion_lista_adicional === null ? 0 : stateData.bonificacion_lista_adicional,
+      bonificacion_lista_adicional_switch: stateData.bonificacion_lista_adicional != null,
+      // lista_adicional_vendedor: stateData.lista_adicional_vendedor != null ? stateData.lista_adicional_vendedor : false,
       perfil_facturacion_id: stateData.perfil_facturacion_id,
       habilitado_en_dxt: stateData.habilitado_en_dxt,
       puede_crear_pedido: stateData.puede_crear_pedido,
@@ -7745,10 +7799,10 @@ const DXTUserEditReady = (props) => {
       email: "",
       tango_id: 0,
       perfil_facturacion_id: 0,
-      id_lista_prioritaria: 0,
-      bonificacion_lista_prioritaria: 0,
-      bonificacion_lista_prioritaria_switch: false,
-      lista_prioritaria_vendedor: false,
+      id_lista_adicional: 0,
+      bonificacion_lista_adicional: 0,
+      bonificacion_lista_adicional_switch: false,
+      // lista_adicional_vendedor: false,
       habilitado_en_dxt: true,
       puede_crear_pedido: true,
       puede_editar_pedido: true,
@@ -7761,8 +7815,7 @@ const DXTUserEditReady = (props) => {
       dia_de_entrega: DIAS_DE_ENTREGA_DEFAULT
     };
   }
-  const listaPrioritariaVendedorExists = yupValidationSchema2.fields.lista_prioritaria_vendedor != null;
-  yupResolver(yupValidationSchema2);
+  const listaAdicionalVendedorExists = false;
   const {
     handleSubmit,
     control,
@@ -7776,33 +7829,30 @@ const DXTUserEditReady = (props) => {
   });
   const watchPuedeAnularPedido = watch("puede_anular_pedido");
   const watchPerfil = watch("perfil_facturacion_id");
-  const watchBonificacionPrioritariaSwitch = watch("bonificacion_lista_prioritaria_switch");
-  const watchIdListaPrioritaria = watch("id_lista_prioritaria");
+  const watchBonificacionAdicionalSwitch = watch("bonificacion_lista_adicional_switch");
+  const watchIdListaAdicional = watch("id_lista_adicional");
   useEffect(() => {
     if (watchPuedeAnularPedido === false)
       resetField("borrar_pedido_al_anular", { defaultValue: false });
   }, [watchPuedeAnularPedido]);
   useEffect(() => {
-    var _a3;
-    if (watchBonificacionPrioritariaSwitch === false) {
+    if (watchBonificacionAdicionalSwitch === false) {
       if (statePerfiles.isSuccess()) {
-        const bonificacionPerfil = ((_a3 = statePerfiles.data.find((obj) => {
+        const bonificacionPerfil = statePerfiles.data.find((obj) => {
           return obj.id === watchPerfil;
-        })) == null ? void 0 : _a3.bonificacion) ?? 0;
-        resetField("bonificacion_lista_prioritaria", { defaultValue: bonificacionPerfil });
+        })?.bonificacion ?? 0;
+        resetField("bonificacion_lista_adicional", { defaultValue: bonificacionPerfil });
       }
     }
-    if (watchIdListaPrioritaria === 0) {
-      resetField("bonificacion_lista_prioritaria", { defaultValue: 0 });
-      resetField("bonificacion_lista_prioritaria_switch", { defaultValue: false });
-    } else {
-      resetField("lista_prioritaria_vendedor", { defaultValue: false });
+    if (watchIdListaAdicional === 0) {
+      resetField("bonificacion_lista_adicional", { defaultValue: 0 });
+      resetField("bonificacion_lista_adicional_switch", { defaultValue: false });
     }
-  }, [statePerfiles.isSuccess(), watchIdListaPrioritaria, watchBonificacionPrioritariaSwitch, watchPerfil]);
+  }, [statePerfiles.isSuccess(), watchIdListaAdicional, watchBonificacionAdicionalSwitch, watchPerfil]);
   const disableForm = isSubmitSuccessful || isSubmitting;
   const onSubmit = async (dataUnsafe) => {
     const {
-      bonificacion_lista_prioritaria_switch,
+      bonificacion_lista_adicional_switch,
       ...data
     } = dataUnsafe;
     const rawInput = {
@@ -7836,9 +7886,8 @@ const DXTUserEditReady = (props) => {
       }
     });
   };
-  const disabledBonificacionLista = disableForm || watchIdListaPrioritaria === 0 || watchBonificacionPrioritariaSwitch === false;
-  const disabledListaPrioritariaVendedor = !disableForm && watchIdListaPrioritaria !== 0;
-  const disabledBonificacionListaSwitch = disableForm || watchIdListaPrioritaria === 0;
+  const disabledBonificacionLista = disableForm || watchIdListaAdicional === 0 || watchBonificacionAdicionalSwitch === false;
+  const disabledBonificacionListaSwitch = disableForm || watchIdListaAdicional === 0;
   return /* @__PURE__ */ jsx("form", { noValidate: true, onSubmit: handleSubmit(onSubmit), children: /* @__PURE__ */ jsxs(Box, { children: [
     /* @__PURE__ */ jsx(FormErrors, { errors }),
     /* @__PURE__ */ jsx(CommonCard, { children: /* @__PURE__ */ jsxs(
@@ -7855,11 +7904,10 @@ const DXTUserEditReady = (props) => {
               {
                 fieldProps: {
                   name: "tango_id",
-                  placeholder: (_a2 = typeSettings.tangoRelatedFields) == null ? void 0 : _a2.placeholder,
+                  placeholder: typeSettings.tangoRelatedFields?.placeholder,
                   options: resultRelationship,
                   noOptionsMessage(obj) {
-                    var _a3;
-                    return (_a3 = typeSettings.tangoRelatedFields) == null ? void 0 : _a3.empty;
+                    return typeSettings.tangoRelatedFields?.empty;
                   },
                   isSearchable: true,
                   selectedOptionStyle: "check",
@@ -7870,7 +7918,7 @@ const DXTUserEditReady = (props) => {
                   isDisabled: disableForm || !(stateRelationship instanceof FetchStateSuccess)
                 },
                 formControlInnerProps: {
-                  label: (_b2 = typeSettings.tangoRelatedFields) == null ? void 0 : _b2.label
+                  label: typeSettings.tangoRelatedFields?.label
                 },
                 control
               }
@@ -7958,7 +8006,7 @@ const DXTUserEditReady = (props) => {
               ControlledSelect,
               {
                 fieldProps: {
-                  name: "id_lista_prioritaria",
+                  name: "id_lista_adicional",
                   options: [
                     ...[
                       {
@@ -7966,27 +8014,27 @@ const DXTUserEditReady = (props) => {
                         value: 0
                       }
                     ],
-                    ...resultListaPrioritaria
+                    ...resultListaAdicional
                   ],
                   noOptionsMessage(obj) {
-                    return "No hay listas prioritarias";
+                    return "No hay listas adicionals";
                   },
-                  isLoading: stateListaPrioritaria instanceof FetchStateLoading,
+                  isLoading: stateListaAdicional instanceof FetchStateLoading,
                   selectedOptionStyle: "check"
                 },
                 formControlProps: {
-                  isDisabled: disableForm || !(stateListaPrioritaria instanceof FetchStateSuccess)
+                  isDisabled: disableForm || !(stateListaAdicional instanceof FetchStateSuccess)
                 },
                 formControlInnerProps: {
-                  label: "Lista de precios prioritaria"
+                  label: "Lista de precios adicional"
                 },
                 control
               }
             ),
             statePerfiles instanceof FetchStateError && /* @__PURE__ */ jsx(InlineError, { error: statePerfiles.errorOrNull().error })
           ] }),
-          /* @__PURE__ */ jsxs(GridItem, { children: [
-            /* @__PURE__ */ jsx(FormControl, { isDisabled: disabledBonificacionListaSwitch, children: /* @__PURE__ */ jsx(FormLabel, { children: "Bonificación lista prioritaria (%)" }) }),
+          !disabledBonificacionListaSwitch && /* @__PURE__ */ jsxs(GridItem, { children: [
+            /* @__PURE__ */ jsx(FormControl, { isDisabled: disabledBonificacionListaSwitch, children: /* @__PURE__ */ jsx(FormLabel, { children: "Bonificación lista adicional (%)" }) }),
             /* @__PURE__ */ jsxs(HStack, { children: [
               /* @__PURE__ */ jsx(
                 ControlledInput,
@@ -7996,8 +8044,8 @@ const DXTUserEditReady = (props) => {
                     isDisabled: disabledBonificacionLista
                   },
                   fieldProps: {
-                    name: "bonificacion_lista_prioritaria",
-                    id: "bonificacion_lista_prioritaria",
+                    name: "bonificacion_lista_adicional",
+                    id: "bonificacion_lista_adicional",
                     type: "text",
                     inputMode: "tel",
                     textAlign: "end",
@@ -8012,8 +8060,8 @@ const DXTUserEditReady = (props) => {
                 ControlledSwitch,
                 {
                   fieldProps: {
-                    name: "bonificacion_lista_prioritaria_switch",
-                    id: "bonificacion_lista_prioritaria_switch"
+                    name: "bonificacion_lista_adicional_switch",
+                    id: "bonificacion_lista_adicional_switch"
                   },
                   formControlProps: {
                     width: "auto",
@@ -8024,23 +8072,7 @@ const DXTUserEditReady = (props) => {
               )
             ] })
           ] }),
-          listaPrioritariaVendedorExists && /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(
-            ControlledSwitch,
-            {
-              fieldProps: {
-                name: "lista_prioritaria_vendedor",
-                id: "lista_prioritaria_vendedor"
-              },
-              formControlProps: {
-                width: "auto",
-                isDisabled: disabledListaPrioritariaVendedor
-              },
-              formControlInnerProps: {
-                label: "Permitir lista prioritaria del vendedor"
-              },
-              control
-            }
-          ) }),
+          listaAdicionalVendedorExists,
           /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(Divider, {}) }),
           /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(Heading, { size: "sm", textTransform: "uppercase", children: "Estado" }) }),
           /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(
@@ -8317,20 +8349,20 @@ const baseUserValidation = {
   }),
   email: yup.string().email("Ingrese un correo electrónico válido"),
   perfil_facturacion_id: yup.number().integer().min(1, "Seleccione un perfil de facturación").required("Seleccione un perfil de facturación").typeError("Seleccione un perfil de facturación"),
-  id_lista_prioritaria: yup.number().integer(),
-  // bonificacion_lista_prioritaria: yup
+  id_lista_adicional: yup.number().integer(),
+  // bonificacion_lista_adicional: yup
   //   .number()
   //   .integer()
   //   .required('Ingrese una bonificación válida')
   //   .typeError('Ingrese una bonificación válida')
   //   .min(0, 'La bonificación debe encontrarse entre 0 y 100%')
   //   .max(100, 'La bonificación debe encontrarse entre 0 y 100%'),
-  bonificacion_lista_prioritaria: yup.number().when(["id_lista_prioritaria"], {
+  bonificacion_lista_adicional: yup.number().when(["id_lista_adicional"], {
     is: (val) => val > 0,
     then: (schema) => schema.required("Ingrese una bonificación válida").typeError("Ingrese una bonificación válida").min(0, "La bonificación debe encontrarse entre 0 y 100%").max(100, "La bonificación debe encontrarse entre 0 y 100%"),
     otherwise: (schema) => schema
   }),
-  bonificacion_lista_prioritaria_switch: yup.boolean(),
+  bonificacion_lista_adicional_switch: yup.boolean(),
   dia_de_entrega: yup.number().integer(
     `El tiempo de entrega de pedidos debe ser un un número entero entre ${DIAS_DE_ENTREGA_MIN_DAYS} y ${DIAS_DE_ENTREGA_MAX_DAYS}`
   ).min(
@@ -8352,8 +8384,8 @@ const baseUserValidation = {
 };
 const commonUserValidation = {
   ...baseUserValidation,
-  password: yup.string(),
-  lista_prioritaria_vendedor: yup.boolean()
+  password: yup.string()
+  // lista_adicional_vendedor: yup.boolean(),
 };
 yup.object(commonUserValidation);
 function makeUserValidation(yupPassword, passwordStatus, setPasswordStatus) {
@@ -8374,11 +8406,11 @@ const extraUpdateValidation = {
   // id: yup.number().integer().required()
 };
 const extraCustomerValidation = {
-  lista_prioritaria_vendedor: yup.boolean().when(["id_lista_prioritaria"], {
-    is: (idListaPrioritaria) => idListaPrioritaria > 0,
-    then: (schema) => schema.test("false", "lista_prioritaria_vendedor debe ser false", (v) => v === false),
-    otherwise: (schema) => schema
-  })
+  // lista_adicional_vendedor: yup.boolean().when(['id_lista_adicional'], {
+  //   is: (idListaAdicional: number) => idListaAdicional > 0,
+  //   then: (schema) => schema.test('false', 'lista_adicional_vendedor debe ser false', (v) => v===false),
+  //   otherwise: (schema) => schema,
+  // }),
 };
 const YUP_OPTIONAL_PASSWORD = yup.string();
 const YUP_REQUIRED_PASSWORD = yup.string().required("Ingrese una contraseña");
@@ -8410,22 +8442,26 @@ function makeUpdateSellerValidationSchema(passwordStatus, setPasswordStatus) {
 }
 function _commonNormalization(data) {
   const {
-    id_lista_prioritaria,
-    bonificacion_lista_prioritaria_switch,
-    bonificacion_lista_prioritaria,
-    lista_prioritaria_vendedor,
+    id_lista_adicional,
+    bonificacion_lista_adicional_switch,
+    bonificacion_lista_adicional,
+    // lista_adicional_vendedor,
     ...remaining
   } = data;
-  const listaPrioritariaPresente = id_lista_prioritaria != null && id_lista_prioritaria > 0;
+  const listaAdicionalPresente = id_lista_adicional != null && id_lista_adicional > 0;
   return {
     ...remaining,
-    id_lista_prioritaria: listaPrioritariaPresente ? id_lista_prioritaria : void 0,
-    bonificacion_lista_prioritaria: listaPrioritariaPresente && bonificacion_lista_prioritaria_switch === true ? bonificacion_lista_prioritaria : void 0,
-    lista_prioritaria_vendedor: listaPrioritariaPresente ? false : lista_prioritaria_vendedor === true
+    id_lista_adicional: listaAdicionalPresente ? id_lista_adicional : void 0,
+    bonificacion_lista_adicional: listaAdicionalPresente && bonificacion_lista_adicional_switch === true ? bonificacion_lista_adicional : void 0
+    // lista_adicional_vendedor: listaAdicionalPresente ? false : lista_adicional_vendedor === true,
   };
 }
 function transformCreateSellerSchemaData(data) {
-  const { password, lista_prioritaria_vendedor: _2, ...remaining } = _commonNormalization(data);
+  const {
+    password,
+    /*lista_adicional_vendedor: _,*/
+    ...remaining
+  } = _commonNormalization(data);
   if (password == null)
     return null;
   return {
@@ -8434,26 +8470,36 @@ function transformCreateSellerSchemaData(data) {
   };
 }
 function transformUpdateSellerSchemaData(data) {
-  const { lista_prioritaria_vendedor: _2, ...remaining } = _commonNormalization(data);
+  const {
+    /*lista_adicional_vendedor: _,*/
+    ...remaining
+  } = _commonNormalization(data);
   return {
     ...remaining
   };
 }
 function transformCreateCustomerSchemaData(data) {
-  const { password, lista_prioritaria_vendedor, ...remaining } = _commonNormalization(data);
+  const {
+    password,
+    /*lista_adicional_vendedor,*/
+    ...remaining
+  } = _commonNormalization(data);
   if (password == null)
     return null;
   return {
     ...remaining,
-    lista_prioritaria_vendedor: lista_prioritaria_vendedor === true,
+    // lista_adicional_vendedor: lista_adicional_vendedor === true,
     password
   };
 }
 function transformUpdateCustomerSchemaData(data) {
-  const { lista_prioritaria_vendedor, ...remaining } = _commonNormalization(data);
+  const {
+    /*lista_adicional_vendedor,*/
+    ...remaining
+  } = _commonNormalization(data);
   return {
-    ...remaining,
-    lista_prioritaria_vendedor: lista_prioritaria_vendedor === true
+    ...remaining
+    // lista_adicional_vendedor: lista_adicional_vendedor === true,
   };
 }
 function Edit$1() {
@@ -8468,7 +8514,7 @@ function Edit$1() {
         error: USER_NOT_FOUND,
         buttonProps: {
           label: BACK_TO_SETTINGS,
-          colorScheme: "green",
+          colorScheme: "gray",
           onClick: () => {
             navigate(URL_SETTINGS_PATH);
           }
@@ -8521,7 +8567,7 @@ function Edit() {
         error: USER_NOT_FOUND,
         buttonProps: {
           label: BACK_TO_SETTINGS,
-          colorScheme: "green",
+          colorScheme: "gray",
           onClick: () => {
             navigate(URL_SETTINGS_PATH);
           }
@@ -8695,6 +8741,8 @@ function isUserAllowedToCancelOrDeleteOrder(user, orderStatus) {
   const puedeAnular = isAdmin ? true : user instanceof UserEntity ? user.puedeAnularPedido.valueOf() : user.puede_anular_pedido;
   if (!puedeAnular)
     return false;
+  if (orderStatus == EstadoPedido.INGRESADO)
+    return true;
   const aprobarAlCrear = user instanceof UserEntity ? user.aprobarPedidoAlCrear.valueOf() : user.aprobar_pedido_al_crear;
   if (orderStatus == EstadoPedido.APROBADO && aprobarAlCrear)
     return true;
@@ -8919,9 +8967,8 @@ class PedidoBaseRepository extends CompanyProvider {
     return pedido;
   }
   async getAllByUser(user, options) {
-    var _a2;
     const role = user.role.valueOf();
-    const tangoUserId = (_a2 = user.tangoId) == null ? void 0 : _a2.valueOf();
+    const tangoUserId = user.tangoId?.valueOf();
     const cacheKey = this.getAllByUserCacheKey(role, tangoUserId, options);
     if (cacheKey != null) {
       const cachedData = await this.cache.getMetadata(cacheKey);
@@ -9100,7 +9147,7 @@ class PedidoBaseRepository extends CompanyProvider {
           throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "PedidoBaseRepository.update -> Updated record not found");
         if (updatedOrder.id == null)
           throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "PedidoBaseRepository.update -> updatedOrder.id == null");
-        await trx(rowsTable).where(orderIdField, updatedOrder.id).del();
+        await trx(rowsTable).where(orderIdField, updatedOrder.id).orWhere(PEDIDO_CODE_FIELD, updatedOrder.numero_pedido).del();
         let rowIndex = 0;
         for (const row of rows) {
           rowIndex++;
@@ -9131,19 +9178,18 @@ class PedidoBaseRepository extends CompanyProvider {
   async getOrderIdFromCode(orderCode, trx) {
     const k = trx ?? await this.getCompany();
     const result = await k(this.config.mainTable).first(PEDIDO_ID_FIELD).where(PEDIDO_CODE_FIELD, orderCode);
-    return (result == null ? void 0 : result[PEDIDO_ID_FIELD]) ?? null;
+    return result?.[PEDIDO_ID_FIELD] ?? null;
   }
   async getOrderCodeFromId(orderId, trx) {
     const k = trx ?? await this.getCompany();
     const result = await k(this.config.mainTable).first(PEDIDO_CODE_FIELD).where(PEDIDO_ID_FIELD, orderId);
-    return (result == null ? void 0 : result[PEDIDO_CODE_FIELD]) ?? null;
+    return result?.[PEDIDO_CODE_FIELD] ?? null;
   }
   async getBiggerOrderCode(trx) {
-    var _a2;
     const { mainTable } = this.config;
     const k = trx ?? await this.getCompany();
     const result = await k(mainTable).first(PEDIDO_CODE_FIELD).orderBy(PEDIDO_CODE_FIELD, "desc");
-    const orderCode = (_a2 = result == null ? void 0 : result[PEDIDO_CODE_FIELD]) == null ? void 0 : _a2.trim();
+    const orderCode = result?.[PEDIDO_CODE_FIELD]?.trim();
     const orderCodeNumber = Number.parseInt(orderCode);
     return isAnInteger(orderCodeNumber) && orderCodeNumber > 0 ? orderCodeNumber : 1;
   }
@@ -9225,6 +9271,8 @@ class DXTArticuloListRepository extends CompanyProvider {
       mainIdField: DXT_LIST_ARTICULO_CODE_FIELD,
       ...config2
     });
+    this.mainColumns = [`${config2.mainTable}.*`];
+    this.articuloColumns = [ARTICULO_ID_FIELD].map((c) => `${ARTICULO_TABLE}.${c}`);
   }
   async getList() {
     const rows = await this.getAll();
@@ -9254,25 +9302,8 @@ class DXTArticuloListRepository extends CompanyProvider {
     );
     return true;
   }
-  toResult(m) {
-    return m;
-  }
-}
-class DXTArticuloPrintListRepository extends DXTArticuloListRepository {
-  constructor() {
-    super({
-      mainTable: DXT_ARTICULO_PRINT_LIST_TABLE,
-      dependencies: [
-        articuloRepository,
-        dxtClienteRepository,
-        dxtVendedorRepository
-      ]
-    });
-    this.mainColumns = [`${DXT_ARTICULO_PRINT_LIST_TABLE}.*`];
-    this.articuloColumns = [ARTICULO_ID_FIELD].map((c) => `${ARTICULO_TABLE}.${c}`);
-  }
   async getIdsWithParams(paramsToReturn) {
-    const cacheKey = `ids_${paramsToReturn == null ? void 0 : paramsToReturn.join(".")}`;
+    const cacheKey = `ids_${paramsToReturn?.join(".")}`;
     const resultFromCache = await this.cache.getMetadata(cacheKey);
     if (resultFromCache != null)
       return resultFromCache;
@@ -9284,25 +9315,6 @@ class DXTArticuloPrintListRepository extends DXTArticuloListRepository {
     const data = rawData.map((m) => this.toArticuloIdResult(m, paramsToReturn));
     await this.cache.setMetadata(cacheKey, data);
     return data;
-  }
-  async getPackagePrintListMap() {
-    const cacheKey = `pack_printlist`;
-    const resultFromCache = await this.cache.getMetadata(cacheKey);
-    if (resultFromCache != null)
-      return resultFromCache;
-    const printListRaw = await dxtArticuloPrintListRepository.getIdsWithParams(["b"]);
-    const result = new Map(printListRaw.map((row, index) => {
-      if (isANumber(row))
-        return [row, void 0];
-      const bultoRaw = Number.parseInt(row[1]["b"]);
-      const bulto = isAnInteger(bultoRaw) && bultoRaw > 1 ? bultoRaw : void 0;
-      return [row[0], {
-        bulto,
-        order: index
-      }];
-    }));
-    await this.cache.setMetadata(cacheKey, result);
-    return result;
   }
   toArticuloIdResult(m, paramsToReturn) {
     const { [ARTICULO_ID_FIELD]: id_articulo } = m;
@@ -9320,8 +9332,44 @@ class DXTArticuloPrintListRepository extends DXTArticuloListRepository {
     }
     return id_articulo;
   }
+  toResult(m) {
+    return m;
+  }
+}
+const PRINT_LIST_PACKAGE_PARAM = "b";
+class DXTArticuloPrintListRepository extends DXTArticuloListRepository {
+  constructor() {
+    super({
+      mainTable: DXT_ARTICULO_PRINT_LIST_TABLE,
+      dependencies: [
+        articuloRepository,
+        dxtClienteRepository,
+        dxtVendedorRepository
+      ]
+    });
+  }
+  async getPackagePrintListMap() {
+    const cacheKey = `pack_printlist`;
+    const resultFromCache = await this.cache.getMetadata(cacheKey);
+    if (resultFromCache != null)
+      return resultFromCache;
+    const printListRaw = await this.getIdsWithParams([PRINT_LIST_PACKAGE_PARAM]);
+    const result = new Map(printListRaw.map((row, index) => {
+      if (isANumber(row))
+        return [row, void 0];
+      const bultoRaw = Number.parseInt(row[1][PRINT_LIST_PACKAGE_PARAM]);
+      const bulto = isAnInteger(bultoRaw) && bultoRaw > 0 ? bultoRaw : void 0;
+      return [row[0], {
+        bulto,
+        order: index
+      }];
+    }));
+    await this.cache.setMetadata(cacheKey, result);
+    return result;
+  }
 }
 const dxtArticuloPrintListRepository = new DXTArticuloPrintListRepository();
+const HIDDEN_ARTICLE_PARAM = "h";
 class DXTArticuloEditListRepository extends DXTArticuloListRepository {
   constructor() {
     super({
@@ -9334,11 +9382,11 @@ class DXTArticuloEditListRepository extends DXTArticuloListRepository {
       ]
     });
   }
-  async getByListIdWithTaxes(profileListId, prioritaryListId, prioritaryDiscount) {
-    const singleListId = prioritaryListId == null;
-    const sameOrSinglePriceList = singleListId || profileListId === prioritaryListId;
-    const aListId = sameOrSinglePriceList ? profileListId : prioritaryListId;
-    const bListId = sameOrSinglePriceList ? null : profileListId;
+  async getByListIdWithTaxes(profileListId, additionalListId1, additionalDiscount1, additionalListId2, additionalDiscount2) {
+    const uniqueListIds = [.../* @__PURE__ */ new Set([additionalListId1, additionalListId2, profileListId])].filter((e) => e != null);
+    const aListId = uniqueListIds[0];
+    const bListId = uniqueListIds[1];
+    const cListId = uniqueListIds[2];
     const k = await this.getCompany();
     const useArticleEditList = await this.count() > 0;
     const fullDXTArticuloListCodeField = `${DXT_ARTICULO_EDIT_LIST_TABLE}.codigo_articulo`;
@@ -9349,38 +9397,54 @@ class DXTArticuloEditListRepository extends DXTArticuloListRepository {
     const precioColumns = ["PRECIO", LISTA_ID_FIELD, ARTICULO_CODE_FIELD];
     const aPrecioColumns = precioColumns.map((c) => `tpa.${c}`);
     const bPrecioColumns = bListId != null ? precioColumns.map((c) => `tpb.${c}`) : [];
+    const cPrecioColumns = cListId != null ? precioColumns.map((c) => `tpc.${c}`) : [];
     let query = k(useArticleEditList ? DXT_ARTICULO_EDIT_LIST_TABLE : ARTICULO_TABLE).select(
       ...mainColumns,
       ...articuloColumns,
       ...aPrecioColumns,
-      ...bPrecioColumns
+      ...bPrecioColumns,
+      ...cPrecioColumns
     );
     const aPricesQuery = k(PRECIO_TABLE).select(precioColumns).where(LISTA_ID_FIELD, aListId).as("tpa");
     const bPricesQuery = bListId != null ? k(PRECIO_TABLE).select(precioColumns).where(LISTA_ID_FIELD, bListId).as("tpb") : null;
+    const cPricesQuery = cListId != null ? k(PRECIO_TABLE).select(precioColumns).where(LISTA_ID_FIELD, cListId).as("tpc") : null;
     if (useArticleEditList)
       query = query.leftOuterJoin(ARTICULO_TABLE, fullDXTArticuloListCodeField, fullArticuloCodeField);
     query = query.leftOuterJoin(aPricesQuery, useArticleEditList ? fullDXTArticuloListCodeField : fullArticuloCodeField, `tpa.${ARTICULO_CODE_FIELD}`);
     if (bPricesQuery != null)
       query = query.leftOuterJoin(bPricesQuery, useArticleEditList ? fullDXTArticuloListCodeField : fullArticuloCodeField, `tpb.${ARTICULO_CODE_FIELD}`);
+    if (cPricesQuery != null)
+      query = query.leftOuterJoin(cPricesQuery, useArticleEditList ? fullDXTArticuloListCodeField : fullArticuloCodeField, `tpc.${ARTICULO_CODE_FIELD}`);
     let whereRawQuery = `tpa.${LISTA_ID_FIELD} = ?`;
     if (bListId != null)
       whereRawQuery += ` OR tpb.${LISTA_ID_FIELD} = ?`;
+    if (cListId != null)
+      whereRawQuery += ` OR tpc.${LISTA_ID_FIELD} = ?`;
     if (useArticleEditList) {
       whereRawQuery += ` OR (${fullDXTArticuloListCodeField} IS NOT NULL AND tpa.${LISTA_ID_FIELD} IS NULL AND `;
       if (bListId != null)
         whereRawQuery += `tpb.${LISTA_ID_FIELD} IS NULL AND `;
+      if (cListId != null)
+        whereRawQuery += `tpc.${LISTA_ID_FIELD} IS NULL AND `;
       whereRawQuery += `${fullArticuloCodeField} IS NULL )`;
     }
-    const whereParams = bListId != null ? [aListId, bListId] : [aListId];
+    const whereParams = cListId != null ? [aListId, bListId, cListId] : bListId != null ? [aListId, bListId] : [aListId];
     query = query.where(k.raw(whereRawQuery, whereParams));
     const result = useArticleEditList ? await query.orderBy(`${DXT_ARTICULO_EDIT_LIST_TABLE}.id`) : await query.orderBy(fullArticuloCodeField);
     const unifiedPrices = this._multiPriceToSinglePrice(result);
-    const overridedDiscount = profileListId === prioritaryListId ? prioritaryDiscount : null;
-    return unifiedPrices.map((item) => tangoFullArticleOrGroupNameModelMapper(
+    const hiddenArticles = await this.getHiddenArticlesMap();
+    const filteredPrices = unifiedPrices.filter((item) => {
+      const { [ARTICULO_CODE_FIELD]: codeArticle } = item;
+      const keep = hiddenArticles.get(codeArticle) == null;
+      return keep;
+    });
+    return filteredPrices.map((item) => tangoFullArticleOrGroupNameModelMapper(
       item,
-      prioritaryListId,
-      prioritaryDiscount,
-      overridedDiscount
+      additionalListId1,
+      additionalDiscount1,
+      additionalListId2,
+      additionalDiscount2
+      // overridedDiscount,
     ));
   }
   _multiPriceToSinglePrice(data) {
@@ -9402,6 +9466,24 @@ class DXTArticuloEditListRepository extends DXTArticuloListRepository {
       };
     });
   }
+  async getHiddenArticlesMap() {
+    const cacheKey = `hidden_articles`;
+    const resultFromCache = await this.cache.getMetadata(cacheKey);
+    if (resultFromCache != null)
+      return resultFromCache;
+    const editListRaw = await this.getIdsWithParams([HIDDEN_ARTICLE_PARAM]);
+    const result = new Map(editListRaw.filter((row) => !isANumber(row)).map((row, index) => {
+      if (isANumber(row))
+        return ["", void 0];
+      const articleCodeRaw = row[1][HIDDEN_ARTICLE_PARAM];
+      const articleCode = isStr(articleCodeRaw) && articleCodeRaw.length > 0 ? articleCodeRaw : void 0;
+      if (articleCode == null)
+        return ["", void 0];
+      return [articleCode, row[0]];
+    }));
+    await this.cache.setMetadata(cacheKey, result);
+    return result;
+  }
 }
 const dxtArticuloEditListRepository = new DXTArticuloEditListRepository();
 function applyArticlePrintList(data, printList) {
@@ -9412,8 +9494,8 @@ function applyArticlePrintList(data, printList) {
     const printData = id_articulo != null ? printList.get(id_articulo) : null;
     return {
       ...row,
-      bulto: printData == null ? void 0 : printData.bulto,
-      print_order: printData == null ? void 0 : printData.order
+      bulto: printData?.bulto,
+      print_order: printData?.order
     };
   });
 }
@@ -9442,7 +9524,10 @@ class RenglonPedidoBaseRepository extends CompanyProvider {
     this.pedidoColumns = [`${pedidoTable}.${PEDIDO_ID_FIELD}`];
     this.articuloColumns = ARTICULO_NAME_COLUMNS.map((c) => `${ARTICULO_TABLE}.${c}`);
   }
-  async _getByWhere(whereColumn, whereValue) {
+  async finalTransformer(user, row) {
+    return row;
+  }
+  async _getByWhere(user, whereColumn, whereValue) {
     const cacheKey = `byWhere_${whereColumn ?? "x"}_${whereValue ?? "x"}`;
     const resultFromCache = await this.cache.getMetadata(cacheKey);
     if (resultFromCache != null)
@@ -9458,7 +9543,7 @@ class RenglonPedidoBaseRepository extends CompanyProvider {
       ...this.articuloColumns,
       ...this.pedidoColumns
     ];
-    const rawData = await query.select(allColumns).leftOuterJoin(ARTICULO_TABLE, `${mainTable}.${ARTICULO_ID_FIELD}`, `${ARTICULO_TABLE}.${ARTICULO_ID_FIELD}`).innerJoin(pedidoTable, `${mainTable}.${PEDIDO_CODE_FIELD}`, `${pedidoTable}.${PEDIDO_CODE_FIELD}`).orderBy(PEDIDO_ID_FIELD);
+    const rawData = await query.select(allColumns).leftOuterJoin(ARTICULO_TABLE, `${mainTable}.${ARTICULO_ID_FIELD}`, `${ARTICULO_TABLE}.${ARTICULO_ID_FIELD}`).innerJoin(pedidoTable, `${mainTable}.${PEDIDO_CODE_FIELD}`, `${pedidoTable}.${PEDIDO_CODE_FIELD}`).orderBy([PEDIDO_ID_FIELD, "N_RENGLON"]);
     if (rawData == null)
       throw new DXTException(DXTErrorCode.NOT_FOUND);
     const preTransformedData = rawData.map((renglonPedido) => this.toRenglonPedidoWithIdPedido(renglonPedido));
@@ -9467,41 +9552,47 @@ class RenglonPedidoBaseRepository extends CompanyProvider {
       preTransformedData,
       printList
     );
+    let transformedData = [];
     let result = {};
     let sliceBegin = 0;
     let idPedidoPrev = void 0;
-    data.forEach((renglon, index) => {
+    let index = 0;
+    for (const renglon of data) {
+      transformedData.push(
+        await this.finalTransformer(user, renglon)
+      );
       if (idPedidoPrev != null && idPedidoPrev != renglon.id_pedido) {
         const sliceEnd = index;
-        result[idPedidoPrev] = data.slice(sliceBegin, sliceEnd);
+        result[idPedidoPrev] = transformedData.slice(sliceBegin, sliceEnd);
         sliceBegin = sliceEnd;
       }
       idPedidoPrev = renglon.id_pedido;
-    });
+      index++;
+    }
     if (idPedidoPrev != null) {
       result[idPedidoPrev] = data.slice(sliceBegin, data.length);
     }
     await this.cache.setMetadata(cacheKey, result);
     return result;
   }
-  async getByIdPedido(idPedido) {
+  async getByIdPedido(user, idPedido) {
     const { mainTable } = this.config;
-    const data = await this._getByWhere(`${mainTable}.${PEDIDO_ID_FIELD}`, idPedido);
+    const data = await this._getByWhere(user, `${mainTable}.${PEDIDO_ID_FIELD}`, idPedido);
     return data[idPedido] ?? [];
   }
-  async getByNumeroPedido(numeroPedido) {
+  async getByNumeroPedido(user, numeroPedido) {
     const { mainTable } = this.config;
-    const data = await this._getByWhere(`${mainTable}.${PEDIDO_CODE_FIELD}`, numeroPedido);
+    const data = await this._getByWhere(user, `${mainTable}.${PEDIDO_CODE_FIELD}`, numeroPedido);
     return Object.values(data)[0] ?? [];
   }
   async getAllByUser(user) {
-    var _a2;
     const role = user.role.valueOf();
-    const tangoUserId = (_a2 = user.tangoId) == null ? void 0 : _a2.valueOf();
+    const tangoUserId = user.tangoId?.valueOf();
     const where = getUserRoleWhere(role, tangoUserId);
     return await this._getByWhere(
-      where == null ? void 0 : where.field,
-      where == null ? void 0 : where.value
+      user,
+      where?.field,
+      where?.value
     );
   }
   toResult(m) {
@@ -9749,16 +9840,16 @@ async function getOptimalBillingProfile(user, customer) {
   const optimalBillingProfile = {
     ...userBillingProfile,
     // Se aplica la configuración del perfil del cliente    
-    id_asiento_modelo_gv: (cbp == null ? void 0 : cbp.id_asiento_modelo_gv) ?? ubp.id_asiento_modelo_gv,
-    codigo_talonario_factura: (cbp == null ? void 0 : cbp.codigo_talonario_factura) ?? ubp.codigo_talonario_factura,
-    codigo_talonario_pedido: (cbp == null ? void 0 : cbp.codigo_talonario_pedido) ?? ubp.codigo_talonario_pedido,
-    codigo_talonario_remito: (cbp == null ? void 0 : cbp.codigo_talonario_remito) ?? ubp.codigo_talonario_remito,
-    codigo_deposito: (cbp == null ? void 0 : cbp.codigo_deposito) ?? ubp.codigo_deposito,
-    codigo_asiento: (cbp == null ? void 0 : cbp.codigo_asiento) ?? ubp.codigo_asiento,
+    id_asiento_modelo_gv: cbp?.id_asiento_modelo_gv ?? ubp.id_asiento_modelo_gv,
+    codigo_talonario_factura: cbp?.codigo_talonario_factura ?? ubp.codigo_talonario_factura,
+    codigo_talonario_pedido: cbp?.codigo_talonario_pedido ?? ubp.codigo_talonario_pedido,
+    codigo_talonario_remito: cbp?.codigo_talonario_remito ?? ubp.codigo_talonario_remito,
+    codigo_deposito: cbp?.codigo_deposito ?? ubp.codigo_deposito,
+    codigo_asiento: cbp?.codigo_asiento ?? ubp.codigo_asiento,
     // Se aplica la configuración del cliente
-    codigo_condicion_venta: customerCondicionAvailable ? customer.codigoCondicion : (cbp == null ? void 0 : cbp.codigo_condicion_venta) ?? ubp.codigo_condicion_venta,
-    codigo_transporte: customerTransporteAvailable ? customer.codigoTransporte : (cbp == null ? void 0 : cbp.codigo_transporte) ?? ubp.codigo_transporte,
-    codigo_lista_precio: customerListaAvailable ? customer.codigoLista : (cbp == null ? void 0 : cbp.codigo_lista_precio) ?? ubp.codigo_lista_precio
+    codigo_condicion_venta: customerCondicionAvailable ? customer.codigoCondicion : cbp?.codigo_condicion_venta ?? ubp.codigo_condicion_venta,
+    codigo_transporte: customerTransporteAvailable ? customer.codigoTransporte : cbp?.codigo_transporte ?? ubp.codigo_transporte,
+    codigo_lista_precio: customerListaAvailable ? customer.codigoLista : cbp?.codigo_lista_precio ?? ubp.codigo_lista_precio
   };
   if (customer.discriminaIVA)
     return optimalBillingProfile;
@@ -9795,7 +9886,13 @@ class DXTPedidoDraftRepository extends PedidoBaseRepository {
       customer
     );
     const { bonificacion_editable } = billingProfile;
-    const bonificacion = (bonificacion_editable ? pedido.descuento : billingProfile.bonificacion) ?? billingProfile.bonificacion ?? customer.bonificacion;
+    let bonificacion;
+    if (bonificacion_editable) {
+      bonificacion = pedido.descuento ?? billingProfile.bonificacion ?? customer.bonificacion;
+    } else {
+      const profileDiscount = billingProfile.bonificacion ?? 0;
+      bonificacion = profileDiscount > customer.bonificacion ? profileDiscount : customer.bonificacion;
+    }
     const { total, ...remaining } = pedido;
     return {
       ...remaining,
@@ -9803,12 +9900,11 @@ class DXTPedidoDraftRepository extends PedidoBaseRepository {
     };
   }
   async descriptionExists(user, description, draftIdToIgnore) {
-    var _a2;
     if (user.isAdmin())
       throw new DXTException(DXTErrorCode.CUSTOMER_OR_SELLER_ROLE_REQUIRED);
     const isCustomer = user.isCustomer();
     const column = isCustomer ? CLIENTE_ID_FIELD : VENDEDOR_ID_FIELD;
-    const tangoId = (_a2 = user.tangoId) == null ? void 0 : _a2.valueOf();
+    const tangoId = user.tangoId?.valueOf();
     if (tangoId == null)
       throw new DXTException(isCustomer ? DXTErrorCode.TANGO_CUSTOMER_NO_LONGER_EXISTS : DXTErrorCode.TANGO_SELLER_NO_LONGER_EXISTS);
     const data = await this.getOneOrNull(column, tangoId, {
@@ -9817,7 +9913,7 @@ class DXTPedidoDraftRepository extends PedidoBaseRepository {
         value: description
       }
     });
-    if (draftIdToIgnore != null && (data == null ? void 0 : data.id) === draftIdToIgnore)
+    if (draftIdToIgnore != null && data?.id === draftIdToIgnore)
       return false;
     return data != null;
   }
@@ -9953,25 +10049,40 @@ async function _checkUserIsOwnerOrThrow(user, orderHeader, adminAllowed) {
     throw new DXTException(DXTErrorCode.ORDER_DOES_NOT_BELONGS_TO_CUSTOMER);
 }
 async function getArticlesWithTaxes(user, customer, alwaysIncludeArticlesWithoutPrice, splitInGroups) {
-  var _a2, _b2, _c, _d;
-  let prioritaryListId;
-  let prioritaryDiscount;
+  let additionalListId1 = null;
+  let additionalDiscount1 = null;
+  let additionalListId2 = null;
+  let additionalDiscount2 = null;
   if (user.isSeller()) {
     const dxtCustomers = await dxtClienteRepository.getMany("tango_id", customer.id);
     const dxtCustomerExists = dxtCustomers.length > 0;
-    const commonListaPrioritariaVendedor = getPropertyIfSameOrNull(dxtCustomers, "lista_prioritaria_vendedor");
-    const allowSellerPrioritaryList = commonListaPrioritariaVendedor === true;
-    prioritaryListId = dxtCustomerExists ? getPropertyIfSameOrNull(dxtCustomers, "id_lista_prioritaria") : allowSellerPrioritaryList ? (_a2 = user.idListaPrioritaria) == null ? void 0 : _a2.valueOf() : null;
-    prioritaryDiscount = dxtCustomerExists ? getPropertyIfSameOrNull(dxtCustomers, "bonificacion_lista_prioritaria") : allowSellerPrioritaryList ? (_b2 = user.bonificacionListaPrioritaria) == null ? void 0 : _b2.valueOf() : null;
+    additionalListId1 = user.idListaAdicional?.valueOf();
+    if (additionalListId1 != null)
+      additionalDiscount1 = user.bonificacionListaAdicional?.valueOf();
+    if (dxtCustomerExists) {
+      const customerAdditionalListId = getPropertyIfSameOrNull(dxtCustomers, "id_lista_adicional");
+      const customerAdditionalDiscount = customerAdditionalListId != null ? getPropertyIfSameOrNull(dxtCustomers, "bonificacion_lista_adicional") : null;
+      if (additionalListId1 == null) {
+        additionalListId1 = customerAdditionalListId;
+        additionalDiscount1 = customerAdditionalDiscount;
+      } else {
+        additionalListId2 = customerAdditionalListId;
+        additionalDiscount2 = customerAdditionalDiscount;
+      }
+    }
   } else {
-    prioritaryListId = (_c = user.idListaPrioritaria) == null ? void 0 : _c.valueOf();
-    prioritaryDiscount = (_d = user.bonificacionListaPrioritaria) == null ? void 0 : _d.valueOf();
+    if (additionalListId1 == null) {
+      additionalListId1 = user.idListaAdicional?.valueOf();
+      if (additionalListId1 != null) {
+        additionalDiscount1 = user.bonificacionListaAdicional?.valueOf();
+      }
+    }
   }
   const listId = customer.idLista;
   const keepArticlesWithoutPrice = alwaysIncludeArticlesWithoutPrice || user.verSinPrecio.valueOf();
   const articleEditListExists = await dxtArticuloEditListRepository.count() > 0;
   const articlePrintListExists = await dxtArticuloPrintListRepository.count() > 0;
-  const cacheKey = `groupedArticles_${listId}_${prioritaryListId ?? "0"}_${articleEditListExists ? "OL" : "NOL"}_${splitInGroups ? "S" : "NS"}`;
+  const cacheKey = `groupedArticles_${listId}_${additionalListId1 ?? "0"}_${additionalListId2 ?? "0"}_${articleEditListExists ? "OL" : "NOL"}_${splitInGroups ? "S" : "NS"}`;
   const cachedData = await dxtArticuloEditListRepository.cache.getMetadata(cacheKey);
   if (cachedData != null) {
     return keepArticlesWithoutPrice ? cachedData : _removeArticlesWithoutPrice(cachedData);
@@ -9980,8 +10091,10 @@ async function getArticlesWithTaxes(user, customer, alwaysIncludeArticlesWithout
   const articlePrintList = articlePrintListExists ? await dxtArticuloPrintListRepository.getPackagePrintListMap() : null;
   const preData = await dxtArticuloEditListRepository.getByListIdWithTaxes(
     listId,
-    prioritaryListId,
-    prioritaryDiscount
+    additionalListId1,
+    additionalDiscount1,
+    additionalListId2,
+    additionalDiscount2
   );
   const data = articlePrintList != null ? applyArticlePrintList(preData, articlePrintList) : preData;
   if (articleEditListExists && splitInGroups) {
@@ -10087,8 +10200,8 @@ function adjustPrice(params, article, listas, alicuotas, applyDiscount, forceTax
     return null;
   const { usuarioAplicaSobreIVA, usuarioAplicaSobreII } = params;
   const lista = id_lista != null ? listas.get(id_lista) : null;
-  const listaIncluyeIVA = (lista == null ? void 0 : lista.incluye_iva) ?? params.listaIncluyeIVA;
-  const listaIncluyeII = (lista == null ? void 0 : lista.incluye_ii) ?? params.listaIncluyeII;
+  const listaIncluyeIVA = lista?.incluye_iva ?? params.listaIncluyeIVA;
+  const listaIncluyeII = lista?.incluye_ii ?? params.listaIncluyeII;
   const bonificacion = article.bonificacion ?? params.bonificacion;
   const usuarioDiscriminaIVA = params.usuarioDiscriminaIVA;
   const usuarioDiscriminaII = params.usuarioDiscriminaII;
@@ -10138,7 +10251,7 @@ async function prepareOrderGroupedArticles(user, originalOrder, newOrderHeader, 
     user,
     customer
   );
-  originalOrder == null ? void 0 : originalOrder.rows;
+  originalOrder?.rows;
   const alicuotas = await alicuotaRepository.getAllPercentages();
   const { listas } = auxiliares;
   const groupedArticles = _addQuantitiesAndAdjustPrices(
@@ -10146,9 +10259,9 @@ async function prepareOrderGroupedArticles(user, originalOrder, newOrderHeader, 
     articles,
     alicuotas,
     listas,
-    originalOrder == null ? void 0 : originalOrder.rows
+    originalOrder?.rows
   );
-  const rowsWithUnknownPrice = (originalOrder == null ? void 0 : originalOrder.rows) != null ? _getRowsWithUnknownPrices(articles, originalOrder.rows) : [];
+  const rowsWithUnknownPrice = originalOrder?.rows != null ? _getRowsWithUnknownPrices(articles, originalOrder.rows) : [];
   return {
     groupedArticles,
     rowsWithUnknownPrice
@@ -10213,7 +10326,7 @@ function _addQuantitiesAndAdjustPrices(orderHeader, articles, alicuotas, listas,
               alicuotas,
               false
             );
-            const row = quantities == null ? void 0 : quantities.get(article.codigo);
+            const row = quantities?.get(article.codigo);
             if (row == null) {
               return {
                 ...remainingArticle,
@@ -10232,14 +10345,13 @@ function _addQuantitiesAndAdjustPrices(orderHeader, articles, alicuotas, listas,
   );
 }
 async function prepareOrderHeader(user, originalOrder, customer, billingProfile, auxiliares, createNew, startDraft) {
-  var _a2;
   if (!createNew && originalOrder == null)
     throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "prepareOrderHeader() -> createNew must be true if originalOrder is null");
-  const originalOrderIsDraft = (originalOrder == null ? void 0 : originalOrder.isDraft) === true;
+  const originalOrderIsDraft = originalOrder?.isDraft === true;
   const sameType = originalOrderIsDraft == startDraft;
   if (!createNew && !sameType)
     throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "prepareOrderHeader() -> When createNew is false, both originalOrder.isDraft and startDraft must be the same");
-  const sellerId = (_a2 = user.vendedorId) == null ? void 0 : _a2.valueOf();
+  const sellerId = user.vendedorId?.valueOf();
   if (sellerId == null)
     throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "prepareOrderHeader() -> sellerId is null");
   const seller = await vendedorRepository.getById(sellerId);
@@ -10266,9 +10378,15 @@ async function prepareOrderHeader(user, originalOrder, customer, billingProfile,
   const ignoreOriginalOrderId = createNew || originalOrder == null || !sameType;
   const orderId = ignoreOriginalOrderId ? void 0 : originalOrder.header.id;
   const numeroPedido = ignoreOriginalOrderId ? void 0 : originalOrder.header.numero_pedido;
-  const bonificacion = (bonificacion_editable ? originalOrder == null ? void 0 : originalOrder.header.descuento : billingProfile.bonificacion) ?? billingProfile.bonificacion ?? customer.bonificacion;
-  const originalDeliveryDate = originalOrderIsDraft ? null : originalOrder == null ? void 0 : originalOrder.header.fecha_entrega;
-  const creationDate = (createNew || originalOrderIsDraft ? /* @__PURE__ */ new Date() : originalOrder == null ? void 0 : originalOrder.header.fecha_alta) ?? /* @__PURE__ */ new Date();
+  let bonificacion;
+  if (bonificacion_editable) {
+    bonificacion = originalOrder?.header.descuento ?? billingProfile.bonificacion ?? customer.bonificacion;
+  } else {
+    const profileDiscount = billingProfile.bonificacion ?? 0;
+    bonificacion = profileDiscount > customer.bonificacion ? profileDiscount : customer.bonificacion;
+  }
+  const originalDeliveryDate = originalOrderIsDraft ? null : originalOrder?.header.fecha_entrega;
+  const creationDate = (createNew || originalOrderIsDraft ? /* @__PURE__ */ new Date() : originalOrder?.header.fecha_alta) ?? /* @__PURE__ */ new Date();
   const deliveryDate = createNew || originalDeliveryDate == null ? addDays(creationDate, user.diaDeEntrega.valueOf()) : originalDeliveryDate;
   const {
     codigo_lista_precio,
@@ -10281,14 +10399,14 @@ async function prepareOrderHeader(user, originalOrder, customer, billingProfile,
     compromete_stock
   } = billingProfile;
   const bp = billingProfile;
-  const codigo_transporte = (originalOrder == null ? void 0 : originalOrder.header.codigo_transporte) ?? bp.codigo_transporte;
-  const codigo_deposito = (originalOrder == null ? void 0 : originalOrder.header.codigo_deposito) ?? bp.codigo_deposito;
-  const codigo_condicion_venta = (originalOrder == null ? void 0 : originalOrder.header.codigo_condicion) ?? bp.codigo_condicion_venta;
-  const codigo_asiento = (originalOrder == null ? void 0 : originalOrder.header.codigo_asiento) ?? bp.codigo_asiento;
-  const codigo_talonario_factura = (originalOrder == null ? void 0 : originalOrder.header.codigo_talonario) ?? bp.codigo_talonario_factura;
+  const codigo_transporte = originalOrder?.header.codigo_transporte ?? bp.codigo_transporte;
+  const codigo_deposito = originalOrder?.header.codigo_deposito ?? bp.codigo_deposito;
+  const codigo_condicion_venta = originalOrder?.header.codigo_condicion ?? bp.codigo_condicion_venta;
+  const codigo_asiento = originalOrder?.header.codigo_asiento ?? bp.codigo_asiento;
+  const codigo_talonario_factura = originalOrder?.header.codigo_talonario ?? bp.codigo_talonario_factura;
   const id_asiento_modelo_gv = updatingRealOrder ? realOrder.header.id_asiento_modelo_gv ?? bp.id_asiento_modelo_gv : bp.id_asiento_modelo_gv;
   const direccion_habitual = direcciones.find((direccion) => direccion.habitual);
-  const codigo_direccion = (direccion_habitual == null ? void 0 : direccion_habitual.code) ?? direcciones[0].code;
+  const codigo_direccion = direccion_habitual?.code ?? direcciones[0].code;
   const lista = listas.get(codigo_lista_precio);
   if (lista == null)
     throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "prepareOrderHeader() -> Lista de precios inexistente");
@@ -10339,7 +10457,7 @@ function _setSelectedItem(list, editable, unknownElementError, targetValue, chec
   if (editable) {
     return list.map((el) => ({
       ...el,
-      selected: (checkSelected == null ? void 0 : checkSelected(el)) === true ? true : void 0
+      selected: checkSelected?.(el) === true ? true : void 0
     }));
   }
   if (checkSelected == null)
@@ -10553,9 +10671,8 @@ async function validateInputRows(user, originalOrder, customer, billingProfile, 
   ));
   const printList = await dxtArticuloPrintListRepository.getPackagePrintListMap();
   const sortedRows = rawResult.sort((a, b) => {
-    var _a2, _b2;
-    const aOrder = (_a2 = printList.get(a.idArticle)) == null ? void 0 : _a2.order;
-    const bOrder = (_b2 = printList.get(b.idArticle)) == null ? void 0 : _b2.order;
+    const aOrder = printList.get(a.idArticle)?.order;
+    const bOrder = printList.get(b.idArticle)?.order;
     if (aOrder != null && bOrder == null)
       return -1;
     if (aOrder == null && bOrder != null)
@@ -10785,8 +10902,8 @@ async function validateInputParams(user, originalOrder, customer, params) {
       fechaIngreso: fechaIngreso2
     };
   }
-  const realOrder = (originalOrder == null ? void 0 : originalOrder.isDraft) === false ? originalOrder : null;
-  const fechaIngreso = (realOrder == null ? void 0 : realOrder.header.fecha_ingreso) ?? /* @__PURE__ */ new Date();
+  const realOrder = originalOrder?.isDraft === false ? originalOrder : null;
+  const fechaIngreso = realOrder?.header.fecha_ingreso ?? /* @__PURE__ */ new Date();
   const fechaPedido = input.fecha_alta;
   const fechaEntrega = input.fecha_entrega;
   return {
@@ -10812,7 +10929,6 @@ async function deleteDraft(user, idDraft) {
   await getDraftRepository(user).deleteById(idDraft);
 }
 async function savePedido(user, params) {
-  var _a2;
   const { mode: mode2, saveDraft, input } = params;
   const createNew = mode2 == SaveOrderMode.create;
   if (user.isAdmin())
@@ -10829,7 +10945,7 @@ async function savePedido(user, params) {
   const idCliente = mode2 == SaveOrderMode.update ? originalOrder.header.id_cliente : input.id_cliente;
   const customer = await clienteRepository.getExtendedById(idCliente);
   const idCustomerVendedor = customer.idVendedor;
-  if (user.isSeller() && idCustomerVendedor != ((_a2 = user.vendedorId) == null ? void 0 : _a2.valueOf()))
+  if (user.isSeller() && idCustomerVendedor != user.vendedorId?.valueOf())
     throw new DXTException(DXTErrorCode.CUSTOMER_DOES_NOT_BELONGS_TO_SELLER);
   const validatedOrder = await validateInputParams(
     user,
@@ -10986,23 +11102,23 @@ const getDraftRowsEndpoint = createApiEndpoint(
   void 0,
   async (req) => await getAllRowsPedidos(req.auth.user, true)
 );
-async function loader$F({ request, params }) {
+async function loader$H({ request, params }) {
   return await startNewDraftFromExistingOrderEndpoint.get(request, params);
 }
-const action$F = unimplementedApiResponse;
+const action$H = unimplementedApiResponse;
 const route4 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$F,
-  loader: loader$F
+  action: action$H,
+  loader: loader$H
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$E({ request, params }) {
+async function loader$G({ request, params }) {
   return await startNewOrderFromExistingDraftEndpoint.get(request, params);
 }
-const action$E = unimplementedApiResponse;
+const action$G = unimplementedApiResponse;
 const route5 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$E,
-  loader: loader$E
+  action: action$G,
+  loader: loader$G
 }, Symbol.toStringTag, { value: "Module" }));
 function Add$1() {
   const typeSettings = settings$1.customers;
@@ -11364,10 +11480,10 @@ const Navbar = ({ children }) => {
   const { state: authState, dispatch: authDispatch } = useAuth();
   const navigate = useNavigate();
   const user = authState.userOrNull();
-  const systemMessage = user == null ? void 0 : user.message;
+  const systemMessage = user?.message;
   const isAdmin = authState.isAdmin();
-  const userRoleText = (user == null ? void 0 : user.role) != null ? getUserRoleText(user == null ? void 0 : user.role) : "";
-  const _username = (user == null ? void 0 : user.screen_name.trim()) ?? "";
+  const userRoleText = user?.role != null ? getUserRoleText(user?.role) : "";
+  const _username = user?.screen_name.trim() ?? "";
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsx(
       Box,
@@ -11457,7 +11573,7 @@ const Navbar = ({ children }) => {
                 !isAdmin && /* @__PURE__ */ jsxs(Text, { fontSize: "sm", children: [
                   userRoleText,
                   " ",
-                  user == null ? void 0 : user.tango_code
+                  user?.tango_code
                 ] }),
                 /* @__PURE__ */ jsxs(Flex, { direction: "row", alignItems: "center", children: [
                   /* @__PURE__ */ jsx(
@@ -11473,7 +11589,7 @@ const Navbar = ({ children }) => {
                   /* @__PURE__ */ jsx(Spacer, {}),
                   /* @__PURE__ */ jsx(ColorModeSelector, {})
                 ] }),
-                !isAdmin && /* @__PURE__ */ jsx(Text, { fontSize: "sm", children: user == null ? void 0 : user.username })
+                !isAdmin && /* @__PURE__ */ jsx(Text, { fontSize: "sm", children: user?.username })
               ] }),
               /* @__PURE__ */ jsx(MenuDivider, {}),
               /* @__PURE__ */ jsx(
@@ -11921,7 +12037,6 @@ const useCustomValidationSchema$1 = (isDraft) => {
     return { yupValidationSchema: yupValidationSchema2 };
   }
 };
-const eventBus = new Nanobus();
 const Month_Names_Short = [
   "Jan",
   "Feb",
@@ -11975,9 +12090,8 @@ const DefaultBtnStyle = {
   size: "sm"
 };
 const DatepickerBackBtns = (props) => {
-  var _a2;
   const { calendars, getBackProps } = props;
-  const customBtnProps = (_a2 = props.propsConfigs) == null ? void 0 : _a2.dateNavBtnProps;
+  const customBtnProps = props.propsConfigs?.dateNavBtnProps;
   return /* @__PURE__ */ jsxs(Fragment$1, { children: [
     /* @__PURE__ */ jsx(
       Button,
@@ -12003,9 +12117,8 @@ const DatepickerBackBtns = (props) => {
   ] });
 };
 const DatepickerForwardBtns = (props) => {
-  var _a2;
   const { calendars, getForwardProps } = props;
-  const customBtnProps = (_a2 = props.propsConfigs) == null ? void 0 : _a2.dateNavBtnProps;
+  const customBtnProps = props.propsConfigs?.dateNavBtnProps;
   return /* @__PURE__ */ jsxs(Fragment$1, { children: [
     /* @__PURE__ */ jsx(
       Button,
@@ -12046,53 +12159,50 @@ const DayOfMonth = ({
     isInRangeBtnProps,
     selectedBtnProps,
     todayBtnProps
-  } = (propsConfigs == null ? void 0 : propsConfigs.dayOfMonthBtnProps) || {};
+  } = propsConfigs?.dayOfMonthBtnProps || {};
   const disabled = !selectable || (disabledDates != void 0 && disabledDates.has(date.getTime()) ? true : false);
   const styleBtnProps = useMemo(
-    () => {
-      var _a2;
-      return {
-        defaultBtnProps: {
-          size: "sm",
-          variant: "ghost",
-          // this intends to fill the visual gap from Grid to improve the UX
-          // so the button active area is actually larger than what it's seen
-          ...defaultBtnProps,
-          _after: {
-            content: "''",
-            position: "absolute",
-            top: `-${halfGap}rem`,
-            left: `-${halfGap}rem`,
-            bottom: `-${halfGap}rem`,
-            right: `-${halfGap}rem`,
-            borderWidth: `${halfGap}rem`,
-            borderColor: "transparent",
-            ...defaultBtnProps == null ? void 0 : defaultBtnProps._after
-          },
-          _hover: {
-            bg: "purple.400",
-            ...defaultBtnProps == null ? void 0 : defaultBtnProps._hover,
-            _disabled: {
-              bg: "gray.100",
-              // temperory hack to persist the typescript checking
-              ...(_a2 = defaultBtnProps == null ? void 0 : defaultBtnProps._hover) == null ? void 0 : _a2._disabled
-            }
+    () => ({
+      defaultBtnProps: {
+        size: "sm",
+        variant: "ghost",
+        // this intends to fill the visual gap from Grid to improve the UX
+        // so the button active area is actually larger than what it's seen
+        ...defaultBtnProps,
+        _after: {
+          content: "''",
+          position: "absolute",
+          top: `-${halfGap}rem`,
+          left: `-${halfGap}rem`,
+          bottom: `-${halfGap}rem`,
+          right: `-${halfGap}rem`,
+          borderWidth: `${halfGap}rem`,
+          borderColor: "transparent",
+          ...defaultBtnProps?._after
+        },
+        _hover: {
+          bg: "purple.400",
+          ...defaultBtnProps?._hover,
+          _disabled: {
+            bg: "gray.100",
+            // temperory hack to persist the typescript checking
+            ...defaultBtnProps?._hover?._disabled
           }
-        },
-        isInRangeBtnProps: {
-          background: "purple.200",
-          ...isInRangeBtnProps
-        },
-        selectedBtnProps: {
-          background: "purple.200",
-          ...selectedBtnProps
-        },
-        todayBtnProps: {
-          borderColor: "blue.400",
-          ...todayBtnProps
         }
-      };
-    },
+      },
+      isInRangeBtnProps: {
+        background: "purple.200",
+        ...isInRangeBtnProps
+      },
+      selectedBtnProps: {
+        background: "purple.200",
+        ...selectedBtnProps
+      },
+      todayBtnProps: {
+        borderColor: "blue.400",
+        ...todayBtnProps
+      }
+    }),
     [defaultBtnProps, isInRangeBtnProps, selectedBtnProps, todayBtnProps]
   );
   return /* @__PURE__ */ jsx(
@@ -12120,7 +12230,6 @@ const CalendarPanel = ({
   onMouseEnterHighlight,
   isInRange
 }) => {
-  var _a2;
   const renderProps = useDayzed(dayzedHookProps);
   const { calendars, getBackProps, getForwardProps } = renderProps;
   const weekdayNames = useMemo(() => {
@@ -12167,19 +12276,18 @@ const CalendarPanel = ({
     {
       className: "datepicker-calendar",
       direction: ["column", "column", "row"],
-      ...(_a2 = propsConfigs == null ? void 0 : propsConfigs.calendarPanelProps) == null ? void 0 : _a2.wrapperProps,
+      ...propsConfigs?.calendarPanelProps?.wrapperProps,
       ...arrowKeysReact.getEvents(),
       children: calendars.map((calendar, calendarIdx) => {
-        var _a3, _b2, _c, _d;
         return /* @__PURE__ */ jsxs(
           VStack,
           {
             height: "100%",
             borderWidth: "1px",
             padding: "0.5rem 0.75rem",
-            ...(_a3 = propsConfigs == null ? void 0 : propsConfigs.calendarPanelProps) == null ? void 0 : _a3.contentProps,
+            ...propsConfigs?.calendarPanelProps?.contentProps,
             children: [
-              /* @__PURE__ */ jsxs(HStack, { ...(_b2 = propsConfigs == null ? void 0 : propsConfigs.calendarPanelProps) == null ? void 0 : _b2.headerProps, children: [
+              /* @__PURE__ */ jsxs(HStack, { ...propsConfigs?.calendarPanelProps?.headerProps, children: [
                 /* @__PURE__ */ jsx(
                   DatepickerBackBtns,
                   {
@@ -12194,7 +12302,7 @@ const CalendarPanel = ({
                     size: "sm",
                     minWidth: "5rem",
                     textAlign: "center",
-                    ...propsConfigs == null ? void 0 : propsConfigs.dateHeadingProps,
+                    ...propsConfigs?.dateHeadingProps,
                     children: [
                       configs.monthNames[calendar.month],
                       " ",
@@ -12211,21 +12319,21 @@ const CalendarPanel = ({
                   }
                 )
               ] }),
-              /* @__PURE__ */ jsx(Divider, { ...(_c = propsConfigs == null ? void 0 : propsConfigs.calendarPanelProps) == null ? void 0 : _c.dividerProps }),
+              /* @__PURE__ */ jsx(Divider, { ...propsConfigs?.calendarPanelProps?.dividerProps }),
               /* @__PURE__ */ jsxs(
                 SimpleGrid,
                 {
                   columns: 7,
                   spacing: 1,
                   textAlign: "center",
-                  ...(_d = propsConfigs == null ? void 0 : propsConfigs.calendarPanelProps) == null ? void 0 : _d.bodyProps,
+                  ...propsConfigs?.calendarPanelProps?.bodyProps,
                   children: [
                     weekdayNames.map((day, dayIdx) => /* @__PURE__ */ jsx(
                       Box,
                       {
                         fontSize: "sm",
                         fontWeight: "semibold",
-                        ...propsConfigs == null ? void 0 : propsConfigs.weekdayLabelProps,
+                        ...propsConfigs?.weekdayLabelProps,
                         children: day
                       },
                       dayIdx
@@ -12286,7 +12394,6 @@ const defaultProps = {
   triggerVariant: "default"
 };
 const SingleDatepicker = (props) => {
-  var _a2, _b2;
   const mergedProps = { ...defaultProps, ...props };
   const {
     date: selectedDate,
@@ -12348,7 +12455,7 @@ const SingleDatepicker = (props) => {
         onDateChange("");
         return;
       }
-      const isDisabled = disabledDates == null ? void 0 : disabledDates.has(startOfDay(newDate).getTime());
+      const isDisabled = disabledDates?.has(startOfDay(newDate).getTime());
       if (isDisabled === true)
         return;
       onDateChange(newDate);
@@ -12380,7 +12487,7 @@ const SingleDatepicker = (props) => {
             paddingX: "1rem",
             disabled,
             fontSize: "sm",
-            ...propsConfigs == null ? void 0 : propsConfigs.triggerBtnProps,
+            ...propsConfigs?.triggerBtnProps,
             children: selectedDate ? format(selectedDate, datepickerConfigs.dateFormat) : ""
           }
         ) }) : null,
@@ -12396,7 +12503,7 @@ const SingleDatepicker = (props) => {
               value: tempInput,
               onChange: handleInputChange,
               width: "full",
-              ...propsConfigs == null ? void 0 : propsConfigs.inputProps
+              ...propsConfigs?.inputProps
             }
           ) }),
           /* @__PURE__ */ jsx(PopoverTrigger, { children: /* @__PURE__ */ jsx(
@@ -12411,7 +12518,7 @@ const SingleDatepicker = (props) => {
               type: "button",
               isDisabled: disabled === true || isReadOnly,
               padding: "8px",
-              ...propsConfigs == null ? void 0 : propsConfigs.triggerIconBtnProps,
+              ...propsConfigs?.triggerIconBtnProps,
               children: Icon2
             }
           ) })
@@ -12425,8 +12532,8 @@ const SingleDatepicker = (props) => {
               PopoverContent,
               {
                 width: "100%",
-                ...(_a2 = propsConfigs == null ? void 0 : propsConfigs.popoverCompProps) == null ? void 0 : _a2.popoverContentProps,
-                children: /* @__PURE__ */ jsx(PopoverBody, { ...(_b2 = propsConfigs == null ? void 0 : propsConfigs.popoverCompProps) == null ? void 0 : _b2.popoverBodyProps, children: /* @__PURE__ */ jsx(FocusLock, { children: /* @__PURE__ */ jsx(
+                ...propsConfigs?.popoverCompProps?.popoverContentProps,
+                children: /* @__PURE__ */ jsx(PopoverBody, { ...propsConfigs?.popoverCompProps?.popoverBodyProps, children: /* @__PURE__ */ jsx(FocusLock, { children: /* @__PURE__ */ jsx(
                   CalendarPanel,
                   {
                     dayzedHookProps: {
@@ -13136,7 +13243,7 @@ const CategoryAccordionButton = (props) => {
   const { categoryName, articulos } = props;
   const bonificacionWatch = useWatch({ control, name: "bonificacion" });
   let categorySum = void 0;
-  articulos == null ? void 0 : articulos.forEach(({ id, precio, bonificacion }) => {
+  articulos?.forEach(({ id, precio, bonificacion }) => {
     const productQuantity = useWatch({ control, name: `quantities.${id}` });
     if (productQuantity > 0) {
       const precioBonificacion = calculateBonificacion(
@@ -13261,10 +13368,10 @@ const OrderEditReady = (props) => {
   useEffect(() => {
     const thereAreOrphanRows = orphanRows != null ? orphanRows.length > 0 : false;
     if (thereAreOrphanRows) {
-      const articles = orphanRows == null ? void 0 : orphanRows.map((row) => `${row.codigo_articulo} - ${row.nombre_articulo}`);
+      const articles = orphanRows?.map((row) => `${row.codigo_articulo} - ${row.nombre_articulo}`);
       const content = `${ORPHAN_ROWS_HEADER}
 
-${articles == null ? void 0 : articles.join("\n")}
+${articles?.join("\n")}
 
 ${ORPHAN_ROWS_FOOTER}`;
       dialogCall({
@@ -13620,7 +13727,7 @@ const _OrderCreatePage = (props) => {
   return /* @__PURE__ */ jsx(OrderEdit, { state, retry, saveDraft: createDraft, draftIdToDelete, editMode: OrderEditMode.creating, isDraft: createDraft });
 };
 const _OrderUpdatePage = ({ id_pedido, isDraft }) => {
-  const fetch2 = isDraft ? useBorradorStartUpdate : usePedidoStartUpdate;
+  const useFetch = isDraft ? useBorradorStartUpdate : usePedidoStartUpdate;
   return /* @__PURE__ */ jsx(
     _OrderEditPage,
     {
@@ -13628,12 +13735,12 @@ const _OrderUpdatePage = ({ id_pedido, isDraft }) => {
       id_pedido,
       isDraft,
       saveDraft: isDraft,
-      fetch: fetch2
+      useFetch
     }
   );
 };
 const _OrderCopyPage = ({ id_pedido, isDraft, createDraft, deleteOriginal }) => {
-  const fetch2 = isDraft ? createDraft ? useBorradorStartCopy : useBorradorCreateOrder : createDraft ? usePedidoCreateDraft : usePedidoStartCopy;
+  const useFetch = isDraft ? createDraft ? useBorradorStartCopy : useBorradorCreateOrder : createDraft ? usePedidoCreateDraft : usePedidoStartCopy;
   return /* @__PURE__ */ jsx(
     _OrderEditPage,
     {
@@ -13642,17 +13749,17 @@ const _OrderCopyPage = ({ id_pedido, isDraft, createDraft, deleteOriginal }) => 
       isDraft,
       saveDraft: createDraft,
       deleteOriginal,
-      fetch: fetch2
+      useFetch
     }
   );
 };
 const _OrderEditPage = (props) => {
-  const { id_pedido, fetch: fetch2, isDraft, saveDraft, editMode, deleteOriginal } = props;
+  const { id_pedido, useFetch, isDraft, saveDraft, editMode, deleteOriginal } = props;
   const idPedido = id_pedido != null ? Number.parseInt(id_pedido) : null;
   const idPedidoIsValid = isAnInteger(idPedido) && idPedido > 0;
   if (!idPedidoIsValid)
     return /* @__PURE__ */ jsx(OrderInvalidParameterError, { isDraft });
-  const { state, retry } = fetch2(idPedido);
+  const { state, retry } = useFetch(idPedido);
   const draftIdToDelete = deleteOriginal === true && editMode === OrderEditMode.copying && isDraft ? idPedido : void 0;
   return /* @__PURE__ */ jsx(OrderEdit, { state, retry, saveDraft, isDraft, editMode, draftIdToDelete });
 };
@@ -13799,7 +13906,7 @@ const ProductsListsReady = (props) => {
     formState: { errors, isSubmitting, isSubmitSuccessful }
   } = useForm({
     defaultValues: {
-      list: (stateData == null ? void 0 : stateData.join("\r\n")) || ""
+      list: stateData?.join("\r\n") || ""
     },
     resolver: yupResolver(yupValidationSchema$3)
   });
@@ -13905,7 +14012,7 @@ function Lists$1() {
       error: INVALID_LIST_TYPE,
       buttonProps: {
         label: BACK_TO_SETTINGS,
-        colorScheme: "green",
+        colorScheme: "gray",
         onClick: () => {
           navigate(URL_SETTINGS_PATH);
         }
@@ -14152,7 +14259,7 @@ const SettingsUsersReady = (props) => {
     }
   };
   const handleEdit = (id) => () => {
-    app.navigate(pathParamsToUrl(typeSettings.editButtonNavigateTo, { id }));
+    app.navigate(paramsToUrl(typeSettings.editButtonNavigateTo, { id }));
   };
   return /* @__PURE__ */ jsxs(CommonCard, { children: [
     /* @__PURE__ */ jsx(Box, { sx: { pb: 4 }, children: /* @__PURE__ */ jsx(SearchField, { handleSearchInputChange }) }),
@@ -14312,7 +14419,7 @@ function Lists() {
       error: INVALID_LIST_TYPE,
       buttonProps: {
         label: BACK_TO_SETTINGS,
-        colorScheme: "green",
+        colorScheme: "gray",
         onClick: () => {
           navigate(URL_SETTINGS_PATH);
         }
@@ -14332,13 +14439,13 @@ const route11 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePrope
   __proto__: null,
   default: DraftsCopy
 }, Symbol.toStringTag, { value: "Module" }));
-function OrdersAdd$5() {
+function OrdersAdd$4() {
   const { id_pedido } = useParams();
   return /* @__PURE__ */ jsx(UpdateDraftPage, { id_pedido });
 }
 const route12 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: OrdersAdd$5
+  default: OrdersAdd$4
 }, Symbol.toStringTag, { value: "Module" }));
 function OrdersCopy() {
   const { id_pedido } = useParams();
@@ -14348,31 +14455,31 @@ const route13 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePrope
   __proto__: null,
   default: OrdersCopy
 }, Symbol.toStringTag, { value: "Module" }));
-function OrdersAdd$4() {
+function OrdersAdd$3() {
   const { id_pedido } = useParams();
   return /* @__PURE__ */ jsx(UpdateOrderPage, { id_pedido });
 }
 const route14 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: OrdersAdd$4
+  default: OrdersAdd$3
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$D({ request, params }) {
+async function loader$F({ request, params }) {
   return await dxtClienteGetSiblingsEndpoint.get(request, params);
 }
-const action$D = unimplementedApiResponse;
+const action$F = unimplementedApiResponse;
 const route15 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$D,
-  loader: loader$D
+  action: action$F,
+  loader: loader$F
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$C({ request, params }) {
+async function loader$E({ request, params }) {
   return await startOrderUpdateEndpoint.get(request, params);
 }
-const action$C = unimplementedApiResponse;
+const action$E = unimplementedApiResponse;
 const route16 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$C,
-  loader: loader$C
+  action: action$E,
+  loader: loader$E
 }, Symbol.toStringTag, { value: "Module" }));
 function Add() {
   const typeSettings = settings$1.sellers;
@@ -14408,50 +14515,50 @@ const route17 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePrope
   __proto__: null,
   default: Add
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$B({ request, params }) {
+async function loader$D({ request, params }) {
   return await startDraftUpdateEndpoint.get(request, params);
 }
-const action$B = unimplementedApiResponse;
+const action$D = unimplementedApiResponse;
 const route18 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  action: action$D,
+  loader: loader$D
+}, Symbol.toStringTag, { value: "Module" }));
+async function loader$C({ request, params }) {
+  return await startNewOrderFromExistingOrderEndpoint.get(request, params);
+}
+const action$C = unimplementedApiResponse;
+const route19 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  action: action$C,
+  loader: loader$C
+}, Symbol.toStringTag, { value: "Module" }));
+async function loader$B({ request, params }) {
+  return await startNewOrderForCustomerEndpoint.get(request, params);
+}
+const action$B = unimplementedApiResponse;
+const route20 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$B,
   loader: loader$B
 }, Symbol.toStringTag, { value: "Module" }));
 async function loader$A({ request, params }) {
-  return await startNewOrderFromExistingOrderEndpoint.get(request, params);
+  return await startNewDraftFromExistingDraftEndpoint.get(request, params);
 }
 const action$A = unimplementedApiResponse;
-const route19 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route21 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$A,
   loader: loader$A
 }, Symbol.toStringTag, { value: "Module" }));
 async function loader$z({ request, params }) {
-  return await startNewOrderForCustomerEndpoint.get(request, params);
+  return await startNewDraftForCustomerEndpoint.get(request, params);
 }
 const action$z = unimplementedApiResponse;
-const route20 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route22 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$z,
   loader: loader$z
-}, Symbol.toStringTag, { value: "Module" }));
-async function loader$y({ request, params }) {
-  return await startNewDraftFromExistingDraftEndpoint.get(request, params);
-}
-const action$y = unimplementedApiResponse;
-const route21 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  action: action$y,
-  loader: loader$y
-}, Symbol.toStringTag, { value: "Module" }));
-async function loader$x({ request, params }) {
-  return await startNewDraftForCustomerEndpoint.get(request, params);
-}
-const action$x = unimplementedApiResponse;
-const route22 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  action: action$x,
-  loader: loader$x
 }, Symbol.toStringTag, { value: "Module" }));
 class VOArticuloListRecords extends ValueObject {
   validate(rawValue) {
@@ -14520,22 +14627,22 @@ const dxtArticuloGetPrintListIdsEndpoint = createApiEndpoint(
     return await dxtArticuloPrintListRepository.getIdsWithParams(paramsToReturn);
   }
 );
-async function loader$w({ request, params }) {
+async function loader$y({ request, params }) {
   return await dxtArticuloGetPrintListIdsEndpoint.get(request, params);
 }
-const action$w = unimplementedApiResponse;
+const action$y = unimplementedApiResponse;
 const route23 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$w,
-  loader: loader$w
+  action: action$y,
+  loader: loader$y
 }, Symbol.toStringTag, { value: "Module" }));
-function OrdersAdd$3() {
+function DraftsAdd() {
   const { client } = useParams();
   return /* @__PURE__ */ jsx(CreateDraftPage, { client });
 }
 const route24 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: OrdersAdd$3
+  default: DraftsAdd
 }, Symbol.toStringTag, { value: "Module" }));
 function OrdersAdd$2() {
   const { client } = useParams();
@@ -14586,14 +14693,14 @@ const setActiveCompanyEndpoint = createApiEndpoint(
   }
   /* *************************************************************************************************************** */
 );
-const loader$v = unimplementedApiResponse;
-async function action$v({ request, params }) {
+const loader$x = unimplementedApiResponse;
+async function action$x({ request, params }) {
   return await setActiveCompanyEndpoint.post(request, params);
 }
 const route26 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$v,
-  loader: loader$v
+  action: action$x,
+  loader: loader$x
 }, Symbol.toStringTag, { value: "Module" }));
 async function setDraftFavorite(user, idDraft, isFavorite) {
   await assertUserIsOwner(user, idDraft, true, false);
@@ -14615,8 +14722,8 @@ const removeDraftFavoriteMarkEndpoint = createApiEndpoint(
     return { ok: true };
   }
 );
-const loader$u = unimplementedApiResponse;
-async function action$u({ request, params }) {
+const loader$w = unimplementedApiResponse;
+async function action$w({ request, params }) {
   return await mapEndpoint(request, params, {
     delete: removeDraftFavoriteMarkEndpoint,
     patch: markDraftAsFavoriteEndpoint
@@ -14624,13 +14731,13 @@ async function action$u({ request, params }) {
 }
 const route27 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$u,
-  loader: loader$u
+  action: action$w,
+  loader: loader$w
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$t({ request, params }) {
+async function loader$v({ request, params }) {
   return await dxtVendedorGetOneEndpoint.get(request, params);
 }
-async function action$t({ request, params }) {
+async function action$v({ request, params }) {
   return await mapEndpoint(request, params, {
     delete: dxtVendedorDeleteEndpoint,
     patch: dxtVendedorUpdateEndpoint
@@ -14638,8 +14745,8 @@ async function action$t({ request, params }) {
 }
 const route28 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$t,
-  loader: loader$t
+  action: action$v,
+  loader: loader$v
 }, Symbol.toStringTag, { value: "Module" }));
 const useCustomValidationSchema = () => {
   const [passwordStatus, setPasswordStatus] = useState(null);
@@ -14755,7 +14862,7 @@ const ChangePassword = () => {
     ) })
   ] }) });
 };
-function Tango$2() {
+function Tango$1() {
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsx(Navbar, {}),
     /* @__PURE__ */ jsxs(Container, { maxW: "2xl", sx: { my: 4 }, children: [
@@ -14766,23 +14873,23 @@ function Tango$2() {
 }
 const route29 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: Tango$2
+  default: Tango$1
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$s({ request, params }) {
+async function loader$u({ request, params }) {
   return await dxtArticuloGetPrintListEndpoint.get(request, params);
 }
-async function action$s({ request, params }) {
+async function action$u({ request, params }) {
   return await dxtArticuloSetPrintListEndpoint.post(request, params);
 }
 const route30 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$s,
-  loader: loader$s
+  action: action$u,
+  loader: loader$u
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$r({ request, params }) {
+async function loader$t({ request, params }) {
   return await dxtClienteGetOneEndpoint.get(request, params);
 }
-async function action$r({ request, params }) {
+async function action$t({ request, params }) {
   return await mapEndpoint(request, params, {
     delete: dxtClienteDeleteEndpoint,
     patch: dxtClienteUpdateEndpoint
@@ -14790,26 +14897,26 @@ async function action$r({ request, params }) {
 }
 const route31 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$r,
-  loader: loader$r
+  action: action$t,
+  loader: loader$t
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$q({ request, params }) {
+async function loader$s({ request, params }) {
   return await dxtArticuloGetEditListEndpoint.get(request, params);
 }
-async function action$q({ request, params }) {
+async function action$s({ request, params }) {
   return await dxtArticuloSetEditListEndpoint.post(request, params);
 }
 const route32 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$q,
-  loader: loader$q
+  action: action$s,
+  loader: loader$s
 }, Symbol.toStringTag, { value: "Module" }));
-const loader$p = async (o) => await dxtUsuarioGetAuxiliaresEndpoint.get(o.request, o.params);
-const action$p = unimplementedApiResponse;
+const loader$r = async (o) => await dxtUsuarioGetAuxiliaresEndpoint.get(o.request, o.params);
+const action$r = unimplementedApiResponse;
 const route33 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$p,
-  loader: loader$p
+  action: action$r,
+  loader: loader$r
 }, Symbol.toStringTag, { value: "Module" }));
 const OrdersLoading = () => /* @__PURE__ */ jsxs(Fragment, { children: [
   /* @__PURE__ */ jsx(Navbar, {}),
@@ -14844,11 +14951,11 @@ const CustomersListModal = (props) => {
       index,
       data
     }) => {
-      const client = data == null ? void 0 : data[index];
+      const client = data?.[index];
       return client != null ? /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsx(ListItem, { style, children: client.habilitado ? /* @__PURE__ */ jsx(
         Link,
         {
-          href: pathParamsToUrl(isDraft ? URL_BORRADORES_ADD_PATH : URL_PEDIDOS_ADD_PATH, {
+          href: paramsToUrl(isDraft ? URL_BORRADORES_ADD_PATH : URL_PEDIDOS_ADD_PATH, {
             client: client.id
           }),
           children: /* @__PURE__ */ jsxs(Box, { children: [
@@ -14930,6 +15037,7 @@ const CustomersListModal = (props) => {
     }
   );
 };
+const SET_SELECTED_PEDIDO_EVENT = "setUnsetSelectedPedido";
 const OrdersNav = ({
   isDraft,
   pedidos,
@@ -14957,9 +15065,9 @@ const OrdersNav = ({
         );
       }
     };
-    eventBus.on("setUnsetSelectedPedido", handleSetUnsetEvent);
+    eventBus.on(SET_SELECTED_PEDIDO_EVENT, handleSetUnsetEvent);
     return () => {
-      eventBus.removeListener("setUnsetSelectedPedido", handleSetUnsetEvent);
+      eventBus.removeListener(SET_SELECTED_PEDIDO_EVENT, handleSetUnsetEvent);
     };
   }, []);
   const handleCreate = () => {
@@ -15117,9 +15225,11 @@ const PedidoMenu = ({
   const user = app.authState.userInfo;
   const isAdmin = app.authState.isAdmin();
   const isFavorite = isDraft && pedido.es_favorito;
-  const canCreateOrder = !isAdmin && user.puede_crear_pedido;
+  const canCreateBuyList = !isAdmin && (isDraft || user.puede_crear_pedido);
+  const canCreateOrderFromDraft = !isAdmin && isDraft && user.puede_crear_pedido;
+  const canCreateDraftFromOrder = !isAdmin && !isDraft;
   const canEditBuyList = !isAdmin && (isDraft || user.puede_editar_pedido && isUserAllowedToModifyOrder(user, pedido.estado));
-  const canDeleteBuyList = !isAdmin && !isFavorite && (isDraft || isUserAllowedToCancelOrDeleteOrder(user, pedido.estado));
+  const canDeleteBuyList = !isFavorite && (isDraft || isUserAllowedToCancelOrDeleteOrder(user, pedido.estado));
   const deleteWhenCancel = isDraft || user.borrar_pedido_al_anular;
   return /* @__PURE__ */ jsxs(Menu, { isLazy: true, id: "menu", children: [
     /* @__PURE__ */ jsx(
@@ -15139,7 +15249,7 @@ const PedidoMenu = ({
         {
           onClick: () => {
             app.navigate(
-              pathParamsToUrl(
+              paramsToUrl(
                 isDraft ? URL_BORRADORES_EDIT_PATH : URL_PEDIDOS_EDIT_PATH,
                 { id: pedido.id }
               )
@@ -15148,12 +15258,12 @@ const PedidoMenu = ({
           children: PEDIDO_MENU_MODIFY
         }
       ),
-      (isDraft || canCreateOrder) && /* @__PURE__ */ jsx(
+      canCreateBuyList && /* @__PURE__ */ jsx(
         MenuItem,
         {
           onClick: () => {
             app.navigate(
-              pathParamsToUrl(
+              paramsToUrl(
                 isDraft ? URL_BORRADORES_COPY_PATH : URL_PEDIDOS_COPY_PATH,
                 { id: pedido.id }
               )
@@ -15162,27 +15272,35 @@ const PedidoMenu = ({
           children: PEDIDO_MENU_DUPLICATE
         }
       ),
-      (!isDraft || canCreateOrder) && /* @__PURE__ */ jsx(
+      canCreateOrderFromDraft && /* @__PURE__ */ jsx(
         MenuItem,
         {
           onClick: () => {
             app.navigate(
-              pathParamsToUrl(
-                isDraft ? URL_BORRADORES_CREATE_ORDER_PATH : URL_PEDIDOS_CREATE_DRAFT_PATH,
-                { id: pedido.id }
-              )
+              paramsToUrl(URL_BORRADORES_CREATE_ORDER_PATH, { id: pedido.id })
             );
           },
-          children: isDraft ? isFavorite ? PEDIDO_MENU_CREATE_ORDER : PEDIDO_MENU_CREATE_ORDER_AND_KEEP_DRAFT : PEDIDO_MENU_CREATE_DRAFT
+          children: isFavorite ? PEDIDO_MENU_CREATE_ORDER : PEDIDO_MENU_CREATE_ORDER_AND_KEEP_DRAFT
+        }
+      ),
+      canCreateDraftFromOrder && /* @__PURE__ */ jsx(
+        MenuItem,
+        {
+          onClick: () => {
+            app.navigate(
+              paramsToUrl(URL_PEDIDOS_CREATE_DRAFT_PATH, { id: pedido.id })
+            );
+          },
+          children: PEDIDO_MENU_CREATE_DRAFT
         }
       ),
       isDraft && !isFavorite && /* @__PURE__ */ jsxs(Fragment, { children: [
-        canCreateOrder && /* @__PURE__ */ jsx(
+        canCreateOrderFromDraft && /* @__PURE__ */ jsx(
           MenuItem,
           {
             onClick: () => {
               app.navigate(
-                pathParamsToUrl(URL_BORRADORES_CONVERT_ORDER_PATH, {
+                paramsToUrl(URL_BORRADORES_CONVERT_ORDER_PATH, {
                   id: pedido.id
                 })
               );
@@ -15199,7 +15317,7 @@ const PedidoMenu = ({
           }
         )
       ] }),
-      isDraft && isFavorite && /* @__PURE__ */ jsxs(Fragment, { children: [
+      isFavorite && /* @__PURE__ */ jsxs(Fragment, { children: [
         /* @__PURE__ */ jsx(MenuDivider, {}),
         /* @__PURE__ */ jsx(
           MenuItem,
@@ -15215,7 +15333,7 @@ const PedidoMenu = ({
           MenuItem,
           {
             onClick: () => onDelete(pedido.id),
-            isDisabled: !canDeleteBuyList,
+            isDisabled: isFavorite || !canDeleteBuyList,
             children: isFavorite ? PEDIDO_MENU_UNABLE_TO_DELETE_FAVORITE : deleteWhenCancel ? PEDIDO_MENU_DELETE : PEDIDO_MENU_CANCEL
           }
         )
@@ -15311,9 +15429,8 @@ const Renglones = ({ wasOpen, pedido, stateRenglones }) => {
     loading: (_2) => /* @__PURE__ */ jsx(RenglonesLoading, {}),
     error: (_2) => /* @__PURE__ */ jsx(RenglonesError, {}),
     success: (state) => {
-      var _a2;
       const { id, numero_pedido } = pedido;
-      const renglones = (_a2 = state.data) == null ? void 0 : _a2[id];
+      const renglones = state.data?.[id];
       if (!Array.isArray(renglones))
         return /* @__PURE__ */ jsx(RenglonesEmpty, {});
       return /* @__PURE__ */ jsx(
@@ -15579,6 +15696,7 @@ function calculateRealOrderTotal(pedido, stateRenglones) {
     return null;
   return realOrderTotal(pedido, stateRenglones.data[pedido.id]);
 }
+const TOGGLE_PEDIDO_DETAILS_EVENT = "togglePedidoDetails";
 const Pedido = ({
   index,
   app,
@@ -15611,20 +15729,20 @@ const Pedido = ({
     if (nowIsOpen)
       wasOpen.current = true;
     setIsOpen(nowIsOpen);
-    eventBus.emit("togglePedidoDetails", { id: pedido.id });
+    eventBus.emit(TOGGLE_PEDIDO_DETAILS_EVENT, { id: pedido.id });
   };
   const handleCheckboxChange = (checked2, id2) => {
     setChecked(!!checked2);
-    eventBus.emit("setUnsetSelectedPedido", { id: id2, checked: checked2 });
+    eventBus.emit(SET_SELECTED_PEDIDO_EVENT, { id: id2, checked: checked2 });
   };
   useEffect(() => {
     const handleEvent = ({ id: id2 }) => {
       if (pedido.id !== id2)
         setIsOpen(false);
     };
-    eventBus.on("togglePedidoDetails", handleEvent);
+    eventBus.on(TOGGLE_PEDIDO_DETAILS_EVENT, handleEvent);
     return () => {
-      eventBus.removeListener("togglePedidoDetails", handleEvent);
+      eventBus.removeListener(TOGGLE_PEDIDO_DETAILS_EVENT, handleEvent);
     };
   }, []);
   const { id, es_favorito } = pedido;
@@ -15911,12 +16029,12 @@ function _orderCmp(a, b) {
   const bAlta = new Date(b.fecha_alta).getTime();
   return aAlta - bAlta;
 }
-function OrdersList$1() {
+function DraftsList() {
   return /* @__PURE__ */ jsx(OrdersPage, { showDrafts: true });
 }
 const route34 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: OrdersList$1
+  default: DraftsList
 }, Symbol.toStringTag, { value: "Module" }));
 function OrdersList() {
   return /* @__PURE__ */ jsx(OrdersPage, {});
@@ -16156,14 +16274,14 @@ const route36 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePrope
   __proto__: null,
   default: OrdersPrint
 }, Symbol.toStringTag, { value: "Module" }));
-async function loader$o({ request, params }) {
+async function loader$q({ request, params }) {
   return await dxtVendedorGetCustomersEndpoint.get(request, params);
 }
-const action$o = unimplementedApiResponse;
+const action$q = unimplementedApiResponse;
 const route37 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$o,
-  loader: loader$o
+  action: action$q,
+  loader: loader$q
 }, Symbol.toStringTag, { value: "Module" }));
 const getProgramConfigFileEndpoint = createApiEndpoint(
   adminRootController,
@@ -16173,14 +16291,14 @@ const getProgramConfigFileEndpoint = createApiEndpoint(
     return storedDBSettings;
   }
 );
-async function loader$n({ request, params }) {
+async function loader$p({ request, params }) {
   return await getProgramConfigFileEndpoint.get(request, params);
 }
-const action$n = unimplementedApiResponse;
+const action$p = unimplementedApiResponse;
 const route38 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$n,
-  loader: loader$n
+  action: action$p,
+  loader: loader$p
 }, Symbol.toStringTag, { value: "Module" }));
 const API_DICTIONARY_GET_ALL = apiEndpoint("/dictionary", "GET");
 const API_ACTIVE_COMPANY_UPDATE = apiEndpoint("/dictionary/active_company", "POST");
@@ -16528,6 +16646,75 @@ const route42 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePrope
   __proto__: null,
   default: OrdersAdd
 }, Symbol.toStringTag, { value: "Module" }));
+async function getDownloadableFiles() {
+  const { downloads_path } = await settingsService.getProgramConfig();
+  if (downloads_path == "")
+    return [];
+  let result = [];
+  try {
+    const items = await readdir(downloads_path, { withFileTypes: true });
+    for (const item of items) {
+      if (item.isFile())
+        result.push(item.name);
+    }
+  } catch (err) {
+  }
+  return result;
+}
+async function downloadFile(filename) {
+  const downloadableFiles = await getDownloadableFiles();
+  if (!downloadableFiles.includes(filename))
+    throw new DXTException(DXTErrorCode.NOT_FOUND);
+  const { downloads_path } = await settingsService.getProgramConfig();
+  const filePath = path$1.join(downloads_path, filename);
+  try {
+    const stats = await stat(filePath);
+    return {
+      stream: fs.createReadStream(filePath),
+      fileSize: stats.size
+    };
+  } catch (e) {
+    throw new DXTException(DXTErrorCode.FILE_INACCESSIBLE);
+  }
+}
+const downloadFileEndpoint = createApiEndpoint(
+  authenticatedRootController,
+  {
+    validation: {
+      params: {
+        filename: (v) => new VONotEmptyString(v).valueOf()
+      }
+    }
+  },
+  async (req) => {
+    const { filename } = req.validated.params;
+    const { fileSize, stream } = await downloadFile(filename);
+    const res = new Response(
+      stream,
+      {
+        status: HttpStatus.OK,
+        headers: {
+          "Content-Type": "application/octet-stream",
+          "Content-Disposition": `attachment; filename="${_encodeFilename(filename)}"`,
+          "Content-Length": fileSize.toString()
+        }
+      }
+    );
+    return res;
+  }
+);
+function _encodeFilename(filename) {
+  return encodeURIComponent(filename).replace(/['()]/g, escape).replace(/\*/g, "%2A");
+}
+async function loader$o({ request, params }) {
+  return await downloadFileEndpoint.get(request, params);
+}
+const action$o = unimplementedApiResponse;
+const route43 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  action: action$o,
+  loader: loader$o
+}, Symbol.toStringTag, { value: "Module" }));
 const API_SETTINGS_DB = apiEndpoint("/settings/db", "GET");
 const API_SETTINGS_DB_SET = apiEndpoint("/settings/db", "POST");
 const API_SETTINGS_MISC = apiEndpoint("/settings/misc", "GET");
@@ -16787,7 +16974,7 @@ const SettingsTango = () => {
     success: (state2) => /* @__PURE__ */ jsx(SettingsTangoReady, { stateData: state2.data })
   });
 };
-function Tango$1() {
+function Tango() {
   const navigate = useNavigate();
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsx(
@@ -16806,12 +16993,22 @@ function Tango$1() {
     /* @__PURE__ */ jsx(SettingsTango, {})
   ] });
 }
-const route43 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route44 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: Tango$1
+  default: Tango
 }, Symbol.toStringTag, { value: "Module" }));
-function DownloadButton(props) {
+const API_DOWNLOAD_GET_FILES = apiEndpoint("/download", "GET");
+const API_DOWNLOAD_GET_FILE = apiEndpoint("/download/:filename?auth=:auth", "GET");
+function DownloadItem(props) {
+  const { state } = useAuth();
   const { filename } = props;
+  const href = paramsToUrl(
+    API_DOWNLOAD_GET_FILE.url,
+    {
+      filename,
+      auth: state.authTokenString() ?? ""
+    }
+  );
   return /* @__PURE__ */ jsx(
     Button,
     {
@@ -16819,47 +17016,78 @@ function DownloadButton(props) {
       size: "lg",
       width: "full",
       colorScheme: "gray",
-      loadingText: DOWNLOADING,
       sx: {
         height: "auto",
         p: 4,
         whiteSpace: "break-spaces",
         border: "1px solid"
       },
-      children: /* @__PURE__ */ jsx(Flex, { flex: 1, justifyContent: "center", children: filename })
+      as: "a",
+      href,
+      download: filename,
+      target: "_blank",
+      children: /* @__PURE__ */ jsx(Flex, { flex: 1, justifyContent: "center", children: _removeFileExtension(filename) })
     }
   );
 }
-const DownloadsReady = () => {
-  return /* @__PURE__ */ jsx(Box, { children: /* @__PURE__ */ jsx(CommonCard, { children: /* @__PURE__ */ jsx(LightMode, { children: /* @__PURE__ */ jsxs(VStack, { spacing: 4, children: [
-    /* @__PURE__ */ jsx(DownloadButton, { filename: "Nombre del archivo a descargar sin extension" }),
-    /* @__PURE__ */ jsx(DownloadButton, { filename: "Lista de precios Junio 2024" })
-  ] }) }) }) });
+function _removeFileExtension(filename) {
+  const lastDotIndex = filename.lastIndexOf(".");
+  if (lastDotIndex === -1)
+    return filename;
+  return filename.substring(0, lastDotIndex);
+}
+const DownloadsReady = ({ files }) => {
+  files.sort((a, b) => a.localeCompare(b));
+  return /* @__PURE__ */ jsx(Box, { children: /* @__PURE__ */ jsx(CommonCard, { children: /* @__PURE__ */ jsx(LightMode, { children: /* @__PURE__ */ jsx(VStack, { spacing: 4, children: files.length > 0 ? files.map((filename) => /* @__PURE__ */ jsx(DownloadItem, { filename })) : /* @__PURE__ */ jsx(Fragment, { children: NO_DOWNLOADS_AVAILABLE }) }) }) }) });
 };
-function Tango() {
+function useGetDownloadableFiles() {
+  return useDXTApiFetch({
+    ...API_DOWNLOAD_GET_FILES,
+    silent: true
+  });
+}
+function DownloadsLoading() {
+  return /* @__PURE__ */ jsx(Box, { children: /* @__PURE__ */ jsx(CommonCard, { children: /* @__PURE__ */ jsx(VStack, { spacing: 4, children: [...Array(5)].map((_2, index) => /* @__PURE__ */ jsx(React.Fragment, { children: /* @__PURE__ */ jsx(FormInputSkeleton, { height: "60px" }) }, index)) }) }) });
+}
+function Downloads() {
   return /* @__PURE__ */ jsxs(Fragment, { children: [
     /* @__PURE__ */ jsx(Navbar, {}),
     /* @__PURE__ */ jsxs(Container, { maxW: "2xl", sx: { my: 4 }, children: [
       /* @__PURE__ */ jsx(SettingsFormHeading, { title: DOWNLOADS }),
-      /* @__PURE__ */ jsx(DownloadsReady, {})
+      /* @__PURE__ */ jsx(_Downloads, {})
     ] })
   ] });
 }
-const route44 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const _Downloads = () => {
+  const { state, retry } = useGetDownloadableFiles();
+  return state.map({
+    loading: (_2) => /* @__PURE__ */ jsx(DownloadsLoading, {}),
+    error: ({ error }) => /* @__PURE__ */ jsx(
+      ApiErrors,
+      {
+        error,
+        retry
+      }
+    ),
+    success: (state2) => /* @__PURE__ */ jsx(DownloadsReady, { files: state2.data })
+  });
+};
+const route45 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  default: Tango
+  _Downloads,
+  default: Downloads
 }, Symbol.toStringTag, { value: "Module" }));
-const loader$m = unimplementedApiResponse;
-async function action$m({ request, params }) {
+const loader$n = unimplementedApiResponse;
+async function action$n({ request, params }) {
   return await mapEndpoint(request, params, {
     delete: cancelOrderEndpoint,
     patch: updateOrderEndpoint
   });
 }
-const route45 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route46 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$m,
-  loader: loader$m
+  action: action$n,
+  loader: loader$n
 }, Symbol.toStringTag, { value: "Module" }));
 const SettingsMiscLoading = () => /* @__PURE__ */ jsx(
   Box,
@@ -17247,57 +17475,57 @@ function Misc() {
     /* @__PURE__ */ jsx(SettingsMisc, {})
   ] });
 }
-const route46 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route47 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Misc
 }, Symbol.toStringTag, { value: "Module" }));
-const loader$l = unimplementedApiResponse;
-async function action$l({ request, params }) {
+const loader$m = unimplementedApiResponse;
+async function action$m({ request, params }) {
   return await mapEndpoint(request, params, {
     delete: cancelDraftEndpoint,
     patch: updateDraftEndpoint
   });
 }
-const route47 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route48 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  action: action$m,
+  loader: loader$m
+}, Symbol.toStringTag, { value: "Module" }));
+async function loader$l({ request, params }) {
+  return await getOrderRowsEndpoint.get(request, params);
+}
+const action$l = unimplementedApiResponse;
+const route49 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$l,
   loader: loader$l
 }, Symbol.toStringTag, { value: "Module" }));
 async function loader$k({ request, params }) {
-  return await getOrderRowsEndpoint.run(request, params);
+  return await startNewOrderEndpoint.get(request, params);
 }
 const action$k = unimplementedApiResponse;
-const route48 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route50 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$k,
   loader: loader$k
 }, Symbol.toStringTag, { value: "Module" }));
 async function loader$j({ request, params }) {
-  return await startNewOrderEndpoint.get(request, params);
+  return await getDraftRowsEndpoint.get(request, params);
 }
 const action$j = unimplementedApiResponse;
-const route49 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route51 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$j,
   loader: loader$j
 }, Symbol.toStringTag, { value: "Module" }));
 async function loader$i({ request, params }) {
-  return await getDraftRowsEndpoint.run(request, params);
+  return await startNewDraftEndpoint.get(request, params);
 }
 const action$i = unimplementedApiResponse;
-const route50 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route52 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$i,
   loader: loader$i
-}, Symbol.toStringTag, { value: "Module" }));
-async function loader$h({ request, params }) {
-  return await startNewDraftEndpoint.get(request, params);
-}
-const action$h = unimplementedApiResponse;
-const route51 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  action: action$h,
-  loader: loader$h
 }, Symbol.toStringTag, { value: "Module" }));
 function createCompanyGetAllEndpoint(controller, repository) {
   return createApiEndpoint(
@@ -17336,12 +17564,12 @@ const tangoVendedorGetAllEndpoint = createCompanyGetAllEndpoint(
   adminRootController,
   vendedorRepository
 );
-const loader$g = async (o) => await tangoVendedorGetAllEndpoint.get(o.request, o.params);
-const action$g = unimplementedApiResponse;
-const route52 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const loader$h = async (o) => await tangoVendedorGetAllEndpoint.get(o.request, o.params);
+const action$h = unimplementedApiResponse;
+const route53 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$g,
-  loader: loader$g
+  action: action$h,
+  loader: loader$h
 }, Symbol.toStringTag, { value: "Module" }));
 const changePasswordInputValidationSchema = {
   old_password: (v) => new VODXTPassword(v),
@@ -17397,14 +17625,14 @@ const authChangePasswordEndpoint = createApiEndpoint(
   }
   /* *************************************************************************************************************** */
 );
-const loader$f = unimplementedApiResponse;
-async function action$f({ request, params }) {
+const loader$g = unimplementedApiResponse;
+async function action$g({ request, params }) {
   return await authChangePasswordEndpoint.patch(request, params);
 }
-const route53 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route54 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$f,
-  loader: loader$f
+  action: action$g,
+  loader: loader$g
 }, Symbol.toStringTag, { value: "Module" }));
 async function getPedidosByIds(user, ids) {
   const orders = await pedidoRepository.getAllByUser(user);
@@ -17429,14 +17657,14 @@ const getOrdersByIdsEndpoint = createApiEndpoint(
   },
   async (req) => await getPedidosByIds(req.auth.user, req.validated.body.ids)
 );
-const loader$e = unimplementedApiResponse;
-async function action$e({ request, params }) {
+const loader$f = unimplementedApiResponse;
+async function action$f({ request, params }) {
   return await getOrdersByIdsEndpoint.post(request, params);
 }
-const route54 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route55 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$e,
-  loader: loader$e
+  action: action$f,
+  loader: loader$f
 }, Symbol.toStringTag, { value: "Module" }));
 const getMiscSettingsEndpoint = createApiEndpoint(
   adminRootController,
@@ -17502,23 +17730,23 @@ const updateMiscSettingsEndpoint = createApiEndpoint(
   }
   /* *************************************************************************************************************** */
 );
-async function loader$d({ request, params }) {
+async function loader$e({ request, params }) {
   return await getMiscSettingsEndpoint.get(request, params);
 }
-async function action$d({ request, params }) {
+async function action$e({ request, params }) {
   return await updateMiscSettingsEndpoint.post(request, params);
 }
-const route55 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route56 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  action: action$e,
+  loader: loader$e
+}, Symbol.toStringTag, { value: "Module" }));
+const loader$d = async (o) => await tangoClienteGetAllEndpoint.get(o.request, o.params);
+const action$d = unimplementedApiResponse;
+const route57 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$d,
   loader: loader$d
-}, Symbol.toStringTag, { value: "Module" }));
-const loader$c = async (o) => await tangoClienteGetAllEndpoint.get(o.request, o.params);
-const action$c = unimplementedApiResponse;
-const route56 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  action: action$c,
-  loader: loader$c
 }, Symbol.toStringTag, { value: "Module" }));
 const getAdminStatusEndpoint = createApiEndpoint(
   adminRootController,
@@ -17571,39 +17799,39 @@ const getAdminStatusEndpoint = createApiEndpoint(
   }
   /* *************************************************************************************************************** */
 );
-async function loader$b({ request, params }) {
+async function loader$c({ request, params }) {
   return await getAdminStatusEndpoint.get(request, params);
 }
-const action$b = unimplementedApiResponse;
-const route57 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const action$c = unimplementedApiResponse;
+const route58 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$b,
-  loader: loader$b
+  action: action$c,
+  loader: loader$c
 }, Symbol.toStringTag, { value: "Module" }));
 const authConnectEndpoint = createApiEndpoint(
   authenticatedRootController,
   void 0,
   async (req) => authPrivateResultToPublic(req.auth)
 );
-const loader$a = unimplementedApiResponse;
-async function action$a({ request, params }) {
+const loader$b = unimplementedApiResponse;
+async function action$b({ request, params }) {
   return await authConnectEndpoint.post(request, params);
-}
-const route58 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  action: action$a,
-  loader: loader$a
-}, Symbol.toStringTag, { value: "Module" }));
-async function loader$9({ request, params }) {
-  return await dxtVendedorGetAllEndpoint.get(request, params);
-}
-async function action$9({ request, params }) {
-  return await dxtVendedorCreateEndpoint.post(request, params);
 }
 const route59 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$9,
-  loader: loader$9
+  action: action$b,
+  loader: loader$b
+}, Symbol.toStringTag, { value: "Module" }));
+async function loader$a({ request, params }) {
+  return await dxtVendedorGetAllEndpoint.get(request, params);
+}
+async function action$a({ request, params }) {
+  return await dxtVendedorCreateEndpoint.post(request, params);
+}
+const route60 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  action: action$a,
+  loader: loader$a
 }, Symbol.toStringTag, { value: "Module" }));
 const tangoPerfilGetAllEndpoint = createCompanyGetAllEndpoint(
   authenticatedRootController,
@@ -17613,12 +17841,12 @@ const tangoListaDePreciosAllEndpoint = createCompanyGetAllEndpoint(
   authenticatedRootController,
   listaRepository
 );
-const loader$8 = async (o) => await tangoPerfilGetAllEndpoint.get(o.request, o.params);
-const action$8 = unimplementedApiResponse;
-const route60 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const loader$9 = async (o) => await tangoPerfilGetAllEndpoint.get(o.request, o.params);
+const action$9 = unimplementedApiResponse;
+const route61 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$8,
-  loader: loader$8
+  action: action$9,
+  loader: loader$9
 }, Symbol.toStringTag, { value: "Module" }));
 const authLogoutEndpoint = createApiEndpoint(
   authenticatedRootController,
@@ -17628,25 +17856,25 @@ const authLogoutEndpoint = createApiEndpoint(
     return { ok: true };
   }
 );
-const loader$7 = unimplementedApiResponse;
-async function action$7({ request, params }) {
+const loader$8 = unimplementedApiResponse;
+async function action$8({ request, params }) {
   return await authLogoutEndpoint.post(request, params);
-}
-const route61 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  action: action$7,
-  loader: loader$7
-}, Symbol.toStringTag, { value: "Module" }));
-async function loader$6({ request, params }) {
-  return await dxtClienteGetAllEndpoint.get(request, params);
-}
-async function action$6({ request, params }) {
-  return await dxtClienteCreateEndpoint.post(request, params);
 }
 const route62 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$6,
-  loader: loader$6
+  action: action$8,
+  loader: loader$8
+}, Symbol.toStringTag, { value: "Module" }));
+async function loader$7({ request, params }) {
+  return await dxtClienteGetAllEndpoint.get(request, params);
+}
+async function action$7({ request, params }) {
+  return await dxtClienteCreateEndpoint.post(request, params);
+}
+const route63 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  action: action$7,
+  loader: loader$7
 }, Symbol.toStringTag, { value: "Module" }));
 const getDBSettingsEndpoint = createApiEndpoint(
   adminRootController,
@@ -17703,23 +17931,23 @@ const updateDBSettingsEndpoint = createApiEndpoint(
     return remaining;
   }
 );
-async function loader$5({ request, params }) {
+async function loader$6({ request, params }) {
   return await getDBSettingsEndpoint.get(request, params);
 }
-async function action$5({ request, params }) {
+async function action$6({ request, params }) {
   return await updateDBSettingsEndpoint.post(request, params);
 }
-const route63 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route64 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  action: action$6,
+  loader: loader$6
+}, Symbol.toStringTag, { value: "Module" }));
+const loader$5 = async (o) => await tangoListaDePreciosAllEndpoint.get(o.request, o.params);
+const action$5 = unimplementedApiResponse;
+const route65 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$5,
   loader: loader$5
-}, Symbol.toStringTag, { value: "Module" }));
-const loader$4 = async (o) => await tangoListaDePreciosAllEndpoint.get(o.request, o.params);
-const action$4 = unimplementedApiResponse;
-const route64 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  action: action$4,
-  loader: loader$4
 }, Symbol.toStringTag, { value: "Module" }));
 const loginUserInputValidationSchema = {
   username: (v) => new VOUserName(v),
@@ -17740,14 +17968,14 @@ const authLoginEndpoint = createApiEndpoint(
     );
   }
 );
-const loader$3 = unimplementedApiResponse;
-async function action$3({ request, params }) {
+const loader$4 = unimplementedApiResponse;
+async function action$4({ request, params }) {
   return await authLoginEndpoint.post(request, params);
 }
-const route65 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route66 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$3,
-  loader: loader$3
+  action: action$4,
+  loader: loader$4
 }, Symbol.toStringTag, { value: "Module" }));
 const getCompaniesEndpoint = createApiEndpoint(
   adminRootController,
@@ -17756,11 +17984,27 @@ const getCompaniesEndpoint = createApiEndpoint(
     return await dictionaryRepository.getCompanies();
   }
 );
-async function loader$2({ request, params }) {
+async function loader$3({ request, params }) {
   return await getCompaniesEndpoint.get(request, params);
 }
+const action$3 = unimplementedApiResponse;
+const route67 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  action: action$3,
+  loader: loader$3
+}, Symbol.toStringTag, { value: "Module" }));
+const getDownloadableFilesEndpoint = createApiEndpoint(
+  authenticatedRootController,
+  void 0,
+  async (req) => {
+    return await getDownloadableFiles();
+  }
+);
+async function loader$2({ request, params }) {
+  return await getDownloadableFilesEndpoint.get(request, params);
+}
 const action$2 = unimplementedApiResponse;
-const route66 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route68 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$2,
   loader: loader$2
@@ -17800,7 +18044,7 @@ function ClientOnly({ children, fallback = null }) {
 function AuthorizedLayout() {
   return /* @__PURE__ */ jsx(ClientOnly, { children: /* @__PURE__ */ jsx(AuthGuard, { children: /* @__PURE__ */ jsx(Outlet, {}) }) });
 }
-const route67 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route69 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: AuthorizedLayout
 }, Symbol.toStringTag, { value: "Module" }));
@@ -17810,7 +18054,7 @@ async function loader$1({ request, params }) {
 async function action$1({ request, params }) {
   return await createOrderEndpoint.post(request, params);
 }
-const route68 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route70 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$1,
   loader: loader$1
@@ -17821,7 +18065,7 @@ async function loader({ request, params }) {
 async function action({ request, params }) {
   return await createDraftEndpoint.post(request, params);
 }
-const route69 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route71 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action,
   loader
@@ -17832,7 +18076,7 @@ function AdminLayout() {
     /* @__PURE__ */ jsx(Container, { maxW: "2xl", sx: { my: 4 }, children: /* @__PURE__ */ jsx(Outlet, {}) })
   ] }) });
 }
-const route70 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route72 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: AdminLayout
 }, Symbol.toStringTag, { value: "Module" }));
@@ -17845,7 +18089,6 @@ const validationSchema = yup.object({
   password: yup.string().required("Ingrese su contraseña")
 }).required();
 function Index() {
-  var _a2;
   const { state: authState, dispatch: authDispatch } = useAuth();
   const dialogCall = useMessageToUserDialog();
   const {
@@ -17868,9 +18111,8 @@ function Index() {
     await authDispatch(new AuthActionLogin(dataToSubmit));
   };
   useEffect(() => {
-    var _a3;
     if (authState instanceof AuthStateDisconnected) {
-      const messageToUser = (_a3 = authState.errorOrNull()) == null ? void 0 : _a3.message_to_user;
+      const messageToUser = authState.errorOrNull()?.message_to_user;
       if (messageToUser != void 0) {
         dialogCall({
           message: /* @__PURE__ */ jsx(MessageToUserAlert, { ...messageToUser })
@@ -17929,7 +18171,7 @@ function Index() {
                     sx: { m: 0 },
                     children: [
                       Object.keys(errors).length && Object.values(errors).map((error, key) => /* @__PURE__ */ jsx(ListItem, { children: error.message }, key)),
-                      authState.errorOrNull() && /* @__PURE__ */ jsx(ListItem, { children: (_a2 = authState.errorOrNull()) == null ? void 0 : _a2.error_description }, "api_error")
+                      authState.errorOrNull() && /* @__PURE__ */ jsx(ListItem, { children: authState.errorOrNull()?.error_description }, "api_error")
                     ]
                   }
                 ) }) }),
@@ -17981,11 +18223,11 @@ function Index() {
     )
   ] });
 }
-const route71 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route73 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Index
 }, Symbol.toStringTag, { value: "Module" }));
-const serverManifest = { "entry": { "module": "/assets/entry.client-CQlch1AQ.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/index-Cn3NNzlD.js", "/assets/styleContexts-DzAEGv-0.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": true, "module": "/assets/root-CkwXEuRH.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/index-Cn3NNzlD.js", "/assets/styleContexts-DzAEGv-0.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-AMBGAKG2-DNImCCvC.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js"], "css": ["/assets/root-Y9hu6Btz.css"] }, "routes/api.dxt.cliente.$id_cliente.siblings.$tango_id": { "id": "routes/api.dxt.cliente.$id_cliente.siblings.$tango_id", "parentId": "routes/api.dxt.cliente.$id_cliente", "path": "siblings/:tango_id", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente._id_cliente.siblings._tango_id-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.users.customers.$id.edit": { "id": "routes/_admin.settings.users.customers.$id.edit", "parentId": "routes/_admin", "path": "settings/users/customers/:id/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-ucLzYS1k.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/AccountCancelIcon-hUm3w097.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/chunk-7D6N5TE5-D0DQFTJl.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/app_resources-CDkSSx5t.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/chunk-VTV6N5LE-B6EGXpGg.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/vo_dxt_password-DAHb5cpG.js", "/assets/InlineError-DCz4eDK0.js", "/assets/SettingsFormButtons-Cbuywpud.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-DWPGqLsA.js", "/assets/settings-JPG_dToq.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/SettingsFormHeading-oznEKY0V.js", "/assets/schema_transformers-CWX8AjcS.js", "/assets/utils-DTXYOP_7.js"], "css": [] }, "routes/_admin.settings.users.sellers.$id.edit": { "id": "routes/_admin.settings.users.sellers.$id.edit", "parentId": "routes/_admin", "path": "settings/users/sellers/:id/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BZ8uJOeM.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/AccountCancelIcon-hUm3w097.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/chunk-7D6N5TE5-D0DQFTJl.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/app_resources-CDkSSx5t.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/chunk-VTV6N5LE-B6EGXpGg.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/vo_dxt_password-DAHb5cpG.js", "/assets/InlineError-DCz4eDK0.js", "/assets/SettingsFormButtons-Cbuywpud.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-DWPGqLsA.js", "/assets/settings-JPG_dToq.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/SettingsFormHeading-oznEKY0V.js", "/assets/schema_transformers-CWX8AjcS.js", "/assets/utils-DTXYOP_7.js"], "css": [] }, "routes/api.pedido.$id_pedido.start_new_draft": { "id": "routes/api.pedido.$id_pedido.start_new_draft", "parentId": "routes/api.pedido.$id_pedido", "path": "start_new_draft", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_new_draft-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.$id_pedido.start_new_order": { "id": "routes/api.draft.$id_pedido.start_new_order", "parentId": "routes/api.draft.$id_pedido", "path": "start_new_order", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_new_order-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.users.customers.add": { "id": "routes/_admin.settings.users.customers.add", "parentId": "routes/_admin", "path": "settings/users/customers/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-D8UCX5bE.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/AccountCancelIcon-hUm3w097.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/chunk-7D6N5TE5-D0DQFTJl.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/app_resources-CDkSSx5t.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-VTV6N5LE-B6EGXpGg.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/vo_dxt_password-DAHb5cpG.js", "/assets/InlineError-DCz4eDK0.js", "/assets/SettingsFormButtons-Cbuywpud.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-DWPGqLsA.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/settings-JPG_dToq.js", "/assets/schema_transformers-CWX8AjcS.js", "/assets/SettingsFormHeading-oznEKY0V.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.order": { "id": "routes/_authorized.drafts.$id_pedido.order", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/order", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-tNon5oiQ.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/TextPrice-BKP0caI3.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/order.api_hooks-CSsqO2_h.js", "/assets/events-l6No6g-S.js", "/assets/app_resources-CDkSSx5t.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/Navbar-BPoDUv4m.js", "/assets/MessageToUserDialog-CBQLHKHO.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/index-DtHspM0R.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/index-DtWsygUi.js", "/assets/index-Cn3NNzlD.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.draft": { "id": "routes/_authorized.orders.$id_pedido.draft", "parentId": "routes/_authorized", "path": "orders/:id_pedido/draft", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DW0S99Xf.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/TextPrice-BKP0caI3.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/order.api_hooks-CSsqO2_h.js", "/assets/events-l6No6g-S.js", "/assets/app_resources-CDkSSx5t.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/Navbar-BPoDUv4m.js", "/assets/MessageToUserDialog-CBQLHKHO.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/index-DtHspM0R.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/index-DtWsygUi.js"], "css": [] }, "routes/_admin.settings.product_list.$type": { "id": "routes/_admin.settings.product_list.$type", "parentId": "routes/_admin", "path": "settings/product_list/:type", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-D83MYNcm.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/index.esm-DXKbKlYo.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/SettingsFormHeading-oznEKY0V.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/app_resources-CDkSSx5t.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/SettingsFormButtons-Cbuywpud.js", "/assets/index-DtHspM0R.js"], "css": [] }, "routes/_admin.settings.users.$type._index": { "id": "routes/_admin.settings.users.$type._index", "parentId": "routes/_admin", "path": "settings/users/:type", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DBB8SUDu.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/AccountCancelIcon-hUm3w097.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/settings-JPG_dToq.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/SettingsFormHeading-oznEKY0V.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/ConfirmationDialog-DIsNCiqw.js", "/assets/app_resources-CDkSSx5t.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/chunk-MGVPL3OH-aLfQ7SVE.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.copy": { "id": "routes/_authorized.drafts.$id_pedido.copy", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/copy", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BL4jwxdn.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/TextPrice-BKP0caI3.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/order.api_hooks-CSsqO2_h.js", "/assets/events-l6No6g-S.js", "/assets/app_resources-CDkSSx5t.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/Navbar-BPoDUv4m.js", "/assets/MessageToUserDialog-CBQLHKHO.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/index-DtHspM0R.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/index-DtWsygUi.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.edit": { "id": "routes/_authorized.drafts.$id_pedido.edit", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DJ2t-xRV.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/TextPrice-BKP0caI3.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/order.api_hooks-CSsqO2_h.js", "/assets/events-l6No6g-S.js", "/assets/app_resources-CDkSSx5t.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/Navbar-BPoDUv4m.js", "/assets/MessageToUserDialog-CBQLHKHO.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/index-DtHspM0R.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/index-DtWsygUi.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.copy": { "id": "routes/_authorized.orders.$id_pedido.copy", "parentId": "routes/_authorized", "path": "orders/:id_pedido/copy", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BTn7bUX6.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/TextPrice-BKP0caI3.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/order.api_hooks-CSsqO2_h.js", "/assets/events-l6No6g-S.js", "/assets/app_resources-CDkSSx5t.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/Navbar-BPoDUv4m.js", "/assets/MessageToUserDialog-CBQLHKHO.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/index-DtHspM0R.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/index-DtWsygUi.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.edit": { "id": "routes/_authorized.orders.$id_pedido.edit", "parentId": "routes/_authorized", "path": "orders/:id_pedido/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CEQqH_Kp.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/TextPrice-BKP0caI3.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/order.api_hooks-CSsqO2_h.js", "/assets/events-l6No6g-S.js", "/assets/app_resources-CDkSSx5t.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/Navbar-BPoDUv4m.js", "/assets/MessageToUserDialog-CBQLHKHO.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/index-DtHspM0R.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/index-DtWsygUi.js"], "css": [] }, "routes/api.dxt.cliente.siblings.$tango_id": { "id": "routes/api.dxt.cliente.siblings.$tango_id", "parentId": "routes/api.dxt.cliente", "path": "siblings/:tango_id", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente.siblings._tango_id-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.$id_pedido.start_update": { "id": "routes/api.pedido.$id_pedido.start_update", "parentId": "routes/api.pedido.$id_pedido", "path": "start_update", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_update-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.users.sellers.add": { "id": "routes/_admin.settings.users.sellers.add", "parentId": "routes/_admin", "path": "settings/users/sellers/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-B_CViVIV.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/AccountCancelIcon-hUm3w097.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/chunk-7D6N5TE5-D0DQFTJl.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/app_resources-CDkSSx5t.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-VTV6N5LE-B6EGXpGg.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/vo_dxt_password-DAHb5cpG.js", "/assets/InlineError-DCz4eDK0.js", "/assets/SettingsFormButtons-Cbuywpud.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-DWPGqLsA.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/settings-JPG_dToq.js", "/assets/schema_transformers-CWX8AjcS.js", "/assets/SettingsFormHeading-oznEKY0V.js"], "css": [] }, "routes/api.draft.$id_pedido.start_update": { "id": "routes/api.draft.$id_pedido.start_update", "parentId": "routes/api.draft.$id_pedido", "path": "start_update", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_update-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.$id_pedido.start_copy": { "id": "routes/api.pedido.$id_pedido.start_copy", "parentId": "routes/api.pedido.$id_pedido", "path": "start_copy", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_copy-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.start_new.$id_cliente": { "id": "routes/api.pedido.start_new.$id_cliente", "parentId": "routes/api.pedido.start_new", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.start_new._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.$id_pedido.start_copy": { "id": "routes/api.draft.$id_pedido.start_copy", "parentId": "routes/api.draft.$id_pedido", "path": "start_copy", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_copy-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.start_new.$id_cliente": { "id": "routes/api.draft.start_new.$id_cliente", "parentId": "routes/api.draft.start_new", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.start_new._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.articulo.print_list.ids": { "id": "routes/api.dxt.articulo.print_list.ids", "parentId": "routes/api.dxt.articulo.print_list", "path": "ids", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.print_list.ids-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.drafts.$client.add": { "id": "routes/_authorized.drafts.$client.add", "parentId": "routes/_authorized", "path": "drafts/:client/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DSvA5seJ.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/TextPrice-BKP0caI3.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/order.api_hooks-CSsqO2_h.js", "/assets/events-l6No6g-S.js", "/assets/app_resources-CDkSSx5t.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/Navbar-BPoDUv4m.js", "/assets/MessageToUserDialog-CBQLHKHO.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/index-DtHspM0R.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/index-DtWsygUi.js"], "css": [] }, "routes/_authorized.orders.$client.add": { "id": "routes/_authorized.orders.$client.add", "parentId": "routes/_authorized", "path": "orders/:client/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DAo5puAI.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/TextPrice-BKP0caI3.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/order.api_hooks-CSsqO2_h.js", "/assets/events-l6No6g-S.js", "/assets/app_resources-CDkSSx5t.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/Navbar-BPoDUv4m.js", "/assets/MessageToUserDialog-CBQLHKHO.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/index-DtHspM0R.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/index-DtWsygUi.js"], "css": [] }, "routes/api.dictionary.active_company": { "id": "routes/api.dictionary.active_company", "parentId": "routes/api.dictionary", "path": "active_company", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dictionary.active_company-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.$id_pedido.favorite": { "id": "routes/api.draft.$id_pedido.favorite", "parentId": "routes/api.draft.$id_pedido", "path": "favorite", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.favorite-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.vendedor.$id_vendedor": { "id": "routes/api.dxt.vendedor.$id_vendedor", "parentId": "routes/api.dxt.vendedor", "path": ":id_vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor._id_vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.change_password": { "id": "routes/_authorized.change_password", "parentId": "routes/_authorized", "path": "change_password", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BxOUq28q.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/index.esm-DXKbKlYo.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/Navbar-BPoDUv4m.js", "/assets/SettingsFormHeading-oznEKY0V.js", "/assets/app_resources-CDkSSx5t.js", "/assets/refresh_all-Bi1PYNQW.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/vo_dxt_password-DAHb5cpG.js", "/assets/SettingsFormButtons-Cbuywpud.js", "/assets/utils-DihYaFf6.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js"], "css": [] }, "routes/api.dxt.articulo.print_list": { "id": "routes/api.dxt.articulo.print_list", "parentId": "root", "path": "api/dxt/articulo/print_list", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.print_list-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.cliente.$id_cliente": { "id": "routes/api.dxt.cliente.$id_cliente", "parentId": "routes/api.dxt.cliente", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.articulo.edit_list": { "id": "routes/api.dxt.articulo.edit_list", "parentId": "root", "path": "api/dxt/articulo/edit_list", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.edit_list-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.usuario.auxiliares": { "id": "routes/api.dxt.usuario.auxiliares", "parentId": "root", "path": "api/dxt/usuario/auxiliares", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.usuario.auxiliares-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.drafts._index": { "id": "routes/_authorized.drafts._index", "parentId": "routes/_authorized", "path": "drafts", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-amJHnq4N.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/TextPrice-BKP0caI3.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/vo_user_name-DWPGqLsA.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/chunk-7D6N5TE5-D0DQFTJl.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/Navbar-BPoDUv4m.js", "/assets/events-l6No6g-S.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/index-DcejMdNG.js", "/assets/app_resources-CDkSSx5t.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/AccountCancelIcon-hUm3w097.js", "/assets/ConfirmationDialog-DIsNCiqw.js", "/assets/index.esm-CpzYlNdn.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/chunk-CWVAJCXJ-BEmBpbZv.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/index-CRMkCGb6.js"], "css": [] }, "routes/_authorized.orders._index": { "id": "routes/_authorized.orders._index", "parentId": "routes/_authorized", "path": "orders", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CU8YAMk_.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/TextPrice-BKP0caI3.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/vo_user_name-DWPGqLsA.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/chunk-7D6N5TE5-D0DQFTJl.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/Navbar-BPoDUv4m.js", "/assets/events-l6No6g-S.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/index-DcejMdNG.js", "/assets/app_resources-CDkSSx5t.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/AccountCancelIcon-hUm3w097.js", "/assets/ConfirmationDialog-DIsNCiqw.js", "/assets/index.esm-CpzYlNdn.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/chunk-CWVAJCXJ-BEmBpbZv.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/index-CRMkCGb6.js"], "css": [] }, "routes/_authorized.orders.print": { "id": "routes/_authorized.orders.print", "parentId": "routes/_authorized", "path": "orders/print", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DosEM6qE.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/TextPrice-BKP0caI3.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/vo_user_name-DWPGqLsA.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-7D6N5TE5-D0DQFTJl.js", "/assets/utils-DTXYOP_7.js", "/assets/order.api_hooks-CSsqO2_h.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/index-DcejMdNG.js", "/assets/chunk-MGVPL3OH-aLfQ7SVE.js", "/assets/chunk-VTV6N5LE-B6EGXpGg.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/index-Cn3NNzlD.js"], "css": [] }, "routes/api.dxt.vendedor.cliente": { "id": "routes/api.dxt.vendedor.cliente", "parentId": "routes/api.dxt.vendedor", "path": "cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.config_file": { "id": "routes/api.settings.config_file", "parentId": "root", "path": "api/settings/config_file", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.config_file-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.company": { "id": "routes/_admin.settings.company", "parentId": "routes/_admin", "path": "settings/company", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CHmjEZ4z.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/SettingsFormHeading-oznEKY0V.js", "/assets/app_resources-CDkSSx5t.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/InlineError-DCz4eDK0.js", "/assets/SettingsFormButtons-Cbuywpud.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js"], "css": [] }, "routes/_admin.settings._index": { "id": "routes/_admin.settings._index", "parentId": "routes/_admin", "path": "settings", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CSN2NgNv.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js"], "css": [] }, "routes/_authorized.drafts.add": { "id": "routes/_authorized.drafts.add", "parentId": "routes/_authorized", "path": "drafts/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-xy92I8dQ.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/TextPrice-BKP0caI3.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/order.api_hooks-CSsqO2_h.js", "/assets/events-l6No6g-S.js", "/assets/app_resources-CDkSSx5t.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/Navbar-BPoDUv4m.js", "/assets/MessageToUserDialog-CBQLHKHO.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/index-DtHspM0R.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/index-DtWsygUi.js"], "css": [] }, "routes/_authorized.orders.add": { "id": "routes/_authorized.orders.add", "parentId": "routes/_authorized", "path": "orders/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DbQVvg2G.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/TextPrice-BKP0caI3.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/index.esm-DXKbKlYo.js", "/assets/index.esm-CpzYlNdn.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/order.api_hooks-CSsqO2_h.js", "/assets/events-l6No6g-S.js", "/assets/app_resources-CDkSSx5t.js", "/assets/SearchField-Ciu5eLKz.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/Navbar-BPoDUv4m.js", "/assets/MessageToUserDialog-CBQLHKHO.js", "/assets/chunk-T2WCTPDH-0Qni0mTa.js", "/assets/ControlledSelect-CjhzTTii.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/index-DtHspM0R.js", "/assets/chunk-Z6RXEUPO-DTekSvPj.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/CommonErrors-Cf1BB0Pn.js", "/assets/index-DtWsygUi.js"], "css": [] }, "routes/_admin.settings.tango": { "id": "routes/_admin.settings.tango", "parentId": "routes/_admin", "path": "settings/tango", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-LbapKX-U.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/app-BdYyDs5S.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/index.esm-DXKbKlYo.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/SettingsFormHeading-oznEKY0V.js", "/assets/index-B-BLzzSh.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/app_resources-CDkSSx5t.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/SettingsFormButtons-Cbuywpud.js", "/assets/utils-DihYaFf6.js"], "css": [] }, "routes/_authorized.downloads": { "id": "routes/_authorized.downloads", "parentId": "routes/_authorized", "path": "downloads", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-_1BHXAk-.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/Navbar-BPoDUv4m.js", "/assets/SettingsFormHeading-oznEKY0V.js", "/assets/chunk-AMBGAKG2-DNImCCvC.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js"], "css": [] }, "routes/api.pedido.$id_pedido": { "id": "routes/api.pedido.$id_pedido", "parentId": "routes/api.pedido", "path": ":id_pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.misc": { "id": "routes/_admin.settings.misc", "parentId": "routes/_admin", "path": "settings/misc", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-1Fg2ZoeE.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/chunk-VMD3UMGK-BOiy-z46.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/CommonCard-BQfjnTT7.js", "/assets/ResponsiveIconButton-Ccujq6NG.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/app-BdYyDs5S.js", "/assets/ApiErrors-GUSgL-Xy.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-3Y4YXCR2-CiP0t4s6.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-7D6N5TE5-D0DQFTJl.js", "/assets/index.esm-DXKbKlYo.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/SettingsFormHeading-oznEKY0V.js", "/assets/index-B-BLzzSh.js", "/assets/useDXTApiFetch-_LSStUNh.js", "/assets/FormSkeletons-CoMZNYRx.js", "/assets/chunk-ZPFGWTBB-CfuIyNTX.js", "/assets/chunk-W7WUSNWJ-CDK2m9PS.js", "/assets/app_resources-CDkSSx5t.js", "/assets/chunk-CWVAJCXJ-BEmBpbZv.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/ControlledTextarea-acTj6uTp.js", "/assets/FormErrors-DgI5zxIH.js", "/assets/SettingsFormButtons-Cbuywpud.js", "/assets/utils-DihYaFf6.js"], "css": [] }, "routes/api.draft.$id_pedido": { "id": "routes/api.draft.$id_pedido", "parentId": "routes/api.draft", "path": ":id_pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.renglones": { "id": "routes/api.pedido.renglones", "parentId": "routes/api.pedido", "path": "renglones", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.renglones-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.start_new": { "id": "routes/api.pedido.start_new", "parentId": "routes/api.pedido", "path": "start_new", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.start_new-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.renglones": { "id": "routes/api.draft.renglones", "parentId": "routes/api.draft", "path": "renglones", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.renglones-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.start_new": { "id": "routes/api.draft.start_new", "parentId": "routes/api.draft", "path": "start_new", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.start_new-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.vendedor": { "id": "routes/api.tango.vendedor", "parentId": "root", "path": "api/tango/vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.password": { "id": "routes/api.auth.password", "parentId": "root", "path": "api/auth/password", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.password-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.by_ids": { "id": "routes/api.pedido.by_ids", "parentId": "routes/api.pedido", "path": "by_ids", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.by_ids-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.misc": { "id": "routes/api.settings.misc", "parentId": "root", "path": "api/settings/misc", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.misc-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.cliente": { "id": "routes/api.tango.cliente", "parentId": "root", "path": "api/tango/cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.admin.status": { "id": "routes/api.admin.status", "parentId": "root", "path": "api/admin/status", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.admin.status-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.connect": { "id": "routes/api.auth.connect", "parentId": "root", "path": "api/auth/connect", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.connect-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.vendedor": { "id": "routes/api.dxt.vendedor", "parentId": "root", "path": "api/dxt/vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.perfil": { "id": "routes/api.tango.perfil", "parentId": "root", "path": "api/tango/perfil", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.perfil-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.logout": { "id": "routes/api.auth.logout", "parentId": "root", "path": "api/auth/logout", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.logout-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.cliente": { "id": "routes/api.dxt.cliente", "parentId": "root", "path": "api/dxt/cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.db": { "id": "routes/api.settings.db", "parentId": "root", "path": "api/settings/db", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.db-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.lista": { "id": "routes/api.tango.lista", "parentId": "root", "path": "api/tango/lista", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.lista-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.login": { "id": "routes/api.auth.login", "parentId": "root", "path": "api/auth/login", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.login-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dictionary": { "id": "routes/api.dictionary", "parentId": "root", "path": "api/dictionary", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dictionary-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized": { "id": "routes/_authorized", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CxVSjWN0.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/refresh_all-Bi1PYNQW.js", "/assets/ClientOnly-DaaI_x4n.js"], "css": [] }, "routes/api.pedido": { "id": "routes/api.pedido", "parentId": "root", "path": "api/pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft": { "id": "routes/api.draft", "parentId": "root", "path": "api/draft", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin": { "id": "routes/_admin", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-LQ47WO9N.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/refresh_all-Bi1PYNQW.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-ALC6QPCI-C2jRzl9i.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/chunk-QURMB2UJ-BoOQBYSq.js", "/assets/chunk-KRPLQIP4-DRGOXS8W.js", "/assets/chunk-HB6KBUMZ-CJPGLeRv.js", "/assets/chunk-3ASUQ6PA-ByZtqmzd.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/chunk-BL2ZZSHG-DP_ZXxbw.js", "/assets/ClientOnly-DaaI_x4n.js", "/assets/Navbar-BPoDUv4m.js"], "css": [] }, "routes/_index": { "id": "routes/_index", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BttqWQ9T.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-Cuif_eEn.js", "/assets/auth_context-B-Tcig0k.js", "/assets/app-BdYyDs5S.js", "/assets/chunk-6QYXN73V-B1Nx9szV.js", "/assets/chunk-56K2BSAJ-r8NF7IGV.js", "/assets/chunk-ZHMYA64R-Cq5LpG9O.js", "/assets/index.esm-DXKbKlYo.js", "/assets/chunk-H46NUPBZ-Cf5o4NPi.js", "/assets/chunk-6CVSDS6C-B4Ua9FB8.js", "/assets/chunk-7OLJDQMT-DB_eYbVs.js", "/assets/chunk-2OOHT3W5-y4h3Shmy.js", "/assets/chunk-MFVQSVQB-gRsUJlZr.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-DWPGqLsA.js", "/assets/ColorModeSelector-CnW8xduA.js", "/assets/ControlledInput-DsnpheB0.js", "/assets/MessageToUserDialog-CBQLHKHO.js", "/assets/chunk-YQO7BFFX-CEG2A-0c.js", "/assets/chunk-46CXQZ4E-bCSOgkek.js", "/assets/chunk-NTCQBYKE-BJvKyHSx.js", "/assets/chunk-3KCBMPN5-CdY7cck7.js", "/assets/chunk-2ZHRCML3-BcSRrPbH.js"], "css": [] } }, "url": "/assets/manifest-d86bb14c.js", "version": "d86bb14c" };
+const serverManifest = { "entry": { "module": "/assets/entry.client-ojFhkZzh.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/styleContexts-DiZ_cVHh.js", "/assets/components-DVk_p40a.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": true, "module": "/assets/root-DBOL1hmk.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/styleContexts-DiZ_cVHh.js", "/assets/components-DVk_p40a.js", "/assets/auth_context-BcmIMa0H.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/chunk-AMBGAKG2-BcwDE01I.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/chunk-3Y4YXCR2-D9PuIzMR.js", "/assets/CommonErrors-Ca1Fo25T.js", "/assets/chunk-NTCQBYKE-BNWfc7jI.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js"], "css": ["/assets/root-3imEpurU.css"] }, "routes/api.dxt.cliente.$id_cliente.siblings.$tango_id": { "id": "routes/api.dxt.cliente.$id_cliente.siblings.$tango_id", "parentId": "routes/api.dxt.cliente.$id_cliente", "path": "siblings/:tango_id", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente._id_cliente.siblings._tango_id-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.users.customers.$id.edit": { "id": "routes/_admin.settings.users.customers.$id.edit", "parentId": "routes/_admin", "path": "settings/users/customers/:id/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DBB3yK81.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/AccountCancelIcon-Dwhtn_ei.js", "/assets/app-B1a_okyL.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/chunk-YQO7BFFX-4WIx2Mcr.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/CommonCard-CeRdMR-s.js", "/assets/ResponsiveIconButton-Dzqr81nH.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/app_resources-DBlOodC1.js", "/assets/components-DVk_p40a.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/ApiErrors-BofVVWwq.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-BqhPpraI.js", "/assets/chunk-HB6KBUMZ-25NI-665.js", "/assets/chunk-H46NUPBZ-DZttvycU.js", "/assets/chunk-6CVSDS6C-CZaR6dev.js", "/assets/chunk-7D6N5TE5-BJ4T9Sem.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/chunk-46CXQZ4E-CX4juB_f.js", "/assets/ControlledInput-CDCrsGF4.js", "/assets/chunk-2ZHRCML3-CgIq3YrP.js", "/assets/chunk-Z6RXEUPO-CLnUS3YW.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-3Y4YXCR2-D9PuIzMR.js", "/assets/FormSkeletons-C9NbYi-R.js", "/assets/chunk-ZPFGWTBB-D1BdsecE.js", "/assets/ControlledSelect-fWVi0-qr.js", "/assets/chunk-VTV6N5LE-CVRITHBR.js", "/assets/FormErrors-Cq6m-7WG.js", "/assets/vo_dxt_password-CxymUS6f.js", "/assets/InlineError-CaHI0zK4.js", "/assets/SettingsFormButtons-BvgAhPGk.js", "/assets/chunk-6RSEZNRH-HBxAY87Z.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-C34O4LAA.js", "/assets/settings-6AZf0UQP.js", "/assets/CommonErrors-Ca1Fo25T.js", "/assets/SettingsFormHeading-BHfSW-Kb.js", "/assets/schema_transformers-DBGtfPql.js", "/assets/utils-DTXYOP_7.js"], "css": [] }, "routes/_admin.settings.users.sellers.$id.edit": { "id": "routes/_admin.settings.users.sellers.$id.edit", "parentId": "routes/_admin", "path": "settings/users/sellers/:id/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BalvFLcc.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/AccountCancelIcon-Dwhtn_ei.js", "/assets/app-B1a_okyL.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/chunk-YQO7BFFX-4WIx2Mcr.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/CommonCard-CeRdMR-s.js", "/assets/ResponsiveIconButton-Dzqr81nH.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/app_resources-DBlOodC1.js", "/assets/components-DVk_p40a.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/ApiErrors-BofVVWwq.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-BqhPpraI.js", "/assets/chunk-HB6KBUMZ-25NI-665.js", "/assets/chunk-H46NUPBZ-DZttvycU.js", "/assets/chunk-6CVSDS6C-CZaR6dev.js", "/assets/chunk-7D6N5TE5-BJ4T9Sem.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/chunk-46CXQZ4E-CX4juB_f.js", "/assets/ControlledInput-CDCrsGF4.js", "/assets/chunk-2ZHRCML3-CgIq3YrP.js", "/assets/chunk-Z6RXEUPO-CLnUS3YW.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-3Y4YXCR2-D9PuIzMR.js", "/assets/FormSkeletons-C9NbYi-R.js", "/assets/chunk-ZPFGWTBB-D1BdsecE.js", "/assets/ControlledSelect-fWVi0-qr.js", "/assets/chunk-VTV6N5LE-CVRITHBR.js", "/assets/FormErrors-Cq6m-7WG.js", "/assets/vo_dxt_password-CxymUS6f.js", "/assets/InlineError-CaHI0zK4.js", "/assets/SettingsFormButtons-BvgAhPGk.js", "/assets/chunk-6RSEZNRH-HBxAY87Z.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-C34O4LAA.js", "/assets/settings-6AZf0UQP.js", "/assets/CommonErrors-Ca1Fo25T.js", "/assets/SettingsFormHeading-BHfSW-Kb.js", "/assets/schema_transformers-DBGtfPql.js", "/assets/utils-DTXYOP_7.js"], "css": [] }, "routes/api.pedido.$id_pedido.start_new_draft": { "id": "routes/api.pedido.$id_pedido.start_new_draft", "parentId": "routes/api.pedido.$id_pedido", "path": "start_new_draft", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_new_draft-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.$id_pedido.start_new_order": { "id": "routes/api.draft.$id_pedido.start_new_order", "parentId": "routes/api.draft.$id_pedido", "path": "start_new_order", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_new_order-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.users.customers.add": { "id": "routes/_admin.settings.users.customers.add", "parentId": "routes/_admin", "path": "settings/users/customers/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BL6_CWug.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/AccountCancelIcon-Dwhtn_ei.js", "/assets/app-B1a_okyL.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-DBlOodC1.js", "/assets/components-DVk_p40a.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/ApiErrors-BofVVWwq.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-BqhPpraI.js", "/assets/ResponsiveIconButton-Dzqr81nH.js", "/assets/chunk-HB6KBUMZ-25NI-665.js", "/assets/chunk-H46NUPBZ-DZttvycU.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/chunk-YQO7BFFX-4WIx2Mcr.js", "/assets/chunk-6CVSDS6C-CZaR6dev.js", "/assets/chunk-7D6N5TE5-BJ4T9Sem.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/chunk-46CXQZ4E-CX4juB_f.js", "/assets/ControlledInput-CDCrsGF4.js", "/assets/chunk-2ZHRCML3-CgIq3YrP.js", "/assets/chunk-Z6RXEUPO-CLnUS3YW.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-3Y4YXCR2-D9PuIzMR.js", "/assets/FormSkeletons-C9NbYi-R.js", "/assets/chunk-ZPFGWTBB-D1BdsecE.js", "/assets/ControlledSelect-fWVi0-qr.js", "/assets/CommonCard-CeRdMR-s.js", "/assets/chunk-VTV6N5LE-CVRITHBR.js", "/assets/FormErrors-Cq6m-7WG.js", "/assets/vo_dxt_password-CxymUS6f.js", "/assets/InlineError-CaHI0zK4.js", "/assets/SettingsFormButtons-BvgAhPGk.js", "/assets/chunk-6RSEZNRH-HBxAY87Z.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-C34O4LAA.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/settings-6AZf0UQP.js", "/assets/schema_transformers-DBGtfPql.js", "/assets/SettingsFormHeading-BHfSW-Kb.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.order": { "id": "routes/_authorized.drafts.$id_pedido.order", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/order", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-Be6zkqVS.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/TextPrice-8bfzlbFQ.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/app-B1a_okyL.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/ColorModeSelector-C-acBnCm.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/chunk-6CVSDS6C-CZaR6dev.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-CgIq3YrP.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/chunk-46CXQZ4E-CX4juB_f.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/chunk-HB6KBUMZ-25NI-665.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-BqhPpraI.js", "/assets/ResponsiveIconButton-Dzqr81nH.js", "/assets/chunk-H46NUPBZ-DZttvycU.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/chunk-YQO7BFFX-4WIx2Mcr.js", "/assets/chunk-3Y4YXCR2-D9PuIzMR.js", "/assets/app_resources-DBlOodC1.js", "/assets/components-DVk_p40a.js", "/assets/ApiErrors-BofVVWwq.js", "/assets/order.api_hooks-CvgWT8Q3.js", "/assets/OrdersContainer-CkiXtHbY.js", "/assets/SearchField-C-IBFAFq.js", "/assets/FormErrors-Cq6m-7WG.js", "/assets/Navbar-CrgycxSA.js", "/assets/MessageToUserDialog-DLqERkqp.js", "/assets/chunk-T2WCTPDH-D-1yuUFr.js", "/assets/ControlledSelect-fWVi0-qr.js", "/assets/CommonCard-CeRdMR-s.js", "/assets/chunk-ZPFGWTBB-D1BdsecE.js", "/assets/chunk-NTCQBYKE-BNWfc7jI.js", "/assets/ControlledInput-CDCrsGF4.js", "/assets/ControlledTextarea-D3qNDSdo.js", "/assets/index-Ik1F4ylM.js", "/assets/chunk-Z6RXEUPO-CLnUS3YW.js", "/assets/chunk-6RSEZNRH-HBxAY87Z.js", "/assets/FormSkeletons-C9NbYi-R.js", "/assets/CommonErrors-Ca1Fo25T.js", "/assets/index-ByAHSYtM.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.draft": { "id": "routes/_authorized.orders.$id_pedido.draft", "parentId": "routes/_authorized", "path": "orders/:id_pedido/draft", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CSx4D_2I.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/TextPrice-8bfzlbFQ.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/app-B1a_okyL.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/ColorModeSelector-C-acBnCm.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/chunk-6CVSDS6C-CZaR6dev.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-CgIq3YrP.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/chunk-46CXQZ4E-CX4juB_f.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/chunk-HB6KBUMZ-25NI-665.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-BqhPpraI.js", "/assets/ResponsiveIconButton-Dzqr81nH.js", "/assets/chunk-H46NUPBZ-DZttvycU.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/chunk-YQO7BFFX-4WIx2Mcr.js", "/assets/chunk-3Y4YXCR2-D9PuIzMR.js", "/assets/app_resources-DBlOodC1.js", "/assets/components-DVk_p40a.js", "/assets/ApiErrors-BofVVWwq.js", "/assets/order.api_hooks-CvgWT8Q3.js", "/assets/OrdersContainer-CkiXtHbY.js", "/assets/SearchField-C-IBFAFq.js", "/assets/FormErrors-Cq6m-7WG.js", "/assets/Navbar-CrgycxSA.js", "/assets/MessageToUserDialog-DLqERkqp.js", "/assets/chunk-T2WCTPDH-D-1yuUFr.js", "/assets/ControlledSelect-fWVi0-qr.js", "/assets/CommonCard-CeRdMR-s.js", "/assets/chunk-ZPFGWTBB-D1BdsecE.js", "/assets/chunk-NTCQBYKE-BNWfc7jI.js", "/assets/ControlledInput-CDCrsGF4.js", "/assets/ControlledTextarea-D3qNDSdo.js", "/assets/index-Ik1F4ylM.js", "/assets/chunk-Z6RXEUPO-CLnUS3YW.js", "/assets/chunk-6RSEZNRH-HBxAY87Z.js", "/assets/FormSkeletons-C9NbYi-R.js", "/assets/CommonErrors-Ca1Fo25T.js", "/assets/index-ByAHSYtM.js"], "css": [] }, "routes/_admin.settings.product_list.$type": { "id": "routes/_admin.settings.product_list.$type", "parentId": "routes/_admin", "path": "settings/product_list/:type", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-tfkTHK1J.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/chunk-YQO7BFFX-4WIx2Mcr.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/CommonCard-CeRdMR-s.js", "/assets/ResponsiveIconButton-Dzqr81nH.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/app_resources-DBlOodC1.js", "/assets/app-B1a_okyL.js", "/assets/components-DVk_p40a.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/ApiErrors-BofVVWwq.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/index.esm-DRWPArKk.js", "/assets/chunk-H46NUPBZ-DZttvycU.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/chunk-46CXQZ4E-CX4juB_f.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-3Y4YXCR2-D9PuIzMR.js", "/assets/CommonErrors-Ca1Fo25T.js", "/assets/SettingsFormHeading-BHfSW-Kb.js", "/assets/FormSkeletons-C9NbYi-R.js", "/assets/chunk-ZPFGWTBB-D1BdsecE.js", "/assets/ControlledTextarea-D3qNDSdo.js", "/assets/FormErrors-Cq6m-7WG.js", "/assets/SettingsFormButtons-BvgAhPGk.js", "/assets/index-Ik1F4ylM.js", "/assets/chunk-6RSEZNRH-HBxAY87Z.js"], "css": [] }, "routes/_admin.settings.users.$type._index": { "id": "routes/_admin.settings.users.$type._index", "parentId": "routes/_admin", "path": "settings/users/:type", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CGuM7VhF.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/AccountCancelIcon-Dwhtn_ei.js", "/assets/app-B1a_okyL.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/chunk-YQO7BFFX-4WIx2Mcr.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/CommonCard-CeRdMR-s.js", "/assets/ResponsiveIconButton-Dzqr81nH.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/app_resources-DBlOodC1.js", "/assets/components-DVk_p40a.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/ApiErrors-BofVVWwq.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/chunk-6CVSDS6C-CZaR6dev.js", "/assets/chunk-2ZHRCML3-CgIq3YrP.js", "/assets/chunk-T2WCTPDH-D-1yuUFr.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-3Y4YXCR2-D9PuIzMR.js", "/assets/settings-6AZf0UQP.js", "/assets/CommonErrors-Ca1Fo25T.js", "/assets/SettingsFormHeading-BHfSW-Kb.js", "/assets/FormSkeletons-C9NbYi-R.js", "/assets/chunk-ZPFGWTBB-D1BdsecE.js", "/assets/ConfirmationDialog-Dob361oP.js", "/assets/SearchField-C-IBFAFq.js", "/assets/chunk-NTCQBYKE-BNWfc7jI.js", "/assets/chunk-MGVPL3OH-DUt6-qa1.js", "/assets/chunk-6RSEZNRH-HBxAY87Z.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.copy": { "id": "routes/_authorized.drafts.$id_pedido.copy", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/copy", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DWB2tHyw.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/TextPrice-8bfzlbFQ.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/app-B1a_okyL.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/ColorModeSelector-C-acBnCm.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/chunk-6CVSDS6C-CZaR6dev.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-CgIq3YrP.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/chunk-46CXQZ4E-CX4juB_f.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/chunk-HB6KBUMZ-25NI-665.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-BqhPpraI.js", "/assets/ResponsiveIconButton-Dzqr81nH.js", "/assets/chunk-H46NUPBZ-DZttvycU.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/chunk-YQO7BFFX-4WIx2Mcr.js", "/assets/chunk-3Y4YXCR2-D9PuIzMR.js", "/assets/app_resources-DBlOodC1.js", "/assets/components-DVk_p40a.js", "/assets/ApiErrors-BofVVWwq.js", "/assets/order.api_hooks-CvgWT8Q3.js", "/assets/OrdersContainer-CkiXtHbY.js", "/assets/SearchField-C-IBFAFq.js", "/assets/FormErrors-Cq6m-7WG.js", "/assets/Navbar-CrgycxSA.js", "/assets/MessageToUserDialog-DLqERkqp.js", "/assets/chunk-T2WCTPDH-D-1yuUFr.js", "/assets/ControlledSelect-fWVi0-qr.js", "/assets/CommonCard-CeRdMR-s.js", "/assets/chunk-ZPFGWTBB-D1BdsecE.js", "/assets/chunk-NTCQBYKE-BNWfc7jI.js", "/assets/ControlledInput-CDCrsGF4.js", "/assets/ControlledTextarea-D3qNDSdo.js", "/assets/index-Ik1F4ylM.js", "/assets/chunk-Z6RXEUPO-CLnUS3YW.js", "/assets/chunk-6RSEZNRH-HBxAY87Z.js", "/assets/FormSkeletons-C9NbYi-R.js", "/assets/CommonErrors-Ca1Fo25T.js", "/assets/index-ByAHSYtM.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.edit": { "id": "routes/_authorized.drafts.$id_pedido.edit", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BscHhMuT.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/TextPrice-8bfzlbFQ.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/app-B1a_okyL.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/ColorModeSelector-C-acBnCm.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/chunk-6CVSDS6C-CZaR6dev.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-CgIq3YrP.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/chunk-46CXQZ4E-CX4juB_f.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/chunk-HB6KBUMZ-25NI-665.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-BqhPpraI.js", "/assets/ResponsiveIconButton-Dzqr81nH.js", "/assets/chunk-H46NUPBZ-DZttvycU.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/chunk-YQO7BFFX-4WIx2Mcr.js", "/assets/chunk-3Y4YXCR2-D9PuIzMR.js", "/assets/app_resources-DBlOodC1.js", "/assets/components-DVk_p40a.js", "/assets/ApiErrors-BofVVWwq.js", "/assets/order.api_hooks-CvgWT8Q3.js", "/assets/OrdersContainer-CkiXtHbY.js", "/assets/SearchField-C-IBFAFq.js", "/assets/FormErrors-Cq6m-7WG.js", "/assets/Navbar-CrgycxSA.js", "/assets/MessageToUserDialog-DLqERkqp.js", "/assets/chunk-T2WCTPDH-D-1yuUFr.js", "/assets/ControlledSelect-fWVi0-qr.js", "/assets/CommonCard-CeRdMR-s.js", "/assets/chunk-ZPFGWTBB-D1BdsecE.js", "/assets/chunk-NTCQBYKE-BNWfc7jI.js", "/assets/ControlledInput-CDCrsGF4.js", "/assets/ControlledTextarea-D3qNDSdo.js", "/assets/index-Ik1F4ylM.js", "/assets/chunk-Z6RXEUPO-CLnUS3YW.js", "/assets/chunk-6RSEZNRH-HBxAY87Z.js", "/assets/FormSkeletons-C9NbYi-R.js", "/assets/CommonErrors-Ca1Fo25T.js", "/assets/index-ByAHSYtM.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.copy": { "id": "routes/_authorized.orders.$id_pedido.copy", "parentId": "routes/_authorized", "path": "orders/:id_pedido/copy", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-bVfqgm7K.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/TextPrice-8bfzlbFQ.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/app-B1a_okyL.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/ColorModeSelector-C-acBnCm.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/chunk-6CVSDS6C-CZaR6dev.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-CgIq3YrP.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/chunk-46CXQZ4E-CX4juB_f.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/chunk-HB6KBUMZ-25NI-665.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-BqhPpraI.js", "/assets/ResponsiveIconButton-Dzqr81nH.js", "/assets/chunk-H46NUPBZ-DZttvycU.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/chunk-YQO7BFFX-4WIx2Mcr.js", "/assets/chunk-3Y4YXCR2-D9PuIzMR.js", "/assets/app_resources-DBlOodC1.js", "/assets/components-DVk_p40a.js", "/assets/ApiErrors-BofVVWwq.js", "/assets/order.api_hooks-CvgWT8Q3.js", "/assets/OrdersContainer-CkiXtHbY.js", "/assets/SearchField-C-IBFAFq.js", "/assets/FormErrors-Cq6m-7WG.js", "/assets/Navbar-CrgycxSA.js", "/assets/MessageToUserDialog-DLqERkqp.js", "/assets/chunk-T2WCTPDH-D-1yuUFr.js", "/assets/ControlledSelect-fWVi0-qr.js", "/assets/CommonCard-CeRdMR-s.js", "/assets/chunk-ZPFGWTBB-D1BdsecE.js", "/assets/chunk-NTCQBYKE-BNWfc7jI.js", "/assets/ControlledInput-CDCrsGF4.js", "/assets/ControlledTextarea-D3qNDSdo.js", "/assets/index-Ik1F4ylM.js", "/assets/chunk-Z6RXEUPO-CLnUS3YW.js", "/assets/chunk-6RSEZNRH-HBxAY87Z.js", "/assets/FormSkeletons-C9NbYi-R.js", "/assets/CommonErrors-Ca1Fo25T.js", "/assets/index-ByAHSYtM.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.edit": { "id": "routes/_authorized.orders.$id_pedido.edit", "parentId": "routes/_authorized", "path": "orders/:id_pedido/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DKK8T2Bt.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/TextPrice-8bfzlbFQ.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/app-B1a_okyL.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/ColorModeSelector-C-acBnCm.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/chunk-6CVSDS6C-CZaR6dev.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-CgIq3YrP.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/chunk-46CXQZ4E-CX4juB_f.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/chunk-HB6KBUMZ-25NI-665.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-BqhPpraI.js", "/assets/ResponsiveIconButton-Dzqr81nH.js", "/assets/chunk-H46NUPBZ-DZttvycU.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/chunk-YQO7BFFX-4WIx2Mcr.js", "/assets/chunk-3Y4YXCR2-D9PuIzMR.js", "/assets/app_resources-DBlOodC1.js", "/assets/components-DVk_p40a.js", "/assets/ApiErrors-BofVVWwq.js", "/assets/order.api_hooks-CvgWT8Q3.js", "/assets/OrdersContainer-CkiXtHbY.js", "/assets/SearchField-C-IBFAFq.js", "/assets/FormErrors-Cq6m-7WG.js", "/assets/Navbar-CrgycxSA.js", "/assets/MessageToUserDialog-DLqERkqp.js", "/assets/chunk-T2WCTPDH-D-1yuUFr.js", "/assets/ControlledSelect-fWVi0-qr.js", "/assets/CommonCard-CeRdMR-s.js", "/assets/chunk-ZPFGWTBB-D1BdsecE.js", "/assets/chunk-NTCQBYKE-BNWfc7jI.js", "/assets/ControlledInput-CDCrsGF4.js", "/assets/ControlledTextarea-D3qNDSdo.js", "/assets/index-Ik1F4ylM.js", "/assets/chunk-Z6RXEUPO-CLnUS3YW.js", "/assets/chunk-6RSEZNRH-HBxAY87Z.js", "/assets/FormSkeletons-C9NbYi-R.js", "/assets/CommonErrors-Ca1Fo25T.js", "/assets/index-ByAHSYtM.js"], "css": [] }, "routes/api.dxt.cliente.siblings.$tango_id": { "id": "routes/api.dxt.cliente.siblings.$tango_id", "parentId": "routes/api.dxt.cliente", "path": "siblings/:tango_id", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente.siblings._tango_id-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.$id_pedido.start_update": { "id": "routes/api.pedido.$id_pedido.start_update", "parentId": "routes/api.pedido.$id_pedido", "path": "start_update", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_update-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.users.sellers.add": { "id": "routes/_admin.settings.users.sellers.add", "parentId": "routes/_admin", "path": "settings/users/sellers/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CYxFhSnE.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/AccountCancelIcon-Dwhtn_ei.js", "/assets/app-B1a_okyL.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-DBlOodC1.js", "/assets/components-DVk_p40a.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/ApiErrors-BofVVWwq.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-BqhPpraI.js", "/assets/ResponsiveIconButton-Dzqr81nH.js", "/assets/chunk-HB6KBUMZ-25NI-665.js", "/assets/chunk-H46NUPBZ-DZttvycU.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/chunk-YQO7BFFX-4WIx2Mcr.js", "/assets/chunk-6CVSDS6C-CZaR6dev.js", "/assets/chunk-7D6N5TE5-BJ4T9Sem.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/chunk-46CXQZ4E-CX4juB_f.js", "/assets/ControlledInput-CDCrsGF4.js", "/assets/chunk-2ZHRCML3-CgIq3YrP.js", "/assets/chunk-Z6RXEUPO-CLnUS3YW.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-3Y4YXCR2-D9PuIzMR.js", "/assets/FormSkeletons-C9NbYi-R.js", "/assets/chunk-ZPFGWTBB-D1BdsecE.js", "/assets/ControlledSelect-fWVi0-qr.js", "/assets/CommonCard-CeRdMR-s.js", "/assets/chunk-VTV6N5LE-CVRITHBR.js", "/assets/FormErrors-Cq6m-7WG.js", "/assets/vo_dxt_password-CxymUS6f.js", "/assets/InlineError-CaHI0zK4.js", "/assets/SettingsFormButtons-BvgAhPGk.js", "/assets/chunk-6RSEZNRH-HBxAY87Z.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-C34O4LAA.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/settings-6AZf0UQP.js", "/assets/schema_transformers-DBGtfPql.js", "/assets/SettingsFormHeading-BHfSW-Kb.js"], "css": [] }, "routes/api.draft.$id_pedido.start_update": { "id": "routes/api.draft.$id_pedido.start_update", "parentId": "routes/api.draft.$id_pedido", "path": "start_update", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_update-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.$id_pedido.start_copy": { "id": "routes/api.pedido.$id_pedido.start_copy", "parentId": "routes/api.pedido.$id_pedido", "path": "start_copy", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_copy-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.start_new.$id_cliente": { "id": "routes/api.pedido.start_new.$id_cliente", "parentId": "routes/api.pedido.start_new", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.start_new._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.$id_pedido.start_copy": { "id": "routes/api.draft.$id_pedido.start_copy", "parentId": "routes/api.draft.$id_pedido", "path": "start_copy", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_copy-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.start_new.$id_cliente": { "id": "routes/api.draft.start_new.$id_cliente", "parentId": "routes/api.draft.start_new", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.start_new._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.articulo.print_list.ids": { "id": "routes/api.dxt.articulo.print_list.ids", "parentId": "routes/api.dxt.articulo.print_list", "path": "ids", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.print_list.ids-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.drafts.$client.add": { "id": "routes/_authorized.drafts.$client.add", "parentId": "routes/_authorized", "path": "drafts/:client/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CNrwBV2U.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/TextPrice-8bfzlbFQ.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/app-B1a_okyL.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/ColorModeSelector-C-acBnCm.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/chunk-6CVSDS6C-CZaR6dev.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-CgIq3YrP.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/chunk-46CXQZ4E-CX4juB_f.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/chunk-HB6KBUMZ-25NI-665.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-BqhPpraI.js", "/assets/ResponsiveIconButton-Dzqr81nH.js", "/assets/chunk-H46NUPBZ-DZttvycU.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/chunk-YQO7BFFX-4WIx2Mcr.js", "/assets/chunk-3Y4YXCR2-D9PuIzMR.js", "/assets/app_resources-DBlOodC1.js", "/assets/components-DVk_p40a.js", "/assets/ApiErrors-BofVVWwq.js", "/assets/order.api_hooks-CvgWT8Q3.js", "/assets/OrdersContainer-CkiXtHbY.js", "/assets/SearchField-C-IBFAFq.js", "/assets/FormErrors-Cq6m-7WG.js", "/assets/Navbar-CrgycxSA.js", "/assets/MessageToUserDialog-DLqERkqp.js", "/assets/chunk-T2WCTPDH-D-1yuUFr.js", "/assets/ControlledSelect-fWVi0-qr.js", "/assets/CommonCard-CeRdMR-s.js", "/assets/chunk-ZPFGWTBB-D1BdsecE.js", "/assets/chunk-NTCQBYKE-BNWfc7jI.js", "/assets/ControlledInput-CDCrsGF4.js", "/assets/ControlledTextarea-D3qNDSdo.js", "/assets/index-Ik1F4ylM.js", "/assets/chunk-Z6RXEUPO-CLnUS3YW.js", "/assets/chunk-6RSEZNRH-HBxAY87Z.js", "/assets/FormSkeletons-C9NbYi-R.js", "/assets/CommonErrors-Ca1Fo25T.js", "/assets/index-ByAHSYtM.js"], "css": [] }, "routes/_authorized.orders.$client.add": { "id": "routes/_authorized.orders.$client.add", "parentId": "routes/_authorized", "path": "orders/:client/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CGxOG7jx.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/TextPrice-8bfzlbFQ.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/app-B1a_okyL.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/ColorModeSelector-C-acBnCm.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/chunk-6CVSDS6C-CZaR6dev.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-CgIq3YrP.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/chunk-46CXQZ4E-CX4juB_f.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/chunk-HB6KBUMZ-25NI-665.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-BqhPpraI.js", "/assets/ResponsiveIconButton-Dzqr81nH.js", "/assets/chunk-H46NUPBZ-DZttvycU.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/chunk-YQO7BFFX-4WIx2Mcr.js", "/assets/chunk-3Y4YXCR2-D9PuIzMR.js", "/assets/app_resources-DBlOodC1.js", "/assets/components-DVk_p40a.js", "/assets/ApiErrors-BofVVWwq.js", "/assets/order.api_hooks-CvgWT8Q3.js", "/assets/OrdersContainer-CkiXtHbY.js", "/assets/SearchField-C-IBFAFq.js", "/assets/FormErrors-Cq6m-7WG.js", "/assets/Navbar-CrgycxSA.js", "/assets/MessageToUserDialog-DLqERkqp.js", "/assets/chunk-T2WCTPDH-D-1yuUFr.js", "/assets/ControlledSelect-fWVi0-qr.js", "/assets/CommonCard-CeRdMR-s.js", "/assets/chunk-ZPFGWTBB-D1BdsecE.js", "/assets/chunk-NTCQBYKE-BNWfc7jI.js", "/assets/ControlledInput-CDCrsGF4.js", "/assets/ControlledTextarea-D3qNDSdo.js", "/assets/index-Ik1F4ylM.js", "/assets/chunk-Z6RXEUPO-CLnUS3YW.js", "/assets/chunk-6RSEZNRH-HBxAY87Z.js", "/assets/FormSkeletons-C9NbYi-R.js", "/assets/CommonErrors-Ca1Fo25T.js", "/assets/index-ByAHSYtM.js"], "css": [] }, "routes/api.dictionary.active_company": { "id": "routes/api.dictionary.active_company", "parentId": "routes/api.dictionary", "path": "active_company", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dictionary.active_company-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.$id_pedido.favorite": { "id": "routes/api.draft.$id_pedido.favorite", "parentId": "routes/api.draft.$id_pedido", "path": "favorite", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.favorite-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.vendedor.$id_vendedor": { "id": "routes/api.dxt.vendedor.$id_vendedor", "parentId": "routes/api.dxt.vendedor", "path": ":id_vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor._id_vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.change_password": { "id": "routes/_authorized.change_password", "parentId": "routes/_authorized", "path": "change_password", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BdB2Furc.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/app-B1a_okyL.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/ColorModeSelector-C-acBnCm.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/chunk-HB6KBUMZ-25NI-665.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/chunk-YQO7BFFX-4WIx2Mcr.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/CommonCard-CeRdMR-s.js", "/assets/ResponsiveIconButton-Dzqr81nH.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/chunk-46CXQZ4E-CX4juB_f.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/index.esm-DRWPArKk.js", "/assets/chunk-H46NUPBZ-DZttvycU.js", "/assets/chunk-6CVSDS6C-CZaR6dev.js", "/assets/ControlledInput-CDCrsGF4.js", "/assets/chunk-2ZHRCML3-CgIq3YrP.js", "/assets/chunk-Z6RXEUPO-CLnUS3YW.js", "/assets/chunk-3Y4YXCR2-D9PuIzMR.js", "/assets/Navbar-CrgycxSA.js", "/assets/SettingsFormHeading-BHfSW-Kb.js", "/assets/app_resources-DBlOodC1.js", "/assets/refresh_all-C2LnWT5A.js", "/assets/FormErrors-Cq6m-7WG.js", "/assets/vo_dxt_password-CxymUS6f.js", "/assets/SettingsFormButtons-BvgAhPGk.js", "/assets/utils-DihYaFf6.js", "/assets/chunk-6RSEZNRH-HBxAY87Z.js", "/assets/chunk-ZPFGWTBB-D1BdsecE.js"], "css": [] }, "routes/api.dxt.articulo.print_list": { "id": "routes/api.dxt.articulo.print_list", "parentId": "root", "path": "api/dxt/articulo/print_list", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.print_list-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.cliente.$id_cliente": { "id": "routes/api.dxt.cliente.$id_cliente", "parentId": "routes/api.dxt.cliente", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.articulo.edit_list": { "id": "routes/api.dxt.articulo.edit_list", "parentId": "root", "path": "api/dxt/articulo/edit_list", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.edit_list-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.usuario.auxiliares": { "id": "routes/api.dxt.usuario.auxiliares", "parentId": "root", "path": "api/dxt/usuario/auxiliares", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.usuario.auxiliares-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.drafts._index": { "id": "routes/_authorized.drafts._index", "parentId": "routes/_authorized", "path": "drafts", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BuChysTV.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-DBlOodC1.js", "/assets/app-B1a_okyL.js", "/assets/components-DVk_p40a.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/ApiErrors-BofVVWwq.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/index-CAKzuJDV.js", "/assets/ColorModeSelector-C-acBnCm.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-HB6KBUMZ-25NI-665.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/TextPrice-8bfzlbFQ.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/chunk-6CVSDS6C-CZaR6dev.js", "/assets/chunk-2ZHRCML3-CgIq3YrP.js", "/assets/vo_user_name-C34O4LAA.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/chunk-7D6N5TE5-BJ4T9Sem.js", "/assets/chunk-3Y4YXCR2-D9PuIzMR.js", "/assets/FormSkeletons-C9NbYi-R.js", "/assets/Navbar-CrgycxSA.js", "/assets/OrdersContainer-CkiXtHbY.js", "/assets/chunk-ZPFGWTBB-D1BdsecE.js", "/assets/SearchField-C-IBFAFq.js", "/assets/index-BTjXEVlk.js", "/assets/ResponsiveIconButton-Dzqr81nH.js", "/assets/AccountCancelIcon-Dwhtn_ei.js", "/assets/ConfirmationDialog-Dob361oP.js", "/assets/index.esm-BqhPpraI.js", "/assets/chunk-46CXQZ4E-CX4juB_f.js", "/assets/chunk-NTCQBYKE-BNWfc7jI.js", "/assets/chunk-Z6RXEUPO-CLnUS3YW.js", "/assets/chunk-CWVAJCXJ-CfPCGt4p.js", "/assets/chunk-T2WCTPDH-D-1yuUFr.js", "/assets/chunk-6RSEZNRH-HBxAY87Z.js", "/assets/index-QbMJHRA8.js"], "css": [] }, "routes/_authorized.orders._index": { "id": "routes/_authorized.orders._index", "parentId": "routes/_authorized", "path": "orders", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-WgzGtUSv.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-DBlOodC1.js", "/assets/app-B1a_okyL.js", "/assets/components-DVk_p40a.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/ApiErrors-BofVVWwq.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/index-CAKzuJDV.js", "/assets/ColorModeSelector-C-acBnCm.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-HB6KBUMZ-25NI-665.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/TextPrice-8bfzlbFQ.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/chunk-6CVSDS6C-CZaR6dev.js", "/assets/chunk-2ZHRCML3-CgIq3YrP.js", "/assets/vo_user_name-C34O4LAA.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/chunk-7D6N5TE5-BJ4T9Sem.js", "/assets/chunk-3Y4YXCR2-D9PuIzMR.js", "/assets/FormSkeletons-C9NbYi-R.js", "/assets/Navbar-CrgycxSA.js", "/assets/OrdersContainer-CkiXtHbY.js", "/assets/chunk-ZPFGWTBB-D1BdsecE.js", "/assets/SearchField-C-IBFAFq.js", "/assets/index-BTjXEVlk.js", "/assets/ResponsiveIconButton-Dzqr81nH.js", "/assets/AccountCancelIcon-Dwhtn_ei.js", "/assets/ConfirmationDialog-Dob361oP.js", "/assets/index.esm-BqhPpraI.js", "/assets/chunk-46CXQZ4E-CX4juB_f.js", "/assets/chunk-NTCQBYKE-BNWfc7jI.js", "/assets/chunk-Z6RXEUPO-CLnUS3YW.js", "/assets/chunk-CWVAJCXJ-CfPCGt4p.js", "/assets/chunk-T2WCTPDH-D-1yuUFr.js", "/assets/chunk-6RSEZNRH-HBxAY87Z.js", "/assets/index-QbMJHRA8.js"], "css": [] }, "routes/_authorized.orders.print": { "id": "routes/_authorized.orders.print", "parentId": "routes/_authorized", "path": "orders/print", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CayDB4Lq.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/TextPrice-8bfzlbFQ.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-DBlOodC1.js", "/assets/app-B1a_okyL.js", "/assets/components-DVk_p40a.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/vo_user_name-C34O4LAA.js", "/assets/chunk-T2WCTPDH-D-1yuUFr.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-7D6N5TE5-BJ4T9Sem.js", "/assets/utils-DTXYOP_7.js", "/assets/order.api_hooks-CvgWT8Q3.js", "/assets/ApiErrors-BofVVWwq.js", "/assets/CommonErrors-Ca1Fo25T.js", "/assets/index-BTjXEVlk.js", "/assets/chunk-MGVPL3OH-DUt6-qa1.js", "/assets/chunk-VTV6N5LE-CVRITHBR.js", "/assets/chunk-H46NUPBZ-DZttvycU.js"], "css": [] }, "routes/api.dxt.vendedor.cliente": { "id": "routes/api.dxt.vendedor.cliente", "parentId": "routes/api.dxt.vendedor", "path": "cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.config_file": { "id": "routes/api.settings.config_file", "parentId": "root", "path": "api/settings/config_file", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.config_file-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.company": { "id": "routes/_admin.settings.company", "parentId": "routes/_admin", "path": "settings/company", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DQ8RlQ1V.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/chunk-YQO7BFFX-4WIx2Mcr.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/CommonCard-CeRdMR-s.js", "/assets/ResponsiveIconButton-Dzqr81nH.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-BqhPpraI.js", "/assets/chunk-HB6KBUMZ-25NI-665.js", "/assets/chunk-H46NUPBZ-DZttvycU.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/chunk-46CXQZ4E-CX4juB_f.js", "/assets/chunk-Z6RXEUPO-CLnUS3YW.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-3Y4YXCR2-D9PuIzMR.js", "/assets/app-B1a_okyL.js", "/assets/SettingsFormHeading-BHfSW-Kb.js", "/assets/app_resources-DBlOodC1.js", "/assets/ControlledSelect-fWVi0-qr.js", "/assets/FormErrors-Cq6m-7WG.js", "/assets/InlineError-CaHI0zK4.js", "/assets/SettingsFormButtons-BvgAhPGk.js", "/assets/chunk-6RSEZNRH-HBxAY87Z.js", "/assets/chunk-ZPFGWTBB-D1BdsecE.js"], "css": [] }, "routes/_admin.settings._index": { "id": "routes/_admin.settings._index", "parentId": "routes/_admin", "path": "settings", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-Q09BHJlv.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-DBlOodC1.js", "/assets/app-B1a_okyL.js", "/assets/components-DVk_p40a.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/ApiErrors-BofVVWwq.js", "/assets/chunk-NTCQBYKE-BNWfc7jI.js", "/assets/chunk-YQO7BFFX-4WIx2Mcr.js", "/assets/chunk-ZPFGWTBB-D1BdsecE.js", "/assets/chunk-Z6RXEUPO-CLnUS3YW.js"], "css": [] }, "routes/_authorized.drafts.add": { "id": "routes/_authorized.drafts.add", "parentId": "routes/_authorized", "path": "drafts/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BnQ-0Z5-.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/TextPrice-8bfzlbFQ.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/app-B1a_okyL.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/ColorModeSelector-C-acBnCm.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/chunk-6CVSDS6C-CZaR6dev.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-CgIq3YrP.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/chunk-46CXQZ4E-CX4juB_f.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/chunk-HB6KBUMZ-25NI-665.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-BqhPpraI.js", "/assets/ResponsiveIconButton-Dzqr81nH.js", "/assets/chunk-H46NUPBZ-DZttvycU.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/chunk-YQO7BFFX-4WIx2Mcr.js", "/assets/chunk-3Y4YXCR2-D9PuIzMR.js", "/assets/app_resources-DBlOodC1.js", "/assets/components-DVk_p40a.js", "/assets/ApiErrors-BofVVWwq.js", "/assets/order.api_hooks-CvgWT8Q3.js", "/assets/OrdersContainer-CkiXtHbY.js", "/assets/SearchField-C-IBFAFq.js", "/assets/FormErrors-Cq6m-7WG.js", "/assets/Navbar-CrgycxSA.js", "/assets/MessageToUserDialog-DLqERkqp.js", "/assets/chunk-T2WCTPDH-D-1yuUFr.js", "/assets/ControlledSelect-fWVi0-qr.js", "/assets/CommonCard-CeRdMR-s.js", "/assets/chunk-ZPFGWTBB-D1BdsecE.js", "/assets/chunk-NTCQBYKE-BNWfc7jI.js", "/assets/ControlledInput-CDCrsGF4.js", "/assets/ControlledTextarea-D3qNDSdo.js", "/assets/index-Ik1F4ylM.js", "/assets/chunk-Z6RXEUPO-CLnUS3YW.js", "/assets/chunk-6RSEZNRH-HBxAY87Z.js", "/assets/FormSkeletons-C9NbYi-R.js", "/assets/CommonErrors-Ca1Fo25T.js", "/assets/index-ByAHSYtM.js"], "css": [] }, "routes/_authorized.orders.add": { "id": "routes/_authorized.orders.add", "parentId": "routes/_authorized", "path": "orders/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BjTDO-RC.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/TextPrice-8bfzlbFQ.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/app-B1a_okyL.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/ColorModeSelector-C-acBnCm.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/chunk-6CVSDS6C-CZaR6dev.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-CgIq3YrP.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/chunk-46CXQZ4E-CX4juB_f.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/chunk-HB6KBUMZ-25NI-665.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-BqhPpraI.js", "/assets/ResponsiveIconButton-Dzqr81nH.js", "/assets/chunk-H46NUPBZ-DZttvycU.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/chunk-YQO7BFFX-4WIx2Mcr.js", "/assets/chunk-3Y4YXCR2-D9PuIzMR.js", "/assets/app_resources-DBlOodC1.js", "/assets/components-DVk_p40a.js", "/assets/ApiErrors-BofVVWwq.js", "/assets/order.api_hooks-CvgWT8Q3.js", "/assets/OrdersContainer-CkiXtHbY.js", "/assets/SearchField-C-IBFAFq.js", "/assets/FormErrors-Cq6m-7WG.js", "/assets/Navbar-CrgycxSA.js", "/assets/MessageToUserDialog-DLqERkqp.js", "/assets/chunk-T2WCTPDH-D-1yuUFr.js", "/assets/ControlledSelect-fWVi0-qr.js", "/assets/CommonCard-CeRdMR-s.js", "/assets/chunk-ZPFGWTBB-D1BdsecE.js", "/assets/chunk-NTCQBYKE-BNWfc7jI.js", "/assets/ControlledInput-CDCrsGF4.js", "/assets/ControlledTextarea-D3qNDSdo.js", "/assets/index-Ik1F4ylM.js", "/assets/chunk-Z6RXEUPO-CLnUS3YW.js", "/assets/chunk-6RSEZNRH-HBxAY87Z.js", "/assets/FormSkeletons-C9NbYi-R.js", "/assets/CommonErrors-Ca1Fo25T.js", "/assets/index-ByAHSYtM.js"], "css": [] }, "routes/api.download.$filename": { "id": "routes/api.download.$filename", "parentId": "routes/api.download", "path": ":filename", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.download._filename-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.tango": { "id": "routes/_admin.settings.tango", "parentId": "routes/_admin", "path": "settings/tango", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-D5fMgfzA.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/chunk-YQO7BFFX-4WIx2Mcr.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/CommonCard-CeRdMR-s.js", "/assets/ResponsiveIconButton-Dzqr81nH.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-DBlOodC1.js", "/assets/app-B1a_okyL.js", "/assets/components-DVk_p40a.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/ApiErrors-BofVVWwq.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/index.esm-DRWPArKk.js", "/assets/chunk-H46NUPBZ-DZttvycU.js", "/assets/chunk-6CVSDS6C-CZaR6dev.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/chunk-46CXQZ4E-CX4juB_f.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-3Y4YXCR2-D9PuIzMR.js", "/assets/SettingsFormHeading-BHfSW-Kb.js", "/assets/index-DrSWqTKG.js", "/assets/FormSkeletons-C9NbYi-R.js", "/assets/chunk-ZPFGWTBB-D1BdsecE.js", "/assets/ControlledInput-CDCrsGF4.js", "/assets/FormErrors-Cq6m-7WG.js", "/assets/SettingsFormButtons-BvgAhPGk.js", "/assets/utils-DihYaFf6.js", "/assets/chunk-6RSEZNRH-HBxAY87Z.js"], "css": [] }, "routes/_authorized.downloads": { "id": "routes/_authorized.downloads", "parentId": "routes/_authorized", "path": "downloads", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-By6gjAX2.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/app-B1a_okyL.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/ColorModeSelector-C-acBnCm.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/chunk-HB6KBUMZ-25NI-665.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/chunk-YQO7BFFX-4WIx2Mcr.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/CommonCard-CeRdMR-s.js", "/assets/ResponsiveIconButton-Dzqr81nH.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-DBlOodC1.js", "/assets/components-DVk_p40a.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/ApiErrors-BofVVWwq.js", "/assets/Navbar-CrgycxSA.js", "/assets/SettingsFormHeading-BHfSW-Kb.js", "/assets/chunk-AMBGAKG2-BcwDE01I.js", "/assets/chunk-NTCQBYKE-BNWfc7jI.js", "/assets/FormSkeletons-C9NbYi-R.js"], "css": [] }, "routes/api.pedido.$id_pedido": { "id": "routes/api.pedido.$id_pedido", "parentId": "routes/api.pedido", "path": ":id_pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.misc": { "id": "routes/_admin.settings.misc", "parentId": "routes/_admin", "path": "settings/misc", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BgsXe8qK.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/chunk-YQO7BFFX-4WIx2Mcr.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/chunk-VMD3UMGK-CjQf0NqH.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/CommonCard-CeRdMR-s.js", "/assets/ResponsiveIconButton-Dzqr81nH.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-DBlOodC1.js", "/assets/app-B1a_okyL.js", "/assets/components-DVk_p40a.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/useDXTApiFetch-DCIa93_N.js", "/assets/ApiErrors-BofVVWwq.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-7D6N5TE5-BJ4T9Sem.js", "/assets/index.esm-DRWPArKk.js", "/assets/chunk-H46NUPBZ-DZttvycU.js", "/assets/chunk-6CVSDS6C-CZaR6dev.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/chunk-46CXQZ4E-CX4juB_f.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-3Y4YXCR2-D9PuIzMR.js", "/assets/SettingsFormHeading-BHfSW-Kb.js", "/assets/index-DrSWqTKG.js", "/assets/FormSkeletons-C9NbYi-R.js", "/assets/chunk-ZPFGWTBB-D1BdsecE.js", "/assets/chunk-CWVAJCXJ-CfPCGt4p.js", "/assets/ControlledInput-CDCrsGF4.js", "/assets/ControlledTextarea-D3qNDSdo.js", "/assets/FormErrors-Cq6m-7WG.js", "/assets/SettingsFormButtons-BvgAhPGk.js", "/assets/utils-DihYaFf6.js", "/assets/chunk-6RSEZNRH-HBxAY87Z.js"], "css": [] }, "routes/api.draft.$id_pedido": { "id": "routes/api.draft.$id_pedido", "parentId": "routes/api.draft", "path": ":id_pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.renglones": { "id": "routes/api.pedido.renglones", "parentId": "routes/api.pedido", "path": "renglones", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.renglones-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.start_new": { "id": "routes/api.pedido.start_new", "parentId": "routes/api.pedido", "path": "start_new", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.start_new-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.renglones": { "id": "routes/api.draft.renglones", "parentId": "routes/api.draft", "path": "renglones", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.renglones-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.start_new": { "id": "routes/api.draft.start_new", "parentId": "routes/api.draft", "path": "start_new", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.start_new-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.vendedor": { "id": "routes/api.tango.vendedor", "parentId": "root", "path": "api/tango/vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.password": { "id": "routes/api.auth.password", "parentId": "root", "path": "api/auth/password", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.password-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.by_ids": { "id": "routes/api.pedido.by_ids", "parentId": "routes/api.pedido", "path": "by_ids", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.by_ids-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.misc": { "id": "routes/api.settings.misc", "parentId": "root", "path": "api/settings/misc", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.misc-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.cliente": { "id": "routes/api.tango.cliente", "parentId": "root", "path": "api/tango/cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.admin.status": { "id": "routes/api.admin.status", "parentId": "root", "path": "api/admin/status", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.admin.status-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.connect": { "id": "routes/api.auth.connect", "parentId": "root", "path": "api/auth/connect", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.connect-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.vendedor": { "id": "routes/api.dxt.vendedor", "parentId": "root", "path": "api/dxt/vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.perfil": { "id": "routes/api.tango.perfil", "parentId": "root", "path": "api/tango/perfil", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.perfil-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.logout": { "id": "routes/api.auth.logout", "parentId": "root", "path": "api/auth/logout", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.logout-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.cliente": { "id": "routes/api.dxt.cliente", "parentId": "root", "path": "api/dxt/cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.db": { "id": "routes/api.settings.db", "parentId": "root", "path": "api/settings/db", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.db-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.lista": { "id": "routes/api.tango.lista", "parentId": "root", "path": "api/tango/lista", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.lista-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.login": { "id": "routes/api.auth.login", "parentId": "root", "path": "api/auth/login", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.login-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dictionary": { "id": "routes/api.dictionary", "parentId": "root", "path": "api/dictionary", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dictionary-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.download": { "id": "routes/api.download", "parentId": "root", "path": "api/download", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.download-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized": { "id": "routes/_authorized", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BSwOokLy.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/refresh_all-C2LnWT5A.js", "/assets/ClientOnly-CnGC-A7R.js"], "css": [] }, "routes/api.pedido": { "id": "routes/api.pedido", "parentId": "root", "path": "api/pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft": { "id": "routes/api.draft", "parentId": "root", "path": "api/draft", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin": { "id": "routes/_admin", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-Bt8cN6xO.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/refresh_all-C2LnWT5A.js", "/assets/app-B1a_okyL.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/ColorModeSelector-C-acBnCm.js", "/assets/chunk-QURMB2UJ-Cc-vvoFz.js", "/assets/chunk-KRPLQIP4-22zt2_dG.js", "/assets/chunk-HB6KBUMZ-25NI-665.js", "/assets/chunk-3ASUQ6PA-C9U3rhNA.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/chunk-BL2ZZSHG-XVL5PYnd.js", "/assets/ClientOnly-CnGC-A7R.js", "/assets/Navbar-CrgycxSA.js"], "css": [] }, "routes/_index": { "id": "routes/_index", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BOZDpW0_.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BcmIMa0H.js", "/assets/app-B1a_okyL.js", "/assets/chunk-6QYXN73V-CZbxpQYs.js", "/assets/chunk-56K2BSAJ-C8tXkxw9.js", "/assets/chunk-PULVB27S-DFGZ_FhU.js", "/assets/index.esm-DRWPArKk.js", "/assets/chunk-H46NUPBZ-DZttvycU.js", "/assets/chunk-6CVSDS6C-CZaR6dev.js", "/assets/chunk-7OLJDQMT-mUIp5tuF.js", "/assets/chunk-2OOHT3W5-Ci3F40nI.js", "/assets/chunk-MFVQSVQB-3P8bbuxX.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-C34O4LAA.js", "/assets/ColorModeSelector-C-acBnCm.js", "/assets/ControlledInput-CDCrsGF4.js", "/assets/MessageToUserDialog-DLqERkqp.js", "/assets/chunk-YQO7BFFX-4WIx2Mcr.js", "/assets/chunk-46CXQZ4E-CX4juB_f.js", "/assets/chunk-NTCQBYKE-BNWfc7jI.js", "/assets/chunk-3KCBMPN5-COSGWH1j.js", "/assets/chunk-2ZHRCML3-CgIq3YrP.js"], "css": [] } }, "url": "/assets/manifest-1f2420f5.js", "version": "1f2420f5" };
 const mode = "production";
 const assetsBuildDirectory = "build/client";
 const basename = "/";
@@ -18338,13 +18580,21 @@ const routes = {
     caseSensitive: void 0,
     module: route42
   },
+  "routes/api.download.$filename": {
+    id: "routes/api.download.$filename",
+    parentId: "routes/api.download",
+    path: ":filename",
+    index: void 0,
+    caseSensitive: void 0,
+    module: route43
+  },
   "routes/_admin.settings.tango": {
     id: "routes/_admin.settings.tango",
     parentId: "routes/_admin",
     path: "settings/tango",
     index: void 0,
     caseSensitive: void 0,
-    module: route43
+    module: route44
   },
   "routes/_authorized.downloads": {
     id: "routes/_authorized.downloads",
@@ -18352,7 +18602,7 @@ const routes = {
     path: "downloads",
     index: void 0,
     caseSensitive: void 0,
-    module: route44
+    module: route45
   },
   "routes/api.pedido.$id_pedido": {
     id: "routes/api.pedido.$id_pedido",
@@ -18360,7 +18610,7 @@ const routes = {
     path: ":id_pedido",
     index: void 0,
     caseSensitive: void 0,
-    module: route45
+    module: route46
   },
   "routes/_admin.settings.misc": {
     id: "routes/_admin.settings.misc",
@@ -18368,7 +18618,7 @@ const routes = {
     path: "settings/misc",
     index: void 0,
     caseSensitive: void 0,
-    module: route46
+    module: route47
   },
   "routes/api.draft.$id_pedido": {
     id: "routes/api.draft.$id_pedido",
@@ -18376,7 +18626,7 @@ const routes = {
     path: ":id_pedido",
     index: void 0,
     caseSensitive: void 0,
-    module: route47
+    module: route48
   },
   "routes/api.pedido.renglones": {
     id: "routes/api.pedido.renglones",
@@ -18384,7 +18634,7 @@ const routes = {
     path: "renglones",
     index: void 0,
     caseSensitive: void 0,
-    module: route48
+    module: route49
   },
   "routes/api.pedido.start_new": {
     id: "routes/api.pedido.start_new",
@@ -18392,7 +18642,7 @@ const routes = {
     path: "start_new",
     index: void 0,
     caseSensitive: void 0,
-    module: route49
+    module: route50
   },
   "routes/api.draft.renglones": {
     id: "routes/api.draft.renglones",
@@ -18400,7 +18650,7 @@ const routes = {
     path: "renglones",
     index: void 0,
     caseSensitive: void 0,
-    module: route50
+    module: route51
   },
   "routes/api.draft.start_new": {
     id: "routes/api.draft.start_new",
@@ -18408,7 +18658,7 @@ const routes = {
     path: "start_new",
     index: void 0,
     caseSensitive: void 0,
-    module: route51
+    module: route52
   },
   "routes/api.tango.vendedor": {
     id: "routes/api.tango.vendedor",
@@ -18416,7 +18666,7 @@ const routes = {
     path: "api/tango/vendedor",
     index: void 0,
     caseSensitive: void 0,
-    module: route52
+    module: route53
   },
   "routes/api.auth.password": {
     id: "routes/api.auth.password",
@@ -18424,7 +18674,7 @@ const routes = {
     path: "api/auth/password",
     index: void 0,
     caseSensitive: void 0,
-    module: route53
+    module: route54
   },
   "routes/api.pedido.by_ids": {
     id: "routes/api.pedido.by_ids",
@@ -18432,7 +18682,7 @@ const routes = {
     path: "by_ids",
     index: void 0,
     caseSensitive: void 0,
-    module: route54
+    module: route55
   },
   "routes/api.settings.misc": {
     id: "routes/api.settings.misc",
@@ -18440,7 +18690,7 @@ const routes = {
     path: "api/settings/misc",
     index: void 0,
     caseSensitive: void 0,
-    module: route55
+    module: route56
   },
   "routes/api.tango.cliente": {
     id: "routes/api.tango.cliente",
@@ -18448,7 +18698,7 @@ const routes = {
     path: "api/tango/cliente",
     index: void 0,
     caseSensitive: void 0,
-    module: route56
+    module: route57
   },
   "routes/api.admin.status": {
     id: "routes/api.admin.status",
@@ -18456,7 +18706,7 @@ const routes = {
     path: "api/admin/status",
     index: void 0,
     caseSensitive: void 0,
-    module: route57
+    module: route58
   },
   "routes/api.auth.connect": {
     id: "routes/api.auth.connect",
@@ -18464,7 +18714,7 @@ const routes = {
     path: "api/auth/connect",
     index: void 0,
     caseSensitive: void 0,
-    module: route58
+    module: route59
   },
   "routes/api.dxt.vendedor": {
     id: "routes/api.dxt.vendedor",
@@ -18472,7 +18722,7 @@ const routes = {
     path: "api/dxt/vendedor",
     index: void 0,
     caseSensitive: void 0,
-    module: route59
+    module: route60
   },
   "routes/api.tango.perfil": {
     id: "routes/api.tango.perfil",
@@ -18480,7 +18730,7 @@ const routes = {
     path: "api/tango/perfil",
     index: void 0,
     caseSensitive: void 0,
-    module: route60
+    module: route61
   },
   "routes/api.auth.logout": {
     id: "routes/api.auth.logout",
@@ -18488,7 +18738,7 @@ const routes = {
     path: "api/auth/logout",
     index: void 0,
     caseSensitive: void 0,
-    module: route61
+    module: route62
   },
   "routes/api.dxt.cliente": {
     id: "routes/api.dxt.cliente",
@@ -18496,7 +18746,7 @@ const routes = {
     path: "api/dxt/cliente",
     index: void 0,
     caseSensitive: void 0,
-    module: route62
+    module: route63
   },
   "routes/api.settings.db": {
     id: "routes/api.settings.db",
@@ -18504,7 +18754,7 @@ const routes = {
     path: "api/settings/db",
     index: void 0,
     caseSensitive: void 0,
-    module: route63
+    module: route64
   },
   "routes/api.tango.lista": {
     id: "routes/api.tango.lista",
@@ -18512,7 +18762,7 @@ const routes = {
     path: "api/tango/lista",
     index: void 0,
     caseSensitive: void 0,
-    module: route64
+    module: route65
   },
   "routes/api.auth.login": {
     id: "routes/api.auth.login",
@@ -18520,7 +18770,7 @@ const routes = {
     path: "api/auth/login",
     index: void 0,
     caseSensitive: void 0,
-    module: route65
+    module: route66
   },
   "routes/api.dictionary": {
     id: "routes/api.dictionary",
@@ -18528,7 +18778,15 @@ const routes = {
     path: "api/dictionary",
     index: void 0,
     caseSensitive: void 0,
-    module: route66
+    module: route67
+  },
+  "routes/api.download": {
+    id: "routes/api.download",
+    parentId: "root",
+    path: "api/download",
+    index: void 0,
+    caseSensitive: void 0,
+    module: route68
   },
   "routes/_authorized": {
     id: "routes/_authorized",
@@ -18536,7 +18794,7 @@ const routes = {
     path: void 0,
     index: void 0,
     caseSensitive: void 0,
-    module: route67
+    module: route69
   },
   "routes/api.pedido": {
     id: "routes/api.pedido",
@@ -18544,7 +18802,7 @@ const routes = {
     path: "api/pedido",
     index: void 0,
     caseSensitive: void 0,
-    module: route68
+    module: route70
   },
   "routes/api.draft": {
     id: "routes/api.draft",
@@ -18552,7 +18810,7 @@ const routes = {
     path: "api/draft",
     index: void 0,
     caseSensitive: void 0,
-    module: route69
+    module: route71
   },
   "routes/_admin": {
     id: "routes/_admin",
@@ -18560,7 +18818,7 @@ const routes = {
     path: void 0,
     index: void 0,
     caseSensitive: void 0,
-    module: route70
+    module: route72
   },
   "routes/_index": {
     id: "routes/_index",
@@ -18568,7 +18826,7 @@ const routes = {
     path: void 0,
     index: true,
     caseSensitive: void 0,
-    module: route71
+    module: route73
   }
 };
 export {
