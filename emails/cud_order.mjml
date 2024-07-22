@@ -1,0 +1,152 @@
+<mjml>
+
+<mj-head>
+  <mj-attributes>
+    <mj-text padding-top="0" padding-bottom="10px" color="#333" />
+    <mj-table padding-top="0" color="#333" />
+    <mj-all font-size="14px" line-height="1.5em" font-family="helvetica" />
+  </mj-attributes>
+    
+  <mj-style inline="inline">
+    .nowrap {
+      white-space: nowrap;
+    }
+    .bottomLine {
+      border-bottom:1px solid #888;
+    }
+    .lightBLine {
+      border-bottom:1px solid #ccc;
+    }
+  </mj-style>
+
+</mj-head>
+
+<mj-body background-color="#fff">
+  <mj-section>
+    <mj-column>
+      <mj-text font-size="20px">&nbsp;</mj-text>
+      <mj-text font-size="30px"><strong>{{companyName}}</strong></mj-text>
+
+      <mj-divider border-color="#666" padding-bottom="18px"></mj-divider>
+
+      <mj-text font-size="20px">Pedido <strong>{{orderCode}}</strong></mj-text>
+      <mj-spacer height="20px" />
+      <mj-raw>{{#orderDeletedOrCancelled}}</mj-raw>
+        <mj-text font-size="25px" color="#F00000">
+          <strong>{{#orderDeleted}}ELIMINADO{{/orderDeleted}}{{#orderCancelled}}ANULADO{{/orderCancelled}}</strong> por el
+          {{#isAdministrator}}
+            administrador
+          {{/isAdministrator}}
+          {{#isSeller}}
+            vendedor <strong>{{sellerName}}</strong>
+          {{/isSeller}}
+          {{#isCustomer}}
+            cliente <strong>{{customerName}}</strong>
+          {{/isCustomer}}
+        </mj-text>
+        <mj-spacer height="20px" />
+        <mj-divider border-color="#666" padding-bottom="18px"></mj-divider>
+      <mj-raw>{{/orderDeletedOrCancelled}}</mj-raw>
+
+      <mj-raw>{{#orderCreatedOrUpdated}}</mj-raw>
+
+        <mj-text font-size="18px">
+          {{#orderCreated}}Creado{{/orderCreated}}{{#orderUpdated}}Modificado{{/orderUpdated}} por el 
+          {{#isSeller}}
+            vendedor <strong>{{sellerCode}} - {{sellerName}}</strong>
+          {{/isSeller}}
+          {{#isCustomer}}
+            cliente <strong>{{customerCode}} - {{customerName}}</strong>
+          {{/isCustomer}}
+          {{#isAdministrator}}
+            admnistrador
+          {{/isAdministrator}}
+            
+        </mj-text>
+  
+        <mj-spacer height="20px" />
+
+        <mj-table>
+
+          {{#isSeller}}
+            <tr valign="top" class="lightBLine">
+              <td width="120px">Cliente</td>
+              <td><b>{{customerCode}} - {{customerName}}</b></td>
+            </tr>
+          {{/isSeller}}
+
+          {{#isCustomer}}
+            <tr valign="top" class="lightBLine">
+              <td>Vendedor</td>
+              <td><b>{{sellerCode}} - {{sellerName}}</b></td>
+            </tr>
+          {{/isCustomer}}
+
+          <tr valign="top" class="lightBLine">
+            <td>Fecha de ingreso</td>
+            <td><b>{{inputDatetime}}</b></td>
+          </tr>
+          <tr valign="top" class="lightBLine">
+            <td>Fecha de entrega</td>
+            <td><b>{{deliveryDate}}</b></td>
+          </tr>
+          {{#discount}}
+            <tr valign="top" class="lightBLine">
+              <td>Bonificaci&oacute;n</td>
+              <td><b>{{discount}}%</b></td>
+            </tr>
+          {{/discount}}
+          <tr valign="top" class="lightBLine">
+            <td valign="bottom">TOTAL{{#discount}} BONIFICADO{{/discount}}</td>
+            <td valign="bottom"><b style="font-size: 20px">$ {{total}}</b></td>
+          </tr>
+        </mj-table>
+
+        <mj-spacer height="20px" />
+
+        {{#thereAreComments}}
+      	<mj-table border="1px solid #dddddd" cellpadding="10px">
+          <tr><td>Comentarios</td></tr>
+         	<tr><td>
+            <b>
+              {{#commentsLines}}
+                {{.}}<br/>
+              {{/commentsLines}}
+            </b>
+          </td></tr>
+        </mj-table>
+        {{/thereAreComments}}
+
+        <mj-spacer height="30px" />
+  
+        <mj-table cellpadding="1px">
+          <tr height="40px" bgcolor="#eee" class="bottomLine">
+            <th align="left" width="auto" class="nowrap" colspan="3">ARTICULO</th>
+            <th width="10px"></th>
+            <th align="center" width="1%" class="nowrap">CANTIDAD</th>
+            <th width="10px"></th>
+            <th align="right" width="1%">SUBTOTAL</th>
+          </tr>
+          {{#articles}}
+            <tr class="lightBLine">
+              <td width="1%" class="nowrap">{{code}}</td>
+              <td width="10px"></td>
+              <td>{{name}}</td>
+              <td width="10px"></td>
+              <td align="center" class="nowrap">{{quantity}}</td>
+              <td width="10px"></td>
+              <td align="right" class="nowrap">$ {{subtotalWithDiscount}}</td>
+            </tr>
+          {{/articles}}
+          <tr height="40px" bgcolor="#eee">
+            <td colspan="6"><b>TOTAL{{#discount}} BONIFICADO{{/discount}}</b></td>
+            <td align="right" class="nowrap"><b>$ {{total}}</b></td>
+          </tr>
+        </mj-table>
+    
+      <mj-raw>{{/orderCreatedOrUpdated}}</mj-raw>
+
+    </mj-column>
+  </mj-section>
+</mj-body>
+</mjml>
