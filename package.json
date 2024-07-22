@@ -1,7 +1,7 @@
 {
   "name": "dxtango",
-  "version": "0.9.6+240703e",
-  "description": "DXTango - Gestión de pedidos online para software Tango",
+  "version": "1.0.1+240722a",
+  "description": "DXTango - Gestión online para software Tango",
   "main": "index.js",
   "type": "module",
   "scripts": {
