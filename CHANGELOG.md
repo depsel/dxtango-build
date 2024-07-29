@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [1.1.2] - 2022-07-29
+
+### Fixed
+- Ahora se permiten 240 caracteres en el campo de mensaje interno.
+
+
 ## [1.1.1] - 2022-07-29
 
 ### Changed
