@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+
+## [1.1.3] - 2022-07-29
+
+### Changed
+- El campo Mensaje interno ahora es un TextField y permite saltos de línea.
+
+
 ## [1.1.2] - 2022-07-29
 
 ### Fixed
