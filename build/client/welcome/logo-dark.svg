@@ -9,7 +9,7 @@ viewBox="0 0 4000 800"
   <style type="text/css">
    <![CDATA[
     .fil0 {fill:#ffffff; shape-rendering: "geometricPrecision"}
-    .fil1 {fill:#DA251D; shape-rendering: "geometricPrecision"}
+    .fil1 {fill:#ffffffff; shape-rendering: "geometricPrecision"}
    ]]>
   </style>
  </defs>

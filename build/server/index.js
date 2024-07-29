@@ -22,7 +22,7 @@ import { cssBundleHref } from "@remix-run/css-bundle";
 import React, { useState, useCallback, useEffect, useRef, createContext, useMemo, useContext, memo, Children, Fragment as Fragment$1, useSyncExternalStore } from "react";
 import _ from "lodash";
 import { useModal, ModalProvider } from "react-hooks-async-modal";
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, createMultiStyleConfigHelpers, defineStyle, defineStyleConfig, extendTheme, useConst, cookieStorageManagerSSR, localStorageManager, ChakraProvider, Flex, Box, Icon, Text, VStack, Heading, useColorModeValue, Card, CardBody, useBreakpointValue, IconButton, Spacer, HStack, Divider, Skeleton, Grid, GridItem, Stack, FormControl, FormLabel, InputGroup, Input, FormHelperText, RadioGroup, Radio, useMultiStyleConfig, useTheme, Switch, Alert, UnorderedList, ListItem, InputRightElement, Badge, useToast, useColorMode, AlertIcon, AlertTitle, AlertDescription, Menu, MenuButton, MenuList, MenuItem, MenuDivider, Avatar, InputLeftElement, Container, TableContainer, Table, Tbody, Tr, Td, SimpleGrid, useDisclosure, Portal, Popover, PopoverTrigger, PopoverAnchor, PopoverContent, PopoverBody, Textarea, Collapse, AccordionPanel, Accordion, AccordionItem, AccordionButton, AccordionIcon, Thead, Th, List, Link, ListIcon, Tag, TagLabel, Checkbox, LightMode, Image, CardHeader, Center } from "@chakra-ui/react";
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter, Button, createMultiStyleConfigHelpers, defineStyle, defineStyleConfig, extendTheme, useConst, cookieStorageManagerSSR, localStorageManager, ChakraProvider, Flex, Box, Icon, Text, VStack, Heading, useColorModeValue, Card, CardBody, useBreakpointValue, IconButton, Spacer, HStack, Divider, Skeleton, Grid, GridItem, Stack, FormControl, FormLabel, InputGroup, Input, FormHelperText, RadioGroup, Radio, useMultiStyleConfig, useTheme, Switch, Alert, UnorderedList, ListItem, InputRightElement, Badge, useToast, useColorMode, AlertIcon, AlertTitle, AlertDescription, Menu, MenuButton, MenuList, MenuItem, MenuDivider, Avatar, InputLeftElement, Container, TableContainer, Table, Tbody, Tr, Td, SimpleGrid, useDisclosure, Portal, Popover, PopoverTrigger, PopoverAnchor, PopoverContent, PopoverBody, Collapse, AccordionPanel, Accordion, AccordionItem, AccordionButton, AccordionIcon, Textarea, Thead, Th, List, Link, ListIcon, Tag, TagLabel, Checkbox, LightMode, Image, CardHeader, Center } from "@chakra-ui/react";
 import axios, { AxiosError } from "axios";
 import { inputAnatomy, tableAnatomy, alertAnatomy, cardAnatomy, checkboxAnatomy, switchAnatomy, radioAnatomy } from "@chakra-ui/anatomy";
 import { mode as mode$1, getColorVar } from "@chakra-ui/theme-tools";
@@ -80,6 +80,7 @@ import CloseCircleIcon from "mdi-react/CloseCircleIcon.js";
 import FileIcon from "mdi-react/FileIcon.js";
 import AccountIcon from "mdi-react/AccountIcon.js";
 import LockIcon from "mdi-react/LockIcon.js";
+import { SemVer } from "semver";
 function isRealObject(value) {
   return typeof value === "object" && !Array.isArray(value) && value !== null;
 }
@@ -911,17 +912,22 @@ async function mapEndpoint(req, params, endpoints) {
 const notFoundApiResponse = async () => errorApiResponse(DXTErrorCode.NOT_FOUND);
 const unimplementedApiResponse = async () => errorApiResponse(DXTErrorCode.NOT_IMPLEMENTED);
 const APP_NAME = "DXTango";
+const DEFAULT_PROGRAM_DISABLE_CACHE = false;
+const DEFAULT_PROGRAM_DOWNLOAD_PATH = "";
+const DEFAULT_PROGRAM_DISABLE_SYSTEM_FILE = "";
+const DEFAULT_COMPANY_NAME = APP_NAME;
+const DEFAULT_WELCOME_MESSAGE = `Bienvenido a ${APP_NAME}`;
+const DEFAULT_DB_HOST = "localhost";
+const DEFAULT_DB_PORT = 1433;
+const DEFAULT_DB_USER = "sa";
+const DEFAULT_DB_PASSWORD = "Axoft1988";
+const DEFAULT_DB_CONNECTION_TIMEOUT_SECONDS = 30;
 const DB_CONNECTION_TIMEOUT_MIN_SECONDS = 0;
 const DB_CONNECTION_TIMEOUT_MAX_SECONDS = 300;
 const AUTH_EXPIRATION_MIN_DAYS = 1;
 const AUTH_EXPIRATION_MAX_DAYS = 365;
 const DEFAULT_PROGRAM_HOST = "localhost";
 const DEFAULT_PROGRAM_PORT = 80;
-const DEFAULT_DB_HOST = "localhost";
-const DEFAULT_DB_PORT = 1433;
-const DEFAULT_DB_USER = "sa";
-const DEFAULT_DB_PASSWORD = "Axoft1988";
-const DEFAULT_DB_CONNECTION_TIMEOUT_SECONDS = 30;
 const DEFAULT_TANGO_DICTIONARY = "Diccionario";
 const DEFAULT_ADMIN_EMAIL = `admin@dxtango.local`;
 const DEFAULT_SMTP_ENABLED = false;
@@ -934,11 +940,8 @@ const DEFAULT_USER_WARNING_MESSAGE_TITLE = "Atención";
 const DEFAULT_USER_WARNING_MESSAGE_CONTENT = "Comuníquese con el administrador";
 const DEFAULT_USER_DISABLED_MESSAGE_TITLE = "Atención";
 const DEFAULT_USER_DISABLED_MESSAGE_CONTENT = "Usuario deshabilitado. Comuníquese con el administrador";
-const DEFAULT_PROGRAM_DISABLE_CACHE = false;
-const DEFAULT_PROGRAM_DOWNLOAD_PATH = "";
-const DEFAULT_PROGRAM_DISABLE_SYSTEM_FILE = "";
-const DEFAULT_COMPANY_NAME = APP_NAME;
-const DEFAULT_WELCOME_MESSAGE = `Bienvenido a ${APP_NAME}`;
+const DEFAULT_ORDER_SHOW_SHIPPING_DATE_TO_CUSTOMERS = true;
+const DEFAULT_ORDER_CREATE_UPDATE_MESSAGE = "Sujeto a aprobación y disponibilidad de stock";
 const appPaths = envPaths(APP_NAME.toLowerCase());
 const configPath = appPaths.config;
 appPaths.data;
@@ -1941,10 +1944,23 @@ class StoredMiscSettingsDTO extends DTO {
     return this.data;
   }
 }
+const storedOrderSettingsSchema = {
+  show_shipping_date_to_customers: (v) => tryVO(() => new VOBoolean(v ?? DEFAULT_ORDER_SHOW_SHIPPING_DATE_TO_CUSTOMERS), new VOBoolean(DEFAULT_ORDER_SHOW_SHIPPING_DATE_TO_CUSTOMERS)),
+  order_create_update_message: (v) => tryVO(() => new VONotEmptyString(v), new VONotEmptyString(DEFAULT_ORDER_CREATE_UPDATE_MESSAGE))
+};
+class StoredOrderSettingsDTO extends DTO {
+  validate(input) {
+    return validateInput(storedOrderSettingsSchema, input);
+  }
+  toUnsafe() {
+    return this.data;
+  }
+}
 const DEFAULT_ADMIN_PASSWORD = "admin";
 const programConfigFilename = path$1.join(process.cwd(), "dxtango.cfg");
 const dbIniFilename = path$1.join(configPath, "db_settings.ini");
 const miscIniFilename = path$1.join(configPath, "misc_settings.ini");
+const orderIniFilename = path$1.join(configPath, "order_settings.ini");
 async function _createDTOFromINI(filename, dtoConstructor) {
   let iniFileContent;
   try {
@@ -1987,11 +2003,13 @@ class SettingsProvider {
     this._programConfig = null;
     this._dbSettings = null;
     this._miscSettings = null;
+    this._orderSettings = null;
   }
   async init(ignoreCache) {
     await this.getProgramConfig(ignoreCache);
     await this.getDBSettings(ignoreCache);
     await this.getMiscSettings(ignoreCache);
+    await this.getOrderSettings(ignoreCache);
   }
   async getProgramConfig(ignoreCache) {
     if ((ignoreCache ?? false) || this._programConfig == null)
@@ -2051,6 +2069,16 @@ class SettingsProvider {
     );
     return this._miscSettings.data;
   }
+  async getOrderSettings(ignoreCache) {
+    if ((ignoreCache ?? false) || this._orderSettings == null)
+      this._orderSettings = await this._loadOrderSettings();
+    return this._orderSettings.data;
+  }
+  async setOrderSettings(settings2) {
+    const newSettings = await this._saveOrderSettings(settings2);
+    this._orderSettings = newSettings;
+    return this._orderSettings.data;
+  }
   async _loadProgramConfig() {
     return await _createDTOFromINI(programConfigFilename, (data) => new StoredProgramConfigDTO(data));
   }
@@ -2066,6 +2094,9 @@ class SettingsProvider {
       ...data
     }));
   }
+  async _loadOrderSettings() {
+    return await _createDTOFromINI(orderIniFilename, (data) => new StoredOrderSettingsDTO(data));
+  }
   async _saveProgramConfig(config2) {
     return await _saveDTOToINI(programConfigFilename, config2);
   }
@@ -2074,6 +2105,9 @@ class SettingsProvider {
   }
   async _saveMiscSettings(settings2) {
     return await _saveDTOToINI(miscIniFilename, settings2);
+  }
+  async _saveOrderSettings(config2) {
+    return await _saveDTOToINI(orderIniFilename, config2);
   }
 }
 const settingsProvider = new SettingsProvider();
@@ -2748,9 +2782,6 @@ function getSelectedValue(arrayOfObjects, selected, key) {
   const foundArray = arrayOfObjects.find((arr) => arr[selected ?? "selected"] === true);
   return foundArray?.[key ?? "id"];
 }
-function nlToBr(text) {
-  return text.replace(/\n/g, "<br />");
-}
 function nlToReactBr(text) {
   return text.split("\n").map((chunk, index) => /* @__PURE__ */ jsxs(React.Fragment, { children: [
     chunk,
@@ -2781,6 +2812,7 @@ const URL_SETTINGS_PATH = appPath("/settings");
 const URL_SETTINGS_TANGO_PATH = appPath("/settings/tango");
 const URL_SETTINGS_COMPANY_PATH = appPath("/settings/company");
 const URL_SETTINGS_MISC_PATH = appPath("/settings/misc");
+const URL_SETTINGS_ORDER_PATH = appPath("/settings/order");
 const URL_SETTINGS_CUSTOMERS_PATH = appPath("/settings/users/customers");
 const URL_SETTINGS_CUSTOMERS_ADD_PATH = appPath("/settings/users/customers/add");
 const URL_SETTINGS_CUSTOMERS_EDIT_PATH = appPath("/settings/users/customers/:id/edit");
@@ -3687,7 +3719,7 @@ const RootDocument = withEmotionCache(
                     toastOptions: {
                       defaultOptions: {
                         position: "bottom",
-                        duration: 5e3,
+                        duration: 8e3,
                         isClosable: true
                       }
                     },
@@ -4000,8 +4032,8 @@ const articuloModelColumns = [
   "DESCRIPCIO",
   "DESC_ADIC",
   "DESCUENTO",
-  "USA_ESC",
-  "PERFIL",
+  // 'USA_ESC',
+  // 'PERFIL',
   "COD_IVA",
   "COD_S_IVA",
   "COD_II",
@@ -4010,7 +4042,6 @@ const articuloModelColumns = [
   "ID_MEDIDA_STOCK_2",
   "ID_MEDIDA_VENTAS"
 ];
-const ARTICULO_NAME_COLUMNS = ["DESCRIPCIO", "DESC_ADIC"];
 const PRECIO_TABLE = "GVA17";
 const PRECIO_ID_FIELD = "ID_GVA17";
 const precioModelColumns = [
@@ -4091,8 +4122,9 @@ const clienteModelColumns = [
   CONDICION_CODE_FIELD,
   LISTA_ID_FIELD,
   "NRO_LISTA",
-  "II_D",
   "IVA_D",
+  "II_L",
+  "IVA_L",
   "SOBRE_II",
   "SOBRE_IVA",
   "NOM_COM",
@@ -4477,7 +4509,6 @@ const PEDIDO_ID_FIELD = "ID_GVA21";
 const PEDIDO_CODE_FIELD = "NRO_PEDIDO";
 const PEDIDO_DESCRIPTION_FIELD = "USUARIO_INGRESO";
 const PEDIDO_IS_FAVORITE_FIELD = "ES_PEDIDO_WEB";
-const LEYENDA_FIELD_LENGTH = 60;
 const pedidoModelColumns = [
   PEDIDO_ID_FIELD,
   PEDIDO_CODE_FIELD,
@@ -4497,6 +4528,9 @@ const pedidoModelColumns = [
   "HORA",
   PEDIDO_DESCRIPTION_FIELD,
   PEDIDO_IS_FAVORITE_FIELD,
+  "LEYENDA_1",
+  "LEYENDA_2",
+  "LEYENDA_3",
   "LEYENDA_4",
   "LEYENDA_5",
   "TOTAL_PEDI",
@@ -4511,13 +4545,17 @@ const pedidoModelColumns = [
   "COMP_STK",
   "ID_ASIENTO_MODELO_GV"
 ];
-const PEDIDO_CLIENTE_COLUMNS = [
-  "RAZON_SOCI",
-  "NOM_COM",
-  "II_D",
+const PEDIDO_CLIENTE_TAXES_COLUMNS = [
+  "II_L",
   "IVA_D",
+  "IVA_L",
   "SOBRE_II",
   "SOBRE_IVA"
+];
+const PEDIDO_CLIENTE_COLUMNS = [
+  ...PEDIDO_CLIENTE_TAXES_COLUMNS,
+  "RAZON_SOCI",
+  "NOM_COM"
 ];
 const CAMPO_TABLE = "Campo";
 const LONGITUD_MINIMA_PEDIDO_PRECISION = 12;
@@ -4705,10 +4743,16 @@ class VOIntegers extends ValueObject {
 }
 const integersValidator = (v) => new VOIntegers(v).valueOf();
 const optionalStringsValidator = (v, def) => v == null ? def : new VOStrings(v).valueOf();
-const COMENTARIOS_MAX_LENGTH = 120;
+const LEYENDA_MAX_LENGTH = 60;
 const DESCRIPCION_MAX_LENGTH = 120;
+const MENSAJE_INTERNO_FIELD_LENGTH = 240;
 const baseInputSchema = {
-  comentarios: (v) => new VOTrimmedString(v, COMENTARIOS_MAX_LENGTH),
+  leyenda1: (v) => new VOTrimmedString(v, LEYENDA_MAX_LENGTH),
+  leyenda2: (v) => new VOTrimmedString(v, LEYENDA_MAX_LENGTH),
+  leyenda3: (v) => new VOTrimmedString(v, LEYENDA_MAX_LENGTH),
+  leyenda4: (v) => new VOTrimmedString(v, LEYENDA_MAX_LENGTH),
+  leyenda5: (v) => new VOTrimmedString(v, LEYENDA_MAX_LENGTH),
+  mensaje_interno: (v) => new VOTrimmedString(v, MENSAJE_INTERNO_FIELD_LENGTH),
   bonificacion: (v) => new VOUInt32(v),
   id_transporte: (v) => new VOUInt32(v),
   id_deposito: (v) => new VOUInt32(v),
@@ -4766,6 +4810,10 @@ const validateCreateOrderInput = (input) => validateInput(createOrderInputSchema
 const validateGetOrdersByIdsInput = (input) => validateInput(getOrdersByIdsInputSchema, input);
 const DXT_PEDIDO_DRAFT_CLIENTES_TABLE = "dxt_pedido_draft_clientes";
 const DXT_PEDIDO_DRAFT_VENDEDORES_TABLE = "dxt_pedido_draft_vendedores";
+const dxtPedidoDraftModelColumns = [
+  ...pedidoModelColumns,
+  "MENSAJE_INTERNO"
+];
 const dxtPedidoDraftTableCreationFieldsSQL = {
   [PEDIDO_ID_FIELD]: "int IDENTITY(1,1) NOT NULL",
   [PEDIDO_CODE_FIELD]: "varchar(14) COLLATE Latin1_General_BIN DEFAULT '' NULL",
@@ -4788,11 +4836,11 @@ const dxtPedidoDraftTableCreationFieldsSQL = {
   FECHA_PEDI: "datetime DEFAULT '1800/01/01' NULL",
   HORA_APRUE: "varchar(4) COLLATE Latin1_General_BIN DEFAULT '' NULL",
   ID_EXTERNO: "varchar(20) COLLATE Latin1_General_BIN DEFAULT '' NULL",
-  LEYENDA_1: `varchar(${LEYENDA_FIELD_LENGTH}) COLLATE Latin1_General_BIN DEFAULT '' NULL`,
-  LEYENDA_2: `varchar(${LEYENDA_FIELD_LENGTH}) COLLATE Latin1_General_BIN DEFAULT '' NULL`,
-  LEYENDA_3: `varchar(${LEYENDA_FIELD_LENGTH}) COLLATE Latin1_General_BIN DEFAULT '' NULL`,
-  LEYENDA_4: `varchar(${LEYENDA_FIELD_LENGTH}) COLLATE Latin1_General_BIN DEFAULT '' NULL`,
-  LEYENDA_5: `varchar(${LEYENDA_FIELD_LENGTH}) COLLATE Latin1_General_BIN DEFAULT '' NULL`,
+  LEYENDA_1: `varchar(${LEYENDA_MAX_LENGTH}) COLLATE Latin1_General_BIN DEFAULT '' NULL`,
+  LEYENDA_2: `varchar(${LEYENDA_MAX_LENGTH}) COLLATE Latin1_General_BIN DEFAULT '' NULL`,
+  LEYENDA_3: `varchar(${LEYENDA_MAX_LENGTH}) COLLATE Latin1_General_BIN DEFAULT '' NULL`,
+  LEYENDA_4: `varchar(${LEYENDA_MAX_LENGTH}) COLLATE Latin1_General_BIN DEFAULT '' NULL`,
+  LEYENDA_5: `varchar(${LEYENDA_MAX_LENGTH}) COLLATE Latin1_General_BIN DEFAULT '' NULL`,
   MON_CTE: "bit DEFAULT 1 NULL",
   N_LISTA: "ENTERO_TG DEFAULT 0 NULL",
   N_REMITO: "varchar(14) COLLATE Latin1_General_BIN DEFAULT '' NULL",
@@ -4847,7 +4895,8 @@ const dxtPedidoDraftTableCreationFieldsSQL = {
   ID_SUCURSAL: "D_ID NULL",
   METODO_EXPORTACION: "varchar(30) COLLATE Modern_Spanish_CI_AI NULL",
   NRO_SUCURSAL_DESTINO_PEDIDO: "ENTERO_TG NULL",
-  ID_MODELO_PEDIDO: "D_ID NULL"
+  ID_MODELO_PEDIDO: "D_ID NULL",
+  MENSAJE_INTERNO: `varchar(${MENSAJE_INTERNO_FIELD_LENGTH}) COLLATE Latin1_General_BIN DEFAULT '' NULL`
 };
 const dxtPedidoDraftTableCreationIndexesSQL = (draftTableName) => [
   `CONSTRAINT PK_${draftTableName}_id PRIMARY KEY (${PEDIDO_ID_FIELD})`
@@ -4879,6 +4928,14 @@ const renglonPedidoModelColumns = [
   "DESCUENTO",
   "PRECIO_LISTA",
   "PRECIO_BONIF"
+];
+const renglonPedidoArticuloModelColumns = [
+  "DESCRIPCIO",
+  "DESC_ADIC",
+  "COD_IVA",
+  "COD_S_IVA",
+  "COD_II",
+  "COD_S_II"
 ];
 const DXT_PEDIDO_DRAFT_ROW_CLIENTES_TABLE = "dxt_pedido_draft_row_clientes";
 const DXT_PEDIDO_DRAFT_ROW_VENDEDORES_TABLE = "dxt_pedido_draft_row_vendedores";
@@ -4938,6 +4995,21 @@ const dxtPedidoDraftRowTableCreationIndexesSQL = (draftRowTableName) => [
 ];
 const dxtPedidoDraftRowTablePostCommandsSQL = (draftTableName, draftRowTableName) => [
   `CREATE UNIQUE INDEX IX_dxt_pedido_draft_with_order ON ${draftRowTableName} ( ${PEDIDO_ID_FIELD} ASC, N_RENGLON ASC );ALTER TABLE ${draftRowTableName}   ADD CONSTRAINT FK_${draftTableName}_to_row_pedido_draft FOREIGN KEY (${PEDIDO_ID_FIELD}) REFERENCES ${draftTableName}(${PEDIDO_ID_FIELD});`
+];
+const DXT_PEDIDO_EXTRA_TABLE = "dxt_pedido_extra";
+const dxtPedidoExtraModelColumns = [
+  "MENSAJE_INTERNO"
+];
+const dxtPedidoExtraTableCreationFieldsSQL = {
+  [PEDIDO_ID_FIELD]: "int NOT NULL",
+  MENSAJE_INTERNO: `varchar(${MENSAJE_INTERNO_FIELD_LENGTH}) COLLATE Latin1_General_BIN DEFAULT '' NULL`
+  // UPDATED_AT: `datetime DEFAULT sysdatetime() NOT NULL`,
+};
+const dxtPedidoExtraTableCreationIndexesSQL = [
+  `CONSTRAINT PK_DXT_PEDIDO_EXTRA_id PRIMARY KEY (${PEDIDO_ID_FIELD})`
+];
+const dxtPedidoExtraTablePostCommandsSQL = [
+  // `CREATE INDEX IX_DXT_PEDIDO_EXTRA_updated_at ON DXT_PEDIDO_EXTRA (UPDATED_AT ASC);`,
 ];
 class CompanyInitProvider extends TDBProvider {
   constructor() {
@@ -5018,6 +5090,13 @@ class CompanyInitProvider extends TDBProvider {
     await this._initializeTables(knexInstance);
   }
   async _initializeTables(knex2) {
+    await this._initializeTable(
+      knex2,
+      DXT_PEDIDO_EXTRA_TABLE,
+      dxtPedidoExtraTableCreationFieldsSQL,
+      dxtPedidoExtraTableCreationIndexesSQL,
+      dxtPedidoExtraTablePostCommandsSQL
+    );
     await this._initializeTable(
       knex2,
       DXT_CLIENTE_TABLE,
@@ -5146,8 +5225,14 @@ const _CompanyProvider = class _CompanyProvider extends CompanyInitProvider {
       if (cachedData != null)
         return cachedData;
     }
-    const { mainTable, mainIdField, columns } = this.config;
-    const data = id != null ? await k(mainTable).first(...columns ?? "*").where(mainIdField, id) : await k(mainTable).first(...columns ?? "*");
+    const { mainTable, mainIdField, parallelTable } = this.config;
+    const columns = this._prepareColumns(this.config);
+    let query = k(mainTable).first(...columns ?? "*");
+    if (parallelTable != null) {
+      const { name } = parallelTable;
+      query = query.leftOuterJoin(name, `${mainTable}.${mainIdField}`, `${name}.${mainIdField}`);
+    }
+    const data = id != null ? await query.where(`${mainTable}.${mainIdField}`, id) : await query;
     if (data == null)
       return null;
     const result = this.toResult(data);
@@ -5155,6 +5240,18 @@ const _CompanyProvider = class _CompanyProvider extends CompanyInitProvider {
       await this.cache.setById(id, result);
     }
     return result;
+  }
+  _prepareColumns(config2) {
+    const { mainTable, columns, parallelTable } = config2;
+    if (parallelTable == null) {
+      return columns ?? null;
+    }
+    const parallelColumns = parallelTable.columns.map((c) => `${parallelTable.name}.${c}`);
+    const allColumns = [
+      ...parallelColumns.length > 0 && columns != null ? columns.map((c) => `${mainTable}.${c}`) : [],
+      ...parallelColumns
+    ];
+    return allColumns.length > 0 ? allColumns : null;
   }
   async getMany(columnName, columnValue, options) {
     const k = options?.trx ?? await this.getCompany();
@@ -5165,16 +5262,21 @@ const _CompanyProvider = class _CompanyProvider extends CompanyInitProvider {
       if (cachedData != null)
         return cachedData;
     }
-    const { mainTable, columns } = this.config;
+    const { mainTable, mainIdField, parallelTable } = this.config;
+    const columns = this._prepareColumns(this.config);
     let query = k(mainTable);
     if (first) {
       query = query.first(...columns ?? "*");
     } else {
       query = query.select(...columns ?? "*");
     }
+    if (parallelTable != null) {
+      const { name } = parallelTable;
+      query = query.leftOuterJoin(name, `${mainTable}.${mainIdField}`, `${name}.${mainIdField}`);
+    }
     const where = options?.where;
     if (where != null) {
-      query = query.where(where.field, where.value);
+      query = query.where(`${mainTable}.${where.field}`, where.value);
     }
     const data = await query.andWhere(columnName, columnValue);
     if (data == null)
@@ -5376,8 +5478,8 @@ const tangoTransporteModelMapper = (m) => {
   return { id, code, name: NOMBRE_TRA ?? code };
 };
 const tangoDepositoModelMapper = (m) => {
-  const { [DEPOSITO_ID_FIELD]: id, [DEPOSITO_CODE_FIELD]: code, NOMBRE_SUC } = m;
-  return { id, code, name: NOMBRE_SUC ?? code };
+  const { [DEPOSITO_ID_FIELD]: id, [DEPOSITO_CODE_FIELD]: code, NOMBRE_SUC, INHABILITA: inhabilitado } = m;
+  return { id, code, name: NOMBRE_SUC ?? code, habilitado: inhabilitado !== true };
 };
 const tangoCondicionModelMapper = (m) => {
   const { [CONDICION_ID_FIELD]: id, [CONDICION_CODE_FIELD]: code, DESC_COND } = m;
@@ -5471,8 +5573,6 @@ const tangoPerfilModelMapper = (m) => {
     throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, "tangoPerfilModelMapper -> codigoCondicionVenta");
   if (!isAnInteger(D_LISTA_PR))
     throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, "tangoPerfilModelMapper -> D_LISTA_PR");
-  if (!isNotEmptyStr(D_TRANSPOR))
-    throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, "tangoPerfilModelMapper -> D_TRANSPOR");
   if (!isNotEmptyStr(D_TIPO_ASI))
     throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, "tangoPerfilModelMapper -> D_TIPO_ASI");
   if (!isAnInteger(ID_ASIENTO_MODELO_GV))
@@ -5492,10 +5592,19 @@ const tangoPerfilModelMapper = (m) => {
     codigo_transporte: D_TRANSPOR,
     codigo_deposito: D_DEPOSITO,
     codigo_asiento: D_TIPO_ASI,
-    fecha_editable: _isEditable(FECHA),
+    fecha_alta_visible: true,
+    fecha_entrega_visible: true,
+    talonario_visible: _isVisible(TAL_FACTUR),
+    asiento_visible: _isVisible(TIPO_ASIEN),
+    transporte_visible: _isVisible(TRANSPORTE) || !isNotEmptyStr(D_TRANSPOR?.trim()),
+    condicion_visible: _isVisible(COND_VENTA),
+    deposito_visible: _isVisible(DEPOSITO),
+    direccion_visible: _isVisible(EDITA_DIRECCION_ENTREGA),
+    fecha_editable: false,
+    fecha_entrega_editable: false,
     talonario_editable: _isEditable(TAL_FACTUR),
     asiento_editable: _isEditable(TIPO_ASIEN),
-    transporte_editable: _isEditable(TRANSPORTE),
+    transporte_editable: _isEditable(TRANSPORTE) || !isNotEmptyStr(D_TRANSPOR?.trim()),
     condicion_editable: _isEditable(COND_VENTA),
     bonificacion_editable: _isEditable(BONIFIC),
     deposito_editable: _isEditable(DEPOSITO),
@@ -5506,6 +5615,12 @@ function _isEditable(field) {
   if (!isStr(field))
     return false;
   return field.trim().toUpperCase() === "E";
+}
+function _isVisible(field) {
+  if (!isStr(field))
+    return false;
+  const c = field.trim().toUpperCase();
+  return c === "M" || c === "E";
 }
 const asientoRepository = createTangoRepository(ASIENTO_TABLE, ASIENTO_ID_FIELD, tangoAsientoModelMapper, asientoModelColumns);
 const condicionRepository = createTangoRepository(CONDICION_TABLE, CONDICION_ID_FIELD, tangoCondicionModelMapper, condicionModelColumns);
@@ -5564,46 +5679,50 @@ const tangoClienteModelMapper = (m) => {
 };
 const tangoExtendedClienteModelMapper = (m) => {
   const {
-    [VENDEDOR_ID_FIELD]: idVendedor,
-    [VENDEDOR_CODE_FIELD]: codigoVendedor,
-    [TRANSPORTE_ID_FIELD]: idTransporte,
-    [TRANSPORTE_CODE_FIELD]: codigoTransporte,
-    [LISTA_ID_FIELD]: idLista,
-    NRO_LISTA: codigoLista,
-    [CONDICION_ID_FIELD]: idCondicion,
-    [CONDICION_CODE_FIELD]: codigoCondicion,
+    [VENDEDOR_ID_FIELD]: id_vendedor,
+    [VENDEDOR_CODE_FIELD]: codigo_vendedor,
+    [TRANSPORTE_ID_FIELD]: id_transporte,
+    [TRANSPORTE_CODE_FIELD]: codigo_transporte,
+    [LISTA_ID_FIELD]: id_lista,
+    NRO_LISTA: codigo_lista,
+    [CONDICION_ID_FIELD]: id_condicion,
+    [CONDICION_CODE_FIELD]: codigo_condicion,
     IVA_D,
-    II_D,
+    IVA_L,
+    II_L,
     SOBRE_IVA,
     SOBRE_II,
     PORC_DESC
   } = m;
-  if (!isAnInteger(idVendedor))
+  if (!isAnInteger(id_vendedor))
     throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper -> ${VENDEDOR_ID_FIELD}`);
-  if (!isNotEmptyStr(codigoVendedor))
+  if (!isNotEmptyStr(codigo_vendedor))
     throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper ${VENDEDOR_CODE_FIELD}`);
-  if (!isAnInteger(idLista))
+  if (!isAnInteger(id_lista))
     throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper ${LISTA_ID_FIELD}`);
-  if (!isAnInteger(codigoLista))
+  if (!isAnInteger(codigo_lista))
     throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper NRO_LISTA`);
-  if (!isAnInteger(idCondicion))
+  if (!isAnInteger(id_condicion))
     throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper ${CONDICION_ID_FIELD}`);
-  if (!isAnInteger(codigoCondicion))
+  if (!isAnInteger(codigo_condicion))
     throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper ${CONDICION_CODE_FIELD}`);
   return {
     ...tangoClienteModelMapper(m),
-    idVendedor,
-    codigoVendedor,
-    idTransporte,
-    codigoTransporte,
-    idCondicion,
-    codigoCondicion,
-    idLista,
-    codigoLista,
-    discriminaIVA: taxFieldIsYes(IVA_D),
-    discriminaII: taxFieldIsYes(II_D),
-    aplicaSobreIVA: taxFieldIsYes(SOBRE_IVA),
-    aplicaSobreII: taxFieldIsYes(SOBRE_II),
+    id_vendedor,
+    codigo_vendedor,
+    id_transporte,
+    codigo_transporte,
+    id_condicion,
+    codigo_condicion,
+    id_lista,
+    codigo_lista,
+    discrimina_iva: taxFieldIsYes(IVA_D),
+    exento_iva: true,
+    // taxFieldIsExempt(IVA_L),
+    exento_ii: true,
+    // taxFieldIsExempt(II_L),
+    aplica_sobre_iva: taxFieldIsYes(SOBRE_IVA),
+    aplica_sobre_ii: taxFieldIsYes(SOBRE_II),
     bonificacion: isANumber(PORC_DESC) ? PORC_DESC : 0
   };
 };
@@ -5882,6 +6001,13 @@ class DXTUserRepository extends CompanyProvider {
   userCreateInputToModel(input) {
     return this.userInputToModel(input);
   }
+  async getEmailsByTangoId(tangoCustomerId, options) {
+    const result = await this.getMany("tango_id", tangoCustomerId, options);
+    return result.map((r) => ({
+      dxtUserId: r.id,
+      email: r.email?.toLowerCase() ?? ""
+    })).filter((r) => r.email.length > 0);
+  }
 }
 const tangoVendedorModelMapper = (m) => {
   const { [VENDEDOR_ID_FIELD]: id, [VENDEDOR_CODE_FIELD]: code, INHABILITA } = m;
@@ -5920,10 +6046,6 @@ class DXTVendedorRepository extends DXTUserRepository {
       ],
       twinRepository: () => dxtClienteRepository
     });
-  }
-  async getEmailByTangoId(tangoSellerId) {
-    const r = await this.getOneOrNull("tango_id", tangoSellerId);
-    return r?.email ?? null;
   }
   toResult(m) {
     const { dxt_vendedor_id, habilitado_en_dxt, password_hash, tango_id } = m;
@@ -5968,13 +6090,6 @@ class DXTClienteRepository extends DXTUserRepository {
       ],
       twinRepository: () => dxtVendedorRepository
     });
-  }
-  async getEmailsByTangoId(tangoCustomerId, options) {
-    const result = await this.getMany("tango_id", tangoCustomerId, options);
-    return result.map((r) => ({
-      customerId: r.id,
-      email: r.email ?? ""
-    })).filter((r) => r.email.length > 0);
   }
   toResult(m) {
     const {
@@ -6586,6 +6701,8 @@ function strToDXTArticuloListParams(paramsStr) {
   return emptyParams ? void 0 : result;
 }
 function applyTangoDiscount(price, discount) {
+  if (price == null)
+    return null;
   if (!isANumber(price))
     price = 0;
   if (!isANumber(discount))
@@ -7190,21 +7307,20 @@ const SELLERS_LABEL = "Vendedor Tango";
 const SELLERS_NO_OPTIONS = "No hay vendedores disponibles";
 const PRODUCT_EDIT_LIST = "Lista de artículos para edición";
 const PRODUCT_PRINT_LIST = "Lista de artículos para impresión";
+const SETTINGS_UPDATED = "Configuraciones actualizadas";
 const VARIOUS_SETTINGS = "Configuraciones Varias";
-const VARIOUS_SETTINGS_UPDATED = "Configuraciones actualizadas";
+const ORDER_SETTINGS = "Pedidos";
 const LIST_UPDATED = "Lista actualizada";
 const DATE_FORMAT = "dd/MM/yyyy";
 const DATE_FORMAT_API = "yyyy-MM-dd";
 const DATE_DAY_NAMES_SHORT = ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"];
 const DATE_MONTH_NAMES_SHORT = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
-const ORDER_CREATED = "Pedido creado";
-const ORDER_CREATED_NUMBER = "Número de Pedido: {{numero_pedido}}";
-const ORDER_UPDATED = "Pedido actualizado";
-const ORDER_UPDATED_NUMBER = "Número de Pedido: {{numero_pedido}}";
-const DRAFT_CREATED = "Borrador creado";
-const DRAFT_CREATED_NUMBER = "Número de Borrador: {{numero_pedido}}";
-const DRAFT_UPDATED = "Borrador actualizado";
-const DRAFT_UPDATED_NUMBER = "Número de Borrador: {{numero_pedido}}";
+const ORDER_CREATED_TITLE = "Pedido {{numero_pedido}} creado";
+const ORDER_UPDATED_TITLE = "Pedido {{numero_pedido}} actualizado";
+const DRAFT_CREATED_TITLE = "Borrador creado";
+const DRAFT_CREATED_DESCRIPTION = "Descripción: {{descripcion}}";
+const DRAFT_UPDATED_TITLE = "Borrador actualizado";
+const DRAFT_UPDATED_DESCRIPTION = "Descripción: {{descripcion}}";
 const settings$1 = {
   customers: {
     api: {
@@ -8952,9 +9068,23 @@ function isUserAllowedToCancelOrDeleteOrder(user, orderStatus) {
     return true;
   return false;
 }
+function orderCaptionsToArray(c1, c2, c3, c4, c5) {
+  const result = [];
+  if (c1 != null && c1.length > 0)
+    result.push({ k: 1, v: c1 });
+  if (c2 != null && c2.length > 0)
+    result.push({ k: 2, v: c2 });
+  if (c3 != null && c3.length > 0)
+    result.push({ k: 3, v: c3 });
+  if (c4 != null && c4.length > 0)
+    result.push({ k: 4, v: c4 });
+  if (c5 != null && c5.length > 0)
+    result.push({ k: 5, v: c5 });
+  return result;
+}
 const pedidoModelMapper = (m) => {
   const {
-    [PEDIDO_ID_FIELD]: idPedido,
+    [PEDIDO_ID_FIELD]: id_pedido,
     [PEDIDO_CODE_FIELD]: numero_pedido,
     [CLIENTE_ID_FIELD]: id_cliente,
     [CLIENTE_CODE_FIELD]: codigo_cliente,
@@ -8967,8 +9097,12 @@ const pedidoModelMapper = (m) => {
     HORA_INGRESO,
     FECHA_PEDI,
     FECHA_ENTR,
+    LEYENDA_1,
+    LEYENDA_2,
+    LEYENDA_3,
     LEYENDA_4,
     LEYENDA_5,
+    MENSAJE_INTERNO,
     TOTAL_PEDI,
     PORC_DESC,
     [PEDIDO_DESCRIPTION_FIELD]: descripcion,
@@ -8985,72 +9119,49 @@ const pedidoModelMapper = (m) => {
     COMP_STK: compromete_stock,
     ID_ASIENTO_MODELO_GV: id_asiento_modelo_gv
   } = m;
-  if (!isAnInteger(id_cliente))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> id_cliente");
-  if (!isNotEmptyStr(codigo_cliente))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> codigo_cliente");
-  if (!isAnInteger(id_vendedor))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> id_vendedor");
-  if (!isNotEmptyStr(codigo_vendedor))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> codigo_vendedor");
-  if (!isAnInteger(id_transporte))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> id_transporte");
-  if (!isNotEmptyStr(codigo_transporte))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> codigo_transporte");
   if (!(FECHA_PEDI instanceof Date))
     throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> FECHA_PEDI");
   if (!(FECHA_ENTR === null || FECHA_ENTR instanceof Date))
     throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> FECHA_ENTR");
   if (!(FECHA_INGRESO === null || FECHA_INGRESO instanceof Date))
     throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> FECHA_INGRESO");
-  if (!isAnInteger(id_talonario))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> id_talonario");
-  if (!isAnInteger(codigo_talonario))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> codigo_talonario");
-  if (!isAnInteger(id_condicion))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> id_vendedor");
-  if (!isAnInteger(codigo_condicion))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> codigo_condicion");
-  if (!isAnInteger(id_lista))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> id_lista");
-  if (!isAnInteger(codigo_lista))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> codigo_lista");
-  if (!isStr(codigo_asiento))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> codigo_asiento");
-  if (!isStr(codigo_deposito))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> codigo_deposito");
   const [hour, min, sec] = _getHMS(HORA_INGRESO);
   if (!isAnInteger(hour) || !isAnInteger(min) || !isAnInteger(sec))
     throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> HORA_INGRESO");
   const fecha_hora_ingreso = FECHA_INGRESO ?? FECHA_PEDI;
   fecha_hora_ingreso.setHours(hour, min, sec);
   return {
-    id: idPedido,
+    id: id_pedido,
     numero_pedido,
     estado: numberToEstadoPedido(ESTADO),
-    id_cliente,
-    codigo_cliente,
-    id_vendedor,
-    codigo_vendedor,
-    id_transporte,
-    codigo_transporte,
+    id_cliente: id_cliente ?? 0,
+    codigo_cliente: codigo_cliente ?? "",
+    id_vendedor: id_vendedor ?? 0,
+    codigo_vendedor: codigo_vendedor ?? "",
+    id_transporte: id_transporte ?? 0,
+    codigo_transporte: codigo_transporte ?? "",
     id_direccion_entrega,
     fecha_hora_ingreso: FECHA_INGRESO,
     fecha_alta: FECHA_PEDI,
     fecha_entrega: FECHA_ENTR,
     descripcion: descripcion ?? "",
     es_favorito: es_favorito === true,
-    comentarios: (LEYENDA_4 ?? "") + (LEYENDA_5 ?? ""),
+    mensaje_interno: MENSAJE_INTERNO,
+    leyenda1: LEYENDA_1 ?? "",
+    leyenda2: LEYENDA_2 ?? "",
+    leyenda3: LEYENDA_3 ?? "",
+    leyenda4: LEYENDA_4 ?? "",
+    leyenda5: LEYENDA_5 ?? "",
     total: TOTAL_PEDI ?? 0,
     descuento: PORC_DESC ?? 0,
-    id_talonario,
-    codigo_talonario,
-    id_condicion,
-    codigo_condicion,
-    id_lista,
-    codigo_lista,
-    codigo_asiento,
-    codigo_deposito,
+    id_talonario: id_talonario ?? 0,
+    codigo_talonario: codigo_talonario ?? 0,
+    id_condicion: id_cliente ?? 0,
+    codigo_condicion: codigo_condicion ?? 0,
+    id_lista: id_lista ?? 0,
+    codigo_lista: codigo_lista ?? 0,
+    codigo_asiento: codigo_asiento ?? "",
+    codigo_deposito: codigo_deposito ?? "",
     compromete_stock: compromete_stock === true,
     id_asiento_modelo_gv
   };
@@ -9070,14 +9181,26 @@ function _getHMS(hms) {
     Number.parseInt(sStr)
   ];
 }
-const pedidoAndRelationsModelMapper = (m) => {
+const pedidoAndTaxesModelMapper = (m) => {
   const r = pedidoModelMapper(m);
+  const cliente_aplica_sobre_iva = taxFieldIsYes(m.SOBRE_IVA);
+  const cliente_aplica_sobre_ii = taxFieldIsYes(m.SOBRE_II);
+  const cliente_exento_ii = true;
+  const cliente_exento_iva = true;
+  return {
+    ...r,
+    cliente_aplica_sobre_iva,
+    cliente_aplica_sobre_ii,
+    cliente_exento_iva,
+    cliente_exento_ii
+  };
+};
+const pedidoAndRelationsModelMapper = (m) => {
+  const r = pedidoAndTaxesModelMapper(m);
   const nombre_cliente = resolveScreenName(CLIENTE_NAME_COLUMNS, m);
   const nombre_vendedor = resolveScreenName(VENDEDOR_NAME_COLUMNS, m);
   const nombre_transporte = r.codigo_transporte != null ? resolveScreenName(TRANSPORTE_NAME_COLUMNS, m) : void 0;
   const nombre_deposito = m.NOMBRE_SUC?.trim();
-  const discriminaII = taxFieldIsYes(m.II_D);
-  const discriminaIVA = taxFieldIsYes(m.IVA_D);
   const direccion_cliente = m.DIRECCION;
   let localidad_cliente = void 0;
   if (m.LOCALIDAD != null)
@@ -9108,12 +9231,9 @@ const pedidoAndRelationsModelMapper = (m) => {
     nombre_vendedor,
     nombre_transporte,
     nombre_deposito,
-    sin_ii: discriminaII,
-    sin_iva: discriminaIVA,
     direccion_cliente,
     localidad_cliente,
     telefono_cliente
-    // descuento_cliente,
   };
 };
 const TANGO_PARAMETROS_TABLE = "GVA16";
@@ -9159,15 +9279,16 @@ class TangoRepository extends CompanyProvider {
 const tangoRepository = new TangoRepository();
 class PedidoBaseRepository extends CompanyProvider {
   constructor(config2) {
-    const { mainTable, rowsRepository, dependencies } = config2;
+    const { mainTable, rowsRepository, dependencies, parallelTable, columns } = config2;
     super({
       mainTable,
       mainIdField: PEDIDO_ID_FIELD,
-      columns: pedidoModelColumns,
+      columns: columns ?? pedidoModelColumns,
       dependencies: [
         ...dependencies ?? [],
         rowsRepository
-      ]
+      ],
+      parallelTable
     });
     this._rowsRepository = rowsRepository;
   }
@@ -9242,17 +9363,19 @@ class PedidoBaseRepository extends CompanyProvider {
   //   return `${this.config.mainTable}_BIDR_${orderId}`;
   // }
   async getAllByUser(user, options) {
-    const role = user.role.valueOf();
+    const userRole = user.role.valueOf();
     const tangoUserId = user.tangoId?.valueOf();
-    const cacheKey = this.getAllByUserCacheKey(role, tangoUserId, options);
+    const cacheKey = this.getAllByUserCacheKey(userRole, user.id.valueOf(), options);
     if (cacheKey != null) {
       const cachedData = await this.cache.getMetadata(cacheKey);
-      if (cachedData)
-        return cachedData;
+      if (cachedData) {
+        const settings22 = await settingsProvider.getOrderSettings();
+        return this._removePrivateFields(userRole, cachedData, settings22);
+      }
     }
-    const { mainTable, columns } = this.config;
+    const { mainTable, columns, parallelTable } = this.config;
     const k = await this.getCompany();
-    const where = this._getUserRoleWhere(role, tangoUserId);
+    const where = this._getUserRoleWhere(userRole, tangoUserId);
     let query = k(mainTable);
     if (where != null)
       query = query.where(
@@ -9265,14 +9388,21 @@ class PedidoBaseRepository extends CompanyProvider {
     const transporteNombreColumns = TRANSPORTE_NAME_COLUMNS.map((c) => `${TRANSPORTE_TABLE}.${c}`);
     const direccionColumns = DIRECCION_BASIC_COLUMNS.map((c) => `${DIRECCION_TABLE}.${c}`);
     const depositoNombreColumns = DEPOSITO_NAME_COLUMNS.map((c) => `${DEPOSITO_TABLE}.${c}`);
-    const data = await query.andWhereRaw(this._avoidInvalidsFilterWhereRaw()).select(
+    const parallelColumns = parallelTable != null ? parallelTable.columns.map((c) => `${parallelTable.name}.${c}`) : [];
+    query = query.andWhereRaw(this._avoidInvalidsFilterWhereRaw()).select(
       ...mainColumns,
       ...pedidoClienteColumns,
       ...vendedorNombreColumns,
       ...transporteNombreColumns,
       ...direccionColumns,
-      ...depositoNombreColumns
+      ...depositoNombreColumns,
+      ...parallelColumns
     ).leftOuterJoin(CLIENTE_TABLE, `${mainTable}.${CLIENTE_ID_FIELD}`, `${CLIENTE_TABLE}.${CLIENTE_ID_FIELD}`).leftOuterJoin(VENDEDOR_TABLE, `${mainTable}.${VENDEDOR_ID_FIELD}`, `${VENDEDOR_TABLE}.${VENDEDOR_ID_FIELD}`).leftOuterJoin(TRANSPORTE_TABLE, `${mainTable}.${TRANSPORTE_ID_FIELD}`, `${TRANSPORTE_TABLE}.${TRANSPORTE_ID_FIELD}`).leftOuterJoin(DIRECCION_TABLE, `${mainTable}.${DIRECCION_ID_FIELD}`, `${DIRECCION_TABLE}.${DIRECCION_ID_FIELD}`).leftOuterJoin(DEPOSITO_TABLE, `${mainTable}.${DEPOSITO_CODE_FIELD}`, `${DEPOSITO_TABLE}.${DEPOSITO_CODE_FIELD}`);
+    if (parallelTable != null) {
+      const { name } = parallelTable;
+      query = query.leftOuterJoin(name, `${mainTable}.${PEDIDO_ID_FIELD}`, `${name}.${PEDIDO_ID_FIELD}`);
+    }
+    const data = await query;
     if (data == null)
       throw new DXTException(DXTErrorCode.NOT_FOUND);
     let transformedData = [];
@@ -9281,14 +9411,27 @@ class PedidoBaseRepository extends CompanyProvider {
         await this.finalTransformer(user, this.toResultWithRelations(pedido))
       );
     }
-    const result = Object.fromEntries(transformedData.map((p) => [p.id, p]));
     if (cacheKey != null)
-      await this.cache.setMetadata(cacheKey, result);
+      await this.cache.setMetadata(cacheKey, transformedData);
+    const settings2 = await settingsProvider.getOrderSettings();
+    const result = this._removePrivateFields(userRole, transformedData, settings2);
     return result;
   }
-  async getAllListByUser(user, options) {
-    const result = Object.values(await this.getAllByUser(user, options));
-    return result;
+  _removePrivateFields(userRole, source, settings2) {
+    if (userRole != UserRole.customer)
+      return source;
+    const includeShippingDate = settings2.show_shipping_date_to_customers;
+    return source.map((order) => {
+      const {
+        mensaje_interno,
+        fecha_entrega,
+        ...remaining
+      } = order;
+      return {
+        ...remaining,
+        fecha_entrega: includeShippingDate ? fecha_entrega : void 0
+      };
+    });
   }
   async deleteById(orderId) {
     const k = await this.getCompany();
@@ -9302,10 +9445,10 @@ class PedidoBaseRepository extends CompanyProvider {
     if (result <= 0)
       throw new DXTException(DXTErrorCode.NOT_FOUND);
   }
-  composeUpsertRecord(customer, orderAndRows) {
+  composeUpsertRecord(userRole, customer, orderAndRows) {
     const {
-      idLista,
-      codigoLista
+      id_lista,
+      codigo_lista
     } = customer;
     const {
       estado,
@@ -9322,21 +9465,23 @@ class PedidoBaseRepository extends CompanyProvider {
       idDireccionDeEntrega,
       idAsientoModeloGV,
       bonificacion,
-      comentarios,
+      leyenda1,
+      leyenda2,
+      leyenda3,
+      leyenda4,
+      leyenda5,
       comprometeStock,
       total
     } = orderAndRows;
-    const comentariosLinea1 = comentarios.substring(0, LEYENDA_FIELD_LENGTH);
-    const comentariosLinea2 = comentarios.substring(LEYENDA_FIELD_LENGTH, LEYENDA_FIELD_LENGTH * 2);
     const result = {
       [CLIENTE_ID_FIELD]: customer.id,
       [CLIENTE_CODE_FIELD]: customer.code,
-      [VENDEDOR_ID_FIELD]: customer.idVendedor,
-      [VENDEDOR_CODE_FIELD]: customer.codigoVendedor,
+      [VENDEDOR_ID_FIELD]: customer.id_vendedor,
+      [VENDEDOR_CODE_FIELD]: customer.codigo_vendedor,
       [CONDICION_ID_FIELD]: idCondicion,
       [CONDICION_CODE_FIELD]: codigoCondicion,
-      [LISTA_ID_FIELD]: idLista,
-      [LISTA_CODE2_FIELD]: codigoLista,
+      [LISTA_ID_FIELD]: id_lista,
+      [LISTA_CODE2_FIELD]: codigo_lista,
       [TRANSPORTE_ID_FIELD]: idTransporte,
       [TRANSPORTE_CODE_FIELD]: codigoTransporte,
       [TALONARIO_ID2_FIELD]: idTalonario,
@@ -9346,8 +9491,11 @@ class PedidoBaseRepository extends CompanyProvider {
       [DIRECCION_ID_FIELD]: idDireccionDeEntrega,
       PORC_DESC: bonificacion,
       COMP_STK: comprometeStock,
-      LEYENDA_4: comentariosLinea1,
-      LEYENDA_5: comentariosLinea2,
+      LEYENDA_1: leyenda1,
+      LEYENDA_2: leyenda2,
+      LEYENDA_3: leyenda3,
+      LEYENDA_4: leyenda4,
+      LEYENDA_5: leyenda5,
       TOTAL_PEDI: total,
       ESTADO: estado,
       ID_ASIENTO_MODELO_GV: idAsientoModeloGV,
@@ -9363,25 +9511,27 @@ class PedidoBaseRepository extends CompanyProvider {
     };
     return result;
   }
-  composeInsertRecord(customer, params) {
+  composeInsertRecord(userRole, customer, params) {
     const result = this.composeUpsertRecord(
+      userRole,
       customer,
       params
     );
     return result;
   }
-  composeUpdateRecord(customer, params) {
+  composeUpdateRecord(userRole, customer, params) {
     const result = this.composeUpsertRecord(
+      userRole,
       customer,
       params
     );
     return result;
   }
-  async create(customer, params) {
+  async create(userRole, customer, params) {
     const k = await this.getCompany();
     const { mainTable: orderTable } = this.config;
     const { rows } = params;
-    const orderModel = this.composeInsertRecord(customer, params);
+    const orderModel = this.composeInsertRecord(userRole, customer, params);
     const result = await k.transaction(async (trx) => {
       const newOrderCode = await this.getNewOrderCodeAndUpdate(trx);
       const newOrderCodeStr = await this.formatOrderCode(newOrderCode);
@@ -9409,12 +9559,12 @@ class PedidoBaseRepository extends CompanyProvider {
     });
     return result;
   }
-  async update(customer, params) {
+  async update(userRole, customer, params) {
     const k = await this.getCompany();
     const { mainTable: orderTable, mainIdField: orderIdField } = this.config;
     const { mainTable: rowsTable } = this._rowsRepository.config;
     const { rows, idPedido } = params;
-    const orderModel = this.composeUpdateRecord(customer, params);
+    const orderModel = this.composeUpdateRecord(userRole, customer, params);
     const result = await k.transaction(
       async (trx) => {
         const changedRecords = await trx(orderTable).where(
@@ -9516,7 +9666,6 @@ const renglonPedidoModelMapper = (m) => {
   const discount = isANumber(DESCUENTO) ? DESCUENTO : 0;
   const precio = applyTangoDiscount(PRECIO, discount);
   const cantidad = CANT_PEDID ?? 0;
-  const subtotal = precio * cantidad;
   const es_precio_especial = marcaPrecioEspecial === TERMINAL_MODIFICACION_PRECIO_ESPECIAL;
   if (!isNotEmptyStr(codigo_articulo))
     throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `renglonPedidoModelMapper ${ARTICULO_CODE_FIELD}`);
@@ -9527,21 +9676,40 @@ const renglonPedidoModelMapper = (m) => {
     precio,
     es_precio_especial,
     cantidad,
-    subtotal,
     a_descontar,
     pendiente_descontar,
     a_facturar,
     pendiente_facturar
   };
 };
-const renglonPedidoAndRelationsModelMapper = (m) => {
+const renglonPedidoAndArticleModelMapper = (m) => {
   const r = renglonPedidoModelMapper(m);
-  const { [ARTICULO_CODE_FIELD]: codigoArticulo, DESCRIPCIO, DESC_ADIC: descripcion_adicional } = m;
+  const {
+    [ARTICULO_CODE_FIELD]: codigoArticulo,
+    DESCRIPCIO,
+    DESC_ADIC: descripcion_adicional
+  } = m;
   const nombre_articulo = DESCRIPCIO ?? (codigoArticulo == null ? NONEXISTENT_PRODUCT : NO_NAME);
   return {
     ...r,
     nombre_articulo,
     descripcion_adicional
+  };
+};
+const renglonPedidoAndTaxesModelMapper = (m) => {
+  const r = renglonPedidoAndArticleModelMapper(m);
+  const {
+    COD_IVA: codigo_iva,
+    COD_S_IVA: codigo_sobre_iva,
+    COD_II: codigo_ii,
+    COD_S_II: codigo_sobre_ii
+  } = m;
+  return {
+    ...r,
+    codigo_iva,
+    codigo_sobre_iva,
+    codigo_ii,
+    codigo_sobre_ii
   };
 };
 class DXTArticuloListRepository extends CompanyProvider {
@@ -9801,7 +9969,7 @@ class RenglonPedidoBaseRepository extends CompanyProvider {
     const filteredColumns = renglonPedidoModelColumns.filter((c) => c != PEDIDO_ID_FIELD) ?? [];
     this.mainColumns = filteredColumns.map((c) => `${mainTable}.${c.toString()}`);
     this.pedidoColumns = [`${pedidoTable}.${PEDIDO_ID_FIELD}`];
-    this.articuloColumns = ARTICULO_NAME_COLUMNS.map((c) => `${ARTICULO_TABLE}.${c}`);
+    this.articuloColumns = renglonPedidoArticuloModelColumns.map((c) => `${ARTICULO_TABLE}.${c}`);
   }
   async finalTransformer(user, row) {
     return row;
@@ -9882,12 +10050,12 @@ class RenglonPedidoBaseRepository extends CompanyProvider {
     if (id_pedido == null)
       throw new DXTException(DXTErrorCode.TANGO_DB_INVALID_DATA, `RenglonPedidoRepository.toRenglonWithIdPedido -> ${PEDIDO_ID_FIELD}`);
     return {
-      ...renglonPedidoAndRelationsModelMapper(m),
+      ...renglonPedidoAndTaxesModelMapper(m),
       id_pedido
     };
   }
   toResultAndRelations(m) {
-    return renglonPedidoAndRelationsModelMapper(m);
+    return renglonPedidoAndArticleModelMapper(m);
   }
   async create(idPedido, numeroPedido, order, row, rowIndex, trx) {
     const model = this.composeInsertRecord(
@@ -9964,12 +10132,79 @@ class RenglonPedidoRepository extends RenglonPedidoBaseRepository {
   }
 }
 const renglonPedidoRepository = new RenglonPedidoRepository();
+const dxtPedidoExtraModelMapper = (m) => {
+  const {
+    [PEDIDO_ID_FIELD]: id,
+    MENSAJE_INTERNO: mensaje_interno
+    /*UPDATED_AT: updated_at*/
+  } = m;
+  return {
+    id,
+    mensaje_interno
+    // updated_at
+  };
+};
+class DXTPedidoExtraRepository extends TangoProvider {
+  constructor() {
+    super({
+      mainTable: DXT_PEDIDO_EXTRA_TABLE,
+      mainIdField: PEDIDO_ID_FIELD,
+      columns: dxtPedidoExtraModelColumns
+    });
+  }
+  async setInternalMessage(id_pedido, mensajeInterno) {
+    const k = await this.getCompany();
+    const { mainTable, mainIdField } = this.config;
+    const changedRecords = await k(mainTable).where(mainIdField, id_pedido).update({
+      MENSAJE_INTERNO: mensajeInterno
+      // UPDATED_AT: new Date(),
+    });
+    if (changedRecords <= 0) {
+      const k2 = await this.getCompany();
+      await k2(mainTable).insert({
+        [PEDIDO_ID_FIELD]: id_pedido,
+        MENSAJE_INTERNO: mensajeInterno
+        // UPDATED_AT: new Date(),
+      });
+    }
+  }
+  async deleteOrphanData() {
+    const k = await this.getCompany();
+    const { mainTable, mainIdField } = this.config;
+    try {
+      const query = `DELETE FROM ${mainTable} WHERE ${mainIdField} NOT IN (SELECT ${mainIdField} FROM ${PEDIDO_TABLE}')`;
+      await k.raw(query);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  toResult(m) {
+    return dxtPedidoExtraModelMapper(m);
+  }
+}
+const dxtPedidoExtraRepository = new DXTPedidoExtraRepository();
+if (isDevelopment())
+  dxtPedidoExtraRepository.deleteOrphanData();
+setInterval(() => {
+  dxtPedidoExtraRepository.deleteOrphanData();
+}, DAY_IN_MILLISECONDS);
 class PedidoRepository extends PedidoBaseRepository {
   constructor() {
     super({
       mainTable: PEDIDO_TABLE,
-      rowsRepository: renglonPedidoRepository
+      rowsRepository: renglonPedidoRepository,
+      dependencies: [
+        dxtPedidoExtraRepository
+      ],
+      parallelTable: {
+        name: DXT_PEDIDO_EXTRA_TABLE,
+        columns: dxtPedidoExtraModelColumns,
+        writable: false
+      }
     });
+  }
+  async finalTransformer(user, pedido) {
+    return pedido;
   }
   getRowsRepository() {
     return renglonPedidoRepository;
@@ -9982,8 +10217,8 @@ class PedidoRepository extends PedidoBaseRepository {
     });
     await this.cache.invalidateById(id);
   }
-  composeUpsertRecord(customer, params) {
-    const parentResult = super.composeUpsertRecord(customer, params);
+  composeUpsertRecord(userRole, customer, params) {
+    const parentResult = super.composeUpsertRecord(userRole, customer, params);
     const {
       fechaPedido,
       fechaEntrega
@@ -9994,8 +10229,9 @@ class PedidoRepository extends PedidoBaseRepository {
       FECHA_ENTR: getDateOnly(fechaEntrega)
     };
   }
-  composeInsertRecord(customer, params) {
+  composeInsertRecord(userRole, customer, params) {
     const parentResult = this.composeUpsertRecord(
+      userRole,
       customer,
       params
     );
@@ -10011,14 +10247,45 @@ class PedidoRepository extends PedidoBaseRepository {
       HORA: horaIngreso
     };
   }
-  composeUpdateRecord(customer, params) {
+  composeUpdateRecord(userRole, customer, params) {
     const parentResult = this.composeUpsertRecord(
+      userRole,
       customer,
       params
     );
     return {
       ...parentResult
     };
+  }
+  async create(userRole, customer, params) {
+    const result = await super.create(
+      userRole,
+      customer,
+      params
+    );
+    const { mensaje_interno } = params;
+    if (userRole != UserRole.customer && mensaje_interno != null) {
+      await dxtPedidoExtraRepository.setInternalMessage(
+        result.id,
+        mensaje_interno
+      );
+    }
+    return result;
+  }
+  async update(userRole, customer, params) {
+    const result = await super.update(
+      userRole,
+      customer,
+      params
+    );
+    const { mensaje_interno } = params;
+    if (userRole != UserRole.customer && mensaje_interno != null) {
+      await dxtPedidoExtraRepository.setInternalMessage(
+        result.id,
+        mensaje_interno
+      );
+    }
+    return result;
   }
 }
 const pedidoRepository = new PedidoRepository();
@@ -10055,43 +10322,66 @@ class DXTPedidoDraftRowVendedoresRepository extends DXTPedidoDraftRowRepository 
   }
 }
 const dxtPedidoDraftRowVendedoresRepository = new DXTPedidoDraftRowVendedoresRepository();
-async function getAuxiliares(customerId) {
-  const [
-    preListas,
-    transportes,
-    preDepositos,
-    condiciones,
-    preAsientos,
-    preTalonarios,
-    preDirecciones
-  ] = await Promise.all([
-    listaRepository.getAll(),
-    transporteRepository.getAll(),
-    depositoRepository.getAll(),
-    condicionRepository.getAll(),
-    asientoRepository.getAll(),
-    talonarioRepository.getAll(),
-    direccionRepository.getByCustomer(customerId)
-  ]);
+async function getListas() {
+  const preListas = await listaRepository.getAll();
   const listasById = new Map(preListas.map((row) => [row.id, row]));
   const listasByCode = new Map(preListas.map((row) => [row.codigo, row]));
-  const asientos = _.uniqWith(
-    preAsientos.filter((asiento) => asiento.codigo_cuenta == 0),
-    (a, b) => a.tipo == b.tipo
-  );
-  const talonarios = preTalonarios.filter((talonario) => {
-    const { tipo, comprobante } = talonario;
-    return (comprobante == "" || comprobante == "FAC") && tipo != "X" && tipo != "R" && tipo != "";
-  });
-  const direcciones = preDirecciones.filter((direccion) => direccion.habilitada);
-  const depositos = [
-    ...preDepositos,
+  return { listasById, listasByCode };
+}
+async function getDirecciones(customerId) {
+  const preDirecciones = await direccionRepository.getByCustomer(customerId);
+  return preDirecciones.filter((direccion) => direccion.habilitada);
+}
+async function getTransportes() {
+  return await transporteRepository.getAll();
+}
+async function getDepositos() {
+  const preDepositos = await depositoRepository.getAll();
+  return [
     {
       id: 0,
       code: "",
-      name: "MOSTRADOR"
-    }
+      name: "MOSTRADOR",
+      habilitado: true
+    },
+    ...preDepositos
   ];
+}
+async function getCondiciones() {
+  return condicionRepository.getAll();
+}
+async function getAsientos() {
+  const preAsientos = await asientoRepository.getAll();
+  return _.uniqWith(
+    preAsientos.filter((asiento) => asiento.codigo_cuenta == 0),
+    (a, b) => a.tipo == b.tipo
+  );
+}
+async function getTalonarios() {
+  const preTalonarios = await talonarioRepository.getAll();
+  return preTalonarios.filter((talonario) => {
+    const { tipo, comprobante } = talonario;
+    return (comprobante == "" || comprobante == "FAC") && tipo != "X" && tipo != "R" && tipo != "";
+  });
+}
+async function getAuxiliares(customerId) {
+  const [
+    listas,
+    direcciones,
+    transportes,
+    asientos,
+    depositos,
+    condiciones,
+    talonarios
+  ] = await Promise.all([
+    getListas(),
+    getDirecciones(customerId),
+    getTransportes(),
+    getAsientos(),
+    getDepositos(),
+    getCondiciones(),
+    getTalonarios()
+  ]);
   if (transportes.length == 0)
     throw new DXTException(DXTErrorCode.EMPTY_TRANSPORTE_LIST);
   if (depositos.length == 0)
@@ -10105,8 +10395,7 @@ async function getAuxiliares(customerId) {
   if (direcciones.length == 0)
     throw new DXTException(DXTErrorCode.EMPTY_DIRECCION_LIST);
   return {
-    listasById,
-    listasByCode,
+    ...listas,
     transportes,
     depositos,
     condiciones,
@@ -10136,9 +10425,10 @@ async function getOptimalBillingProfile(user, customer) {
   }
   const cbp = customerBillingProfile;
   const ubp = userBillingProfile;
-  const customerCondicionAvailable = isAnInteger(customer.codigoCondicion) && customer.codigoCondicion > 0;
-  const customerTransporteAvailable = typeof customer.codigoTransporte === "string" && customer.codigoTransporte.trim() != "";
-  const customerListaAvailable = isAnInteger(customer.codigoLista) && customer.codigoLista > 0;
+  const customerCondicionAvailable = isAnInteger(customer.codigo_condicion) && customer.codigo_condicion > 0;
+  const customerTransporteAvailable = typeof customer.codigo_transporte === "string" && customer.codigo_transporte.trim() != "";
+  const customerListaAvailable = isAnInteger(customer.codigo_lista) && customer.codigo_lista > 0;
+  const { show_shipping_date_to_customers } = await settingsProvider.getOrderSettings();
   const optimalBillingProfile = {
     ...userBillingProfile,
     // Se aplica la configuración del perfil del cliente    
@@ -10149,13 +10439,15 @@ async function getOptimalBillingProfile(user, customer) {
     codigo_deposito: cbp?.codigo_deposito ?? ubp.codigo_deposito,
     codigo_asiento: cbp?.codigo_asiento ?? ubp.codigo_asiento,
     // Se aplica la configuración del cliente
-    codigo_condicion_venta: customerCondicionAvailable ? customer.codigoCondicion : cbp?.codigo_condicion_venta ?? ubp.codigo_condicion_venta,
-    codigo_transporte: customerTransporteAvailable ? customer.codigoTransporte : cbp?.codigo_transporte ?? ubp.codigo_transporte,
-    codigo_lista_precio: customerListaAvailable ? customer.codigoLista : cbp?.codigo_lista_precio ?? ubp.codigo_lista_precio
+    codigo_condicion_venta: customerCondicionAvailable ? customer.codigo_condicion : cbp?.codigo_condicion_venta ?? ubp.codigo_condicion_venta,
+    codigo_transporte: customerTransporteAvailable ? customer.codigo_transporte : cbp?.codigo_transporte ?? ubp.codigo_transporte,
+    codigo_lista_precio: customerListaAvailable ? customer.codigo_lista : cbp?.codigo_lista_precio ?? ubp.codigo_lista_precio,
+    fecha_alta_visible: ubp.fecha_alta_visible,
+    fecha_entrega_visible: (!user.isCustomer() || show_shipping_date_to_customers) && ubp.fecha_entrega_visible
   };
-  if (customer.discriminaIVA)
+  if (customer.discrimina_iva)
     return optimalBillingProfile;
-  const { talonarios } = await getAuxiliares(customer.id);
+  const talonarios = await getTalonarios();
   const selectedTalonario = talonarios.find((talonario) => talonario.code == optimalBillingProfile.codigo_talonario_factura);
   if (selectedTalonario != null && _talonarioConsumidorFinal(selectedTalonario))
     return optimalBillingProfile;
@@ -10172,6 +10464,12 @@ function _talonarioConsumidorFinal(talonario) {
   return tipo == "B" || tipo == "C";
 }
 class DXTPedidoDraftRepository extends PedidoBaseRepository {
+  constructor(config2) {
+    super({
+      ...config2,
+      columns: dxtPedidoDraftModelColumns
+    });
+  }
   toResult(m) {
     const { total, ...remaining } = super.toResult(m);
     return remaining;
@@ -10219,12 +10517,13 @@ class DXTPedidoDraftRepository extends PedidoBaseRepository {
       return false;
     return data != null;
   }
-  composeUpsertRecord(customer, params) {
-    const parentResult = super.composeUpsertRecord(customer, params);
+  composeUpsertRecord(userRole, customer, params) {
+    const parentResult = super.composeUpsertRecord(userRole, customer, params);
     const {
       descripcion,
       esFavorito,
-      fechaHoraIngreso
+      fechaHoraIngreso,
+      mensaje_interno
     } = params;
     const horaIngreso = getDateHHMMSS(fechaHoraIngreso);
     const fechaIngreso = getDateOnly(fechaHoraIngreso);
@@ -10234,11 +10533,13 @@ class DXTPedidoDraftRepository extends PedidoBaseRepository {
       [PEDIDO_IS_FAVORITE_FIELD]: esFavorito,
       FECHA_INGRESO: fechaIngreso,
       HORA_INGRESO: horaIngreso,
-      HORA: horaIngreso
+      HORA: horaIngreso,
+      MENSAJE_INTERNO: userRole != UserRole.customer && mensaje_interno != null ? mensaje_interno : void 0
     };
   }
-  composeInsertRecord(customer, params) {
+  composeInsertRecord(userRole, customer, params) {
     const parentResult = this.composeUpsertRecord(
+      userRole,
       customer,
       params
     );
@@ -10246,8 +10547,9 @@ class DXTPedidoDraftRepository extends PedidoBaseRepository {
       ...parentResult
     };
   }
-  composeUpdateRecord(customer, params) {
+  composeUpdateRecord(userRole, customer, params) {
     const parentResult = this.composeUpsertRecord(
+      userRole,
       customer,
       params
     );
@@ -10382,7 +10684,7 @@ async function getArticlesWithTaxes(user, customer, alwaysIncludeArticlesWithout
       }
     }
   }
-  const listId = customer.idLista;
+  const listId = customer.id_lista;
   const keepArticlesWithoutPrice = alwaysIncludeArticlesWithoutPrice || user.verSinPrecio.valueOf();
   const articleEditListExists = await dxtArticuloEditListRepository.count() > 0;
   const articlePrintListExists = await dxtArticuloPrintListRepository.count() > 0;
@@ -10498,7 +10800,11 @@ async function getGroupedArticles(user, customer) {
     true
   );
 }
-function adjustPrice(params, article, listasById, alicuotas, forceTaxesDiscrimination) {
+function percentageToFactor(value) {
+  const sign = value >= 0 ? 1 : -1;
+  return (1 + Math.abs(value) / 100) * sign;
+}
+function adjustPrice(params, article, listasById, alicuotas, forceTaxesElimination) {
   const { id_lista, codigo_iva, codigo_ii, codigo_sobre_iva, codigo_sobre_ii, precio } = article;
   if (id_lista == null || precio == null)
     return null;
@@ -10506,44 +10812,40 @@ function adjustPrice(params, article, listasById, alicuotas, forceTaxesDiscrimin
   const lista = id_lista != null ? listasById.get(id_lista) : null;
   const listaIncluyeIVA = lista?.incluye_iva ?? params.listaIncluyeIVA;
   const listaIncluyeII = lista?.incluye_ii ?? params.listaIncluyeII;
-  const usuarioDiscriminaIVA = params.usuarioDiscriminaIVA;
-  const usuarioDiscriminaII = params.usuarioDiscriminaII;
+  const eliminarIVA = forceTaxesElimination ? true : params.usuarioExentoIVA;
+  const eliminarII = forceTaxesElimination ? true : params.usuarioExentoII;
   const ivaPercentage = codigo_iva != null ? alicuotas.get(codigo_iva) ?? 0 : 0;
-  const impuestoInternoPercentage = codigo_ii != null ? alicuotas.get(codigo_ii) ?? 0 : 0;
   const sobreIVABruto = codigo_sobre_iva != null ? alicuotas.get(codigo_sobre_iva) ?? 0 : 0;
-  const sobreIIBruto = codigo_sobre_ii != null ? alicuotas.get(codigo_sobre_ii) ?? 0 : 0;
   const sobreIVA = percentageToFactor(ivaPercentage * sobreIVABruto / 100);
-  const sobreII = percentageToFactor(impuestoInternoPercentage * sobreIIBruto / 100);
   const iva = percentageToFactor(ivaPercentage);
+  const impuestoInternoPercentage = codigo_ii != null ? alicuotas.get(codigo_ii) ?? 0 : 0;
+  const sobreIIBruto = codigo_sobre_ii != null ? alicuotas.get(codigo_sobre_ii) ?? 0 : 0;
+  const sobreII = percentageToFactor(impuestoInternoPercentage * sobreIIBruto / 100);
   const impuestoInterno = percentageToFactor(impuestoInternoPercentage);
   let result = precio;
-  if (!listaIncluyeIVA && !usuarioDiscriminaIVA) {
+  if (!listaIncluyeIVA && !eliminarIVA) {
     result = result * iva;
     if (usuarioAplicaSobreIVA) {
       result = result * sobreIVA;
     }
-  } else if (listaIncluyeIVA && usuarioDiscriminaIVA) {
+  } else if (listaIncluyeIVA && eliminarIVA) {
     result = result / iva;
     if (usuarioAplicaSobreIVA) {
       result = result / sobreIVA;
     }
   }
-  if (!listaIncluyeII && !usuarioDiscriminaII) {
+  if (!listaIncluyeII && !eliminarII) {
     result = result * impuestoInterno;
     if (usuarioAplicaSobreII) {
       result = result * sobreII;
     }
-  } else if (listaIncluyeII && usuarioDiscriminaII) {
+  } else if (listaIncluyeII && eliminarII) {
     result = result / impuestoInterno;
     if (usuarioAplicaSobreII) {
       result = result / sobreII;
     }
   }
   return result;
-}
-function percentageToFactor(value) {
-  const sign = value >= 0 ? 1 : -1;
-  return (1 + Math.abs(value) / 100) * sign;
 }
 async function prepareOrderGroupedArticles(user, originalOrder, newOrderHeader, customer, auxiliares, createNew) {
   const articles = await getGroupedArticles(
@@ -10602,8 +10904,8 @@ function _addQuantitiesAndAdjustPrices(orderHeader, articles, alicuotas, listasB
     listaIncluyeII: orderHeader.lista_incluye_ii,
     usuarioAplicaSobreIVA: orderHeader.usuario_aplica_sobre_iva,
     usuarioAplicaSobreII: orderHeader.usuario_aplica_sobre_ii,
-    usuarioDiscriminaIVA: orderHeader.usuario_discrimina_iva,
-    usuarioDiscriminaII: orderHeader.usuario_discrimina_ii
+    usuarioExentoIVA: orderHeader.usuario_exento_iva,
+    usuarioExentoII: orderHeader.usuario_exento_ii
   };
   return Object.fromEntries(
     Object.entries(articles).map(
@@ -10622,7 +10924,8 @@ function _addQuantitiesAndAdjustPrices(orderHeader, articles, alicuotas, listasB
               commonAdjustPriceParams,
               article,
               listasById,
-              alicuotas
+              alicuotas,
+              false
             );
             const row = quantities?.get(article.codigo);
             if (row == null) {
@@ -10663,14 +10966,20 @@ async function prepareOrderHeader(user, originalOrder, customer, billingProfile,
     direcciones
   } = auxiliares;
   const {
-    discriminaIVA,
-    discriminaII,
-    aplicaSobreIVA,
-    aplicaSobreII
+    exento_iva,
+    exento_ii,
+    aplica_sobre_iva,
+    aplica_sobre_ii
   } = customer;
   const bonificacion_editable = user.isSeller() && billingProfile.bonificacion_editable;
   const descripcion = startDraft && originalOrder != null ? originalOrder.header.descripcion : "";
-  const comentarios = originalOrder != null ? originalOrder.header.comentarios : "";
+  const leyenda1 = originalOrder != null ? originalOrder.header.leyenda1 : "";
+  const leyenda2 = originalOrder != null ? originalOrder.header.leyenda2 : "";
+  const leyenda3 = originalOrder != null ? originalOrder.header.leyenda3 : "";
+  const leyenda4 = originalOrder != null ? originalOrder.header.leyenda4 : "";
+  const leyenda5 = originalOrder != null ? originalOrder.header.leyenda5 : "";
+  const orginalInternalMessage = originalOrder?.header.mensaje_interno;
+  const mensaje_interno = (user.role.valueOf() != UserRole.customer ? orginalInternalMessage : null) ?? null;
   const realOrder = originalOrder != null && !originalOrder.isDraft ? originalOrder : null;
   const updatingRealOrder = createNew == false && startDraft == false && realOrder != null;
   const ignoreOriginalOrderId = createNew || originalOrder == null || !sameType;
@@ -10683,9 +10992,9 @@ async function prepareOrderHeader(user, originalOrder, customer, billingProfile,
     const profileDiscount = billingProfile.bonificacion ?? 0;
     bonificacion = profileDiscount > customer.bonificacion ? profileDiscount : customer.bonificacion;
   }
-  const originalDeliveryDate = originalOrderIsDraft ? null : originalOrder?.header.fecha_entrega;
+  const originalShippingDate = originalOrderIsDraft ? null : originalOrder?.header.fecha_entrega;
   const creationDate = (createNew || originalOrderIsDraft ? /* @__PURE__ */ new Date() : originalOrder?.header.fecha_alta) ?? /* @__PURE__ */ new Date();
-  const deliveryDate = createNew || originalDeliveryDate == null ? addDays(creationDate, user.diaDeEntrega.valueOf()) : originalDeliveryDate;
+  const shippingDate = createNew || originalShippingDate == null ? addDays(creationDate, user.diaDeEntrega.valueOf()) : originalShippingDate;
   const {
     codigo_lista_precio,
     deposito_editable,
@@ -10694,14 +11003,22 @@ async function prepareOrderHeader(user, originalOrder, customer, billingProfile,
     asiento_editable,
     talonario_editable,
     direccion_editable,
+    fecha_alta_visible,
+    fecha_entrega_visible,
+    talonario_visible,
+    asiento_visible,
+    transporte_visible,
+    condicion_visible,
+    deposito_visible,
+    direccion_visible,
     compromete_stock
   } = billingProfile;
   const bp = billingProfile;
-  const codigo_transporte = updatingRealOrder ? realOrder.header.codigo_transporte : bp.codigo_transporte;
-  const codigo_deposito = updatingRealOrder ? realOrder.header.codigo_deposito : bp.codigo_deposito;
-  const codigo_condicion_venta = updatingRealOrder ? realOrder.header.codigo_condicion : bp.codigo_condicion_venta;
-  const codigo_asiento = updatingRealOrder ? realOrder.header.codigo_asiento : bp.codigo_asiento;
-  const codigo_talonario_factura = updatingRealOrder ? realOrder.header.codigo_talonario : bp.codigo_talonario_factura;
+  const codigo_transporte = originalOrder?.header.codigo_transporte ?? bp.codigo_transporte;
+  const codigo_deposito = originalOrder?.header.codigo_deposito ?? bp.codigo_deposito;
+  const codigo_condicion_venta = originalOrder?.header.codigo_condicion ?? bp.codigo_condicion_venta;
+  const codigo_asiento = originalOrder?.header.codigo_asiento ?? bp.codigo_asiento;
+  const codigo_talonario_factura = originalOrder?.header.codigo_talonario ?? bp.codigo_talonario_factura;
   const id_asiento_modelo_gv = updatingRealOrder ? realOrder.header.id_asiento_modelo_gv ?? bp.id_asiento_modelo_gv : bp.id_asiento_modelo_gv;
   const direccion_habitual = direcciones.find((direccion) => direccion.habitual);
   const codigo_direccion = direccion_habitual?.code ?? direcciones[0].code;
@@ -10711,13 +11028,18 @@ async function prepareOrderHeader(user, originalOrder, customer, billingProfile,
   const result = {
     es_borrador: startDraft,
     descripcion,
-    comentarios,
+    leyenda1,
+    leyenda2,
+    leyenda3,
+    leyenda4,
+    leyenda5,
+    mensaje_interno,
     id_pedido: orderId,
     numero_pedido: numeroPedido,
     id_cliente: customer.id,
     codigo_cliente: customer.code,
     nombre_cliente: customer.screen_name,
-    id_vendedor: customer.idVendedor,
+    id_vendedor: customer.id_vendedor,
     nombre_vendedor: seller.screen_name,
     id_asiento_modelo_gv,
     compromete_stock,
@@ -10725,7 +11047,7 @@ async function prepareOrderHeader(user, originalOrder, customer, billingProfile,
     bonificacion_editable,
     fecha_alta: dateToISOStringZ(creationDate),
     fecha_alta_editable: billingProfile.fecha_editable,
-    fecha_entrega: dateToISOStringZ(deliveryDate),
+    fecha_entrega: dateToISOStringZ(shippingDate),
     fecha_entrega_editable: billingProfile.fecha_editable,
     transportes: _setSelectedItem(transportes, transporte_editable, DXTErrorCode.UNKNOWN_TRANSPORTE, codigo_transporte, (el) => el.code == codigo_transporte),
     depositos: _setSelectedItem(depositos, deposito_editable, DXTErrorCode.UNKNOWN_DEPOSITO, codigo_deposito, (el) => codigo_deposito == null && el.code == "" || el.code == codigo_deposito),
@@ -10739,13 +11061,21 @@ async function prepareOrderHeader(user, originalOrder, customer, billingProfile,
     asiento_editable,
     talonario_editable,
     direccion_editable,
+    fecha_alta_visible,
+    fecha_entrega_visible,
+    talonario_visible,
+    asiento_visible,
+    transporte_visible,
+    condicion_visible,
+    deposito_visible,
+    direccion_visible,
     id_lista_de_precio: lista.id,
     lista_incluye_iva: lista.incluye_iva,
     lista_incluye_ii: lista.incluye_ii,
-    usuario_discrimina_iva: discriminaIVA,
-    usuario_discrimina_ii: discriminaII,
-    usuario_aplica_sobre_iva: aplicaSobreIVA,
-    usuario_aplica_sobre_ii: aplicaSobreII
+    usuario_exento_iva: exento_iva,
+    usuario_exento_ii: exento_ii,
+    usuario_aplica_sobre_iva: aplica_sobre_iva,
+    usuario_aplica_sobre_ii: aplica_sobre_ii
   };
   return result;
 }
@@ -10753,14 +11083,16 @@ function _setSelectedItem(list, editable, unknownElementError, targetValue, chec
   if (targetValue == null)
     return list;
   if (editable) {
-    return list.map((el) => ({
+    return list.map((el, index) => ({
       ...el,
-      selected: checkSelected?.(el) === true ? true : void 0
+      selected: checkSelected?.(el, index) === true ? true : void 0
     }));
   }
   if (checkSelected == null)
     throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "_setSelectedItem -> <checkSelected> must be defined when <editable> is false");
-  const result = list.filter((el) => checkSelected(el));
+  let result = list.filter((el, index) => checkSelected(el, index));
+  if (result.length == 0)
+    result = list.slice(1);
   if (result.length == 0)
     throw new DXTException(unknownElementError, valueToString(targetValue));
   return result;
@@ -11002,31 +11334,37 @@ class EmailProvider {
     if (this._initializingTransporter)
       return;
     this._initializingTransporter = true;
-    await this._loadEmailTemplates();
-    const settings2 = await settingsProvider.getMiscSettings();
-    const {
-      smtp_enabled,
-      smtp_host,
-      smtp_username,
-      smtp_password,
-      smtp_port,
-      smtp_use_tls
-    } = settings2;
-    if (this._transporter != null) {
-      this._transporter.close();
-      this._transporter = null;
-    }
-    if (!smtp_enabled)
-      return;
-    this._transporter = nodemailer.createTransport({
-      host: smtp_host,
-      port: smtp_port,
-      requireTLS: smtp_use_tls,
-      auth: {
-        user: smtp_username,
-        pass: smtp_password
+    try {
+      await this._loadEmailTemplates();
+      const settings2 = await settingsProvider.getMiscSettings();
+      const {
+        smtp_enabled,
+        smtp_host,
+        smtp_username,
+        smtp_password,
+        smtp_port,
+        smtp_use_tls
+      } = settings2;
+      if (this._transporter != null) {
+        this._transporter.close();
+        this._transporter = null;
       }
-    });
+      if (!smtp_enabled) {
+        this._initializingTransporter = false;
+        return;
+      }
+      this._transporter = nodemailer.createTransport({
+        host: smtp_host,
+        port: smtp_port,
+        requireTLS: smtp_use_tls,
+        auth: {
+          user: smtp_username,
+          pass: smtp_password
+        }
+      });
+    } catch (e) {
+      console.error(e);
+    }
     this._initializingTransporter = false;
   }
   async _loadEmailTemplates() {
@@ -11090,8 +11428,8 @@ var EmailOrderAction = /* @__PURE__ */ ((EmailOrderAction2) => {
 })(EmailOrderAction || {});
 const ORDER_DELETED_SUBJECT = "Se ha eliminado el pedido {{{orderCode}}}";
 const ORDER_CANCELLED_SUBJECT = "Se ha anulado el pedido {{{orderCode}}}";
-const ORDER_CREATED_SUBJECT = "Nuevo pedido {{{orderCode}}} para {{{customerName}}} (entrega {{{deliveryDate}}})";
-const ORDER_UPDATED_SUBJECT = "Se ha modificado el pedido {{{orderCode}}} para {{{customerName}}} (entrega {{{deliveryDate}}})";
+const ORDER_CREATED_SUBJECT = "Nuevo pedido {{{orderCode}}} para {{{customerName}}} (entrega {{{shippingDate}}})";
+const ORDER_UPDATED_SUBJECT = "Se ha modificado el pedido {{{orderCode}}} para {{{customerName}}} (entrega {{{shippingDate}}})";
 function formatPrice(precio, moneda) {
   if (precio == null)
     return "SIN PRECIO";
@@ -11103,8 +11441,61 @@ function _formatNumber(num) {
     maximumFractionDigits: 2
   });
 }
+function formatArticleName(nombre, descriptionAdicional) {
+  if (nombre == null)
+    return NO_NAME;
+  let result = nombre.trim();
+  if (descriptionAdicional != null && descriptionAdicional.trim().length > 0)
+    result = `${result} (${descriptionAdicional.trim()})`;
+  return result;
+}
+function fullArticleDescription(nombre, codigo_articulo, descriptionAdicional) {
+  if (codigo_articulo == null)
+    return NONEXISTENT_PRODUCT;
+  if (nombre == null)
+    return NO_NAME;
+  return `${codigo_articulo} - ${formatArticleName(nombre, descriptionAdicional)}`;
+}
+function formatAuxiliares(codigo, nombre, gender) {
+  if (codigo != null && nombre != null)
+    return `${codigo} - ${nombre}`;
+  return gender === "f" ? NONE_F : NONE_M;
+}
+function formatClienteVendedor(codigo, nombre) {
+  return `${codigo} - ${nombre}`;
+}
+const calculateTotals = (quantities, prices, orderDiscount) => {
+  let total = 0;
+  quantities.forEach((quantity, id) => {
+    const { amount, discount } = prices[id];
+    if (amount == null)
+      return;
+    const finalDiscount = discount ?? orderDiscount;
+    const subtotal = applyTangoDiscount(quantity * amount, finalDiscount);
+    total += subtotal ?? 0;
+  });
+  return total;
+};
+function formatTaxesLabel(exentoIVA, exentoII) {
+  if (exentoIVA) {
+    return exentoII ? "sin impuestos" : "sin IVA";
+  }
+  return exentoII ? "con IVA" : "impuestos incluídos";
+}
+function calculateBoxesAndUnits(quantity, perBox) {
+  if (perBox == null)
+    return null;
+  const boxes = Math.floor(quantity / perBox);
+  const units = quantity % perBox;
+  return (boxes > 0 ? `${boxes}b` : "") + (units > 0 ? (boxes > 0 ? ` ` : ``) + `${units}u` : "");
+}
 async function dispatchOrderEmail(user, orderAction, from, to, bcc, order) {
   const { company_name: companyName } = await settingsProvider.getProgramConfig();
+  const {
+    show_shipping_date_to_customers,
+    order_create_update_message
+  } = await settingsProvider.getOrderSettings();
+  const orderCreateUpdateMessage = order_create_update_message.length > 0 ? order_create_update_message : null;
   const { header, rows } = order;
   const orderDeleted = orderAction == EmailOrderAction.delete;
   const orderCancelled = orderAction == EmailOrderAction.cancel;
@@ -11114,13 +11505,28 @@ async function dispatchOrderEmail(user, orderAction, from, to, bcc, order) {
   const orderCreatedOrUpdated = orderCreated || orderUpdated;
   const {
     descuento: discount,
-    comentarios: comments,
+    leyenda1,
+    leyenda2,
+    leyenda3,
+    leyenda4,
+    leyenda5,
     customerName,
     sellerName,
-    total,
-    totalWithoutDiscount
+    totalWithoutDiscount,
+    exemptIVA,
+    exemptII
   } = header;
+  const taxesLabel = formatTaxesLabel(exemptIVA, exemptII).toLocaleUpperCase();
+  const captions = orderCaptionsToArray(
+    leyenda1,
+    leyenda2,
+    leyenda3,
+    leyenda4,
+    leyenda5
+  );
+  const total = rows.reduce((total2, row) => total2 + (row.bonifiedPrice ?? 0) * row.quantity, 0);
   const values = {
+    orderCreateUpdateMessage,
     companyName,
     orderCreated,
     orderUpdated,
@@ -11134,14 +11540,15 @@ async function dispatchOrderEmail(user, orderAction, from, to, bcc, order) {
     orderCode: header.numero_pedido,
     customerCode: header.codigo_cliente,
     customerName,
-    sellerCode: header.codigo_cliente,
+    sellerCode: header.codigo_vendedor,
     sellerName,
     inputDatetime: datetimeToLocale(header.fecha_hora_ingreso),
-    deliveryDate: dateToLocale(header.fecha_entrega),
+    shippingDate: show_shipping_date_to_customers ? dateToLocale(header.fecha_entrega) : null,
     discount,
-    thereAreComments: comments.length > 0,
-    commentsLines: comments.split("\n"),
+    thereAreCaptions: captions.length > 0,
+    captions,
     total: formatPrice(total),
+    taxesLabel,
     articles: rows.map((row) => {
       return {
         ...row,
@@ -11175,103 +11582,123 @@ async function dispatchOrderEmail(user, orderAction, from, to, bcc, order) {
   );
 }
 async function resolveTargetEmails(user, adminEmail, order) {
-  const userId = user.id.valueOf();
+  user.id.valueOf();
   const {
     id_cliente,
     id_vendedor
   } = order.header;
-  const userRole = user.role.valueOf();
-  const sellerEmail = await dxtVendedorRepository.getEmailByTangoId(id_vendedor);
+  const sellersEmails = await dxtVendedorRepository.getEmailsByTangoId(id_vendedor);
   const customersEmails = await dxtClienteRepository.getEmailsByTangoId(id_cliente);
-  let to;
-  let cc = [];
-  switch (userRole) {
-    case UserRole.seller:
-      to = adminEmail;
-      cc = customersEmails.map((r) => new VOEmail(r.email));
-      break;
-    case UserRole.customer:
-      to = adminEmail;
-      user.email?.valueOf().toLowerCase();
-      cc = customersEmails.filter((r) => r.customerId != userId).map((r) => new VOEmail(r.email));
-      if (sellerEmail != null)
-        cc.push(new VOEmail(sellerEmail));
-      break;
-    case UserRole.admin:
-      to = sellerEmail != null ? new VOEmail(sellerEmail) : null;
-      cc = customersEmails.map((r) => new VOEmail(r.email));
-      break;
-  }
+  const to = adminEmail;
+  const cc = _.uniq([
+    ...sellersEmails.map((r) => r.email),
+    ...customersEmails.map((r) => r.email)
+  ]).map((e) => new VOEmail(e));
   const anyEmail = to != null || cc.length > 0;
   if (!anyEmail)
     return null;
   return { to, cc };
 }
-function formatArticleName(nombre, descriptionAdicional) {
-  if (nombre == null)
-    return NO_NAME;
-  let result = nombre.trim();
-  if (descriptionAdicional != null && descriptionAdicional.trim().length > 0)
-    result = `${result} (${descriptionAdicional.trim()})`;
+function applyTaxesToPrice(params, article, alicuotas) {
+  const { codigo_iva, codigo_ii, codigo_sobre_iva, codigo_sobre_ii, precio } = article;
+  if (precio == null)
+    return null;
+  const { usuarioAplicaSobreIVA, usuarioAplicaSobreII } = params;
+  const agregarIVA = !params.usuarioExentoIVA;
+  const agregarII = !params.usuarioExentoII;
+  let result = precio;
+  if (agregarIVA) {
+    const ivaPercentage = codigo_iva != null ? alicuotas.get(codigo_iva) ?? 0 : 0;
+    const sobreIVABruto = codigo_sobre_iva != null ? alicuotas.get(codigo_sobre_iva) ?? 0 : 0;
+    const sobreIVA = percentageToFactor(ivaPercentage * sobreIVABruto / 100);
+    const iva = percentageToFactor(ivaPercentage);
+    result = result * iva;
+    if (usuarioAplicaSobreIVA) {
+      result = result * sobreIVA;
+    }
+  }
+  if (agregarII) {
+    const impuestoInternoPercentage = codigo_ii != null ? alicuotas.get(codigo_ii) ?? 0 : 0;
+    const sobreIIBruto = codigo_sobre_ii != null ? alicuotas.get(codigo_sobre_ii) ?? 0 : 0;
+    const sobreII = percentageToFactor(impuestoInternoPercentage * sobreIIBruto / 100);
+    const impuestoInterno = percentageToFactor(impuestoInternoPercentage);
+    result = result * impuestoInterno;
+    if (usuarioAplicaSobreII) {
+      result = result * sobreII;
+    }
+  }
   return result;
 }
-function fullArticleDescription(nombre, codigo_articulo, descriptionAdicional) {
-  if (codigo_articulo == null)
-    return NONEXISTENT_PRODUCT;
-  if (nombre == null)
-    return NO_NAME;
-  return `${codigo_articulo} - ${formatArticleName(nombre, descriptionAdicional)}`;
+function removeTaxesFields(row) {
+  const {
+    codigo_iva,
+    codigo_sobre_iva,
+    codigo_ii,
+    codigo_sobre_ii,
+    id_pedido,
+    ...withoutTaxes
+  } = row;
+  return withoutTaxes;
 }
-function formatAuxiliares(codigo, nombre, gender) {
-  if (codigo != null && nombre != null)
-    return `${codigo} - ${nombre}`;
-  return gender === "f" ? NONE_F : NONE_M;
-}
-function formatClienteVendedor(codigo, nombre) {
-  return `${codigo} - ${nombre}`;
-}
-const calculateTotals = (quantities, prices, orderDiscount) => {
-  let total = 0;
-  quantities.forEach((quantity, id) => {
-    const { amount, discount } = prices[id];
-    if (amount == null)
-      return;
-    const finalDiscount = discount ?? orderDiscount;
-    total += applyTangoDiscount(quantity * amount, finalDiscount);
+function applyTaxesToOrder(header, rows, alicuotas) {
+  const applyTaxesToPriceParams = {
+    usuarioAplicaSobreIVA: header.cliente_aplica_sobre_iva,
+    usuarioAplicaSobreII: header.cliente_aplica_sobre_ii,
+    usuarioExentoIVA: header.cliente_exento_iva,
+    usuarioExentoII: header.cliente_exento_ii
+  };
+  const newRows = rows.map((row) => {
+    const priceWithTaxes = applyTaxesToPrice(
+      applyTaxesToPriceParams,
+      row,
+      alicuotas
+    );
+    const renglon = removeTaxesFields(row);
+    return {
+      ...renglon,
+      precio: priceWithTaxes
+      // id_pedido, 
+    };
   });
-  return total;
-};
-function formatTaxesLabel(sinIVA, sinII) {
-  if (sinIVA) {
-    return sinII ? "sin IVA e II" : "sin IVA";
-  }
-  return sinII ? "con IVA, sin II" : "con IVA";
-}
-function calculateBoxesAndUnits(quantity, perBox) {
-  if (perBox == null)
-    return null;
-  const boxes = Math.floor(quantity / perBox);
-  const units = quantity % perBox;
-  return (boxes > 0 ? `${boxes}b` : "") + (units > 0 ? (boxes > 0 ? ` ` : ``) + `${units}u` : "");
+  return newRows;
 }
 async function prepareEmailOrderData(options) {
   const {
     action: action2,
     user
   } = options;
+  const alicuotas = await alicuotaRepository.getAllPercentages();
   const cancelOrDelete = action2 == EmailOrderAction.cancel || action2 == EmailOrderAction.delete;
   const orderHeader = cancelOrDelete ? options.order.header : options.orderHeader;
   const orderRows = cancelOrDelete ? options.order.rows : await renglonPedidoRepository.getByIdPedido(user, orderHeader.id);
+  const customer = cancelOrDelete ? await clienteRepository.getExtendedById(orderHeader.id_cliente) : options.customer;
   const { id_cliente, id_vendedor, descuento } = orderHeader;
   const tangoCustomer = await clienteRepository.getById(id_cliente);
   const tangoSeller = await vendedorRepository.getById(id_vendedor);
+  const {
+    aplica_sobre_iva,
+    aplica_sobre_ii,
+    exento_iva,
+    exento_ii
+  } = customer;
+  const newRows = applyTaxesToOrder(
+    {
+      ...orderHeader,
+      cliente_aplica_sobre_iva: aplica_sobre_iva,
+      cliente_aplica_sobre_ii: aplica_sobre_ii,
+      cliente_exento_iva: exento_iva,
+      cliente_exento_ii: exento_ii
+    },
+    orderRows,
+    alicuotas
+  );
   let totalWithoutDiscount = 0;
-  const resultRows = orderRows.map((r) => {
-    const price = r.precio ?? 0;
+  const resultRows = newRows.map((r) => {
+    const price = r.precio;
     const bonifiedPrice = applyTangoDiscount(price, descuento);
-    const subtotal = price * r.cantidad;
-    const subtotalWithDiscount = bonifiedPrice * r.cantidad;
-    totalWithoutDiscount += subtotal;
+    const subtotal = price != null ? price * r.cantidad : null;
+    const subtotalWithDiscount = bonifiedPrice != null ? bonifiedPrice * r.cantidad : null;
+    totalWithoutDiscount += subtotal ?? 0;
     return {
       code: r.codigo_articulo,
       name: formatArticleName(r.nombre_articulo, r.descripcion_adicional),
@@ -11285,7 +11712,9 @@ async function prepareEmailOrderData(options) {
     ...orderHeader,
     customerName: tangoCustomer.screen_name,
     sellerName: tangoSeller.screen_name,
-    totalWithoutDiscount
+    totalWithoutDiscount,
+    exemptIVA: customer.exento_iva,
+    exemptII: customer.exento_ii
   };
   return {
     header: resultHeader,
@@ -11324,12 +11753,15 @@ async function sendOrderEmail(options) {
 }
 async function createOrUpdateOrder(user, customer, input) {
   const repository = input.saveDraft ? getDraftRepository(user) : pedidoRepository;
+  const { order_create_update_message } = await settingsProvider.getOrderSettings();
   const isUpdating = input.idPedido != null;
-  const orderHeader = isUpdating ? await repository.update(customer, input) : await repository.create(customer, input);
+  const userRole = user.role.valueOf();
+  const orderHeader = isUpdating ? await repository.update(userRole, customer, input) : await repository.create(userRole, customer, input);
   const result = {
     nuevo_pedido: false,
     id_pedido: orderHeader.id,
-    numero_pedido: orderHeader.numero_pedido
+    numero_pedido: orderHeader.numero_pedido,
+    message_to_user: order_create_update_message.length > 0 ? order_create_update_message : void 0
   };
   if (input.saveDraft)
     return result;
@@ -11337,12 +11769,14 @@ async function createOrUpdateOrder(user, customer, input) {
     sendOrderEmail({
       action: EmailOrderAction.update,
       user,
+      customer,
       orderHeader
     });
   } else {
     sendOrderEmail({
       action: EmailOrderAction.create,
       user,
+      customer,
       orderHeader
     });
   }
@@ -11382,17 +11816,18 @@ async function validateInputRows(user, originalOrder, customer, billingProfile, 
     // bonificacion: bonificacion,
     listaIncluyeIVA: incluye_iva,
     listaIncluyeII: incluye_ii,
-    usuarioAplicaSobreIVA: customer.aplicaSobreIVA,
-    usuarioAplicaSobreII: customer.aplicaSobreII,
-    usuarioDiscriminaIVA: customer.discriminaIVA,
-    usuarioDiscriminaII: customer.discriminaII
+    usuarioAplicaSobreIVA: customer.aplica_sobre_iva,
+    usuarioAplicaSobreII: customer.aplica_sobre_ii,
+    usuarioExentoIVA: customer.exento_iva,
+    usuarioExentoII: customer.exento_ii
   };
   const rowsWithAdjustedPrice = sortedRows.map((row) => {
     const adjustedPrice = adjustPrice(
       adjustPriceParams,
       row,
       listasById,
-      alicuotas
+      alicuotas,
+      true
     );
     return {
       ...row,
@@ -11454,7 +11889,8 @@ function _calculateTotal(rows, orderDiscount) {
   let total = 0;
   rows.forEach((row) => {
     const discount = row.bonificacion_lista_de_precios ?? orderDiscount;
-    total += applyTangoDiscount(row.quantity * (row.precio ?? 0), discount);
+    const subtotal = applyTangoDiscount(row.quantity * (row.precio ?? 0), discount);
+    total += subtotal ?? 0;
   });
   return total;
 }
@@ -11477,7 +11913,12 @@ async function validateInputHeader(user, originalOrder, customer, params, billin
       throw new DXTException(DXTErrorCode.DUPLICATED_DRAFT_DESCRIPTION);
   }
   const {
-    comentarios,
+    leyenda1,
+    leyenda2,
+    leyenda3,
+    leyenda4,
+    leyenda5,
+    mensaje_interno,
     renglones
   } = input;
   const starDraft = saveDraft;
@@ -11544,7 +11985,12 @@ async function validateInputHeader(user, originalOrder, customer, params, billin
     idListaDePrecio: id_lista_de_precio,
     idDireccionDeEntrega,
     bonificacion: validatedDiscount,
-    comentarios,
+    leyenda1,
+    leyenda2,
+    leyenda3,
+    leyenda4,
+    leyenda5,
+    mensaje_interno: user.role.valueOf() != UserRole.customer ? mensaje_interno : null,
     comprometeStock: compromete_stock,
     estado,
     idAsientoModeloGV: id_asiento_modelo_gv
@@ -11647,7 +12093,7 @@ async function savePedido(user, params) {
   }
   const idCliente = mode2 == SaveOrderMode.update ? originalOrder.header.id_cliente : input.id_cliente;
   const customer = await clienteRepository.getExtendedById(idCliente);
-  const idCustomerVendedor = customer.idVendedor;
+  const idCustomerVendedor = customer.id_vendedor;
   if (user.isSeller() && idCustomerVendedor != user.vendedorId?.valueOf())
     throw new DXTException(DXTErrorCode.CUSTOMER_DOES_NOT_BELONGS_TO_SELLER);
   const validatedOrder = await validateInputParams(
@@ -11775,10 +12221,10 @@ const cancelDraftEndpoint = createApiEndpoint(
 );
 async function getAllPedidos(user, isDraft) {
   if (isDraft) {
-    const result2 = await getDraftRepository(user).getAllListByUser(user);
+    const result2 = await getDraftRepository(user).getAllByUser(user);
     return Object.values(result2);
   }
-  const result = await pedidoRepository.getAllListByUser(user);
+  const result = await pedidoRepository.getAllByUser(user);
   return _filterVisibleOrders(user, result);
 }
 function _filterVisibleOrders(user, orders) {
@@ -11803,15 +12249,23 @@ const getAllDraftsEndpoint = createApiEndpoint(
   void 0,
   async (req) => await getAllPedidos(req.auth.user, true)
 );
-async function updateDraftsRowsPrices(user, rows) {
-  const repository = getDraftRepository(user);
+async function updateRowsPrices(user, ordersById, rows) {
   const orderIds = Object.keys(rows).map((s) => forceToNumber(s));
   const result = {};
+  const alicuotas = await alicuotaRepository.getAllPercentages();
+  const { listasById } = await getListas();
+  const articlesBuffer = /* @__PURE__ */ new Map();
   for (const orderId of orderIds) {
     const sourceRows = rows[orderId];
-    const order = await repository.getByIdOrNull(orderId);
+    const order = ordersById.get(orderId);
     if (order == null) {
-      result[orderId] = sourceRows;
+      result[orderId] = _nullPrices$1(sourceRows);
+      continue;
+    }
+    const { id_lista, descuento: orderDiscount } = order;
+    const lista = listasById.get(id_lista);
+    if (lista == null) {
+      result[orderId] = _nullPrices$1(sourceRows);
       continue;
     }
     const customer = await clienteRepository.getExtendedByIdOrNull(order.id_cliente);
@@ -11819,81 +12273,116 @@ async function updateDraftsRowsPrices(user, rows) {
       result[orderId] = sourceRows;
       continue;
     }
-    const auxiliares = await getAuxiliares(customer.id);
-    const { listasById } = auxiliares;
-    const alicuotas = await alicuotaRepository.getAllPercentages();
-    const { id_lista, descuento: orderDiscount } = order;
-    const lista = listasById.get(id_lista);
-    if (lista == null) {
-      result[orderId] = sourceRows;
-      continue;
+    let articles = articlesBuffer.get(customer.id);
+    if (articles == null) {
+      articles = await getArticles(user, customer);
+      if (articles != null)
+        articlesBuffer.set(customer.id, articles);
     }
     const { incluye_iva, incluye_ii } = lista;
     const adjustPriceParams = {
-      // bonificacion: bonificacion,
+      usuarioAplicaSobreIVA: order.cliente_aplica_sobre_iva,
+      usuarioAplicaSobreII: order.cliente_aplica_sobre_ii,
+      usuarioExentoIVA: order.cliente_exento_iva,
+      usuarioExentoII: order.cliente_exento_ii,
       listaIncluyeIVA: incluye_iva,
-      listaIncluyeII: incluye_ii,
-      usuarioAplicaSobreIVA: customer.aplicaSobreIVA,
-      usuarioAplicaSobreII: customer.aplicaSobreII,
-      usuarioDiscriminaIVA: customer.discriminaIVA,
-      usuarioDiscriminaII: customer.discriminaII
+      listaIncluyeII: incluye_ii
     };
-    const articles = await getArticles(user, customer);
     const newRows = sourceRows.map((row) => {
       const { id_articulo } = row;
       if (id_articulo == null)
         return row;
       const article = articles.get(id_articulo);
-      if (article == null)
-        return row;
-      const rowWithPrice = {
-        ...row,
-        precio: article.precio,
-        id_lista: article.id_lista
-      };
+      if (article == null) {
+        const renglon2 = removeTaxesFields(row);
+        return {
+          ...renglon2,
+          precio: null,
+          es_precio_especial: false
+        };
+      }
       const adjustedPrice = adjustPrice(
         adjustPriceParams,
-        rowWithPrice,
+        article,
         listasById,
-        alicuotas
+        alicuotas,
+        false
       );
       const discountedPrice = invertedTangoDiscount(
         adjustedPrice,
-        article.bonificacion_lista_de_precios,
+        article?.bonificacion_lista_de_precios,
         orderDiscount
       );
+      const renglon = removeTaxesFields(row);
       return {
-        ...rowWithPrice,
-        precio: discountedPrice ?? void 0
+        ...renglon,
+        precio: discountedPrice ?? void 0,
+        es_precio_especial: article?.bonificacion_lista_de_precios != null
       };
     });
     result[orderId] = newRows;
   }
   return result;
 }
-async function getAllRowsPedidos(user, isDraft) {
-  if (!isDraft) {
-    return await renglonPedidoRepository.getAllByUser(user);
+function _nullPrices$1(source) {
+  return source.map((row) => {
+    return {
+      ...row,
+      precio: null
+    };
+  });
+}
+async function applyTaxesToRows(ordersById, rows) {
+  const orderIds = Object.keys(rows).map((s) => forceToNumber(s));
+  const result = {};
+  const alicuotas = await alicuotaRepository.getAllPercentages();
+  for (const orderId of orderIds) {
+    const sourceRows = rows[orderId];
+    const order = ordersById.get(orderId);
+    if (order == null) {
+      result[orderId] = _nullPrices(sourceRows);
+      continue;
+    }
+    result[orderId] = applyTaxesToOrder(
+      order,
+      sourceRows,
+      alicuotas
+    );
   }
-  const repository = getDraftRowRepository(user);
-  const cacheKey = `DRAFT_ARB${user.isSeller() ? "S" : "C"}`;
-  const cachedData = await repository.cache.getMetadata(cacheKey);
+  return result;
+}
+function _nullPrices(source) {
+  return source.map((row) => {
+    const renglon = removeTaxesFields(row);
+    return {
+      ...renglon,
+      precio: null
+    };
+  });
+}
+async function getAllPedidosRows(user, isDraft) {
+  const orderRepository = isDraft ? getDraftRepository(user) : pedidoRepository;
+  const rowsRepository = isDraft ? getDraftRowRepository(user) : renglonPedidoRepository;
+  const cacheKey = `ALL_${isDraft ? "DRAFT" : "ORDER"}_ROWS_${user.isSeller() ? "S" : "C"}_${user.id.valueOf()}`;
+  const cachedData = await rowsRepository.cache.getMetadata(cacheKey);
   if (cachedData != null)
     return cachedData;
-  const rowsByOrder = await repository.getAllByUser(user);
-  const result = await updateDraftsRowsPrices(user, rowsByOrder);
-  await repository.cache.setMetadata(cacheKey, result);
+  const rowsByOrder = await rowsRepository.getAllByUser(user);
+  const orders = await orderRepository.getAllByUser(user);
+  const ordersById = new Map(orders.map((order) => [order.id, order]));
+  const result = isDraft ? await updateRowsPrices(user, ordersById, rowsByOrder) : await applyTaxesToRows(ordersById, rowsByOrder);
+  await rowsRepository.cache.setMetadata(cacheKey, result);
   return result;
 }
 const getOrderRowsEndpoint = createApiEndpoint(
   authenticatedRootController,
   void 0,
-  async (req) => await getAllRowsPedidos(req.auth.user, false)
+  async (req) => await getAllPedidosRows(req.auth.user, false)
 );
 const getDraftRowsEndpoint = createApiEndpoint(
   authenticatedRootController,
   void 0,
-  async (req) => await getAllRowsPedidos(req.auth.user, true)
+  async (req) => await getAllPedidosRows(req.auth.user, true)
 );
 async function loader$I({ request, params }) {
   return await startNewDraftFromExistingOrderEndpoint.get(request, params);
@@ -12458,7 +12947,7 @@ const OrdersAddNav = (props) => {
                 }
               }
             ),
-            !isUpdating && !isCopying && /* @__PURE__ */ jsx(
+            !isUpdating && /* @__PURE__ */ jsx(
               ResponsiveIconButton,
               {
                 icon: PlaylistCheckIcon,
@@ -12505,7 +12994,7 @@ const OrdersAddNav = (props) => {
                 }
               }
             ),
-            !isUpdating && !isCopying && /* @__PURE__ */ jsx(
+            !isUpdating && /* @__PURE__ */ jsx(
               ResponsiveIconButton,
               {
                 icon: PlaylistCheckIcon,
@@ -12642,9 +13131,10 @@ const MessageToUserDialog = ({
     "var(--chakra-colors-gray-400)",
     "var(--chakra-colors-black)"
   );
-  const sinIVA = cabecera.usuario_discrimina_iva;
-  const sinII = cabecera.usuario_discrimina_ii;
-  const taxesLabel = `(${formatTaxesLabel(sinIVA, sinII)})`;
+  const exentoIVA = cabecera.usuario_exento_iva;
+  const exentoII = cabecera.usuario_exento_ii;
+  const allTaxes = !exentoIVA && !exentoII;
+  const taxesLabel = allTaxes ? "" : `(${formatTaxesLabel(exentoIVA, exentoII).toLocaleUpperCase()})`;
   const EmptyResult = /* @__PURE__ */ jsx(Text, { textAlign: "center", children: emptyResultText });
   const Contents = /* @__PURE__ */ jsx(TableContainer, { sx: { p: 0, m: 0 }, children: /* @__PURE__ */ jsx(
     Table,
@@ -12687,7 +13177,7 @@ const MessageToUserDialog = ({
                   precio ?? 0,
                   bonificacion_lista_de_precios ?? bonificacionGlobal
                 );
-                const productSum = (cantidad ?? 0) * precioBonificacion;
+                const productSum = (cantidad ?? 0) * (precioBonificacion ?? 0);
                 return /* @__PURE__ */ jsxs("tr", { children: [
                   /* @__PURE__ */ jsxs("td", { className: "word-break-all", children: [
                     codigo,
@@ -12700,15 +13190,15 @@ const MessageToUserDialog = ({
               }),
               /* @__PURE__ */ jsxs("tr", { children: [
                 /* @__PURE__ */ jsx("td", { colSpan: 2, children: /* @__PURE__ */ jsxs("strong", { children: [
-                  "Total",
+                  "TOTAL",
                   " ",
                   bonificacionGlobal > 0 ? /* @__PURE__ */ jsxs(Fragment, { children: [
                     !isCustomer && /* @__PURE__ */ jsxs(Fragment, { children: [
                       ` -${bonificacionGlobal}%`,
                       " "
                     ] }),
-                    /* @__PURE__ */ jsx("span", { style: { fontSize: "small" }, children: taxesLabel })
-                  ] }) : /* @__PURE__ */ jsxs("span", { style: { fontSize: "small" }, children: [
+                    /* @__PURE__ */ jsx("span", { children: taxesLabel })
+                  ] }) : /* @__PURE__ */ jsxs("span", { children: [
                     " ",
                     taxesLabel
                   ] })
@@ -12743,6 +13233,7 @@ function parseDateString(value, originalValue) {
   return parsedDate;
 }
 const useCustomValidationSchema$1 = (isDraft) => {
+  const leyendaError = "La leyenda no debe superar los ${max} caracteres";
   const baseValidationSchema = yup.object({
     fecha_alta: yup.date().transform(parseDateString).typeError("Ingrese una fecha de alta válida").required("Ingrese una fecha de alta válida"),
     fecha_entrega: yup.date().transform(parseDateString).min(
@@ -12761,19 +13252,21 @@ const useCustomValidationSchema$1 = (isDraft) => {
         return false;
       return value.some((quantity) => quantity != null && quantity > 0);
     }).required("Ingrese al menos una cantidad"),
-    comentarios: yup.string().default("").max(COMENTARIOS_MAX_LENGTH, "Los comentarios no pueden superar los ${max} caracteres"),
-    descripcion: yup.string().default("").max(DESCRIPCION_MAX_LENGTH, "La descripción no puede superar los ${max} caracteres")
+    leyenda1: yup.string().default("").max(LEYENDA_MAX_LENGTH, leyendaError),
+    leyenda2: yup.string().default("").max(LEYENDA_MAX_LENGTH, leyendaError),
+    leyenda3: yup.string().default("").max(LEYENDA_MAX_LENGTH, leyendaError),
+    leyenda4: yup.string().default("").max(LEYENDA_MAX_LENGTH, leyendaError),
+    leyenda5: yup.string().default("").max(LEYENDA_MAX_LENGTH, leyendaError),
+    descripcion: yup.string().default("").max(DESCRIPCION_MAX_LENGTH, "La descripción no puede superar los ${max} caracteres"),
+    mensaje_interno: yup.string().default("").max(MENSAJE_INTERNO_FIELD_LENGTH, "El mensaje interno no puede superar los ${max} caracteres")
   }).required();
-  const draftValidationSchema = yup.object({
-    descripcion: yup.string().required("Ingrese una descripción").max(DESCRIPCION_MAX_LENGTH, "La descripción no puede superar los ${max} caracteres")
-  });
   if (isDraft) {
-    const yupValidationSchema2 = baseValidationSchema.concat(draftValidationSchema);
-    return { yupValidationSchema: yupValidationSchema2 };
-  } else {
-    const yupValidationSchema2 = baseValidationSchema;
-    return { yupValidationSchema: yupValidationSchema2 };
+    const draftValidationSchema = yup.object({
+      descripcion: yup.string().required("Ingrese una descripción").max(DESCRIPCION_MAX_LENGTH, "La descripción no puede superar los ${max} caracteres")
+    });
+    return baseValidationSchema.concat(draftValidationSchema);
   }
+  return baseValidationSchema;
 };
 const Month_Names_Short = [
   "Jan",
@@ -13359,33 +13852,9 @@ const ControlledDatePicker = (props) => {
     helperText != null && /* @__PURE__ */ jsx(FormHelperText, { children: helperText })
   ] });
 };
-const ControlledTextarea = (props) => {
-  const { fieldProps, formControlProps, formControlInnerProps, control } = props;
-  const { label, helperText, icon } = formControlInnerProps || {};
-  const {
-    field: { ref, onChange, value },
-    fieldState: { invalid },
-    formState: { errors }
-  } = useController({
-    name: fieldProps.name,
-    control
-  });
-  return /* @__PURE__ */ jsxs(FormControl, { ...formControlProps, isInvalid: invalid, children: [
-    label != null && /* @__PURE__ */ jsx(
-      FormLabel,
-      {
-        htmlFor: fieldProps.name,
-        sx: fieldProps.variant === "flushed" ? { fontSize: "sm", mb: 0 } : {},
-        children: label
-      }
-    ),
-    /* @__PURE__ */ jsx(Textarea, { ...fieldProps, onChange, value, ref }),
-    helperText != null && /* @__PURE__ */ jsx(FormHelperText, { children: helperText })
-  ] });
-};
-const OrderTotal = ({ prices, sinIVA, sinII }) => {
+const OrderTotal = ({ prices, exentoIVA, exentoII }) => {
   const app = useAppResources();
-  const isCustomer = app.authState.isCustomer();
+  app.authState.isCustomer();
   const { control } = useFormContext();
   const quantitiesWatch = useWatch({
     control,
@@ -13396,22 +13865,14 @@ const OrderTotal = ({ prices, sinIVA, sinII }) => {
     name: "bonificacion"
   });
   const total = calculateTotals(quantitiesWatch, prices, bonificacionWatch);
-  const taxesLabel = `(${formatTaxesLabel(sinIVA, sinII)})`;
+  const allTaxes = !exentoIVA && !exentoII;
+  const taxesLabel = allTaxes ? "" : `${formatTaxesLabel(exentoIVA, exentoII).toLocaleUpperCase()}`;
+  const totalLabel = `TOTAL ${bonificacionWatch > 0 ? `-${bonificacionWatch}%` : ""}`;
   return /* @__PURE__ */ jsxs(Fragment, { children: [
-    /* @__PURE__ */ jsxs(Heading, { size: "xs", children: [
-      "Total",
-      " ",
-      bonificacionWatch > 0 ? /* @__PURE__ */ jsxs(Fragment, { children: [
-        !isCustomer && /* @__PURE__ */ jsxs(Fragment, { children: [
-          ` -${bonificacionWatch}%`,
-          " "
-        ] }),
-        /* @__PURE__ */ jsx("span", { style: { fontSize: "small" }, children: taxesLabel })
-      ] }) : /* @__PURE__ */ jsxs("span", { style: { fontSize: "small" }, children: [
-        " ",
-        taxesLabel
-      ] })
-    ] }),
+    /* @__PURE__ */ jsx(Heading, { size: "xs", children: /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx("div", { children: totalLabel }),
+      /* @__PURE__ */ jsx("div", { children: taxesLabel })
+    ] }) }),
     /* @__PURE__ */ jsx(Heading, { size: "md", textTransform: "uppercase", sx: { mt: 1, color: "green.400", fontWeight: "bolder" }, children: /* @__PURE__ */ jsx(
       TextPriceNative,
       {
@@ -13424,7 +13885,9 @@ const OrderTotal = ({ prices, sinIVA, sinII }) => {
 const OrderInfo = (props) => {
   const { isDraft, cabecera, disableForm, prices } = props;
   const app = useAppResources();
-  app.authState.isCustomer();
+  const isSeller = app.authState.isSeller();
+  const isCustomer = app.authState.isCustomer();
+  const showInternalMessage = !isCustomer;
   const { isOpen, onToggle } = useDisclosure({
     defaultIsOpen: true
   });
@@ -13478,11 +13941,44 @@ const OrderInfo = (props) => {
       selected: "habitual"
     }
   });
-  const fechaAltaVisible = true;
-  const fechaEntregaVisible = true;
-  const sinIVA = cabecera.usuario_discrimina_iva;
-  const sinII = cabecera.usuario_discrimina_ii;
+  const fechaAltaVisible = cabecera.fecha_alta_visible;
+  const fechaEntregaVisible = cabecera.fecha_entrega_visible;
+  const condicionVentaVisible = !isCustomer && cabecera.condicion_visible;
+  const transporteVisible = cabecera.transporte_visible;
+  const depositoVisible = cabecera.deposito_visible;
+  const direccionVisible = cabecera.direccion_visible;
+  const bonificacionVisible = isSeller || cabecera.bonificacion_editable || cabecera.bonificacion > 0;
+  const tipoAsientoVisible = !isCustomer && cabecera.asiento_editable && tipoAsientoOptions.length > 0;
+  const talonarioVisible = cabecera.talonario_visible;
+  const exentoIVA = cabecera.usuario_exento_iva;
+  const exentoII = cabecera.usuario_exento_ii;
   const showOrderNumber = !!(!isDraft && cabecera.numero_pedido != null);
+  const leyendas = [];
+  for (let i = 1; i <= 5; i++) {
+    leyendas.push(
+      /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(
+        ControlledInput,
+        {
+          fieldProps: {
+            name: `leyenda${i}`,
+            id: `leyenda${i}`,
+            type: "string",
+            maxLength: LEYENDA_MAX_LENGTH,
+            inputMode: "text",
+            htmlSize: 5,
+            textAlign: "left"
+          },
+          formControlProps: {
+            isDisabled: disableForm
+          },
+          formControlInnerProps: {
+            label: i == 1 ? "Leyendas" : void 0
+          },
+          control
+        }
+      ) }, i)
+    );
+  }
   return /* @__PURE__ */ jsx(Fragment, { children: /* @__PURE__ */ jsxs(Box, { children: [
     isDraft && /* @__PURE__ */ jsx(
       CommonCard,
@@ -13548,7 +14044,7 @@ const OrderInfo = (props) => {
                   /* @__PURE__ */ jsx(Heading, { size: "xs", children: "Número de pedido" }),
                   /* @__PURE__ */ jsx(Heading, { size: "md", textTransform: "uppercase", sx: { mt: 1 }, children: cabecera.numero_pedido })
                 ] }),
-                /* @__PURE__ */ jsx(GridItem, { textAlign: { md: "end" }, children: /* @__PURE__ */ jsx(OrderTotal, { prices, sinIVA, sinII }) })
+                /* @__PURE__ */ jsx(GridItem, { textAlign: { md: "end" }, children: /* @__PURE__ */ jsx(OrderTotal, { prices, exentoIVA, exentoII }) })
               ]
             }
           ),
@@ -13598,7 +14094,7 @@ const OrderInfo = (props) => {
                     control
                   }
                 ) }),
-                /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
+                condicionVentaVisible && /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
                   ControlledSelect,
                   {
                     fieldProps: {
@@ -13621,7 +14117,7 @@ const OrderInfo = (props) => {
                     control
                   }
                 ) }),
-                /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
+                tipoAsientoVisible && /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
                   ControlledSelect,
                   {
                     fieldProps: {
@@ -13644,7 +14140,7 @@ const OrderInfo = (props) => {
                     control
                   }
                 ) }),
-                /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
+                transporteVisible && /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
                   ControlledSelect,
                   {
                     fieldProps: {
@@ -13667,7 +14163,7 @@ const OrderInfo = (props) => {
                     control
                   }
                 ) }),
-                /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
+                talonarioVisible && /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
                   ControlledSelect,
                   {
                     fieldProps: {
@@ -13690,7 +14186,7 @@ const OrderInfo = (props) => {
                     control
                   }
                 ) }),
-                /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
+                depositoVisible && /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
                   ControlledSelect,
                   {
                     fieldProps: {
@@ -13713,7 +14209,7 @@ const OrderInfo = (props) => {
                     control
                   }
                 ) }),
-                /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
+                direccionVisible && /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
                   ControlledSelect,
                   {
                     fieldProps: {
@@ -13736,7 +14232,7 @@ const OrderInfo = (props) => {
                     control
                   }
                 ) }),
-                /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
+                bonificacionVisible && /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(
                   ControlledInput,
                   {
                     fieldProps: {
@@ -13779,21 +14275,24 @@ const OrderInfo = (props) => {
                     control
                   }
                 ) }),
-                /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(
-                  ControlledTextarea,
+                leyendas,
+                /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: showInternalMessage && /* @__PURE__ */ jsx(
+                  ControlledInput,
                   {
                     fieldProps: {
-                      name: "comentarios",
-                      id: "comentarios",
-                      maxLength: COMENTARIOS_MAX_LENGTH,
-                      rows: 3,
-                      minHeight: 16
+                      name: `mensaje_interno`,
+                      id: `mensaje_interno`,
+                      type: "string",
+                      maxLength: LEYENDA_MAX_LENGTH,
+                      inputMode: "text",
+                      htmlSize: 5,
+                      textAlign: "left"
                     },
                     formControlProps: {
                       isDisabled: disableForm
                     },
                     formControlInnerProps: {
-                      label: "Comentario"
+                      label: "Mensaje interno"
                     },
                     control
                   }
@@ -13831,7 +14330,7 @@ const ProductsRow = (props) => {
     bonificacion_lista_de_precios ?? bonificacionGlobal
   );
   const productQuantity = useWatch({ control, name: `quantities.${id}` });
-  const productSum = productQuantity * precioBonificacion;
+  const productSum = (productQuantity ?? 0) * (precioBonificacion ?? 0);
   const disableWheelFn = (wheelEv) => {
     wheelEv.preventDefault();
   };
@@ -14025,7 +14524,7 @@ const CategoryAccordionButton = (props) => {
         precio ?? 0,
         bonificacion_lista_de_precios ?? bonificacionWatch
       );
-      categorySum = (categorySum != void 0 ? categorySum : 0) + productQuantity * precioBonificacion;
+      categorySum = (categorySum != void 0 ? categorySum : 0) + (productQuantity ?? 0) * (precioBonificacion ?? 0);
     }
   });
   return /* @__PURE__ */ jsxs(
@@ -14091,12 +14590,6 @@ const ProductsTable = (props) => {
       eventBus.removeListener(PRICE_DISPLAY_EVENT, handleEvent);
     };
   }, []);
-  if (!filledUpCategories.length) {
-    return /* @__PURE__ */ jsxs(Alert, { status: "info", children: [
-      /* @__PURE__ */ jsx(AlertIcon, {}),
-      FILTER_NO_RESULTS
-    ] });
-  }
   useEffect(() => {
     if (index != null && !Array.isArray(index)) {
       setTimeout(() => {
@@ -14104,6 +14597,12 @@ const ProductsTable = (props) => {
       }, 400);
     }
   }, [index]);
+  if (!filledUpCategories.length) {
+    return /* @__PURE__ */ jsxs(Alert, { status: "info", children: [
+      /* @__PURE__ */ jsx(AlertIcon, {}),
+      FILTER_NO_RESULTS
+    ] });
+  }
   var idx = 0;
   const scrollMarginTop = navBarHeight + 5;
   return /* @__PURE__ */ jsx(
@@ -14182,7 +14681,7 @@ ${ORPHAN_ROWS_FOOTER}`;
   const app = useAppResources();
   const toast = useToast();
   const orderSummaryDialogCall = useOrderSummaryDialog();
-  const { yupValidationSchema: yupValidationSchema2 } = useCustomValidationSchema$1(isDraft);
+  const yupValidationSchema2 = useCustomValidationSchema$1(isDraft);
   const quantities = [];
   const prices = {};
   _.forOwn(pedidoState.articulos, (articulos) => {
@@ -14207,7 +14706,12 @@ ${ORPHAN_ROWS_FOOTER}`;
       id_direccion: getSelectedValue(pedidoState.cabecera.direcciones, "habitual") ?? void 0,
       quantities,
       descripcion: pedidoState.cabecera.descripcion,
-      comentarios: pedidoState.cabecera.comentarios
+      leyenda1: pedidoState.cabecera.leyenda1,
+      leyenda2: pedidoState.cabecera.leyenda2,
+      leyenda3: pedidoState.cabecera.leyenda3,
+      leyenda4: pedidoState.cabecera.leyenda4,
+      leyenda5: pedidoState.cabecera.leyenda5,
+      mensaje_interno: pedidoState.cabecera.mensaje_interno ?? void 0
     },
     resolver: yupResolver(yupValidationSchema2)
   });
@@ -14246,14 +14750,11 @@ ${ORPHAN_ROWS_FOOTER}`;
     const result = await createOrderRequest(input, app);
     result.map({
       success: (state) => {
-        toast({
-          title: ORDER_CREATED,
-          description: ORDER_CREATED_NUMBER.replace(
-            "{{numero_pedido}}",
-            state.data.numero_pedido
-          ),
-          status: "success"
-        });
+        _createUpdateOrderToast(
+          ORDER_CREATED_TITLE,
+          state.data,
+          toast
+        );
         app.navigate(URL_PEDIDOS_PATH);
       },
       error: (e) => {
@@ -14284,11 +14785,11 @@ ${ORPHAN_ROWS_FOOTER}`;
     const result = await updateOrderRequest(input.id_pedido, input, app);
     result.map({
       success: (state) => {
-        toast({
-          title: ORDER_UPDATED,
-          description: ORDER_UPDATED_NUMBER.replace("{{numero_pedido}}", state.data.numero_pedido),
-          status: "success"
-        });
+        _createUpdateOrderToast(
+          ORDER_UPDATED_TITLE,
+          state.data,
+          toast
+        );
         app.navigate(URL_PEDIDOS_PATH);
       },
       error: (e) => {
@@ -14318,8 +14819,8 @@ ${ORPHAN_ROWS_FOOTER}`;
     result.map({
       success: (state) => {
         toast({
-          title: DRAFT_CREATED,
-          description: DRAFT_CREATED_NUMBER.replace("{{numero_pedido}}", state.data.numero_pedido),
+          title: DRAFT_CREATED_TITLE,
+          description: DRAFT_CREATED_DESCRIPTION.replace("{{descripcion}}", pedidoState.cabecera.descripcion.toLocaleUpperCase()),
           status: "success"
         });
         app.navigate(URL_BORRADORES_PATH);
@@ -14353,8 +14854,8 @@ ${ORPHAN_ROWS_FOOTER}`;
     result.map({
       success: (state) => {
         toast({
-          title: DRAFT_UPDATED,
-          description: DRAFT_UPDATED_NUMBER.replace("{{numero_pedido}}", state.data.numero_pedido),
+          title: DRAFT_UPDATED_TITLE,
+          description: DRAFT_UPDATED_DESCRIPTION.replace("{{descripcion}}", pedidoState.cabecera.descripcion.toLocaleUpperCase()),
           status: "success"
         });
         app.navigate(URL_BORRADORES_PATH);
@@ -14441,6 +14942,22 @@ ${ORPHAN_ROWS_FOOTER}`;
     ] }) })
   ] }) }) });
 };
+function _createUpdateOrderToast(title, saveOrderResult, toast) {
+  const { message_to_user, numero_pedido } = saveOrderResult;
+  const formatedTitle = title.replace(
+    "{{numero_pedido}}",
+    numero_pedido
+  );
+  toast({
+    title: formatedTitle,
+    description: message_to_user != null ? /* @__PURE__ */ jsxs(Fragment, { children: [
+      /* @__PURE__ */ jsx(Divider, { mt: 2, mb: 1 }),
+      /* @__PURE__ */ jsx("b", { children: message_to_user }),
+      /* @__PURE__ */ jsx(Divider, { mt: 1, mb: 2 })
+    ] }) : void 0,
+    status: "success"
+  });
+}
 const OrderEditLoading = () => /* @__PURE__ */ jsxs(Fragment, { children: [
   /* @__PURE__ */ jsx(Navbar, {}),
   /* @__PURE__ */ jsx(OrdersContainer, { children: /* @__PURE__ */ jsx(
@@ -14686,7 +15203,31 @@ const ProductsListsLoading = (props) => {
     }
   );
 };
-const yupValidationSchema$3 = yup.object({
+const ControlledTextarea = (props) => {
+  const { fieldProps, formControlProps, formControlInnerProps, control } = props;
+  const { label, helperText, icon } = formControlInnerProps || {};
+  const {
+    field: { ref, onChange, value },
+    fieldState: { invalid },
+    formState: { errors }
+  } = useController({
+    name: fieldProps.name,
+    control
+  });
+  return /* @__PURE__ */ jsxs(FormControl, { ...formControlProps, isInvalid: invalid, children: [
+    label != null && /* @__PURE__ */ jsx(
+      FormLabel,
+      {
+        htmlFor: fieldProps.name,
+        sx: fieldProps.variant === "flushed" ? { fontSize: "sm", mb: 0 } : {},
+        children: label
+      }
+    ),
+    /* @__PURE__ */ jsx(Textarea, { ...fieldProps, onChange, value, ref }),
+    helperText != null && /* @__PURE__ */ jsx(FormHelperText, { children: helperText })
+  ] });
+};
+const yupValidationSchema$4 = yup.object({
   list: yup.string().default("").test("avoid-ARTICLE_GROUP_NO_NAME", `Evite utilizar ${ARTICLE_GROUP_NO_NAME}`, function(value) {
     const regex = /(^|[^a-zA-Z0-9])_([^a-zA-Z0-9]|$)/;
     return !regex.test(value);
@@ -14706,7 +15247,7 @@ const ProductsListsReady = (props) => {
     defaultValues: {
       list: stateData?.join("\r\n") || ""
     },
-    resolver: yupResolver(yupValidationSchema$3)
+    resolver: yupResolver(yupValidationSchema$4)
   });
   const disableForm = isSubmitSuccessful || isSubmitting;
   const onSubmit = async (dataUnsafe) => {
@@ -14960,7 +15501,8 @@ const TextWordBreak = ({
       ...props,
       sx: {
         whiteSpace: "normal",
-        wordBreak: breakType ?? "break-all"
+        wordBreak: breakType ?? "break-all",
+        ...props?.sx
       },
       children
     }
@@ -16029,6 +16571,138 @@ const PedidoMenu = ({
   const canEditBuyList = !isAdmin && (isDraft || user.puede_editar_pedido && isUserAllowedToModifyOrder(user, pedido.estado));
   const canDeleteBuyList = !isFavorite && (isDraft || isUserAllowedToCancelOrDeleteOrder(user, pedido.estado));
   const deleteWhenCancel = isDraft || user.borrar_pedido_al_anular;
+  const menuItems = [];
+  if (canEditBuyList) {
+    menuItems.push(
+      /* @__PURE__ */ jsx(
+        MenuItem,
+        {
+          onClick: () => {
+            app.navigate(
+              paramsToUrl(
+                isDraft ? URL_BORRADORES_EDIT_PATH : URL_PEDIDOS_EDIT_PATH,
+                { id: pedido.id }
+              )
+            );
+          },
+          children: PEDIDO_MENU_MODIFY
+        },
+        menuItems.length
+      )
+    );
+  }
+  if (canCreateBuyList) {
+    menuItems.push(
+      /* @__PURE__ */ jsx(
+        MenuItem,
+        {
+          onClick: () => {
+            app.navigate(
+              paramsToUrl(
+                isDraft ? URL_BORRADORES_COPY_PATH : URL_PEDIDOS_COPY_PATH,
+                { id: pedido.id }
+              )
+            );
+          },
+          children: PEDIDO_MENU_DUPLICATE
+        },
+        menuItems.length
+      )
+    );
+  }
+  if (canCreateOrderFromDraft) {
+    menuItems.push(
+      /* @__PURE__ */ jsx(
+        MenuItem,
+        {
+          onClick: () => {
+            app.navigate(
+              paramsToUrl(URL_BORRADORES_CREATE_ORDER_PATH, { id: pedido.id })
+            );
+          },
+          children: isFavorite ? PEDIDO_MENU_CREATE_ORDER : PEDIDO_MENU_CREATE_ORDER_AND_KEEP_DRAFT
+        },
+        menuItems.length
+      )
+    );
+  }
+  if (canCreateDraftFromOrder) {
+    menuItems.push(
+      /* @__PURE__ */ jsx(
+        MenuItem,
+        {
+          onClick: () => {
+            app.navigate(
+              paramsToUrl(URL_PEDIDOS_CREATE_DRAFT_PATH, { id: pedido.id })
+            );
+          },
+          children: PEDIDO_MENU_CREATE_DRAFT
+        },
+        menuItems.length
+      )
+    );
+  }
+  if (isDraft && !isFavorite) {
+    if (canCreateOrderFromDraft) {
+      menuItems.push(
+        /* @__PURE__ */ jsx(
+          MenuItem,
+          {
+            onClick: () => {
+              app.navigate(
+                paramsToUrl(URL_BORRADORES_CONVERT_ORDER_PATH, {
+                  id: pedido.id
+                })
+              );
+            },
+            children: PEDIDO_MENU_CONVERT_DRAFT_TO_ORDER
+          },
+          menuItems.length
+        )
+      );
+    }
+    if (menuItems.length > 0)
+      menuItems.push(/* @__PURE__ */ jsx(MenuDivider, {}, menuItems.length));
+    menuItems.push(
+      /* @__PURE__ */ jsx(
+        MenuItem,
+        {
+          onClick: () => onMarkAsFavorite(pedido.id, true),
+          children: PEDIDO_MENU_MARK_DRAFT_AS_FAVORITE
+        },
+        menuItems.length
+      )
+    );
+  }
+  if (isFavorite) {
+    if (menuItems.length > 0)
+      menuItems.push(/* @__PURE__ */ jsx(MenuDivider, {}, menuItems.length));
+    menuItems.push(
+      /* @__PURE__ */ jsx(
+        MenuItem,
+        {
+          onClick: () => onMarkAsFavorite(pedido.id, false),
+          children: PEDIDO_MENU_REMOVE_DRAFT_FAVORITE_MARK
+        },
+        menuItems.length
+      )
+    );
+  }
+  if (isDraft || isUserAllowedToCancelOrDeleteOrder(user, pedido.estado)) {
+    if (menuItems.length > 0)
+      menuItems.push(/* @__PURE__ */ jsx(MenuDivider, {}, menuItems.length));
+    menuItems.push(
+      /* @__PURE__ */ jsx(
+        MenuItem,
+        {
+          onClick: () => onDelete(pedido.id),
+          isDisabled: isFavorite || !canDeleteBuyList,
+          children: isFavorite ? PEDIDO_MENU_UNABLE_TO_DELETE_FAVORITE : deleteWhenCancel ? PEDIDO_MENU_DELETE : PEDIDO_MENU_CANCEL
+        },
+        menuItems.length
+      )
+    );
+  }
   return /* @__PURE__ */ jsxs(Menu, { isLazy: true, id: "menu", children: [
     /* @__PURE__ */ jsx(
       MenuButton,
@@ -16041,102 +16715,7 @@ const PedidoMenu = ({
         colorScheme: "white"
       }
     ),
-    /* @__PURE__ */ jsx(Portal, { children: /* @__PURE__ */ jsxs(MenuList, { rootProps: { zIndex: 2e3 }, children: [
-      canEditBuyList && /* @__PURE__ */ jsx(
-        MenuItem,
-        {
-          onClick: () => {
-            app.navigate(
-              paramsToUrl(
-                isDraft ? URL_BORRADORES_EDIT_PATH : URL_PEDIDOS_EDIT_PATH,
-                { id: pedido.id }
-              )
-            );
-          },
-          children: PEDIDO_MENU_MODIFY
-        }
-      ),
-      canCreateBuyList && /* @__PURE__ */ jsx(
-        MenuItem,
-        {
-          onClick: () => {
-            app.navigate(
-              paramsToUrl(
-                isDraft ? URL_BORRADORES_COPY_PATH : URL_PEDIDOS_COPY_PATH,
-                { id: pedido.id }
-              )
-            );
-          },
-          children: PEDIDO_MENU_DUPLICATE
-        }
-      ),
-      canCreateOrderFromDraft && /* @__PURE__ */ jsx(
-        MenuItem,
-        {
-          onClick: () => {
-            app.navigate(
-              paramsToUrl(URL_BORRADORES_CREATE_ORDER_PATH, { id: pedido.id })
-            );
-          },
-          children: isFavorite ? PEDIDO_MENU_CREATE_ORDER : PEDIDO_MENU_CREATE_ORDER_AND_KEEP_DRAFT
-        }
-      ),
-      canCreateDraftFromOrder && /* @__PURE__ */ jsx(
-        MenuItem,
-        {
-          onClick: () => {
-            app.navigate(
-              paramsToUrl(URL_PEDIDOS_CREATE_DRAFT_PATH, { id: pedido.id })
-            );
-          },
-          children: PEDIDO_MENU_CREATE_DRAFT
-        }
-      ),
-      isDraft && !isFavorite && /* @__PURE__ */ jsxs(Fragment, { children: [
-        canCreateOrderFromDraft && /* @__PURE__ */ jsx(
-          MenuItem,
-          {
-            onClick: () => {
-              app.navigate(
-                paramsToUrl(URL_BORRADORES_CONVERT_ORDER_PATH, {
-                  id: pedido.id
-                })
-              );
-            },
-            children: PEDIDO_MENU_CONVERT_DRAFT_TO_ORDER
-          }
-        ),
-        /* @__PURE__ */ jsx(MenuDivider, {}),
-        /* @__PURE__ */ jsx(
-          MenuItem,
-          {
-            onClick: () => onMarkAsFavorite(pedido.id, true),
-            children: PEDIDO_MENU_MARK_DRAFT_AS_FAVORITE
-          }
-        )
-      ] }),
-      isFavorite && /* @__PURE__ */ jsxs(Fragment, { children: [
-        /* @__PURE__ */ jsx(MenuDivider, {}),
-        /* @__PURE__ */ jsx(
-          MenuItem,
-          {
-            onClick: () => onMarkAsFavorite(pedido.id, false),
-            children: PEDIDO_MENU_REMOVE_DRAFT_FAVORITE_MARK
-          }
-        )
-      ] }),
-      (isDraft || isUserAllowedToCancelOrDeleteOrder(user, pedido.estado)) && /* @__PURE__ */ jsxs(Fragment, { children: [
-        /* @__PURE__ */ jsx(MenuDivider, {}),
-        /* @__PURE__ */ jsx(
-          MenuItem,
-          {
-            onClick: () => onDelete(pedido.id),
-            isDisabled: isFavorite || !canDeleteBuyList,
-            children: isFavorite ? PEDIDO_MENU_UNABLE_TO_DELETE_FAVORITE : deleteWhenCancel ? PEDIDO_MENU_DELETE : PEDIDO_MENU_CANCEL
-          }
-        )
-      ] })
-    ] }) })
+    /* @__PURE__ */ jsx(Portal, { children: /* @__PURE__ */ jsx(MenuList, { rootProps: { zIndex: 2e3 }, children: menuItems }) })
   ] });
 };
 const RenglonesEmpty = () => /* @__PURE__ */ jsxs(Alert, { status: "warning", children: [
@@ -16213,12 +16792,12 @@ const RenglonesPedido = ({
             descripcion_adicional,
             precio,
             cantidad,
-            subtotal,
             es_precio_especial
           }, index) => {
+            const subtotal = precio != null ? precio * cantidad : null;
             const precioBonificado = applyTangoDiscount(precio, descuento);
-            const subtotalBonificado = precioBonificado * cantidad;
-            return /* @__PURE__ */ jsxs("tr", { children: [
+            const subtotalBonificado = applyTangoDiscount(subtotal, descuento);
+            return /* @__PURE__ */ jsxs("tr", { style: { color: precio == null ? "red" : void 0 }, children: [
               /* @__PURE__ */ jsx("td", { children: /* @__PURE__ */ jsx(TextWordBreak, { children: fullArticleDescription(
                 nombre_articulo,
                 codigo_articulo,
@@ -16260,7 +16839,46 @@ const BadgePedidosEstado = ({ estado }) => {
   const colorScheme = getEstadoPedidoColor(estado);
   return /* @__PURE__ */ jsx(Badge, { fontSize: "1em", variant: "solid", colorScheme, lineHeight: "1.5em", children: name });
 };
-const OrdersGrid = (props) => {
+const FlexHeaderGrid = (props) => {
+  const { children } = props;
+  return /* @__PURE__ */ jsx(Flex, { direction: { base: "row", lg: "column" }, gap: 4, children });
+};
+const FlexHeaderGridItem = (props) => {
+  const { children } = props;
+  return /* @__PURE__ */ jsx(Flex, { direction: "column", flex: 1, children });
+};
+function TotalGridItem({ total, descuento, taxesLabel }) {
+  const totalLabel = `TOTAL ${descuento > 0 ? `-${descuento}%` : ""}`;
+  return /* @__PURE__ */ jsxs(FlexHeaderGridItem, { children: [
+    /* @__PURE__ */ jsxs(
+      Heading,
+      {
+        size: "sm",
+        sx: {
+          textTransform: "uppercase",
+          // color: estado === EstadoPedido.APROBADO && 'blue.500',
+          whiteSpace: "normal"
+        },
+        children: [
+          /* @__PURE__ */ jsx("div", { children: totalLabel }),
+          /* @__PURE__ */ jsx("div", { children: taxesLabel })
+        ]
+      }
+    ),
+    /* @__PURE__ */ jsx(
+      Heading,
+      {
+        size: "md",
+        sx: {
+          fontWeight: "bolder"
+          // color: estado === EstadoPedido.APROBADO && 'blue.500',
+        },
+        children: total != null && /* @__PURE__ */ jsx(TextPriceNative, { precio: total, moneda: "$" })
+      }
+    )
+  ] });
+}
+const OrderHeader = (props) => {
   const { app, pedido, total, estado, handleToggleDetails } = props;
   const {
     numero_pedido,
@@ -16273,21 +16891,30 @@ const OrdersGrid = (props) => {
     nombre_vendedor,
     nombre_transporte,
     descuento,
-    comentarios,
-    sin_iva,
-    sin_ii
+    mensaje_interno,
+    leyenda1,
+    leyenda2,
+    leyenda3,
+    leyenda4,
+    leyenda5,
+    cliente_exento_iva: exentoIVA,
+    cliente_exento_ii: exentoII
   } = pedido;
   const isSeller = app.authState.isSeller();
-  const isCustomer = app.authState.isCustomer();
-  const showComments = comentarios != null && comentarios.length > 0;
+  const isAdmin = app.authState.isAdmin();
+  const captions = orderCaptionsToArray(leyenda1, leyenda2, leyenda3, leyenda4, leyenda5);
+  const showCaptions = captions.length > 0;
+  const showInternalMessage = mensaje_interno != null && mensaje_interno.length > 0;
+  const allTaxes = !exentoIVA && !exentoII;
+  const taxesLabel = allTaxes ? "" : `${formatTaxesLabel(exentoIVA, exentoII)}`;
   return /* @__PURE__ */ jsxs(
     Grid,
     {
       templateColumns: {
-        base: "repeat(2, 1fr)",
+        base: "repeat(1, 1fr)",
         lg: "repeat(4, 1fr)"
       },
-      gap: 6,
+      gap: 4,
       sx: {
         cursor: "pointer"
       },
@@ -16295,98 +16922,59 @@ const OrdersGrid = (props) => {
         handleToggleDetails();
       },
       children: [
-        /* @__PURE__ */ jsxs(GridItem, { children: [
-          /* @__PURE__ */ jsx(Heading, { size: "sm", children: "Pedido" }),
-          /* @__PURE__ */ jsx(Text, { children: numero_pedido })
-        ] }),
-        /* @__PURE__ */ jsxs(GridItem, { children: [
-          /* @__PURE__ */ jsx(Heading, { size: "sm", children: "Estado" }),
-          /* @__PURE__ */ jsx(BadgePedidosEstado, { estado })
-        ] }),
-        /* @__PURE__ */ jsxs(GridItem, { children: [
-          /* @__PURE__ */ jsx(Heading, { size: "sm", children: "Ingreso" }),
-          /* @__PURE__ */ jsx(Text, { children: datetimeToLocale(fecha_hora_ingreso) })
-        ] }),
-        /* @__PURE__ */ jsxs(GridItem, { children: [
-          /* @__PURE__ */ jsx(Heading, { size: "sm", children: "Entrega" }),
-          /* @__PURE__ */ jsx(Text, { children: dateToLocale(fecha_entrega) })
-        ] }),
-        !isCustomer && /* @__PURE__ */ jsxs(GridItem, { ...isSeller ? { colSpan: { base: 1, lg: 2 } } : void 0, children: [
-          /* @__PURE__ */ jsxs(Heading, { size: "sm", children: [
-            "Cliente ",
-            codigo_cliente
+        /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsxs(FlexHeaderGrid, { children: [
+          /* @__PURE__ */ jsxs(FlexHeaderGridItem, { children: [
+            /* @__PURE__ */ jsx(Heading, { size: "sm", children: "Pedido" }),
+            /* @__PURE__ */ jsx(Text, { children: numero_pedido })
           ] }),
-          /* @__PURE__ */ jsx(TextWordBreak, { children: nombre_cliente })
-        ] }),
-        !isSeller && !isCustomer && /* @__PURE__ */ jsxs(GridItem, { children: [
-          /* @__PURE__ */ jsxs(Heading, { size: "sm", children: [
-            "Vendedor ",
-            codigo_vendedor
+          /* @__PURE__ */ jsxs(FlexHeaderGridItem, { children: [
+            /* @__PURE__ */ jsx(Heading, { size: "sm", children: "Estado" }),
+            /* @__PURE__ */ jsx(Box, { children: /* @__PURE__ */ jsx(BadgePedidosEstado, { estado }) })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsxs(FlexHeaderGrid, { children: [
+          /* @__PURE__ */ jsxs(FlexHeaderGridItem, { children: [
+            /* @__PURE__ */ jsx(Heading, { size: "sm", children: "Ingreso" }),
+            /* @__PURE__ */ jsx(Text, { children: datetimeToLocale(fecha_hora_ingreso) })
           ] }),
-          /* @__PURE__ */ jsx(TextWordBreak, { children: nombre_vendedor })
-        ] }),
-        /* @__PURE__ */ jsxs(GridItem, { ...isCustomer ? { colSpan: { base: 1, lg: 3 } } : void 0, ...isSeller ? { colSpan: { base: 1, lg: 1 } } : void 0, children: [
-          /* @__PURE__ */ jsxs(Heading, { size: "sm", children: [
-            "Transporte ",
-            codigo_transporte
+          fecha_entrega != null && /* @__PURE__ */ jsxs(FlexHeaderGridItem, { children: [
+            /* @__PURE__ */ jsx(Heading, { size: "sm", children: "Entrega" }),
+            /* @__PURE__ */ jsx(Text, { children: dateToLocale(fecha_entrega) })
+          ] })
+        ] }) }),
+        (isAdmin || isSeller) && /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsxs(FlexHeaderGrid, { children: [
+          /* @__PURE__ */ jsxs(FlexHeaderGridItem, { children: [
+            /* @__PURE__ */ jsxs(Heading, { size: "sm", children: [
+              "Cliente ",
+              codigo_cliente
+            ] }),
+            /* @__PURE__ */ jsx(TextWordBreak, { children: nombre_cliente })
           ] }),
-          /* @__PURE__ */ jsx(TextWordBreak, { children: nombre_transporte })
-        ] }),
-        /* @__PURE__ */ jsxs(GridItem, { ...isSeller ? { colSpan: { base: 2, lg: 1 } } : void 0, children: [
-          /* @__PURE__ */ jsxs(
-            Heading,
-            {
-              size: "sm",
-              sx: {
-                textTransform: "uppercase",
-                color: estado === EstadoPedido.APROBADO && "green.400",
-                whiteSpace: "normal"
-              },
-              children: [
-                "Total ",
-                descuento > 0 && /* @__PURE__ */ jsx(Fragment, { children: ` -${descuento}%` }),
-                /* @__PURE__ */ jsxs("span", { style: { fontSize: "small" }, children: [
-                  " ",
-                  `(${formatTaxesLabel(sin_iva, sin_ii)})`
-                ] })
-              ]
-            }
-          ),
-          /* @__PURE__ */ jsx(
-            Heading,
-            {
-              size: "sm",
-              sx: {
-                fontWeight: "bolder",
-                color: estado === EstadoPedido.APROBADO && "green.400"
-              },
-              children: total != null && /* @__PURE__ */ jsx(TextPriceNative, { precio: total, moneda: "$" })
-            }
-          )
-        ] }),
-        showComments && /* @__PURE__ */ jsx(
-          GridItem,
-          {
-            colSpan: {
-              base: 2,
-              lg: 4
-            },
-            children: /* @__PURE__ */ jsx(Alert, { status: "info", children: /* @__PURE__ */ jsx(
-              AlertDescription,
-              {
-                dangerouslySetInnerHTML: { __html: nlToBr(comentarios) },
-                sx: {
-                  whiteSpace: "normal"
-                }
-              }
-            ) })
-          }
-        )
+          !isSeller && /* @__PURE__ */ jsxs(FlexHeaderGridItem, { children: [
+            /* @__PURE__ */ jsxs(Heading, { size: "sm", children: [
+              "Vendedor ",
+              codigo_vendedor
+            ] }),
+            /* @__PURE__ */ jsx(TextWordBreak, { children: nombre_vendedor })
+          ] })
+        ] }) }),
+        /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsxs(FlexHeaderGrid, { children: [
+          /* @__PURE__ */ jsxs(FlexHeaderGridItem, { children: [
+            /* @__PURE__ */ jsxs(Heading, { size: "sm", children: [
+              "Transporte ",
+              codigo_transporte
+            ] }),
+            /* @__PURE__ */ jsx(TextWordBreak, { children: nombre_transporte })
+          ] }),
+          /* @__PURE__ */ jsx(TotalGridItem, { total, descuento, taxesLabel })
+        ] }) }),
+        showCaptions && /* @__PURE__ */ jsx(GridItem, { colSpan: { lg: 4 }, children: /* @__PURE__ */ jsx(Alert, { status: "warning", sx: { flexDirection: "column", alignItems: "flex-start", bgColor: "yellow.300" }, children: captions.map((c, i) => /* @__PURE__ */ jsx(Box, { sx: { whiteSpace: "normal", marginBottom: 1 }, children: c.v }, i)) }) }),
+        showInternalMessage && /* @__PURE__ */ jsx(GridItem, { colSpan: { lg: 4 }, children: /* @__PURE__ */ jsx(Alert, { status: "info", sx: { flexDirection: "column", alignItems: "flex-start" }, children: mensaje_interno }) })
       ]
     }
   );
 };
-const DraftsGrid = (props) => {
+const DraftHeader = (props) => {
   const { app, pedido, estado, total, handleToggleDetails } = props;
   const {
     codigo_cliente,
@@ -16396,29 +16984,32 @@ const DraftsGrid = (props) => {
     nombre_vendedor,
     nombre_transporte,
     descuento,
-    comentarios,
     descripcion,
+    leyenda1,
+    leyenda2,
+    leyenda3,
+    leyenda4,
+    leyenda5,
     es_favorito,
-    sin_iva,
-    sin_ii
+    mensaje_interno,
+    cliente_exento_iva: exentoIVA,
+    cliente_exento_ii: exentoII
   } = pedido;
-  const isSeller = app.authState.isSeller();
+  app.authState.isSeller();
   const isCustomer = app.authState.isCustomer();
-  const showComments = comentarios != null && comentarios.length > 0;
-  const fullWidthColSpan = {
-    base: isSeller ? 1 : isCustomer ? 1 : 2,
-    md: isSeller ? 2 : isCustomer ? 1 : 2,
-    lg: isSeller ? 3 : isCustomer ? 2 : 4
-  };
-  const templateColumns = {
-    base: isSeller ? "repeat(1, 1fr)" : isCustomer ? "repeat(1, 1fr)" : "repeat(2, 1fr)",
-    md: isSeller ? "repeat(2, 1fr)" : isCustomer ? "repeat(1, 1fr)" : "repeat(2, 1fr)",
-    lg: isSeller ? "repeat(3, 1fr)" : isCustomer ? "repeat(2, 1fr)" : "repeat(4, 1fr)"
-  };
+  const captions = orderCaptionsToArray(leyenda1, leyenda2, leyenda3, leyenda4, leyenda5);
+  const showCaptions = captions.length > 0;
+  const showInternalMessage = mensaje_interno != null && mensaje_interno.length > 0;
+  const allTaxes = !exentoIVA && !exentoII;
+  const taxesLabel = allTaxes ? "" : `(${formatTaxesLabel(exentoIVA, exentoII)})`;
   return /* @__PURE__ */ jsxs(
     Grid,
     {
-      templateColumns,
+      templateColumns: {
+        base: "repeat(1, 1fr)",
+        md: "repeat(2, 1fr)",
+        lg: "repeat(3, 1fr)"
+      },
       gap: 6,
       sx: {
         cursor: "pointer"
@@ -16427,20 +17018,13 @@ const DraftsGrid = (props) => {
         handleToggleDetails();
       },
       children: [
-        /* @__PURE__ */ jsx(GridItem, { colSpan: fullWidthColSpan, children: /* @__PURE__ */ jsx(Heading, { size: "md", textTransform: "uppercase", children: descripcion }) }),
+        /* @__PURE__ */ jsx(GridItem, { colSpan: { lg: 3, md: 2 }, children: /* @__PURE__ */ jsx(Heading, { size: "md", textTransform: "uppercase", children: descripcion }) }),
         !isCustomer && /* @__PURE__ */ jsxs(GridItem, { children: [
           /* @__PURE__ */ jsxs(Heading, { size: "sm", children: [
             "Cliente ",
             codigo_cliente
           ] }),
           /* @__PURE__ */ jsx(TextWordBreak, { children: nombre_cliente })
-        ] }),
-        !isSeller && !isCustomer && /* @__PURE__ */ jsxs(GridItem, { children: [
-          /* @__PURE__ */ jsxs(Heading, { size: "sm", children: [
-            "Vendedor ",
-            codigo_vendedor
-          ] }),
-          /* @__PURE__ */ jsx(TextWordBreak, { children: nombre_vendedor })
         ] }),
         /* @__PURE__ */ jsxs(GridItem, { children: [
           /* @__PURE__ */ jsxs(Heading, { size: "sm", children: [
@@ -16449,53 +17033,9 @@ const DraftsGrid = (props) => {
           ] }),
           /* @__PURE__ */ jsx(TextWordBreak, { children: nombre_transporte })
         ] }),
-        /* @__PURE__ */ jsxs(GridItem, { children: [
-          /* @__PURE__ */ jsxs(
-            Heading,
-            {
-              size: "sm",
-              sx: {
-                textTransform: "uppercase",
-                color: estado === EstadoPedido.APROBADO && "green.400",
-                whiteSpace: "normal"
-              },
-              children: [
-                "Total ",
-                descuento > 0 && /* @__PURE__ */ jsx(Fragment, { children: ` -${descuento}%` }),
-                /* @__PURE__ */ jsxs("span", { style: { fontSize: "small" }, children: [
-                  " ",
-                  `(${formatTaxesLabel(sin_iva, sin_ii)})`
-                ] })
-              ]
-            }
-          ),
-          /* @__PURE__ */ jsx(
-            Heading,
-            {
-              size: "sm",
-              sx: {
-                fontWeight: "bolder",
-                color: estado === EstadoPedido.APROBADO && "green.400"
-              },
-              children: total != null && /* @__PURE__ */ jsx(TextPriceNative, { precio: total, moneda: "$" })
-            }
-          )
-        ] }),
-        showComments && /* @__PURE__ */ jsx(
-          GridItem,
-          {
-            colSpan: fullWidthColSpan,
-            children: /* @__PURE__ */ jsx(Alert, { status: "info", children: /* @__PURE__ */ jsx(
-              AlertDescription,
-              {
-                dangerouslySetInnerHTML: { __html: nlToBr(comentarios) },
-                sx: {
-                  whiteSpace: "normal"
-                }
-              }
-            ) })
-          }
-        )
+        /* @__PURE__ */ jsx(TotalGridItem, { total, descuento, taxesLabel }),
+        showCaptions && /* @__PURE__ */ jsx(GridItem, { colSpan: { lg: 3, md: 2 }, children: /* @__PURE__ */ jsx(Alert, { status: "warning", sx: { flexDirection: "column", alignItems: "flex-start", bgColor: "yellow.300" }, children: captions.map((c, i) => /* @__PURE__ */ jsx(Box, { sx: { whiteSpace: "normal", marginBottom: 1 }, children: c.v }, i)) }) }),
+        showInternalMessage && /* @__PURE__ */ jsx(GridItem, { colSpan: { lg: 3, md: 2 }, children: /* @__PURE__ */ jsx(Alert, { status: "info", sx: { flexDirection: "column", alignItems: "flex-start" }, children: mensaje_interno }) })
       ]
     }
   );
@@ -16613,7 +17153,8 @@ const Pedido = ({
                       sx: {
                         mt: 2,
                         borderWidth: 0,
-                        borderColor: checkboxBorderColor
+                        borderColor: checkboxBorderColor,
+                        backgroundColor: "white"
                       },
                       onChange: (e) => {
                         handleCheckboxChange(e.target.checked, id);
@@ -16624,7 +17165,7 @@ const Pedido = ({
               }
             ),
             !draft ? /* @__PURE__ */ jsx(
-              OrdersGrid,
+              OrderHeader,
               {
                 app,
                 pedido,
@@ -16633,7 +17174,7 @@ const Pedido = ({
                 handleToggleDetails
               }
             ) : /* @__PURE__ */ jsx(
-              DraftsGrid,
+              DraftHeader,
               {
                 app,
                 pedido,
@@ -16954,9 +17495,23 @@ const OrdersPrintReady = (props) => {
         nombre_transporte,
         codigo_deposito,
         nombre_deposito,
-        sin_iva,
-        sin_ii
+        leyenda1,
+        leyenda2,
+        leyenda3,
+        leyenda4,
+        leyenda5,
+        cliente_exento_iva: exentoIVA,
+        cliente_exento_ii: exentoII
       } = order.cabecera;
+      const captions = orderCaptionsToArray(
+        leyenda1,
+        leyenda2,
+        leyenda3,
+        leyenda4,
+        leyenda5
+      );
+      const showCaptions = captions.length > 0;
+      const taxesLabel = formatTaxesLabel(exentoIVA, exentoII);
       const pageBreakElement = index > 0 ? /* @__PURE__ */ jsx("div", { style: { pageBreakBefore: "always" } }) : /* @__PURE__ */ jsx(Fragment, {});
       return /* @__PURE__ */ jsxs(React.Fragment, { children: [
         pageBreaks && pageBreakElement,
@@ -16982,8 +17537,8 @@ const OrdersPrintReady = (props) => {
                   /* @__PURE__ */ jsx("td", { className: "v", children: /* @__PURE__ */ jsx("strong", { children: timeToLocale(fecha_hora_ingreso) }) })
                 ] }),
                 /* @__PURE__ */ jsxs("tr", { children: [
-                  /* @__PURE__ */ jsx("td", { className: "l", children: "Entrega" }),
-                  /* @__PURE__ */ jsx("td", { className: "v", children: /* @__PURE__ */ jsx("strong", { children: dateToLocale(fecha_entrega) }) })
+                  /* @__PURE__ */ jsx("td", { className: "l", children: fecha_entrega != null && /* @__PURE__ */ jsx(Fragment, { children: "Entrega" }) }),
+                  /* @__PURE__ */ jsx("td", { className: "v", children: fecha_entrega != null && /* @__PURE__ */ jsx("strong", { children: dateToLocale(fecha_entrega) }) })
                 ] })
               ] }) }),
               /* @__PURE__ */ jsx(GridItem, { display: "flex", justifyContent: "center", alignItems: "flex-start", minWidth: "250px", children: /* @__PURE__ */ jsxs("table", { children: [
@@ -17020,6 +17575,7 @@ const OrdersPrintReady = (props) => {
                 ] })
               ] }) })
             ] }) }) }),
+            showCaptions && /* @__PURE__ */ jsx(Tr, { children: /* @__PURE__ */ jsx(Th, { colSpan: 5, children: /* @__PURE__ */ jsx("table", { width: "auto", className: "word-break-all", children: captions.map((c, i) => /* @__PURE__ */ jsx("tr", { children: /* @__PURE__ */ jsx("td", { children: c.v }) })) }) }) }),
             /* @__PURE__ */ jsxs(Tr, { children: [
               /* @__PURE__ */ jsx(Th, { width: "0px", children: "L" }),
               /* @__PURE__ */ jsx(Th, { children: "Artículo" }),
@@ -17037,10 +17593,10 @@ const OrdersPrintReady = (props) => {
                 descripcion_adicional,
                 precio,
                 cantidad,
-                bulto,
-                subtotal
+                bulto
               } = renglon;
               const boxesAndUnits = calculateBoxesAndUnits(cantidad, bulto);
+              const subtotal = precio != null ? precio * cantidad : null;
               const precioBonificado = applyTangoDiscount(precio, descuento);
               const subtotalBonificado = applyTangoDiscount(subtotal, descuento);
               return /* @__PURE__ */ jsxs(Tr, { children: [
@@ -17059,8 +17615,11 @@ const OrdersPrintReady = (props) => {
               ] }, `renglon-${id}_${id_articulo}`);
             }),
             /* @__PURE__ */ jsxs(Tr, { children: [
-              /* @__PURE__ */ jsx(Td, { colSpan: 4, fontWeight: "bold", children: `TOTAL ${descuento > 0 ? `CON BONIFICACIÓN ${descuento}% ` : ""} (${formatTaxesLabel(sin_iva, sin_ii).toLocaleUpperCase()})` }),
-              /* @__PURE__ */ jsx(Td, { textAlign: "right", fontWeight: "bold", children: /* @__PURE__ */ jsx(TextPriceNative, { moneda: "$", precio: total }) })
+              /* @__PURE__ */ jsxs(Td, { colSpan: 4, valign: "top", fontWeight: "bold", children: [
+                /* @__PURE__ */ jsx("p", { children: `TOTAL ${descuento > 0 ? `CON BONIFICACIÓN DEL ${descuento}% ` : ""}` }),
+                /* @__PURE__ */ jsx("p", { children: taxesLabel.toLocaleUpperCase() })
+              ] }),
+              /* @__PURE__ */ jsx(Td, { textAlign: "right", valign: "bottom", fontWeight: "bold", children: /* @__PURE__ */ jsx(TextPriceNative, { moneda: "$", precio: total }) })
             ] })
           ] })
         ] }) })
@@ -17138,23 +17697,6 @@ const route37 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePrope
   action: action$q,
   loader: loader$r
 }, Symbol.toStringTag, { value: "Module" }));
-const getProgramConfigFileEndpoint = createApiEndpoint(
-  adminRootController,
-  void 0,
-  async (req) => {
-    const storedDBSettings = await settingsProvider.getProgramConfig(true);
-    return storedDBSettings;
-  }
-);
-async function loader$q({ request, params }) {
-  return await getProgramConfigFileEndpoint.get(request, params);
-}
-const action$p = unimplementedApiResponse;
-const route38 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
-  __proto__: null,
-  action: action$p,
-  loader: loader$q
-}, Symbol.toStringTag, { value: "Module" }));
 const API_DICTIONARY_GET_ALL = apiEndpoint("/dictionary", "GET");
 const API_ACTIVE_COMPANY_UPDATE = apiEndpoint("/dictionary/active_company", "POST");
 const companyUpdateRequest = async (input, app) => {
@@ -17167,7 +17709,7 @@ const companyUpdateRequest = async (input, app) => {
     app
   );
 };
-const yupValidationSchema$2 = yup.object({
+const yupValidationSchema$3 = yup.object({
   company: yup.string().required("Seleccione una empresa activa")
 }).required();
 const SettingsCompanyReady = () => {
@@ -17191,7 +17733,7 @@ const SettingsCompanyReady = () => {
     defaultValues: {
       company: ""
     },
-    resolver: yupResolver(yupValidationSchema$2)
+    resolver: yupResolver(yupValidationSchema$3)
   });
   const disableForm = isSubmitSuccessful || isSubmitting;
   useEffect(() => {
@@ -17294,7 +17836,7 @@ function Company() {
     /* @__PURE__ */ jsx(SettingsCompanyReady, {})
   ] });
 }
-const route39 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route38 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Company
 }, Symbol.toStringTag, { value: "Module" }));
@@ -17469,6 +18011,16 @@ ${stateData.company_error_details}` : ""}` : void 0;
           navigate(URL_SETTINGS_MISC_PATH);
         }
       }
+    ) }),
+    /* @__PURE__ */ jsx(Box, { width: "full", children: /* @__PURE__ */ jsx(
+      SettingsListItem,
+      {
+        title: ORDER_SETTINGS,
+        actionButtonState: SettingsActionButtonState.enabled,
+        actionButtonOnClick: () => {
+          navigate(URL_SETTINGS_ORDER_PATH);
+        }
+      }
     ) })
   ] }) });
 };
@@ -17483,21 +18035,21 @@ function Settings() {
     success: (state2) => /* @__PURE__ */ jsx(SettingsReady, { stateData: state2.data })
   }) });
 }
-const route40 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route39 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Settings
 }, Symbol.toStringTag, { value: "Module" }));
 function OrdersAdd$1() {
   return /* @__PURE__ */ jsx(CreateDraftPage, {});
 }
-const route41 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route40 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: OrdersAdd$1
 }, Symbol.toStringTag, { value: "Module" }));
 function OrdersAdd() {
   return /* @__PURE__ */ jsx(CreateOrderPage, {});
 }
-const route42 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route41 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: OrdersAdd
 }, Symbol.toStringTag, { value: "Module" }));
@@ -17561,19 +18113,239 @@ const downloadFileEndpoint = createApiEndpoint(
 function _encodeFilename(filename) {
   return encodeURIComponent(filename).replace(/['()]/g, escape).replace(/\*/g, "%2A");
 }
-async function loader$p({ request, params }) {
+async function loader$q({ request, params }) {
   return await downloadFileEndpoint.get(request, params);
 }
-const action$o = unimplementedApiResponse;
-const route43 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const action$p = unimplementedApiResponse;
+const route42 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$o,
-  loader: loader$p
+  action: action$p,
+  loader: loader$q
 }, Symbol.toStringTag, { value: "Module" }));
 const API_SETTINGS_DB = apiEndpoint("/settings/db", "GET");
 const API_SETTINGS_DB_SET = apiEndpoint("/settings/db", "POST");
 const API_SETTINGS_MISC = apiEndpoint("/settings/misc", "GET");
 const API_SETTINGS_MISC_SET = apiEndpoint("/settings/misc", "POST");
+const API_SETTINGS_ORDER = apiEndpoint("/settings/order", "GET");
+const API_SETTINGS_ORDER_SET = apiEndpoint("/settings/order", "POST");
+const SettingsOrderLoading = () => /* @__PURE__ */ jsx(
+  Box,
+  {
+    width: "full",
+    sx: {
+      mt: 8,
+      mb: 4
+    },
+    children: /* @__PURE__ */ jsxs(
+      Grid,
+      {
+        templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
+        alignItems: "center",
+        gap: 4,
+        children: [
+          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(Divider, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(Divider, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(FormTextareaSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(Divider, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(FormTextareaSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) }),
+          /* @__PURE__ */ jsx(GridItem, { children: /* @__PURE__ */ jsx(FormInputSkeleton, {}) })
+        ]
+      }
+    )
+  }
+);
+const settingsDBUpdateRequest = async (input, app) => {
+  return await dxtApiRequest(
+    {
+      ...API_SETTINGS_DB_SET,
+      data: input,
+      silent: true
+    },
+    app
+  );
+};
+const settingsMiscUpdateRequest = async (input, app) => {
+  return await dxtApiRequest(
+    {
+      ...API_SETTINGS_MISC_SET,
+      data: input,
+      silent: true
+    },
+    app
+  );
+};
+const settingsOrderUpdateRequest = async (input, app) => {
+  return await dxtApiRequest(
+    {
+      ...API_SETTINGS_ORDER_SET,
+      data: input,
+      silent: true
+    },
+    app
+  );
+};
+const ControlledCheckbox = (props) => {
+  const { fieldProps, formControlProps, formControlInnerProps, control } = props;
+  const { text, helperText, helperAction } = formControlInnerProps || {};
+  const {
+    field: { ref, onChange, value },
+    fieldState: { invalid },
+    formState: { errors }
+  } = useController({
+    name: fieldProps.name,
+    control
+  });
+  return /* @__PURE__ */ jsxs(FormControl, { ...formControlProps, isInvalid: invalid, ref, children: [
+    /* @__PURE__ */ jsxs(Flex, { alignItems: "center", children: [
+      /* @__PURE__ */ jsx(Checkbox, { ...fieldProps, onChange, isChecked: value, children: text }),
+      helperAction
+    ] }),
+    helperText != null && /* @__PURE__ */ jsx(FormHelperText, { children: helperText })
+  ] });
+};
+const yupValidationSchema$2 = yup.object({
+  show_shipping_date_to_customers: yup.boolean().required(),
+  order_create_update_message: yup.string().required("Ingrese un mensaje de aclaración para correos de pedido")
+}).required();
+const SettingsOrderReady = (props) => {
+  const { stateData } = props;
+  const app = useAppResources();
+  const toast = useToast();
+  const {
+    handleSubmit,
+    control,
+    reset,
+    setError,
+    formState: { errors, isSubmitting, isSubmitSuccessful },
+    watch
+  } = useForm({
+    defaultValues: stateData,
+    resolver: yupResolver(yupValidationSchema$2)
+  });
+  const disableForm = isSubmitSuccessful || isSubmitting;
+  const onSubmit = async (dataUnsafe) => {
+    const input = dataUnsafe;
+    const result = await settingsOrderUpdateRequest(input, app);
+    result.map({
+      success: (_2) => {
+        toast({
+          title: SETTINGS_UPDATED,
+          status: "success"
+        });
+        app.navigate(URL_SETTINGS_PATH);
+      },
+      error: (e) => {
+        toast({
+          title: e.errorInfoOrNull()?.error_description ?? AN_ERROR_OCCURRED
+        });
+        setError("root", { message: e.info.error_description });
+      }
+    });
+  };
+  return /* @__PURE__ */ jsx("form", { noValidate: true, onSubmit: handleSubmit(onSubmit), children: /* @__PURE__ */ jsxs(Box, { children: [
+    /* @__PURE__ */ jsx(FormErrors, { errors }),
+    /* @__PURE__ */ jsx(CommonCard, { children: /* @__PURE__ */ jsxs(
+      Grid,
+      {
+        templateColumns: { base: "1fr", md: "repeat(2,1fr)" },
+        alignItems: "start",
+        gap: 4,
+        children: [
+          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(
+            ControlledCheckbox,
+            {
+              control,
+              fieldProps: {
+                id: "show_shipping_date_to_customers",
+                name: "show_shipping_date_to_customers"
+              },
+              formControlProps: {
+                isDisabled: disableForm
+              },
+              formControlInnerProps: {
+                text: "Los clientes pueden ver la fecha de entrega"
+              }
+            }
+          ) }),
+          /* @__PURE__ */ jsx(GridItem, { colSpan: { md: 2 }, children: /* @__PURE__ */ jsx(
+            ControlledTextarea,
+            {
+              fieldProps: {
+                name: "order_create_update_message",
+                id: "order_create_update_message",
+                isDisabled: disableForm
+              },
+              formControlProps: {
+                isDisabled: disableForm
+              },
+              formControlInnerProps: {
+                label: "Mensaje al crear o modificar pedido"
+              },
+              control
+            }
+          ) })
+        ]
+      }
+    ) }),
+    /* @__PURE__ */ jsx(CommonCard, { children: /* @__PURE__ */ jsx(
+      SettingsFormsButtons,
+      {
+        isLoading: disableForm,
+        hideCancelButton: true
+      }
+    ) })
+  ] }) });
+};
+const SettingsOrder = () => {
+  const { state, retry } = useDXTApiFetch({
+    ...API_SETTINGS_ORDER,
+    silent: true
+  });
+  return state.map({
+    loading: (_2) => /* @__PURE__ */ jsx(SettingsOrderLoading, {}),
+    error: ({ error }) => /* @__PURE__ */ jsx(
+      ApiErrors,
+      {
+        error,
+        retry,
+        cancelAndNavigateTo: URL_SETTINGS_PATH
+      }
+    ),
+    success: (state2) => /* @__PURE__ */ jsx(SettingsOrderReady, { stateData: state2.data })
+  });
+};
+function Misc$1() {
+  const navigate = useNavigate();
+  return /* @__PURE__ */ jsxs(Fragment, { children: [
+    /* @__PURE__ */ jsx(
+      SettingsFormHeading,
+      {
+        title: ORDER_SETTINGS,
+        returnButton: {
+          buttonProps: {
+            onClick: () => {
+              navigate(URL_SETTINGS_PATH);
+            }
+          }
+        }
+      }
+    ),
+    /* @__PURE__ */ jsx(SettingsOrder, {})
+  ] });
+}
+const route43 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
+  default: Misc$1
+}, Symbol.toStringTag, { value: "Module" }));
 const SettingsTangoLoading = () => /* @__PURE__ */ jsx(
   Box,
   {
@@ -17602,26 +18374,6 @@ const SettingsTangoLoading = () => /* @__PURE__ */ jsx(
     )
   }
 );
-const settingsDBUpdateRequest = async (input, app) => {
-  return await dxtApiRequest(
-    {
-      ...API_SETTINGS_DB_SET,
-      data: input,
-      silent: true
-    },
-    app
-  );
-};
-const settingsMiscUpdateRequest = async (input, app) => {
-  return await dxtApiRequest(
-    {
-      ...API_SETTINGS_MISC_SET,
-      data: input,
-      silent: true
-    },
-    app
-  );
-};
 const yupValidationSchema$1 = yup.object({
   db_host: yup.string().required("Ingrese el host de la base de datos"),
   db_port: yup.number().required("Ingrese un puerto").typeError("Ingrese un número de puerto válido").test(
@@ -17932,8 +18684,8 @@ const route45 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePrope
   _Downloads,
   default: Downloads
 }, Symbol.toStringTag, { value: "Module" }));
-const loader$o = unimplementedApiResponse;
-async function action$n({ request, params }) {
+const loader$p = unimplementedApiResponse;
+async function action$o({ request, params }) {
   return await mapEndpoint(request, params, {
     delete: cancelOrderEndpoint,
     patch: updateOrderEndpoint
@@ -17941,8 +18693,8 @@ async function action$n({ request, params }) {
 }
 const route46 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  action: action$n,
-  loader: loader$o
+  action: action$o,
+  loader: loader$p
 }, Symbol.toStringTag, { value: "Module" }));
 const SettingsMiscLoading = () => /* @__PURE__ */ jsx(
   Box,
@@ -17979,25 +18731,6 @@ const SettingsMiscLoading = () => /* @__PURE__ */ jsx(
     )
   }
 );
-const ControlledCheckbox = (props) => {
-  const { fieldProps, formControlProps, formControlInnerProps, control } = props;
-  const { text, helperText, helperAction } = formControlInnerProps || {};
-  const {
-    field: { ref, onChange, value },
-    fieldState: { invalid },
-    formState: { errors }
-  } = useController({
-    name: fieldProps.name,
-    control
-  });
-  return /* @__PURE__ */ jsxs(FormControl, { ...formControlProps, isInvalid: invalid, ref, children: [
-    /* @__PURE__ */ jsxs(Flex, { alignItems: "center", children: [
-      /* @__PURE__ */ jsx(Checkbox, { ...fieldProps, onChange, isChecked: value, children: text }),
-      helperAction
-    ] }),
-    helperText != null && /* @__PURE__ */ jsx(FormHelperText, { children: helperText })
-  ] });
-};
 const yupValidationSchema = yup.object({
   smtp_enabled: yup.boolean().required(),
   smtp_host: yup.string().required("Ingrese el host SMTP").test(
@@ -18025,7 +18758,8 @@ const yupValidationSchema = yup.object({
   user_warning_message_title: yup.string().required("Ingrese el título del mensaje de advertencia"),
   user_warning_message_content: yup.string().required("Ingrese el contenido del mensaje de advertencia"),
   user_disabled_message_title: yup.string().required("Ingrese el título del mensaje de inhabilitación"),
-  user_disabled_message_content: yup.string().required("Ingrese el contenido del mensaje de inhabilitación")
+  user_disabled_message_content: yup.string().required("Ingrese el contenido del mensaje de inhabilitación"),
+  order_warning_message: yup.string()
 }).required();
 const SettingsMiscReady = (props) => {
   const { stateData } = props;
@@ -18051,7 +18785,7 @@ const SettingsMiscReady = (props) => {
     result.map({
       success: (_2) => {
         toast({
-          title: VARIOUS_SETTINGS_UPDATED,
+          title: SETTINGS_UPDATED,
           status: "success"
         });
         app.navigate(URL_SETTINGS_PATH);
@@ -18403,8 +19137,8 @@ const route47 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePrope
   __proto__: null,
   default: Misc
 }, Symbol.toStringTag, { value: "Module" }));
-const loader$n = unimplementedApiResponse;
-async function action$m({ request, params }) {
+const loader$o = unimplementedApiResponse;
+async function action$n({ request, params }) {
   return await mapEndpoint(request, params, {
     delete: cancelDraftEndpoint,
     patch: updateDraftEndpoint
@@ -18412,41 +19146,101 @@ async function action$m({ request, params }) {
 }
 const route48 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
+  action: action$n,
+  loader: loader$o
+}, Symbol.toStringTag, { value: "Module" }));
+async function loader$n({ request, params }) {
+  return await getOrderRowsEndpoint.get(request, params);
+}
+const action$m = unimplementedApiResponse;
+const route49 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+  __proto__: null,
   action: action$m,
   loader: loader$n
 }, Symbol.toStringTag, { value: "Module" }));
 async function loader$m({ request, params }) {
-  return await getOrderRowsEndpoint.get(request, params);
+  return await startNewOrderEndpoint.get(request, params);
 }
 const action$l = unimplementedApiResponse;
-const route49 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route50 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$l,
   loader: loader$m
 }, Symbol.toStringTag, { value: "Module" }));
 async function loader$l({ request, params }) {
-  return await startNewOrderEndpoint.get(request, params);
+  return await getDraftRowsEndpoint.get(request, params);
 }
 const action$k = unimplementedApiResponse;
-const route50 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route51 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$k,
   loader: loader$l
 }, Symbol.toStringTag, { value: "Module" }));
 async function loader$k({ request, params }) {
-  return await getDraftRowsEndpoint.get(request, params);
+  return await startNewDraftEndpoint.get(request, params);
 }
 const action$j = unimplementedApiResponse;
-const route51 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route52 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$j,
   loader: loader$k
 }, Symbol.toStringTag, { value: "Module" }));
+const getOrderSettingsEndpoint = createApiEndpoint(
+  adminRootController,
+  void 0,
+  async (req) => await settingsProvider.getOrderSettings(true)
+);
+const dbSettingsInputSchema = {
+  db_host: (v) => new VONotEmptyString(v),
+  db_port: (v) => new VOTCPPort(v),
+  db_user: (v) => new VONotEmptyString(v),
+  db_password: (v) => new VOString(v.trim()),
+  db_connection_timeout_seconds: (v) => new VOIntegerRange(v, DB_CONNECTION_TIMEOUT_MIN_SECONDS, DB_CONNECTION_TIMEOUT_MAX_SECONDS),
+  tango_dictionary: (v) => new VOMSSqlDBName(v)
+};
+const validateDBSettingsInput = (input) => validateInput(dbSettingsInputSchema, input);
+const miscSettingsInputSchema = {
+  smtp_enabled: (v) => new VOBoolean(v),
+  smtp_host: (v) => new VOHost(v),
+  smtp_username: (v) => new VOString(v.trim()),
+  smtp_password: (v) => new VOString(v.trim()),
+  smtp_port: (v) => new VOTCPPort(v),
+  smtp_use_tls: (v) => new VOBoolean(v),
+  smtp_from_email: (v) => new VOEmailAddress(v).valueOf(),
+  auth_expiration_days: (v) => new VOIntegerRange(v, AUTH_EXPIRATION_MIN_DAYS, AUTH_EXPIRATION_MAX_DAYS),
+  user_warning_message_title: (v) => new VONotEmptyString(v.trim()),
+  user_warning_message_content: (v) => new VONotEmptyString(v.trim()),
+  user_disabled_message_title: (v) => new VONotEmptyString(v.trim()),
+  user_disabled_message_content: (v) => new VONotEmptyString(v.trim()),
+  admin_email: (v) => new VOString(v.trim() === "" ? "" : new VOEmailAddress(v).valueOf())
+};
+const validateMiscSettingsInput = (input) => validateInput(miscSettingsInputSchema, input);
+const orderSettingsInputSchema = {
+  show_shipping_date_to_customers: (v) => new VOBoolean(v),
+  order_create_update_message: (v) => new VOString(v.trim())
+};
+const validateOrderSettingsInput = (input) => validateInput(orderSettingsInputSchema, input);
+const updateOrderSettingsEndpoint = createApiEndpoint(
+  adminRootController,
+  {
+    validation: {
+      body: validateOrderSettingsInput
+    }
+  },
+  async (req) => {
+    const { body } = req.validated;
+    const newSettingsDTO = new StoredOrderSettingsDTO(body);
+    await settingsProvider.setOrderSettings(newSettingsDTO);
+    return body;
+  }
+);
 async function loader$j({ request, params }) {
-  return await startNewDraftEndpoint.get(request, params);
+  return await getOrderSettingsEndpoint.get(request, params);
 }
-const action$i = unimplementedApiResponse;
-const route52 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+async function action$i({ request, params }) {
+  return await updateOrderSettingsEndpoint.post(request, params);
+}
+const route53 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$i,
   loader: loader$j
@@ -18490,7 +19284,7 @@ const tangoVendedorGetAllEndpoint = createCompanyGetAllEndpoint(
 );
 const loader$i = async (o) => await tangoVendedorGetAllEndpoint.get(o.request, o.params);
 const action$h = unimplementedApiResponse;
-const route53 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route54 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$h,
   loader: loader$i
@@ -18553,21 +19347,31 @@ const loader$h = unimplementedApiResponse;
 async function action$g({ request, params }) {
   return await authChangePasswordEndpoint.patch(request, params);
 }
-const route54 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route55 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$g,
   loader: loader$h
 }, Symbol.toStringTag, { value: "Module" }));
 async function getPedidosByIds(user, ids) {
   const orders = await pedidoRepository.getAllByUser(user);
-  const rows = await renglonPedidoRepository.getAllByUser(user);
+  const ordersById = new Map(orders.map((p) => [p.id, p]));
+  const rows = await getAllPedidosRows(user, false);
   return ids.map((id) => {
-    const order = orders[id];
-    const orderRows = rows[id];
-    if (order == null && orderRows == null)
+    const order = ordersById.get(id);
+    if (order == null)
       return null;
+    const orderRows = rows[id];
+    if (orderRows == null)
+      return null;
+    const newTotal = orderRows.reduce((total, row) => {
+      const precioBonificado = applyTangoDiscount(row.precio, order.descuento) ?? 0;
+      return total + precioBonificado * row.cantidad;
+    }, 0);
     return {
-      cabecera: order,
+      cabecera: {
+        ...order,
+        total: newTotal
+      },
       renglones: orderRows
     };
   }).filter((e) => e != null);
@@ -18585,7 +19389,7 @@ const loader$g = unimplementedApiResponse;
 async function action$f({ request, params }) {
   return await getOrdersByIdsEndpoint.post(request, params);
 }
-const route55 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route56 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$f,
   loader: loader$g
@@ -18601,31 +19405,6 @@ const getMiscSettingsEndpoint = createApiEndpoint(
     return remaining;
   }
 );
-const dbSettingsInputSchema = {
-  db_host: (v) => new VONotEmptyString(v),
-  db_port: (v) => new VOTCPPort(v),
-  db_user: (v) => new VONotEmptyString(v),
-  db_password: (v) => new VOString(v.trim()),
-  db_connection_timeout_seconds: (v) => new VOIntegerRange(v, DB_CONNECTION_TIMEOUT_MIN_SECONDS, DB_CONNECTION_TIMEOUT_MAX_SECONDS),
-  tango_dictionary: (v) => new VOMSSqlDBName(v)
-};
-const miscSettingsInputSchema = {
-  smtp_enabled: (v) => new VOBoolean(v),
-  smtp_host: (v) => new VOHost(v),
-  smtp_username: (v) => new VOString(v.trim()),
-  smtp_password: (v) => new VOString(v.trim()),
-  smtp_port: (v) => new VOTCPPort(v),
-  smtp_use_tls: (v) => new VOBoolean(v),
-  smtp_from_email: (v) => new VOEmailAddress(v).valueOf(),
-  auth_expiration_days: (v) => new VOIntegerRange(v, AUTH_EXPIRATION_MIN_DAYS, AUTH_EXPIRATION_MAX_DAYS),
-  user_warning_message_title: (v) => new VONotEmptyString(v.trim()),
-  user_warning_message_content: (v) => new VONotEmptyString(v.trim()),
-  user_disabled_message_title: (v) => new VONotEmptyString(v.trim()),
-  user_disabled_message_content: (v) => new VONotEmptyString(v.trim()),
-  admin_email: (v) => new VOString(v.trim() === "" ? "" : new VOEmailAddress(v).valueOf())
-};
-const validateDBSettingsInput = (input) => validateInput(dbSettingsInputSchema, input);
-const validateMiscSettingsInput = (input) => validateInput(miscSettingsInputSchema, input);
 const updateMiscSettingsEndpoint = createApiEndpoint(
   adminRootController,
   /* *************************************************************************************************************** */
@@ -18653,14 +19432,14 @@ async function loader$f({ request, params }) {
 async function action$e({ request, params }) {
   return await updateMiscSettingsEndpoint.post(request, params);
 }
-const route56 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route57 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$e,
   loader: loader$f
 }, Symbol.toStringTag, { value: "Module" }));
 const loader$e = async (o) => await tangoClienteGetAllEndpoint.get(o.request, o.params);
 const action$d = unimplementedApiResponse;
-const route57 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route58 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$d,
   loader: loader$e
@@ -18720,7 +19499,7 @@ async function loader$d({ request, params }) {
   return await getAdminStatusEndpoint.get(request, params);
 }
 const action$c = unimplementedApiResponse;
-const route58 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route59 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$c,
   loader: loader$d
@@ -18734,7 +19513,7 @@ const loader$c = unimplementedApiResponse;
 async function action$b({ request, params }) {
   return await authConnectEndpoint.post(request, params);
 }
-const route59 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route60 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$b,
   loader: loader$c
@@ -18745,7 +19524,7 @@ async function loader$b({ request, params }) {
 async function action$a({ request, params }) {
   return await dxtVendedorCreateEndpoint.post(request, params);
 }
-const route60 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route61 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$a,
   loader: loader$b
@@ -18760,7 +19539,7 @@ const tangoListaDePreciosAllEndpoint = createCompanyGetAllEndpoint(
 );
 const loader$a = async (o) => await tangoPerfilGetAllEndpoint.get(o.request, o.params);
 const action$9 = unimplementedApiResponse;
-const route61 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route62 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$9,
   loader: loader$a
@@ -18777,7 +19556,7 @@ const loader$9 = unimplementedApiResponse;
 async function action$8({ request, params }) {
   return await authLogoutEndpoint.post(request, params);
 }
-const route62 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route63 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$8,
   loader: loader$9
@@ -18788,7 +19567,7 @@ async function loader$8({ request, params }) {
 async function action$7({ request, params }) {
   return await dxtClienteCreateEndpoint.post(request, params);
 }
-const route63 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route64 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$7,
   loader: loader$8
@@ -18854,14 +19633,14 @@ async function loader$7({ request, params }) {
 async function action$6({ request, params }) {
   return await updateDBSettingsEndpoint.post(request, params);
 }
-const route64 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route65 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$6,
   loader: loader$7
 }, Symbol.toStringTag, { value: "Module" }));
 const loader$6 = async (o) => await tangoListaDePreciosAllEndpoint.get(o.request, o.params);
 const action$5 = unimplementedApiResponse;
-const route65 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route66 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$5,
   loader: loader$6
@@ -18889,7 +19668,7 @@ const loader$5 = unimplementedApiResponse;
 async function action$4({ request, params }) {
   return await authLoginEndpoint.post(request, params);
 }
-const route66 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route67 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$4,
   loader: loader$5
@@ -18905,7 +19684,7 @@ async function loader$4({ request, params }) {
   return await getCompaniesEndpoint.get(request, params);
 }
 const action$3 = unimplementedApiResponse;
-const route67 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route68 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$3,
   loader: loader$4
@@ -18921,7 +19700,7 @@ async function loader$3({ request, params }) {
   return await getDownloadableFilesEndpoint.get(request, params);
 }
 const action$2 = unimplementedApiResponse;
-const route68 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route69 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$2,
   loader: loader$3
@@ -18961,7 +19740,7 @@ function ClientOnly({ children, fallback = null }) {
 function AuthorizedLayout() {
   return /* @__PURE__ */ jsx(ClientOnly, { children: /* @__PURE__ */ jsx(AuthGuard, { children: /* @__PURE__ */ jsx(Outlet, {}) }) });
 }
-const route69 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route70 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: AuthorizedLayout
 }, Symbol.toStringTag, { value: "Module" }));
@@ -18971,7 +19750,7 @@ async function loader$2({ request, params }) {
 async function action$1({ request, params }) {
   return await createOrderEndpoint.post(request, params);
 }
-const route70 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route71 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action: action$1,
   loader: loader$2
@@ -18982,7 +19761,7 @@ async function loader$1({ request, params }) {
 async function action({ request, params }) {
   return await createDraftEndpoint.post(request, params);
 }
-const route71 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route72 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   action,
   loader: loader$1
@@ -18993,7 +19772,7 @@ function AdminLayout() {
     /* @__PURE__ */ jsx(Container, { maxW: "2xl", sx: { my: 4 }, children: /* @__PURE__ */ jsx(Outlet, {}) })
   ] }) });
 }
-const route72 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route73 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: AdminLayout
 }, Symbol.toStringTag, { value: "Module" }));
@@ -19001,15 +19780,59 @@ const LogoImage = (props) => {
   const logo = useColorModeValue("/welcome/logo-light.svg", "/welcome/logo-dark.svg");
   return /* @__PURE__ */ jsx(Image, { src: logo, ...props });
 };
+const projectDirectory = process.cwd();
+let _packageJsonInfo = {};
+let _packageJsonInfoLoaded = false;
+let _programName = "Project Name";
+let _programDescription = "Project Description";
+let _programVersion = "0.0.1";
+let _programBuild = "0";
+const _workerId = 0;
+function loadPackageJsonInfo() {
+  try {
+    const pjson = parseJSON(readFileSync(join(projectDirectory, "package.json"), "utf8"));
+    if (isStr(pjson.name))
+      _programName = pjson.name.toUpperCase();
+    if (isStr(pjson.description))
+      _programDescription = pjson.description;
+    if (isStr(pjson.version))
+      _programVersion = pjson.version;
+    const semVer = new SemVer(_programVersion);
+    if (Array.isArray(semVer.build) && semVer.build.length > 0) {
+      _programBuild = semVer.build[0];
+    } else {
+      _programBuild = "1";
+    }
+    _packageJsonInfo = pjson;
+    _packageJsonInfoLoaded = true;
+  } catch (e) {
+  }
+}
+function loadPackageAndReturn(valueProvider) {
+  if (!_packageJsonInfoLoaded)
+    loadPackageJsonInfo();
+  return valueProvider();
+}
+const programName = loadPackageAndReturn(() => _programName);
+loadPackageAndReturn(() => _programDescription);
+const programVersion = loadPackageAndReturn(() => _programVersion);
+loadPackageAndReturn(() => _programBuild);
+loadPackageAndReturn(() => _workerId);
+loadPackageAndReturn(() => _packageJsonInfo);
+const programNameWithVersion = `${programName} ${programVersion}`;
 const validationSchema = yup.object({
   username: yup.string().required("Ingrese su nombre de usuario").test("test", "Usuario no valido", (v) => yupVOValidation(VOUserName, v)),
   password: yup.string().required("Ingrese su contraseña")
 }).required();
 async function loader() {
-  return settingsProvider.getProgramConfig();
+  const programConfig = await settingsProvider.getProgramConfig();
+  return {
+    programConfig,
+    programName: programNameWithVersion
+  };
 }
 function Index() {
-  const programConfig = useLoaderData();
+  const { programConfig, programName: programName2 } = useLoaderData();
   const { state: authState, dispatch: authDispatch } = useAuth();
   const dialogCall = useMessageToUserDialog();
   const { welcome_message } = programConfig;
@@ -19054,7 +19877,7 @@ function Index() {
         children: /* @__PURE__ */ jsx(ColorModeSelector, {})
       }
     ),
-    /* @__PURE__ */ jsx(
+    /* @__PURE__ */ jsxs(
       Box,
       {
         sx: {
@@ -19064,93 +19887,96 @@ function Index() {
           alignItems: "center",
           justifyContent: "center"
         },
-        children: /* @__PURE__ */ jsx(
-          Container,
-          {
-            maxWidth: "sm",
-            sx: {
-              alignSelf: "center"
-            },
-            children: /* @__PURE__ */ jsxs(Card, { children: [
-              /* @__PURE__ */ jsx(CardHeader, { children: /* @__PURE__ */ jsx(Center, { children: /* @__PURE__ */ jsx(LogoImage, { width: "160px", alt: "" }) }) }),
-              /* @__PURE__ */ jsx(CardBody, { children: /* @__PURE__ */ jsx("form", { noValidate: true, onSubmit: handleSubmit(onSubmit), children: /* @__PURE__ */ jsxs(VStack, { spacing: 4, children: [
-                /* @__PURE__ */ jsx(
-                  Heading,
-                  {
-                    size: "sm",
-                    sx: {
-                      textAlign: "center",
-                      pb: 2
-                    },
-                    children: welcome_message
-                  }
-                ),
-                (Object.keys(errors).length || authState.errorOrNull()) && /* @__PURE__ */ jsx(Box, { width: "full", children: /* @__PURE__ */ jsx(Alert, { status: "error", children: /* @__PURE__ */ jsxs(
-                  UnorderedList,
-                  {
-                    fontSize: "sm",
-                    styleType: "none",
-                    sx: { m: 0 },
-                    children: [
-                      Object.keys(errors).length && Object.values(errors).map((error, key) => /* @__PURE__ */ jsx(ListItem, { children: error.message }, key)),
-                      authState.errorOrNull() && /* @__PURE__ */ jsx(ListItem, { children: authState.errorOrNull()?.error_description }, "api_error")
-                    ]
-                  }
-                ) }) }),
-                /* @__PURE__ */ jsx(
-                  ControlledInput,
-                  {
-                    formControlInnerProps: {
-                      icon: /* @__PURE__ */ jsx(InputLeftElement, { pointerEvents: "none", children: /* @__PURE__ */ jsx(Icon, { as: AccountIcon }) })
-                    },
-                    fieldProps: {
-                      name: "username",
-                      id: "username",
-                      type: "text",
-                      placeholder: "Usuario",
-                      autoCapitalize: "off",
-                      autoComplete: "username"
-                    },
-                    formControlProps: {
-                      isDisabled: isSubmitting
-                    },
-                    control
-                  }
-                ),
-                /* @__PURE__ */ jsx(
-                  ControlledInput,
-                  {
-                    formControlInnerProps: {
-                      icon: /* @__PURE__ */ jsx(InputLeftElement, { pointerEvents: "none", children: /* @__PURE__ */ jsx(Icon, { as: LockIcon }) })
-                    },
-                    fieldProps: {
-                      name: "password",
-                      id: "password",
-                      type: "password",
-                      placeholder: "Contraseña",
-                      autoComplete: "current-password"
-                    },
-                    formControlProps: {
-                      isDisabled: isSubmitting
-                    },
-                    control
-                  }
-                ),
-                /* @__PURE__ */ jsx(Button, { type: "submit", width: "full", colorScheme: "blue", isLoading: isSubmitting, children: "Ingresar" })
-              ] }) }) })
-            ] })
-          }
-        )
+        children: [
+          /* @__PURE__ */ jsx(
+            Container,
+            {
+              maxWidth: "sm",
+              sx: {
+                alignSelf: "center"
+              },
+              children: /* @__PURE__ */ jsxs(Card, { children: [
+                /* @__PURE__ */ jsx(CardHeader, { children: /* @__PURE__ */ jsx(Center, { children: /* @__PURE__ */ jsx(LogoImage, { width: "160px", alt: "" }) }) }),
+                /* @__PURE__ */ jsx(CardBody, { children: /* @__PURE__ */ jsx("form", { noValidate: true, onSubmit: handleSubmit(onSubmit), children: /* @__PURE__ */ jsxs(VStack, { spacing: 4, children: [
+                  /* @__PURE__ */ jsx(
+                    Heading,
+                    {
+                      size: "sm",
+                      sx: {
+                        textAlign: "center",
+                        pb: 2
+                      },
+                      children: welcome_message
+                    }
+                  ),
+                  (Object.keys(errors).length || authState.errorOrNull()) && /* @__PURE__ */ jsx(Box, { width: "full", children: /* @__PURE__ */ jsx(Alert, { status: "error", children: /* @__PURE__ */ jsxs(
+                    UnorderedList,
+                    {
+                      fontSize: "sm",
+                      styleType: "none",
+                      sx: { m: 0 },
+                      children: [
+                        Object.keys(errors).length && Object.values(errors).map((error, key) => /* @__PURE__ */ jsx(ListItem, { children: error.message }, key)),
+                        authState.errorOrNull() && /* @__PURE__ */ jsx(ListItem, { children: authState.errorOrNull()?.error_description }, "api_error")
+                      ]
+                    }
+                  ) }) }),
+                  /* @__PURE__ */ jsx(
+                    ControlledInput,
+                    {
+                      formControlInnerProps: {
+                        icon: /* @__PURE__ */ jsx(InputLeftElement, { pointerEvents: "none", children: /* @__PURE__ */ jsx(Icon, { as: AccountIcon }) })
+                      },
+                      fieldProps: {
+                        name: "username",
+                        id: "username",
+                        type: "text",
+                        placeholder: "Usuario",
+                        autoCapitalize: "off",
+                        autoComplete: "username"
+                      },
+                      formControlProps: {
+                        isDisabled: isSubmitting
+                      },
+                      control
+                    }
+                  ),
+                  /* @__PURE__ */ jsx(
+                    ControlledInput,
+                    {
+                      formControlInnerProps: {
+                        icon: /* @__PURE__ */ jsx(InputLeftElement, { pointerEvents: "none", children: /* @__PURE__ */ jsx(Icon, { as: LockIcon }) })
+                      },
+                      fieldProps: {
+                        name: "password",
+                        id: "password",
+                        type: "password",
+                        placeholder: "Contraseña",
+                        autoComplete: "current-password"
+                      },
+                      formControlProps: {
+                        isDisabled: isSubmitting
+                      },
+                      control
+                    }
+                  ),
+                  /* @__PURE__ */ jsx(Button, { type: "submit", width: "full", colorScheme: "blue", isLoading: isSubmitting, children: "Ingresar" })
+                ] }) }) })
+              ] })
+            }
+          ),
+          /* @__PURE__ */ jsx(Box, { marginTop: 5, textColor: "#AAA", textAlign: "center", children: programName2 })
+        ]
       }
     )
   ] });
 }
-const route73 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const route74 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
   default: Index,
   loader
 }, Symbol.toStringTag, { value: "Module" }));
-const serverManifest = { "entry": { "module": "/assets/entry.client-B24kjL6W.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/styleContexts-DiZ_cVHh.js", "/assets/components-F5Cv7EYO.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": true, "module": "/assets/root-B1ZBU9gg.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/styleContexts-DiZ_cVHh.js", "/assets/components-F5Cv7EYO.js", "/assets/auth_context-BPNKm5C_.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/chunk-AMBGAKG2-p6wlSV-U.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/chunk-3Y4YXCR2-VQX1029H.js", "/assets/CommonErrors-ANn-F17-.js", "/assets/index-BBOeOfQH.js", "/assets/chunk-NTCQBYKE-fAVIJNuR.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js"], "css": ["/assets/root-DeJpfpjF.css"] }, "routes/api.dxt.cliente.$id_cliente.siblings.$tango_id": { "id": "routes/api.dxt.cliente.$id_cliente.siblings.$tango_id", "parentId": "routes/api.dxt.cliente.$id_cliente", "path": "siblings/:tango_id", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente._id_cliente.siblings._tango_id-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.users.customers.$id.edit": { "id": "routes/_admin.settings.users.customers.$id.edit", "parentId": "routes/_admin", "path": "settings/users/customers/:id/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DUyWdUaN.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/AccountCancelIcon-pzBu00eN.js", "/assets/app-CX69rDqm.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/chunk-YQO7BFFX-CkL1T7LL.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/CommonCard-C8mdcxSI.js", "/assets/ResponsiveIconButton-DTsMLJ6O.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/app_resources-BncH8wDZ.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/ApiErrors-DQxu8cuC.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-Bnwmk-nH.js", "/assets/chunk-HB6KBUMZ-BUJUEYCo.js", "/assets/chunk-H46NUPBZ-CEXsk7m2.js", "/assets/chunk-6CVSDS6C-CBdC6jDV.js", "/assets/chunk-7D6N5TE5-Bi3ngImC.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/chunk-46CXQZ4E-B49QqCoR.js", "/assets/ControlledInput-B1wc2r1g.js", "/assets/chunk-2ZHRCML3-BuCwWj08.js", "/assets/chunk-Z6RXEUPO-JBJHcxCd.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-3Y4YXCR2-VQX1029H.js", "/assets/FormSkeletons-FVNY-1Wx.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js", "/assets/ControlledSelect-CM7l-oOM.js", "/assets/chunk-VTV6N5LE-DVEjuiDF.js", "/assets/FormErrors-CgyDTrkn.js", "/assets/vo_dxt_password-B86rA3eb.js", "/assets/InlineError-3ptUkAAk.js", "/assets/SettingsFormButtons-Dr71bDKY.js", "/assets/chunk-6RSEZNRH-wKYG4vTw.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-Bhswf9ko.js", "/assets/settings-C1Sl0xyq.js", "/assets/CommonErrors-ANn-F17-.js", "/assets/SettingsFormHeading-DFLKZnIX.js", "/assets/schema_transformers-cMFsjJJ9.js", "/assets/utils-DTXYOP_7.js"], "css": [] }, "routes/_admin.settings.users.sellers.$id.edit": { "id": "routes/_admin.settings.users.sellers.$id.edit", "parentId": "routes/_admin", "path": "settings/users/sellers/:id/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-n0nJylVM.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/AccountCancelIcon-pzBu00eN.js", "/assets/app-CX69rDqm.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/chunk-YQO7BFFX-CkL1T7LL.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/CommonCard-C8mdcxSI.js", "/assets/ResponsiveIconButton-DTsMLJ6O.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/app_resources-BncH8wDZ.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/ApiErrors-DQxu8cuC.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-Bnwmk-nH.js", "/assets/chunk-HB6KBUMZ-BUJUEYCo.js", "/assets/chunk-H46NUPBZ-CEXsk7m2.js", "/assets/chunk-6CVSDS6C-CBdC6jDV.js", "/assets/chunk-7D6N5TE5-Bi3ngImC.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/chunk-46CXQZ4E-B49QqCoR.js", "/assets/ControlledInput-B1wc2r1g.js", "/assets/chunk-2ZHRCML3-BuCwWj08.js", "/assets/chunk-Z6RXEUPO-JBJHcxCd.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-3Y4YXCR2-VQX1029H.js", "/assets/FormSkeletons-FVNY-1Wx.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js", "/assets/ControlledSelect-CM7l-oOM.js", "/assets/chunk-VTV6N5LE-DVEjuiDF.js", "/assets/FormErrors-CgyDTrkn.js", "/assets/vo_dxt_password-B86rA3eb.js", "/assets/InlineError-3ptUkAAk.js", "/assets/SettingsFormButtons-Dr71bDKY.js", "/assets/chunk-6RSEZNRH-wKYG4vTw.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-Bhswf9ko.js", "/assets/settings-C1Sl0xyq.js", "/assets/CommonErrors-ANn-F17-.js", "/assets/SettingsFormHeading-DFLKZnIX.js", "/assets/schema_transformers-cMFsjJJ9.js", "/assets/utils-DTXYOP_7.js"], "css": [] }, "routes/api.pedido.$id_pedido.start_new_draft": { "id": "routes/api.pedido.$id_pedido.start_new_draft", "parentId": "routes/api.pedido.$id_pedido", "path": "start_new_draft", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_new_draft-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.$id_pedido.start_new_order": { "id": "routes/api.draft.$id_pedido.start_new_order", "parentId": "routes/api.draft.$id_pedido", "path": "start_new_order", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_new_order-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.users.customers.add": { "id": "routes/_admin.settings.users.customers.add", "parentId": "routes/_admin", "path": "settings/users/customers/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-Ck2Mgh2b.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/AccountCancelIcon-pzBu00eN.js", "/assets/app-CX69rDqm.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-BncH8wDZ.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/ApiErrors-DQxu8cuC.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-Bnwmk-nH.js", "/assets/ResponsiveIconButton-DTsMLJ6O.js", "/assets/chunk-HB6KBUMZ-BUJUEYCo.js", "/assets/chunk-H46NUPBZ-CEXsk7m2.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/chunk-YQO7BFFX-CkL1T7LL.js", "/assets/chunk-6CVSDS6C-CBdC6jDV.js", "/assets/chunk-7D6N5TE5-Bi3ngImC.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/chunk-46CXQZ4E-B49QqCoR.js", "/assets/ControlledInput-B1wc2r1g.js", "/assets/chunk-2ZHRCML3-BuCwWj08.js", "/assets/chunk-Z6RXEUPO-JBJHcxCd.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-3Y4YXCR2-VQX1029H.js", "/assets/FormSkeletons-FVNY-1Wx.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js", "/assets/ControlledSelect-CM7l-oOM.js", "/assets/CommonCard-C8mdcxSI.js", "/assets/chunk-VTV6N5LE-DVEjuiDF.js", "/assets/FormErrors-CgyDTrkn.js", "/assets/vo_dxt_password-B86rA3eb.js", "/assets/InlineError-3ptUkAAk.js", "/assets/SettingsFormButtons-Dr71bDKY.js", "/assets/chunk-6RSEZNRH-wKYG4vTw.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-Bhswf9ko.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/settings-C1Sl0xyq.js", "/assets/schema_transformers-cMFsjJJ9.js", "/assets/SettingsFormHeading-DFLKZnIX.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.order": { "id": "routes/_authorized.drafts.$id_pedido.order", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/order", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-C84PYL3o.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/TextPrice-BpaUIUlQ.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/app-CX69rDqm.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/ColorModeSelector-b4kcU4V6.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/chunk-6CVSDS6C-CBdC6jDV.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-BuCwWj08.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/chunk-46CXQZ4E-B49QqCoR.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/chunk-HB6KBUMZ-BUJUEYCo.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-Bnwmk-nH.js", "/assets/ResponsiveIconButton-DTsMLJ6O.js", "/assets/chunk-H46NUPBZ-CEXsk7m2.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/chunk-YQO7BFFX-CkL1T7LL.js", "/assets/chunk-3Y4YXCR2-VQX1029H.js", "/assets/app_resources-BncH8wDZ.js", "/assets/components-F5Cv7EYO.js", "/assets/ApiErrors-DQxu8cuC.js", "/assets/order.api_hooks-BMg3wn5Q.js", "/assets/OrdersContainer-v_hilEa5.js", "/assets/SearchField-CJhunbce.js", "/assets/FormErrors-CgyDTrkn.js", "/assets/Navbar-yLlv-fhh.js", "/assets/MessageToUserDialog-AsL_hNa0.js", "/assets/chunk-T2WCTPDH-Dq_zjQt4.js", "/assets/ControlledSelect-CM7l-oOM.js", "/assets/CommonCard-C8mdcxSI.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js", "/assets/chunk-NTCQBYKE-fAVIJNuR.js", "/assets/ControlledInput-B1wc2r1g.js", "/assets/ControlledTextarea-43CRl7fs.js", "/assets/index-C_tv48Gv.js", "/assets/chunk-Z6RXEUPO-JBJHcxCd.js", "/assets/chunk-6RSEZNRH-wKYG4vTw.js", "/assets/FormSkeletons-FVNY-1Wx.js", "/assets/CommonErrors-ANn-F17-.js", "/assets/index-DKYgyATn.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.draft": { "id": "routes/_authorized.orders.$id_pedido.draft", "parentId": "routes/_authorized", "path": "orders/:id_pedido/draft", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BfLnUEXv.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/TextPrice-BpaUIUlQ.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/app-CX69rDqm.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/ColorModeSelector-b4kcU4V6.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/chunk-6CVSDS6C-CBdC6jDV.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-BuCwWj08.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/chunk-46CXQZ4E-B49QqCoR.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/chunk-HB6KBUMZ-BUJUEYCo.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-Bnwmk-nH.js", "/assets/ResponsiveIconButton-DTsMLJ6O.js", "/assets/chunk-H46NUPBZ-CEXsk7m2.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/chunk-YQO7BFFX-CkL1T7LL.js", "/assets/chunk-3Y4YXCR2-VQX1029H.js", "/assets/app_resources-BncH8wDZ.js", "/assets/components-F5Cv7EYO.js", "/assets/ApiErrors-DQxu8cuC.js", "/assets/order.api_hooks-BMg3wn5Q.js", "/assets/OrdersContainer-v_hilEa5.js", "/assets/SearchField-CJhunbce.js", "/assets/FormErrors-CgyDTrkn.js", "/assets/Navbar-yLlv-fhh.js", "/assets/MessageToUserDialog-AsL_hNa0.js", "/assets/chunk-T2WCTPDH-Dq_zjQt4.js", "/assets/ControlledSelect-CM7l-oOM.js", "/assets/CommonCard-C8mdcxSI.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js", "/assets/chunk-NTCQBYKE-fAVIJNuR.js", "/assets/ControlledInput-B1wc2r1g.js", "/assets/ControlledTextarea-43CRl7fs.js", "/assets/index-C_tv48Gv.js", "/assets/chunk-Z6RXEUPO-JBJHcxCd.js", "/assets/chunk-6RSEZNRH-wKYG4vTw.js", "/assets/FormSkeletons-FVNY-1Wx.js", "/assets/CommonErrors-ANn-F17-.js", "/assets/index-DKYgyATn.js"], "css": [] }, "routes/_admin.settings.product_list.$type": { "id": "routes/_admin.settings.product_list.$type", "parentId": "routes/_admin", "path": "settings/product_list/:type", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-rxaHs0RY.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/chunk-YQO7BFFX-CkL1T7LL.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/CommonCard-C8mdcxSI.js", "/assets/ResponsiveIconButton-DTsMLJ6O.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/app_resources-BncH8wDZ.js", "/assets/app-CX69rDqm.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/ApiErrors-DQxu8cuC.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/index.esm-DRWPArKk.js", "/assets/chunk-H46NUPBZ-CEXsk7m2.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/chunk-46CXQZ4E-B49QqCoR.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-3Y4YXCR2-VQX1029H.js", "/assets/CommonErrors-ANn-F17-.js", "/assets/SettingsFormHeading-DFLKZnIX.js", "/assets/FormSkeletons-FVNY-1Wx.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js", "/assets/ControlledTextarea-43CRl7fs.js", "/assets/FormErrors-CgyDTrkn.js", "/assets/SettingsFormButtons-Dr71bDKY.js", "/assets/index-C_tv48Gv.js", "/assets/chunk-6RSEZNRH-wKYG4vTw.js"], "css": [] }, "routes/_admin.settings.users.$type._index": { "id": "routes/_admin.settings.users.$type._index", "parentId": "routes/_admin", "path": "settings/users/:type", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-Bf2X7dmM.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/AccountCancelIcon-pzBu00eN.js", "/assets/app-CX69rDqm.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/chunk-YQO7BFFX-CkL1T7LL.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/CommonCard-C8mdcxSI.js", "/assets/ResponsiveIconButton-DTsMLJ6O.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/app_resources-BncH8wDZ.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/ApiErrors-DQxu8cuC.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/chunk-6CVSDS6C-CBdC6jDV.js", "/assets/chunk-2ZHRCML3-BuCwWj08.js", "/assets/chunk-T2WCTPDH-Dq_zjQt4.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-3Y4YXCR2-VQX1029H.js", "/assets/settings-C1Sl0xyq.js", "/assets/CommonErrors-ANn-F17-.js", "/assets/SettingsFormHeading-DFLKZnIX.js", "/assets/FormSkeletons-FVNY-1Wx.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js", "/assets/ConfirmationDialog-JeoAAetu.js", "/assets/SearchField-CJhunbce.js", "/assets/chunk-NTCQBYKE-fAVIJNuR.js", "/assets/chunk-MGVPL3OH-DpP-FJ9z.js", "/assets/chunk-6RSEZNRH-wKYG4vTw.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.copy": { "id": "routes/_authorized.drafts.$id_pedido.copy", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/copy", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-xMvfMu4m.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/TextPrice-BpaUIUlQ.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/app-CX69rDqm.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/ColorModeSelector-b4kcU4V6.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/chunk-6CVSDS6C-CBdC6jDV.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-BuCwWj08.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/chunk-46CXQZ4E-B49QqCoR.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/chunk-HB6KBUMZ-BUJUEYCo.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-Bnwmk-nH.js", "/assets/ResponsiveIconButton-DTsMLJ6O.js", "/assets/chunk-H46NUPBZ-CEXsk7m2.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/chunk-YQO7BFFX-CkL1T7LL.js", "/assets/chunk-3Y4YXCR2-VQX1029H.js", "/assets/app_resources-BncH8wDZ.js", "/assets/components-F5Cv7EYO.js", "/assets/ApiErrors-DQxu8cuC.js", "/assets/order.api_hooks-BMg3wn5Q.js", "/assets/OrdersContainer-v_hilEa5.js", "/assets/SearchField-CJhunbce.js", "/assets/FormErrors-CgyDTrkn.js", "/assets/Navbar-yLlv-fhh.js", "/assets/MessageToUserDialog-AsL_hNa0.js", "/assets/chunk-T2WCTPDH-Dq_zjQt4.js", "/assets/ControlledSelect-CM7l-oOM.js", "/assets/CommonCard-C8mdcxSI.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js", "/assets/chunk-NTCQBYKE-fAVIJNuR.js", "/assets/ControlledInput-B1wc2r1g.js", "/assets/ControlledTextarea-43CRl7fs.js", "/assets/index-C_tv48Gv.js", "/assets/chunk-Z6RXEUPO-JBJHcxCd.js", "/assets/chunk-6RSEZNRH-wKYG4vTw.js", "/assets/FormSkeletons-FVNY-1Wx.js", "/assets/CommonErrors-ANn-F17-.js", "/assets/index-DKYgyATn.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.edit": { "id": "routes/_authorized.drafts.$id_pedido.edit", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CEoe0bKa.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/TextPrice-BpaUIUlQ.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/app-CX69rDqm.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/ColorModeSelector-b4kcU4V6.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/chunk-6CVSDS6C-CBdC6jDV.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-BuCwWj08.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/chunk-46CXQZ4E-B49QqCoR.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/chunk-HB6KBUMZ-BUJUEYCo.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-Bnwmk-nH.js", "/assets/ResponsiveIconButton-DTsMLJ6O.js", "/assets/chunk-H46NUPBZ-CEXsk7m2.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/chunk-YQO7BFFX-CkL1T7LL.js", "/assets/chunk-3Y4YXCR2-VQX1029H.js", "/assets/app_resources-BncH8wDZ.js", "/assets/components-F5Cv7EYO.js", "/assets/ApiErrors-DQxu8cuC.js", "/assets/order.api_hooks-BMg3wn5Q.js", "/assets/OrdersContainer-v_hilEa5.js", "/assets/SearchField-CJhunbce.js", "/assets/FormErrors-CgyDTrkn.js", "/assets/Navbar-yLlv-fhh.js", "/assets/MessageToUserDialog-AsL_hNa0.js", "/assets/chunk-T2WCTPDH-Dq_zjQt4.js", "/assets/ControlledSelect-CM7l-oOM.js", "/assets/CommonCard-C8mdcxSI.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js", "/assets/chunk-NTCQBYKE-fAVIJNuR.js", "/assets/ControlledInput-B1wc2r1g.js", "/assets/ControlledTextarea-43CRl7fs.js", "/assets/index-C_tv48Gv.js", "/assets/chunk-Z6RXEUPO-JBJHcxCd.js", "/assets/chunk-6RSEZNRH-wKYG4vTw.js", "/assets/FormSkeletons-FVNY-1Wx.js", "/assets/CommonErrors-ANn-F17-.js", "/assets/index-DKYgyATn.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.copy": { "id": "routes/_authorized.orders.$id_pedido.copy", "parentId": "routes/_authorized", "path": "orders/:id_pedido/copy", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CYDgJj03.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/TextPrice-BpaUIUlQ.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/app-CX69rDqm.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/ColorModeSelector-b4kcU4V6.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/chunk-6CVSDS6C-CBdC6jDV.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-BuCwWj08.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/chunk-46CXQZ4E-B49QqCoR.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/chunk-HB6KBUMZ-BUJUEYCo.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-Bnwmk-nH.js", "/assets/ResponsiveIconButton-DTsMLJ6O.js", "/assets/chunk-H46NUPBZ-CEXsk7m2.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/chunk-YQO7BFFX-CkL1T7LL.js", "/assets/chunk-3Y4YXCR2-VQX1029H.js", "/assets/app_resources-BncH8wDZ.js", "/assets/components-F5Cv7EYO.js", "/assets/ApiErrors-DQxu8cuC.js", "/assets/order.api_hooks-BMg3wn5Q.js", "/assets/OrdersContainer-v_hilEa5.js", "/assets/SearchField-CJhunbce.js", "/assets/FormErrors-CgyDTrkn.js", "/assets/Navbar-yLlv-fhh.js", "/assets/MessageToUserDialog-AsL_hNa0.js", "/assets/chunk-T2WCTPDH-Dq_zjQt4.js", "/assets/ControlledSelect-CM7l-oOM.js", "/assets/CommonCard-C8mdcxSI.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js", "/assets/chunk-NTCQBYKE-fAVIJNuR.js", "/assets/ControlledInput-B1wc2r1g.js", "/assets/ControlledTextarea-43CRl7fs.js", "/assets/index-C_tv48Gv.js", "/assets/chunk-Z6RXEUPO-JBJHcxCd.js", "/assets/chunk-6RSEZNRH-wKYG4vTw.js", "/assets/FormSkeletons-FVNY-1Wx.js", "/assets/CommonErrors-ANn-F17-.js", "/assets/index-DKYgyATn.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.edit": { "id": "routes/_authorized.orders.$id_pedido.edit", "parentId": "routes/_authorized", "path": "orders/:id_pedido/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CCNdIOnI.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/TextPrice-BpaUIUlQ.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/app-CX69rDqm.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/ColorModeSelector-b4kcU4V6.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/chunk-6CVSDS6C-CBdC6jDV.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-BuCwWj08.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/chunk-46CXQZ4E-B49QqCoR.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/chunk-HB6KBUMZ-BUJUEYCo.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-Bnwmk-nH.js", "/assets/ResponsiveIconButton-DTsMLJ6O.js", "/assets/chunk-H46NUPBZ-CEXsk7m2.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/chunk-YQO7BFFX-CkL1T7LL.js", "/assets/chunk-3Y4YXCR2-VQX1029H.js", "/assets/app_resources-BncH8wDZ.js", "/assets/components-F5Cv7EYO.js", "/assets/ApiErrors-DQxu8cuC.js", "/assets/order.api_hooks-BMg3wn5Q.js", "/assets/OrdersContainer-v_hilEa5.js", "/assets/SearchField-CJhunbce.js", "/assets/FormErrors-CgyDTrkn.js", "/assets/Navbar-yLlv-fhh.js", "/assets/MessageToUserDialog-AsL_hNa0.js", "/assets/chunk-T2WCTPDH-Dq_zjQt4.js", "/assets/ControlledSelect-CM7l-oOM.js", "/assets/CommonCard-C8mdcxSI.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js", "/assets/chunk-NTCQBYKE-fAVIJNuR.js", "/assets/ControlledInput-B1wc2r1g.js", "/assets/ControlledTextarea-43CRl7fs.js", "/assets/index-C_tv48Gv.js", "/assets/chunk-Z6RXEUPO-JBJHcxCd.js", "/assets/chunk-6RSEZNRH-wKYG4vTw.js", "/assets/FormSkeletons-FVNY-1Wx.js", "/assets/CommonErrors-ANn-F17-.js", "/assets/index-DKYgyATn.js"], "css": [] }, "routes/api.dxt.cliente.siblings.$tango_id": { "id": "routes/api.dxt.cliente.siblings.$tango_id", "parentId": "routes/api.dxt.cliente", "path": "siblings/:tango_id", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente.siblings._tango_id-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.$id_pedido.start_update": { "id": "routes/api.pedido.$id_pedido.start_update", "parentId": "routes/api.pedido.$id_pedido", "path": "start_update", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_update-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.users.sellers.add": { "id": "routes/_admin.settings.users.sellers.add", "parentId": "routes/_admin", "path": "settings/users/sellers/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CT1SHpiM.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/AccountCancelIcon-pzBu00eN.js", "/assets/app-CX69rDqm.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-BncH8wDZ.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/ApiErrors-DQxu8cuC.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-Bnwmk-nH.js", "/assets/ResponsiveIconButton-DTsMLJ6O.js", "/assets/chunk-HB6KBUMZ-BUJUEYCo.js", "/assets/chunk-H46NUPBZ-CEXsk7m2.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/chunk-YQO7BFFX-CkL1T7LL.js", "/assets/chunk-6CVSDS6C-CBdC6jDV.js", "/assets/chunk-7D6N5TE5-Bi3ngImC.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/chunk-46CXQZ4E-B49QqCoR.js", "/assets/ControlledInput-B1wc2r1g.js", "/assets/chunk-2ZHRCML3-BuCwWj08.js", "/assets/chunk-Z6RXEUPO-JBJHcxCd.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-3Y4YXCR2-VQX1029H.js", "/assets/FormSkeletons-FVNY-1Wx.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js", "/assets/ControlledSelect-CM7l-oOM.js", "/assets/CommonCard-C8mdcxSI.js", "/assets/chunk-VTV6N5LE-DVEjuiDF.js", "/assets/FormErrors-CgyDTrkn.js", "/assets/vo_dxt_password-B86rA3eb.js", "/assets/InlineError-3ptUkAAk.js", "/assets/SettingsFormButtons-Dr71bDKY.js", "/assets/chunk-6RSEZNRH-wKYG4vTw.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-Bhswf9ko.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/settings-C1Sl0xyq.js", "/assets/schema_transformers-cMFsjJJ9.js", "/assets/SettingsFormHeading-DFLKZnIX.js"], "css": [] }, "routes/api.draft.$id_pedido.start_update": { "id": "routes/api.draft.$id_pedido.start_update", "parentId": "routes/api.draft.$id_pedido", "path": "start_update", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_update-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.$id_pedido.start_copy": { "id": "routes/api.pedido.$id_pedido.start_copy", "parentId": "routes/api.pedido.$id_pedido", "path": "start_copy", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_copy-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.start_new.$id_cliente": { "id": "routes/api.pedido.start_new.$id_cliente", "parentId": "routes/api.pedido.start_new", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.start_new._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.$id_pedido.start_copy": { "id": "routes/api.draft.$id_pedido.start_copy", "parentId": "routes/api.draft.$id_pedido", "path": "start_copy", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_copy-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.start_new.$id_cliente": { "id": "routes/api.draft.start_new.$id_cliente", "parentId": "routes/api.draft.start_new", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.start_new._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.articulo.print_list.ids": { "id": "routes/api.dxt.articulo.print_list.ids", "parentId": "routes/api.dxt.articulo.print_list", "path": "ids", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.print_list.ids-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.drafts.$client.add": { "id": "routes/_authorized.drafts.$client.add", "parentId": "routes/_authorized", "path": "drafts/:client/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-D7_Tt2TF.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/TextPrice-BpaUIUlQ.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/app-CX69rDqm.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/ColorModeSelector-b4kcU4V6.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/chunk-6CVSDS6C-CBdC6jDV.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-BuCwWj08.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/chunk-46CXQZ4E-B49QqCoR.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/chunk-HB6KBUMZ-BUJUEYCo.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-Bnwmk-nH.js", "/assets/ResponsiveIconButton-DTsMLJ6O.js", "/assets/chunk-H46NUPBZ-CEXsk7m2.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/chunk-YQO7BFFX-CkL1T7LL.js", "/assets/chunk-3Y4YXCR2-VQX1029H.js", "/assets/app_resources-BncH8wDZ.js", "/assets/components-F5Cv7EYO.js", "/assets/ApiErrors-DQxu8cuC.js", "/assets/order.api_hooks-BMg3wn5Q.js", "/assets/OrdersContainer-v_hilEa5.js", "/assets/SearchField-CJhunbce.js", "/assets/FormErrors-CgyDTrkn.js", "/assets/Navbar-yLlv-fhh.js", "/assets/MessageToUserDialog-AsL_hNa0.js", "/assets/chunk-T2WCTPDH-Dq_zjQt4.js", "/assets/ControlledSelect-CM7l-oOM.js", "/assets/CommonCard-C8mdcxSI.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js", "/assets/chunk-NTCQBYKE-fAVIJNuR.js", "/assets/ControlledInput-B1wc2r1g.js", "/assets/ControlledTextarea-43CRl7fs.js", "/assets/index-C_tv48Gv.js", "/assets/chunk-Z6RXEUPO-JBJHcxCd.js", "/assets/chunk-6RSEZNRH-wKYG4vTw.js", "/assets/FormSkeletons-FVNY-1Wx.js", "/assets/CommonErrors-ANn-F17-.js", "/assets/index-DKYgyATn.js"], "css": [] }, "routes/_authorized.orders.$client.add": { "id": "routes/_authorized.orders.$client.add", "parentId": "routes/_authorized", "path": "orders/:client/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CjcBW-GX.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/TextPrice-BpaUIUlQ.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/app-CX69rDqm.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/ColorModeSelector-b4kcU4V6.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/chunk-6CVSDS6C-CBdC6jDV.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-BuCwWj08.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/chunk-46CXQZ4E-B49QqCoR.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/chunk-HB6KBUMZ-BUJUEYCo.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-Bnwmk-nH.js", "/assets/ResponsiveIconButton-DTsMLJ6O.js", "/assets/chunk-H46NUPBZ-CEXsk7m2.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/chunk-YQO7BFFX-CkL1T7LL.js", "/assets/chunk-3Y4YXCR2-VQX1029H.js", "/assets/app_resources-BncH8wDZ.js", "/assets/components-F5Cv7EYO.js", "/assets/ApiErrors-DQxu8cuC.js", "/assets/order.api_hooks-BMg3wn5Q.js", "/assets/OrdersContainer-v_hilEa5.js", "/assets/SearchField-CJhunbce.js", "/assets/FormErrors-CgyDTrkn.js", "/assets/Navbar-yLlv-fhh.js", "/assets/MessageToUserDialog-AsL_hNa0.js", "/assets/chunk-T2WCTPDH-Dq_zjQt4.js", "/assets/ControlledSelect-CM7l-oOM.js", "/assets/CommonCard-C8mdcxSI.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js", "/assets/chunk-NTCQBYKE-fAVIJNuR.js", "/assets/ControlledInput-B1wc2r1g.js", "/assets/ControlledTextarea-43CRl7fs.js", "/assets/index-C_tv48Gv.js", "/assets/chunk-Z6RXEUPO-JBJHcxCd.js", "/assets/chunk-6RSEZNRH-wKYG4vTw.js", "/assets/FormSkeletons-FVNY-1Wx.js", "/assets/CommonErrors-ANn-F17-.js", "/assets/index-DKYgyATn.js"], "css": [] }, "routes/api.dictionary.active_company": { "id": "routes/api.dictionary.active_company", "parentId": "routes/api.dictionary", "path": "active_company", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dictionary.active_company-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.$id_pedido.favorite": { "id": "routes/api.draft.$id_pedido.favorite", "parentId": "routes/api.draft.$id_pedido", "path": "favorite", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.favorite-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.vendedor.$id_vendedor": { "id": "routes/api.dxt.vendedor.$id_vendedor", "parentId": "routes/api.dxt.vendedor", "path": ":id_vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor._id_vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.change_password": { "id": "routes/_authorized.change_password", "parentId": "routes/_authorized", "path": "change_password", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CWR3S8n2.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/app-CX69rDqm.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/ColorModeSelector-b4kcU4V6.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/chunk-HB6KBUMZ-BUJUEYCo.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/chunk-YQO7BFFX-CkL1T7LL.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/CommonCard-C8mdcxSI.js", "/assets/ResponsiveIconButton-DTsMLJ6O.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/chunk-46CXQZ4E-B49QqCoR.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/index.esm-DRWPArKk.js", "/assets/chunk-H46NUPBZ-CEXsk7m2.js", "/assets/chunk-6CVSDS6C-CBdC6jDV.js", "/assets/ControlledInput-B1wc2r1g.js", "/assets/chunk-2ZHRCML3-BuCwWj08.js", "/assets/chunk-Z6RXEUPO-JBJHcxCd.js", "/assets/chunk-3Y4YXCR2-VQX1029H.js", "/assets/Navbar-yLlv-fhh.js", "/assets/SettingsFormHeading-DFLKZnIX.js", "/assets/app_resources-BncH8wDZ.js", "/assets/refresh_all-CmgMJYFo.js", "/assets/FormErrors-CgyDTrkn.js", "/assets/vo_dxt_password-B86rA3eb.js", "/assets/SettingsFormButtons-Dr71bDKY.js", "/assets/utils-DihYaFf6.js", "/assets/chunk-6RSEZNRH-wKYG4vTw.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js"], "css": [] }, "routes/api.dxt.articulo.print_list": { "id": "routes/api.dxt.articulo.print_list", "parentId": "root", "path": "api/dxt/articulo/print_list", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.print_list-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.cliente.$id_cliente": { "id": "routes/api.dxt.cliente.$id_cliente", "parentId": "routes/api.dxt.cliente", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.articulo.edit_list": { "id": "routes/api.dxt.articulo.edit_list", "parentId": "root", "path": "api/dxt/articulo/edit_list", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.edit_list-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.usuario.auxiliares": { "id": "routes/api.dxt.usuario.auxiliares", "parentId": "root", "path": "api/dxt/usuario/auxiliares", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.usuario.auxiliares-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.drafts._index": { "id": "routes/_authorized.drafts._index", "parentId": "routes/_authorized", "path": "drafts", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CEFsY5Na.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-BncH8wDZ.js", "/assets/app-CX69rDqm.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/ApiErrors-DQxu8cuC.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/index-CAKzuJDV.js", "/assets/ColorModeSelector-b4kcU4V6.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-HB6KBUMZ-BUJUEYCo.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/TextPrice-BpaUIUlQ.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/chunk-6CVSDS6C-CBdC6jDV.js", "/assets/chunk-2ZHRCML3-BuCwWj08.js", "/assets/vo_user_name-Bhswf9ko.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/chunk-7D6N5TE5-Bi3ngImC.js", "/assets/chunk-3Y4YXCR2-VQX1029H.js", "/assets/FormSkeletons-FVNY-1Wx.js", "/assets/Navbar-yLlv-fhh.js", "/assets/OrdersContainer-v_hilEa5.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js", "/assets/SearchField-CJhunbce.js", "/assets/index-BUXJlPvv.js", "/assets/ResponsiveIconButton-DTsMLJ6O.js", "/assets/AccountCancelIcon-pzBu00eN.js", "/assets/ConfirmationDialog-JeoAAetu.js", "/assets/index.esm-Bnwmk-nH.js", "/assets/chunk-46CXQZ4E-B49QqCoR.js", "/assets/chunk-NTCQBYKE-fAVIJNuR.js", "/assets/chunk-Z6RXEUPO-JBJHcxCd.js", "/assets/chunk-CWVAJCXJ-DgVmidFC.js", "/assets/chunk-T2WCTPDH-Dq_zjQt4.js", "/assets/chunk-6RSEZNRH-wKYG4vTw.js", "/assets/index-BgEnLu5T.js"], "css": [] }, "routes/_authorized.orders._index": { "id": "routes/_authorized.orders._index", "parentId": "routes/_authorized", "path": "orders", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-C9S6nUgg.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-BncH8wDZ.js", "/assets/app-CX69rDqm.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/ApiErrors-DQxu8cuC.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/index-CAKzuJDV.js", "/assets/ColorModeSelector-b4kcU4V6.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-HB6KBUMZ-BUJUEYCo.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/TextPrice-BpaUIUlQ.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/chunk-6CVSDS6C-CBdC6jDV.js", "/assets/chunk-2ZHRCML3-BuCwWj08.js", "/assets/vo_user_name-Bhswf9ko.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/chunk-7D6N5TE5-Bi3ngImC.js", "/assets/chunk-3Y4YXCR2-VQX1029H.js", "/assets/FormSkeletons-FVNY-1Wx.js", "/assets/Navbar-yLlv-fhh.js", "/assets/OrdersContainer-v_hilEa5.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js", "/assets/SearchField-CJhunbce.js", "/assets/index-BUXJlPvv.js", "/assets/ResponsiveIconButton-DTsMLJ6O.js", "/assets/AccountCancelIcon-pzBu00eN.js", "/assets/ConfirmationDialog-JeoAAetu.js", "/assets/index.esm-Bnwmk-nH.js", "/assets/chunk-46CXQZ4E-B49QqCoR.js", "/assets/chunk-NTCQBYKE-fAVIJNuR.js", "/assets/chunk-Z6RXEUPO-JBJHcxCd.js", "/assets/chunk-CWVAJCXJ-DgVmidFC.js", "/assets/chunk-T2WCTPDH-Dq_zjQt4.js", "/assets/chunk-6RSEZNRH-wKYG4vTw.js", "/assets/index-BgEnLu5T.js"], "css": [] }, "routes/_authorized.orders.print": { "id": "routes/_authorized.orders.print", "parentId": "routes/_authorized", "path": "orders/print", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CZX7ZT5K.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/TextPrice-BpaUIUlQ.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-BncH8wDZ.js", "/assets/app-CX69rDqm.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/vo_user_name-Bhswf9ko.js", "/assets/chunk-T2WCTPDH-Dq_zjQt4.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-7D6N5TE5-Bi3ngImC.js", "/assets/utils-DTXYOP_7.js", "/assets/order.api_hooks-BMg3wn5Q.js", "/assets/ApiErrors-DQxu8cuC.js", "/assets/CommonErrors-ANn-F17-.js", "/assets/index-BUXJlPvv.js", "/assets/chunk-MGVPL3OH-DpP-FJ9z.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js", "/assets/chunk-VTV6N5LE-DVEjuiDF.js", "/assets/chunk-H46NUPBZ-CEXsk7m2.js"], "css": [] }, "routes/api.dxt.vendedor.cliente": { "id": "routes/api.dxt.vendedor.cliente", "parentId": "routes/api.dxt.vendedor", "path": "cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.config_file": { "id": "routes/api.settings.config_file", "parentId": "root", "path": "api/settings/config_file", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.config_file-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.company": { "id": "routes/_admin.settings.company", "parentId": "routes/_admin", "path": "settings/company", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-C7Atbbrv.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/chunk-YQO7BFFX-CkL1T7LL.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/CommonCard-C8mdcxSI.js", "/assets/ResponsiveIconButton-DTsMLJ6O.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-Bnwmk-nH.js", "/assets/chunk-HB6KBUMZ-BUJUEYCo.js", "/assets/chunk-H46NUPBZ-CEXsk7m2.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/chunk-46CXQZ4E-B49QqCoR.js", "/assets/chunk-Z6RXEUPO-JBJHcxCd.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-3Y4YXCR2-VQX1029H.js", "/assets/app-CX69rDqm.js", "/assets/SettingsFormHeading-DFLKZnIX.js", "/assets/app_resources-BncH8wDZ.js", "/assets/ControlledSelect-CM7l-oOM.js", "/assets/FormErrors-CgyDTrkn.js", "/assets/InlineError-3ptUkAAk.js", "/assets/SettingsFormButtons-Dr71bDKY.js", "/assets/chunk-6RSEZNRH-wKYG4vTw.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js"], "css": [] }, "routes/_admin.settings._index": { "id": "routes/_admin.settings._index", "parentId": "routes/_admin", "path": "settings", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CDL5iNXe.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-BncH8wDZ.js", "/assets/app-CX69rDqm.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/ApiErrors-DQxu8cuC.js", "/assets/chunk-NTCQBYKE-fAVIJNuR.js", "/assets/chunk-YQO7BFFX-CkL1T7LL.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js", "/assets/chunk-Z6RXEUPO-JBJHcxCd.js"], "css": [] }, "routes/_authorized.drafts.add": { "id": "routes/_authorized.drafts.add", "parentId": "routes/_authorized", "path": "drafts/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BIA3EuLS.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/TextPrice-BpaUIUlQ.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/app-CX69rDqm.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/ColorModeSelector-b4kcU4V6.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/chunk-6CVSDS6C-CBdC6jDV.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-BuCwWj08.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/chunk-46CXQZ4E-B49QqCoR.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/chunk-HB6KBUMZ-BUJUEYCo.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-Bnwmk-nH.js", "/assets/ResponsiveIconButton-DTsMLJ6O.js", "/assets/chunk-H46NUPBZ-CEXsk7m2.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/chunk-YQO7BFFX-CkL1T7LL.js", "/assets/chunk-3Y4YXCR2-VQX1029H.js", "/assets/app_resources-BncH8wDZ.js", "/assets/components-F5Cv7EYO.js", "/assets/ApiErrors-DQxu8cuC.js", "/assets/order.api_hooks-BMg3wn5Q.js", "/assets/OrdersContainer-v_hilEa5.js", "/assets/SearchField-CJhunbce.js", "/assets/FormErrors-CgyDTrkn.js", "/assets/Navbar-yLlv-fhh.js", "/assets/MessageToUserDialog-AsL_hNa0.js", "/assets/chunk-T2WCTPDH-Dq_zjQt4.js", "/assets/ControlledSelect-CM7l-oOM.js", "/assets/CommonCard-C8mdcxSI.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js", "/assets/chunk-NTCQBYKE-fAVIJNuR.js", "/assets/ControlledInput-B1wc2r1g.js", "/assets/ControlledTextarea-43CRl7fs.js", "/assets/index-C_tv48Gv.js", "/assets/chunk-Z6RXEUPO-JBJHcxCd.js", "/assets/chunk-6RSEZNRH-wKYG4vTw.js", "/assets/FormSkeletons-FVNY-1Wx.js", "/assets/CommonErrors-ANn-F17-.js", "/assets/index-DKYgyATn.js"], "css": [] }, "routes/_authorized.orders.add": { "id": "routes/_authorized.orders.add", "parentId": "routes/_authorized", "path": "orders/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DVsioc1o.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/TextPrice-BpaUIUlQ.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/app-CX69rDqm.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/ColorModeSelector-b4kcU4V6.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/chunk-6CVSDS6C-CBdC6jDV.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-BuCwWj08.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/chunk-46CXQZ4E-B49QqCoR.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/chunk-HB6KBUMZ-BUJUEYCo.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/index.esm-DRWPArKk.js", "/assets/index.esm-Bnwmk-nH.js", "/assets/ResponsiveIconButton-DTsMLJ6O.js", "/assets/chunk-H46NUPBZ-CEXsk7m2.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/chunk-YQO7BFFX-CkL1T7LL.js", "/assets/chunk-3Y4YXCR2-VQX1029H.js", "/assets/app_resources-BncH8wDZ.js", "/assets/components-F5Cv7EYO.js", "/assets/ApiErrors-DQxu8cuC.js", "/assets/order.api_hooks-BMg3wn5Q.js", "/assets/OrdersContainer-v_hilEa5.js", "/assets/SearchField-CJhunbce.js", "/assets/FormErrors-CgyDTrkn.js", "/assets/Navbar-yLlv-fhh.js", "/assets/MessageToUserDialog-AsL_hNa0.js", "/assets/chunk-T2WCTPDH-Dq_zjQt4.js", "/assets/ControlledSelect-CM7l-oOM.js", "/assets/CommonCard-C8mdcxSI.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js", "/assets/chunk-NTCQBYKE-fAVIJNuR.js", "/assets/ControlledInput-B1wc2r1g.js", "/assets/ControlledTextarea-43CRl7fs.js", "/assets/index-C_tv48Gv.js", "/assets/chunk-Z6RXEUPO-JBJHcxCd.js", "/assets/chunk-6RSEZNRH-wKYG4vTw.js", "/assets/FormSkeletons-FVNY-1Wx.js", "/assets/CommonErrors-ANn-F17-.js", "/assets/index-DKYgyATn.js"], "css": [] }, "routes/api.download.$filename": { "id": "routes/api.download.$filename", "parentId": "routes/api.download", "path": ":filename", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.download._filename-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.tango": { "id": "routes/_admin.settings.tango", "parentId": "routes/_admin", "path": "settings/tango", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-Q3RJPAsg.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/chunk-YQO7BFFX-CkL1T7LL.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/CommonCard-C8mdcxSI.js", "/assets/ResponsiveIconButton-DTsMLJ6O.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-BncH8wDZ.js", "/assets/app-CX69rDqm.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/ApiErrors-DQxu8cuC.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/index.esm-DRWPArKk.js", "/assets/chunk-H46NUPBZ-CEXsk7m2.js", "/assets/chunk-6CVSDS6C-CBdC6jDV.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/chunk-46CXQZ4E-B49QqCoR.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-3Y4YXCR2-VQX1029H.js", "/assets/SettingsFormHeading-DFLKZnIX.js", "/assets/requests-CrD5D48t.js", "/assets/FormSkeletons-FVNY-1Wx.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js", "/assets/ControlledInput-B1wc2r1g.js", "/assets/FormErrors-CgyDTrkn.js", "/assets/SettingsFormButtons-Dr71bDKY.js", "/assets/utils-DihYaFf6.js", "/assets/index-BBOeOfQH.js", "/assets/chunk-6RSEZNRH-wKYG4vTw.js"], "css": [] }, "routes/_authorized.downloads": { "id": "routes/_authorized.downloads", "parentId": "routes/_authorized", "path": "downloads", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-D2oIdrC0.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/app-CX69rDqm.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/ColorModeSelector-b4kcU4V6.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/chunk-HB6KBUMZ-BUJUEYCo.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/chunk-YQO7BFFX-CkL1T7LL.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/CommonCard-C8mdcxSI.js", "/assets/ResponsiveIconButton-DTsMLJ6O.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-BncH8wDZ.js", "/assets/components-F5Cv7EYO.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/ApiErrors-DQxu8cuC.js", "/assets/Navbar-yLlv-fhh.js", "/assets/SettingsFormHeading-DFLKZnIX.js", "/assets/chunk-AMBGAKG2-p6wlSV-U.js", "/assets/chunk-NTCQBYKE-fAVIJNuR.js", "/assets/FormSkeletons-FVNY-1Wx.js"], "css": [] }, "routes/api.pedido.$id_pedido": { "id": "routes/api.pedido.$id_pedido", "parentId": "routes/api.pedido", "path": ":id_pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.misc": { "id": "routes/_admin.settings.misc", "parentId": "routes/_admin", "path": "settings/misc", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BYFhZbd9.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/chunk-YQO7BFFX-CkL1T7LL.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/chunk-VMD3UMGK-7pfkPLnR.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/CommonCard-C8mdcxSI.js", "/assets/ResponsiveIconButton-DTsMLJ6O.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-BncH8wDZ.js", "/assets/app-CX69rDqm.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/useDXTApiFetch-DJJQmcPU.js", "/assets/ApiErrors-DQxu8cuC.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-7D6N5TE5-Bi3ngImC.js", "/assets/index.esm-DRWPArKk.js", "/assets/chunk-H46NUPBZ-CEXsk7m2.js", "/assets/chunk-6CVSDS6C-CBdC6jDV.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/chunk-46CXQZ4E-B49QqCoR.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-3Y4YXCR2-VQX1029H.js", "/assets/SettingsFormHeading-DFLKZnIX.js", "/assets/requests-CrD5D48t.js", "/assets/FormSkeletons-FVNY-1Wx.js", "/assets/chunk-ZPFGWTBB-BGOvs2SN.js", "/assets/chunk-CWVAJCXJ-DgVmidFC.js", "/assets/ControlledInput-B1wc2r1g.js", "/assets/ControlledTextarea-43CRl7fs.js", "/assets/FormErrors-CgyDTrkn.js", "/assets/SettingsFormButtons-Dr71bDKY.js", "/assets/utils-DihYaFf6.js", "/assets/index-BBOeOfQH.js", "/assets/chunk-6RSEZNRH-wKYG4vTw.js"], "css": [] }, "routes/api.draft.$id_pedido": { "id": "routes/api.draft.$id_pedido", "parentId": "routes/api.draft", "path": ":id_pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.renglones": { "id": "routes/api.pedido.renglones", "parentId": "routes/api.pedido", "path": "renglones", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.renglones-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.start_new": { "id": "routes/api.pedido.start_new", "parentId": "routes/api.pedido", "path": "start_new", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.start_new-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.renglones": { "id": "routes/api.draft.renglones", "parentId": "routes/api.draft", "path": "renglones", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.renglones-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.start_new": { "id": "routes/api.draft.start_new", "parentId": "routes/api.draft", "path": "start_new", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.start_new-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.vendedor": { "id": "routes/api.tango.vendedor", "parentId": "root", "path": "api/tango/vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.password": { "id": "routes/api.auth.password", "parentId": "root", "path": "api/auth/password", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.password-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.by_ids": { "id": "routes/api.pedido.by_ids", "parentId": "routes/api.pedido", "path": "by_ids", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.by_ids-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.misc": { "id": "routes/api.settings.misc", "parentId": "root", "path": "api/settings/misc", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.misc-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.cliente": { "id": "routes/api.tango.cliente", "parentId": "root", "path": "api/tango/cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.admin.status": { "id": "routes/api.admin.status", "parentId": "root", "path": "api/admin/status", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.admin.status-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.connect": { "id": "routes/api.auth.connect", "parentId": "root", "path": "api/auth/connect", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.connect-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.vendedor": { "id": "routes/api.dxt.vendedor", "parentId": "root", "path": "api/dxt/vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.perfil": { "id": "routes/api.tango.perfil", "parentId": "root", "path": "api/tango/perfil", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.perfil-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.logout": { "id": "routes/api.auth.logout", "parentId": "root", "path": "api/auth/logout", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.logout-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.cliente": { "id": "routes/api.dxt.cliente", "parentId": "root", "path": "api/dxt/cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.db": { "id": "routes/api.settings.db", "parentId": "root", "path": "api/settings/db", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.db-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.lista": { "id": "routes/api.tango.lista", "parentId": "root", "path": "api/tango/lista", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.lista-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.login": { "id": "routes/api.auth.login", "parentId": "root", "path": "api/auth/login", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.login-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dictionary": { "id": "routes/api.dictionary", "parentId": "root", "path": "api/dictionary", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dictionary-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.download": { "id": "routes/api.download", "parentId": "root", "path": "api/download", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.download-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized": { "id": "routes/_authorized", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DrRyMFYy.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/refresh_all-CmgMJYFo.js", "/assets/ClientOnly-D1kFV9Vq.js"], "css": [] }, "routes/api.pedido": { "id": "routes/api.pedido", "parentId": "root", "path": "api/pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft": { "id": "routes/api.draft", "parentId": "root", "path": "api/draft", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin": { "id": "routes/_admin", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DUkybVim.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/refresh_all-CmgMJYFo.js", "/assets/app-CX69rDqm.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/ColorModeSelector-b4kcU4V6.js", "/assets/chunk-QURMB2UJ-CVr_6ThV.js", "/assets/chunk-KRPLQIP4-BuYv1GpP.js", "/assets/chunk-HB6KBUMZ-BUJUEYCo.js", "/assets/chunk-3ASUQ6PA-hNB_nry7.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/chunk-BL2ZZSHG-BVnSQMvm.js", "/assets/ClientOnly-D1kFV9Vq.js", "/assets/Navbar-yLlv-fhh.js"], "css": [] }, "routes/_index": { "id": "routes/_index", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DpRDX8kJ.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-BPNKm5C_.js", "/assets/app-CX69rDqm.js", "/assets/chunk-6QYXN73V-QyLCLJ50.js", "/assets/chunk-56K2BSAJ-GUqegmVg.js", "/assets/chunk-PULVB27S-CjXp21rs.js", "/assets/index.esm-DRWPArKk.js", "/assets/chunk-H46NUPBZ-CEXsk7m2.js", "/assets/chunk-6CVSDS6C-CBdC6jDV.js", "/assets/chunk-7OLJDQMT-Dt4RFKr6.js", "/assets/chunk-2OOHT3W5-U8fop6km.js", "/assets/chunk-MFVQSVQB-DR_sqUop.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-Bhswf9ko.js", "/assets/ColorModeSelector-b4kcU4V6.js", "/assets/ControlledInput-B1wc2r1g.js", "/assets/MessageToUserDialog-AsL_hNa0.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-YQO7BFFX-CkL1T7LL.js", "/assets/chunk-46CXQZ4E-B49QqCoR.js", "/assets/chunk-NTCQBYKE-fAVIJNuR.js", "/assets/chunk-3KCBMPN5-BlEVF58j.js", "/assets/chunk-2ZHRCML3-BuCwWj08.js"], "css": [] } }, "url": "/assets/manifest-1ee67460.js", "version": "1ee67460" };
+const serverManifest = { "entry": { "module": "/assets/entry.client-B24kjL6W.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/styleContexts-DiZ_cVHh.js", "/assets/components-F5Cv7EYO.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": true, "module": "/assets/root-DKrOIkTU.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/styleContexts-DiZ_cVHh.js", "/assets/components-F5Cv7EYO.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/chunk-AMBGAKG2-Dkb6axli.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/CommonErrors-BM3An0iK.js", "/assets/chunk-NTCQBYKE-DOyCWGPB.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js"], "css": ["/assets/root-DeJpfpjF.css"] }, "routes/api.dxt.cliente.$id_cliente.siblings.$tango_id": { "id": "routes/api.dxt.cliente.$id_cliente.siblings.$tango_id", "parentId": "routes/api.dxt.cliente.$id_cliente", "path": "siblings/:tango_id", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente._id_cliente.siblings._tango_id-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.users.customers.$id.edit": { "id": "routes/_admin.settings.users.customers.$id.edit", "parentId": "routes/_admin", "path": "settings/users/customers/:id/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-QJQgflOd.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/AccountCancelIcon-rrxYNRXS.js", "/assets/app-BNjwh-R8.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/CommonCard-CX-Bpv2R.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/app_resources-CMr1JJak.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/index.esm-DyDUH5B4.js", "/assets/index.esm-C8D_c1EJ.js", "/assets/chunk-HB6KBUMZ-Cu1NJnhZ.js", "/assets/chunk-H46NUPBZ-DDVxQdKp.js", "/assets/chunk-6CVSDS6C-BPI29o10.js", "/assets/chunk-7D6N5TE5-Bhc1xrdf.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/chunk-46CXQZ4E-DkrYgWvl.js", "/assets/ControlledInput-DM_7QRyE.js", "/assets/chunk-2ZHRCML3-D1DPpvNl.js", "/assets/chunk-Z6RXEUPO-BvbrEgsC.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/FormSkeletons-aHE8cQ3L.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js", "/assets/ControlledSelect-DS21tZPo.js", "/assets/chunk-VTV6N5LE-DE4_BECV.js", "/assets/FormErrors-BLIp7NlZ.js", "/assets/vo_dxt_password-ZJi4jU-H.js", "/assets/InlineError-BnU4dFYy.js", "/assets/SettingsFormButtons-o2bbU7aj.js", "/assets/chunk-6RSEZNRH-Buq0qYbG.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-BVvoRkhQ.js", "/assets/settings-B59O17vd.js", "/assets/CommonErrors-BM3An0iK.js", "/assets/SettingsFormHeading-DciLG2og.js", "/assets/schema_transformers-3nR_vCPR.js", "/assets/utils-DTXYOP_7.js"], "css": [] }, "routes/_admin.settings.users.sellers.$id.edit": { "id": "routes/_admin.settings.users.sellers.$id.edit", "parentId": "routes/_admin", "path": "settings/users/sellers/:id/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-oCWTv7TP.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/AccountCancelIcon-rrxYNRXS.js", "/assets/app-BNjwh-R8.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/CommonCard-CX-Bpv2R.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/app_resources-CMr1JJak.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/index.esm-DyDUH5B4.js", "/assets/index.esm-C8D_c1EJ.js", "/assets/chunk-HB6KBUMZ-Cu1NJnhZ.js", "/assets/chunk-H46NUPBZ-DDVxQdKp.js", "/assets/chunk-6CVSDS6C-BPI29o10.js", "/assets/chunk-7D6N5TE5-Bhc1xrdf.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/chunk-46CXQZ4E-DkrYgWvl.js", "/assets/ControlledInput-DM_7QRyE.js", "/assets/chunk-2ZHRCML3-D1DPpvNl.js", "/assets/chunk-Z6RXEUPO-BvbrEgsC.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/FormSkeletons-aHE8cQ3L.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js", "/assets/ControlledSelect-DS21tZPo.js", "/assets/chunk-VTV6N5LE-DE4_BECV.js", "/assets/FormErrors-BLIp7NlZ.js", "/assets/vo_dxt_password-ZJi4jU-H.js", "/assets/InlineError-BnU4dFYy.js", "/assets/SettingsFormButtons-o2bbU7aj.js", "/assets/chunk-6RSEZNRH-Buq0qYbG.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-BVvoRkhQ.js", "/assets/settings-B59O17vd.js", "/assets/CommonErrors-BM3An0iK.js", "/assets/SettingsFormHeading-DciLG2og.js", "/assets/schema_transformers-3nR_vCPR.js", "/assets/utils-DTXYOP_7.js"], "css": [] }, "routes/api.pedido.$id_pedido.start_new_draft": { "id": "routes/api.pedido.$id_pedido.start_new_draft", "parentId": "routes/api.pedido.$id_pedido", "path": "start_new_draft", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_new_draft-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.$id_pedido.start_new_order": { "id": "routes/api.draft.$id_pedido.start_new_order", "parentId": "routes/api.draft.$id_pedido", "path": "start_new_order", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_new_order-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.users.customers.add": { "id": "routes/_admin.settings.users.customers.add", "parentId": "routes/_admin", "path": "settings/users/customers/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DGR1Ekq5.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/AccountCancelIcon-rrxYNRXS.js", "/assets/app-BNjwh-R8.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-CMr1JJak.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/index.esm-DyDUH5B4.js", "/assets/index.esm-C8D_c1EJ.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/chunk-HB6KBUMZ-Cu1NJnhZ.js", "/assets/chunk-H46NUPBZ-DDVxQdKp.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-6CVSDS6C-BPI29o10.js", "/assets/chunk-7D6N5TE5-Bhc1xrdf.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/chunk-46CXQZ4E-DkrYgWvl.js", "/assets/ControlledInput-DM_7QRyE.js", "/assets/chunk-2ZHRCML3-D1DPpvNl.js", "/assets/chunk-Z6RXEUPO-BvbrEgsC.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/FormSkeletons-aHE8cQ3L.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js", "/assets/ControlledSelect-DS21tZPo.js", "/assets/CommonCard-CX-Bpv2R.js", "/assets/chunk-VTV6N5LE-DE4_BECV.js", "/assets/FormErrors-BLIp7NlZ.js", "/assets/vo_dxt_password-ZJi4jU-H.js", "/assets/InlineError-BnU4dFYy.js", "/assets/SettingsFormButtons-o2bbU7aj.js", "/assets/chunk-6RSEZNRH-Buq0qYbG.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-BVvoRkhQ.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/settings-B59O17vd.js", "/assets/schema_transformers-3nR_vCPR.js", "/assets/SettingsFormHeading-DciLG2og.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.order": { "id": "routes/_authorized.drafts.$id_pedido.order", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/order", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DAmZkZD6.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/TextPrice-BlyUi6VX.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/app-BNjwh-R8.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/ColorModeSelector-cYXOBYnr.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/chunk-6CVSDS6C-BPI29o10.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-D1DPpvNl.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/chunk-46CXQZ4E-DkrYgWvl.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/chunk-HB6KBUMZ-Cu1NJnhZ.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/index.esm-DyDUH5B4.js", "/assets/index.esm-C8D_c1EJ.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/chunk-H46NUPBZ-DDVxQdKp.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/app_resources-CMr1JJak.js", "/assets/components-F5Cv7EYO.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/order.api_hooks-Bp7I5Lei.js", "/assets/OrdersContainer-DJxBauXL.js", "/assets/SearchField-CC5TjVH8.js", "/assets/FormErrors-BLIp7NlZ.js", "/assets/Navbar-DA6Gr_Uw.js", "/assets/MessageToUserDialog-DNPgtMGM.js", "/assets/chunk-T2WCTPDH-BFKgSPN_.js", "/assets/ControlledSelect-DS21tZPo.js", "/assets/CommonCard-CX-Bpv2R.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js", "/assets/chunk-NTCQBYKE-DOyCWGPB.js", "/assets/ControlledInput-DM_7QRyE.js", "/assets/index-QAlNUwXM.js", "/assets/chunk-Z6RXEUPO-BvbrEgsC.js", "/assets/chunk-6RSEZNRH-Buq0qYbG.js", "/assets/FormSkeletons-aHE8cQ3L.js", "/assets/CommonErrors-BM3An0iK.js", "/assets/index-BPsH5PX9.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.draft": { "id": "routes/_authorized.orders.$id_pedido.draft", "parentId": "routes/_authorized", "path": "orders/:id_pedido/draft", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-ohMx-ZX_.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/TextPrice-BlyUi6VX.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/app-BNjwh-R8.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/ColorModeSelector-cYXOBYnr.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/chunk-6CVSDS6C-BPI29o10.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-D1DPpvNl.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/chunk-46CXQZ4E-DkrYgWvl.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/chunk-HB6KBUMZ-Cu1NJnhZ.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/index.esm-DyDUH5B4.js", "/assets/index.esm-C8D_c1EJ.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/chunk-H46NUPBZ-DDVxQdKp.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/app_resources-CMr1JJak.js", "/assets/components-F5Cv7EYO.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/order.api_hooks-Bp7I5Lei.js", "/assets/OrdersContainer-DJxBauXL.js", "/assets/SearchField-CC5TjVH8.js", "/assets/FormErrors-BLIp7NlZ.js", "/assets/Navbar-DA6Gr_Uw.js", "/assets/MessageToUserDialog-DNPgtMGM.js", "/assets/chunk-T2WCTPDH-BFKgSPN_.js", "/assets/ControlledSelect-DS21tZPo.js", "/assets/CommonCard-CX-Bpv2R.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js", "/assets/chunk-NTCQBYKE-DOyCWGPB.js", "/assets/ControlledInput-DM_7QRyE.js", "/assets/index-QAlNUwXM.js", "/assets/chunk-Z6RXEUPO-BvbrEgsC.js", "/assets/chunk-6RSEZNRH-Buq0qYbG.js", "/assets/FormSkeletons-aHE8cQ3L.js", "/assets/CommonErrors-BM3An0iK.js", "/assets/index-BPsH5PX9.js"], "css": [] }, "routes/_admin.settings.product_list.$type": { "id": "routes/_admin.settings.product_list.$type", "parentId": "routes/_admin", "path": "settings/product_list/:type", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-Ce0n0jk8.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/CommonCard-CX-Bpv2R.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/app_resources-CMr1JJak.js", "/assets/app-BNjwh-R8.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/index.esm-DyDUH5B4.js", "/assets/chunk-H46NUPBZ-DDVxQdKp.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/chunk-46CXQZ4E-DkrYgWvl.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/CommonErrors-BM3An0iK.js", "/assets/SettingsFormHeading-DciLG2og.js", "/assets/FormSkeletons-aHE8cQ3L.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js", "/assets/ControlledTextarea-Ck-yw2fi.js", "/assets/FormErrors-BLIp7NlZ.js", "/assets/SettingsFormButtons-o2bbU7aj.js", "/assets/index-QAlNUwXM.js", "/assets/chunk-6RSEZNRH-Buq0qYbG.js"], "css": [] }, "routes/_admin.settings.users.$type._index": { "id": "routes/_admin.settings.users.$type._index", "parentId": "routes/_admin", "path": "settings/users/:type", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DSaD1h3A.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/AccountCancelIcon-rrxYNRXS.js", "/assets/app-BNjwh-R8.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/CommonCard-CX-Bpv2R.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/app_resources-CMr1JJak.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/chunk-6CVSDS6C-BPI29o10.js", "/assets/chunk-2ZHRCML3-D1DPpvNl.js", "/assets/chunk-T2WCTPDH-BFKgSPN_.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/settings-B59O17vd.js", "/assets/CommonErrors-BM3An0iK.js", "/assets/SettingsFormHeading-DciLG2og.js", "/assets/FormSkeletons-aHE8cQ3L.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js", "/assets/ConfirmationDialog-IuDo8O1K.js", "/assets/SearchField-CC5TjVH8.js", "/assets/chunk-NTCQBYKE-DOyCWGPB.js", "/assets/chunk-MGVPL3OH-Bh17YsLa.js", "/assets/chunk-6RSEZNRH-Buq0qYbG.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.copy": { "id": "routes/_authorized.drafts.$id_pedido.copy", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/copy", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route--gjwJxYG.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/TextPrice-BlyUi6VX.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/app-BNjwh-R8.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/ColorModeSelector-cYXOBYnr.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/chunk-6CVSDS6C-BPI29o10.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-D1DPpvNl.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/chunk-46CXQZ4E-DkrYgWvl.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/chunk-HB6KBUMZ-Cu1NJnhZ.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/index.esm-DyDUH5B4.js", "/assets/index.esm-C8D_c1EJ.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/chunk-H46NUPBZ-DDVxQdKp.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/app_resources-CMr1JJak.js", "/assets/components-F5Cv7EYO.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/order.api_hooks-Bp7I5Lei.js", "/assets/OrdersContainer-DJxBauXL.js", "/assets/SearchField-CC5TjVH8.js", "/assets/FormErrors-BLIp7NlZ.js", "/assets/Navbar-DA6Gr_Uw.js", "/assets/MessageToUserDialog-DNPgtMGM.js", "/assets/chunk-T2WCTPDH-BFKgSPN_.js", "/assets/ControlledSelect-DS21tZPo.js", "/assets/CommonCard-CX-Bpv2R.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js", "/assets/chunk-NTCQBYKE-DOyCWGPB.js", "/assets/ControlledInput-DM_7QRyE.js", "/assets/index-QAlNUwXM.js", "/assets/chunk-Z6RXEUPO-BvbrEgsC.js", "/assets/chunk-6RSEZNRH-Buq0qYbG.js", "/assets/FormSkeletons-aHE8cQ3L.js", "/assets/CommonErrors-BM3An0iK.js", "/assets/index-BPsH5PX9.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.edit": { "id": "routes/_authorized.drafts.$id_pedido.edit", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BfOLlj8p.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/TextPrice-BlyUi6VX.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/app-BNjwh-R8.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/ColorModeSelector-cYXOBYnr.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/chunk-6CVSDS6C-BPI29o10.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-D1DPpvNl.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/chunk-46CXQZ4E-DkrYgWvl.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/chunk-HB6KBUMZ-Cu1NJnhZ.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/index.esm-DyDUH5B4.js", "/assets/index.esm-C8D_c1EJ.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/chunk-H46NUPBZ-DDVxQdKp.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/app_resources-CMr1JJak.js", "/assets/components-F5Cv7EYO.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/order.api_hooks-Bp7I5Lei.js", "/assets/OrdersContainer-DJxBauXL.js", "/assets/SearchField-CC5TjVH8.js", "/assets/FormErrors-BLIp7NlZ.js", "/assets/Navbar-DA6Gr_Uw.js", "/assets/MessageToUserDialog-DNPgtMGM.js", "/assets/chunk-T2WCTPDH-BFKgSPN_.js", "/assets/ControlledSelect-DS21tZPo.js", "/assets/CommonCard-CX-Bpv2R.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js", "/assets/chunk-NTCQBYKE-DOyCWGPB.js", "/assets/ControlledInput-DM_7QRyE.js", "/assets/index-QAlNUwXM.js", "/assets/chunk-Z6RXEUPO-BvbrEgsC.js", "/assets/chunk-6RSEZNRH-Buq0qYbG.js", "/assets/FormSkeletons-aHE8cQ3L.js", "/assets/CommonErrors-BM3An0iK.js", "/assets/index-BPsH5PX9.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.copy": { "id": "routes/_authorized.orders.$id_pedido.copy", "parentId": "routes/_authorized", "path": "orders/:id_pedido/copy", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-B_8iCjsG.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/TextPrice-BlyUi6VX.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/app-BNjwh-R8.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/ColorModeSelector-cYXOBYnr.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/chunk-6CVSDS6C-BPI29o10.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-D1DPpvNl.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/chunk-46CXQZ4E-DkrYgWvl.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/chunk-HB6KBUMZ-Cu1NJnhZ.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/index.esm-DyDUH5B4.js", "/assets/index.esm-C8D_c1EJ.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/chunk-H46NUPBZ-DDVxQdKp.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/app_resources-CMr1JJak.js", "/assets/components-F5Cv7EYO.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/order.api_hooks-Bp7I5Lei.js", "/assets/OrdersContainer-DJxBauXL.js", "/assets/SearchField-CC5TjVH8.js", "/assets/FormErrors-BLIp7NlZ.js", "/assets/Navbar-DA6Gr_Uw.js", "/assets/MessageToUserDialog-DNPgtMGM.js", "/assets/chunk-T2WCTPDH-BFKgSPN_.js", "/assets/ControlledSelect-DS21tZPo.js", "/assets/CommonCard-CX-Bpv2R.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js", "/assets/chunk-NTCQBYKE-DOyCWGPB.js", "/assets/ControlledInput-DM_7QRyE.js", "/assets/index-QAlNUwXM.js", "/assets/chunk-Z6RXEUPO-BvbrEgsC.js", "/assets/chunk-6RSEZNRH-Buq0qYbG.js", "/assets/FormSkeletons-aHE8cQ3L.js", "/assets/CommonErrors-BM3An0iK.js", "/assets/index-BPsH5PX9.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.edit": { "id": "routes/_authorized.orders.$id_pedido.edit", "parentId": "routes/_authorized", "path": "orders/:id_pedido/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-C7g4Y8P8.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/TextPrice-BlyUi6VX.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/app-BNjwh-R8.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/ColorModeSelector-cYXOBYnr.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/chunk-6CVSDS6C-BPI29o10.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-D1DPpvNl.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/chunk-46CXQZ4E-DkrYgWvl.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/chunk-HB6KBUMZ-Cu1NJnhZ.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/index.esm-DyDUH5B4.js", "/assets/index.esm-C8D_c1EJ.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/chunk-H46NUPBZ-DDVxQdKp.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/app_resources-CMr1JJak.js", "/assets/components-F5Cv7EYO.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/order.api_hooks-Bp7I5Lei.js", "/assets/OrdersContainer-DJxBauXL.js", "/assets/SearchField-CC5TjVH8.js", "/assets/FormErrors-BLIp7NlZ.js", "/assets/Navbar-DA6Gr_Uw.js", "/assets/MessageToUserDialog-DNPgtMGM.js", "/assets/chunk-T2WCTPDH-BFKgSPN_.js", "/assets/ControlledSelect-DS21tZPo.js", "/assets/CommonCard-CX-Bpv2R.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js", "/assets/chunk-NTCQBYKE-DOyCWGPB.js", "/assets/ControlledInput-DM_7QRyE.js", "/assets/index-QAlNUwXM.js", "/assets/chunk-Z6RXEUPO-BvbrEgsC.js", "/assets/chunk-6RSEZNRH-Buq0qYbG.js", "/assets/FormSkeletons-aHE8cQ3L.js", "/assets/CommonErrors-BM3An0iK.js", "/assets/index-BPsH5PX9.js"], "css": [] }, "routes/api.dxt.cliente.siblings.$tango_id": { "id": "routes/api.dxt.cliente.siblings.$tango_id", "parentId": "routes/api.dxt.cliente", "path": "siblings/:tango_id", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente.siblings._tango_id-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.$id_pedido.start_update": { "id": "routes/api.pedido.$id_pedido.start_update", "parentId": "routes/api.pedido.$id_pedido", "path": "start_update", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_update-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.users.sellers.add": { "id": "routes/_admin.settings.users.sellers.add", "parentId": "routes/_admin", "path": "settings/users/sellers/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BVa0GRfr.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/AccountCancelIcon-rrxYNRXS.js", "/assets/app-BNjwh-R8.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-CMr1JJak.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/index.esm-DyDUH5B4.js", "/assets/index.esm-C8D_c1EJ.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/chunk-HB6KBUMZ-Cu1NJnhZ.js", "/assets/chunk-H46NUPBZ-DDVxQdKp.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-6CVSDS6C-BPI29o10.js", "/assets/chunk-7D6N5TE5-Bhc1xrdf.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/chunk-46CXQZ4E-DkrYgWvl.js", "/assets/ControlledInput-DM_7QRyE.js", "/assets/chunk-2ZHRCML3-D1DPpvNl.js", "/assets/chunk-Z6RXEUPO-BvbrEgsC.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/FormSkeletons-aHE8cQ3L.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js", "/assets/ControlledSelect-DS21tZPo.js", "/assets/CommonCard-CX-Bpv2R.js", "/assets/chunk-VTV6N5LE-DE4_BECV.js", "/assets/FormErrors-BLIp7NlZ.js", "/assets/vo_dxt_password-ZJi4jU-H.js", "/assets/InlineError-BnU4dFYy.js", "/assets/SettingsFormButtons-o2bbU7aj.js", "/assets/chunk-6RSEZNRH-Buq0qYbG.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-BVvoRkhQ.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/settings-B59O17vd.js", "/assets/schema_transformers-3nR_vCPR.js", "/assets/SettingsFormHeading-DciLG2og.js"], "css": [] }, "routes/api.draft.$id_pedido.start_update": { "id": "routes/api.draft.$id_pedido.start_update", "parentId": "routes/api.draft.$id_pedido", "path": "start_update", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_update-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.$id_pedido.start_copy": { "id": "routes/api.pedido.$id_pedido.start_copy", "parentId": "routes/api.pedido.$id_pedido", "path": "start_copy", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_copy-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.start_new.$id_cliente": { "id": "routes/api.pedido.start_new.$id_cliente", "parentId": "routes/api.pedido.start_new", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.start_new._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.$id_pedido.start_copy": { "id": "routes/api.draft.$id_pedido.start_copy", "parentId": "routes/api.draft.$id_pedido", "path": "start_copy", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_copy-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.start_new.$id_cliente": { "id": "routes/api.draft.start_new.$id_cliente", "parentId": "routes/api.draft.start_new", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.start_new._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.articulo.print_list.ids": { "id": "routes/api.dxt.articulo.print_list.ids", "parentId": "routes/api.dxt.articulo.print_list", "path": "ids", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.print_list.ids-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.drafts.$client.add": { "id": "routes/_authorized.drafts.$client.add", "parentId": "routes/_authorized", "path": "drafts/:client/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CcSoCHwM.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/TextPrice-BlyUi6VX.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/app-BNjwh-R8.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/ColorModeSelector-cYXOBYnr.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/chunk-6CVSDS6C-BPI29o10.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-D1DPpvNl.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/chunk-46CXQZ4E-DkrYgWvl.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/chunk-HB6KBUMZ-Cu1NJnhZ.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/index.esm-DyDUH5B4.js", "/assets/index.esm-C8D_c1EJ.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/chunk-H46NUPBZ-DDVxQdKp.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/app_resources-CMr1JJak.js", "/assets/components-F5Cv7EYO.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/order.api_hooks-Bp7I5Lei.js", "/assets/OrdersContainer-DJxBauXL.js", "/assets/SearchField-CC5TjVH8.js", "/assets/FormErrors-BLIp7NlZ.js", "/assets/Navbar-DA6Gr_Uw.js", "/assets/MessageToUserDialog-DNPgtMGM.js", "/assets/chunk-T2WCTPDH-BFKgSPN_.js", "/assets/ControlledSelect-DS21tZPo.js", "/assets/CommonCard-CX-Bpv2R.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js", "/assets/chunk-NTCQBYKE-DOyCWGPB.js", "/assets/ControlledInput-DM_7QRyE.js", "/assets/index-QAlNUwXM.js", "/assets/chunk-Z6RXEUPO-BvbrEgsC.js", "/assets/chunk-6RSEZNRH-Buq0qYbG.js", "/assets/FormSkeletons-aHE8cQ3L.js", "/assets/CommonErrors-BM3An0iK.js", "/assets/index-BPsH5PX9.js"], "css": [] }, "routes/_authorized.orders.$client.add": { "id": "routes/_authorized.orders.$client.add", "parentId": "routes/_authorized", "path": "orders/:client/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BtGTrj70.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/TextPrice-BlyUi6VX.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/app-BNjwh-R8.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/ColorModeSelector-cYXOBYnr.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/chunk-6CVSDS6C-BPI29o10.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-D1DPpvNl.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/chunk-46CXQZ4E-DkrYgWvl.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/chunk-HB6KBUMZ-Cu1NJnhZ.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/index.esm-DyDUH5B4.js", "/assets/index.esm-C8D_c1EJ.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/chunk-H46NUPBZ-DDVxQdKp.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/app_resources-CMr1JJak.js", "/assets/components-F5Cv7EYO.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/order.api_hooks-Bp7I5Lei.js", "/assets/OrdersContainer-DJxBauXL.js", "/assets/SearchField-CC5TjVH8.js", "/assets/FormErrors-BLIp7NlZ.js", "/assets/Navbar-DA6Gr_Uw.js", "/assets/MessageToUserDialog-DNPgtMGM.js", "/assets/chunk-T2WCTPDH-BFKgSPN_.js", "/assets/ControlledSelect-DS21tZPo.js", "/assets/CommonCard-CX-Bpv2R.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js", "/assets/chunk-NTCQBYKE-DOyCWGPB.js", "/assets/ControlledInput-DM_7QRyE.js", "/assets/index-QAlNUwXM.js", "/assets/chunk-Z6RXEUPO-BvbrEgsC.js", "/assets/chunk-6RSEZNRH-Buq0qYbG.js", "/assets/FormSkeletons-aHE8cQ3L.js", "/assets/CommonErrors-BM3An0iK.js", "/assets/index-BPsH5PX9.js"], "css": [] }, "routes/api.dictionary.active_company": { "id": "routes/api.dictionary.active_company", "parentId": "routes/api.dictionary", "path": "active_company", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dictionary.active_company-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.$id_pedido.favorite": { "id": "routes/api.draft.$id_pedido.favorite", "parentId": "routes/api.draft.$id_pedido", "path": "favorite", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.favorite-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.vendedor.$id_vendedor": { "id": "routes/api.dxt.vendedor.$id_vendedor", "parentId": "routes/api.dxt.vendedor", "path": ":id_vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor._id_vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.change_password": { "id": "routes/_authorized.change_password", "parentId": "routes/_authorized", "path": "change_password", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CPBsDzyk.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/app-BNjwh-R8.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/ColorModeSelector-cYXOBYnr.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/chunk-HB6KBUMZ-Cu1NJnhZ.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/CommonCard-CX-Bpv2R.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/chunk-46CXQZ4E-DkrYgWvl.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/index.esm-DyDUH5B4.js", "/assets/chunk-H46NUPBZ-DDVxQdKp.js", "/assets/chunk-6CVSDS6C-BPI29o10.js", "/assets/ControlledInput-DM_7QRyE.js", "/assets/chunk-2ZHRCML3-D1DPpvNl.js", "/assets/chunk-Z6RXEUPO-BvbrEgsC.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/Navbar-DA6Gr_Uw.js", "/assets/SettingsFormHeading-DciLG2og.js", "/assets/app_resources-CMr1JJak.js", "/assets/refresh_all-BUxhYGaR.js", "/assets/FormErrors-BLIp7NlZ.js", "/assets/vo_dxt_password-ZJi4jU-H.js", "/assets/SettingsFormButtons-o2bbU7aj.js", "/assets/utils-DihYaFf6.js", "/assets/chunk-6RSEZNRH-Buq0qYbG.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js"], "css": [] }, "routes/api.dxt.articulo.print_list": { "id": "routes/api.dxt.articulo.print_list", "parentId": "root", "path": "api/dxt/articulo/print_list", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.print_list-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.cliente.$id_cliente": { "id": "routes/api.dxt.cliente.$id_cliente", "parentId": "routes/api.dxt.cliente", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.articulo.edit_list": { "id": "routes/api.dxt.articulo.edit_list", "parentId": "root", "path": "api/dxt/articulo/edit_list", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.edit_list-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.usuario.auxiliares": { "id": "routes/api.dxt.usuario.auxiliares", "parentId": "root", "path": "api/dxt/usuario/auxiliares", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.usuario.auxiliares-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.drafts._index": { "id": "routes/_authorized.drafts._index", "parentId": "routes/_authorized", "path": "drafts", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-B58KUjFi.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-CMr1JJak.js", "/assets/app-BNjwh-R8.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/index-CAKzuJDV.js", "/assets/ColorModeSelector-cYXOBYnr.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-HB6KBUMZ-Cu1NJnhZ.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/TextPrice-BlyUi6VX.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/chunk-6CVSDS6C-BPI29o10.js", "/assets/chunk-2ZHRCML3-D1DPpvNl.js", "/assets/vo_user_name-BVvoRkhQ.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/chunk-7D6N5TE5-Bhc1xrdf.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/FormSkeletons-aHE8cQ3L.js", "/assets/Navbar-DA6Gr_Uw.js", "/assets/OrdersContainer-DJxBauXL.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js", "/assets/SearchField-CC5TjVH8.js", "/assets/index-BbUF8q4R.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/AccountCancelIcon-rrxYNRXS.js", "/assets/ConfirmationDialog-IuDo8O1K.js", "/assets/index.esm-C8D_c1EJ.js", "/assets/chunk-46CXQZ4E-DkrYgWvl.js", "/assets/chunk-NTCQBYKE-DOyCWGPB.js", "/assets/chunk-Z6RXEUPO-BvbrEgsC.js", "/assets/chunk-CWVAJCXJ-DdQwH2U9.js", "/assets/chunk-T2WCTPDH-BFKgSPN_.js", "/assets/chunk-6RSEZNRH-Buq0qYbG.js", "/assets/index-Csr_SkKD.js"], "css": [] }, "routes/_authorized.orders._index": { "id": "routes/_authorized.orders._index", "parentId": "routes/_authorized", "path": "orders", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-I22wZNsF.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-CMr1JJak.js", "/assets/app-BNjwh-R8.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/index-CAKzuJDV.js", "/assets/ColorModeSelector-cYXOBYnr.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-HB6KBUMZ-Cu1NJnhZ.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/TextPrice-BlyUi6VX.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/chunk-6CVSDS6C-BPI29o10.js", "/assets/chunk-2ZHRCML3-D1DPpvNl.js", "/assets/vo_user_name-BVvoRkhQ.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/chunk-7D6N5TE5-Bhc1xrdf.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/FormSkeletons-aHE8cQ3L.js", "/assets/Navbar-DA6Gr_Uw.js", "/assets/OrdersContainer-DJxBauXL.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js", "/assets/SearchField-CC5TjVH8.js", "/assets/index-BbUF8q4R.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/AccountCancelIcon-rrxYNRXS.js", "/assets/ConfirmationDialog-IuDo8O1K.js", "/assets/index.esm-C8D_c1EJ.js", "/assets/chunk-46CXQZ4E-DkrYgWvl.js", "/assets/chunk-NTCQBYKE-DOyCWGPB.js", "/assets/chunk-Z6RXEUPO-BvbrEgsC.js", "/assets/chunk-CWVAJCXJ-DdQwH2U9.js", "/assets/chunk-T2WCTPDH-BFKgSPN_.js", "/assets/chunk-6RSEZNRH-Buq0qYbG.js", "/assets/index-Csr_SkKD.js"], "css": [] }, "routes/_authorized.orders.print": { "id": "routes/_authorized.orders.print", "parentId": "routes/_authorized", "path": "orders/print", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CkXWgf6Z.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/TextPrice-BlyUi6VX.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-CMr1JJak.js", "/assets/app-BNjwh-R8.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/vo_user_name-BVvoRkhQ.js", "/assets/chunk-T2WCTPDH-BFKgSPN_.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-7D6N5TE5-Bhc1xrdf.js", "/assets/utils-DTXYOP_7.js", "/assets/order.api_hooks-Bp7I5Lei.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/CommonErrors-BM3An0iK.js", "/assets/index-BbUF8q4R.js", "/assets/chunk-MGVPL3OH-Bh17YsLa.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js", "/assets/chunk-VTV6N5LE-DE4_BECV.js", "/assets/chunk-H46NUPBZ-DDVxQdKp.js"], "css": [] }, "routes/api.dxt.vendedor.cliente": { "id": "routes/api.dxt.vendedor.cliente", "parentId": "routes/api.dxt.vendedor", "path": "cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.company": { "id": "routes/_admin.settings.company", "parentId": "routes/_admin", "path": "settings/company", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-Dg2zA20_.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/CommonCard-CX-Bpv2R.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/index.esm-DyDUH5B4.js", "/assets/index.esm-C8D_c1EJ.js", "/assets/chunk-HB6KBUMZ-Cu1NJnhZ.js", "/assets/chunk-H46NUPBZ-DDVxQdKp.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/chunk-46CXQZ4E-DkrYgWvl.js", "/assets/chunk-Z6RXEUPO-BvbrEgsC.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/app-BNjwh-R8.js", "/assets/SettingsFormHeading-DciLG2og.js", "/assets/app_resources-CMr1JJak.js", "/assets/ControlledSelect-DS21tZPo.js", "/assets/FormErrors-BLIp7NlZ.js", "/assets/InlineError-BnU4dFYy.js", "/assets/SettingsFormButtons-o2bbU7aj.js", "/assets/chunk-6RSEZNRH-Buq0qYbG.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js"], "css": [] }, "routes/_admin.settings._index": { "id": "routes/_admin.settings._index", "parentId": "routes/_admin", "path": "settings", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-Zwu909PO.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-CMr1JJak.js", "/assets/app-BNjwh-R8.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/chunk-NTCQBYKE-DOyCWGPB.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js", "/assets/chunk-Z6RXEUPO-BvbrEgsC.js"], "css": [] }, "routes/_authorized.drafts.add": { "id": "routes/_authorized.drafts.add", "parentId": "routes/_authorized", "path": "drafts/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-B7C1ch0W.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/TextPrice-BlyUi6VX.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/app-BNjwh-R8.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/ColorModeSelector-cYXOBYnr.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/chunk-6CVSDS6C-BPI29o10.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-D1DPpvNl.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/chunk-46CXQZ4E-DkrYgWvl.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/chunk-HB6KBUMZ-Cu1NJnhZ.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/index.esm-DyDUH5B4.js", "/assets/index.esm-C8D_c1EJ.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/chunk-H46NUPBZ-DDVxQdKp.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/app_resources-CMr1JJak.js", "/assets/components-F5Cv7EYO.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/order.api_hooks-Bp7I5Lei.js", "/assets/OrdersContainer-DJxBauXL.js", "/assets/SearchField-CC5TjVH8.js", "/assets/FormErrors-BLIp7NlZ.js", "/assets/Navbar-DA6Gr_Uw.js", "/assets/MessageToUserDialog-DNPgtMGM.js", "/assets/chunk-T2WCTPDH-BFKgSPN_.js", "/assets/ControlledSelect-DS21tZPo.js", "/assets/CommonCard-CX-Bpv2R.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js", "/assets/chunk-NTCQBYKE-DOyCWGPB.js", "/assets/ControlledInput-DM_7QRyE.js", "/assets/index-QAlNUwXM.js", "/assets/chunk-Z6RXEUPO-BvbrEgsC.js", "/assets/chunk-6RSEZNRH-Buq0qYbG.js", "/assets/FormSkeletons-aHE8cQ3L.js", "/assets/CommonErrors-BM3An0iK.js", "/assets/index-BPsH5PX9.js"], "css": [] }, "routes/_authorized.orders.add": { "id": "routes/_authorized.orders.add", "parentId": "routes/_authorized", "path": "orders/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DUXFL8rw.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/TextPrice-BlyUi6VX.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/app-BNjwh-R8.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/ColorModeSelector-cYXOBYnr.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/chunk-6CVSDS6C-BPI29o10.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/chunk-2ZHRCML3-D1DPpvNl.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/chunk-46CXQZ4E-DkrYgWvl.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/chunk-HB6KBUMZ-Cu1NJnhZ.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/index.esm-DyDUH5B4.js", "/assets/index.esm-C8D_c1EJ.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/chunk-H46NUPBZ-DDVxQdKp.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/app_resources-CMr1JJak.js", "/assets/components-F5Cv7EYO.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/order.api_hooks-Bp7I5Lei.js", "/assets/OrdersContainer-DJxBauXL.js", "/assets/SearchField-CC5TjVH8.js", "/assets/FormErrors-BLIp7NlZ.js", "/assets/Navbar-DA6Gr_Uw.js", "/assets/MessageToUserDialog-DNPgtMGM.js", "/assets/chunk-T2WCTPDH-BFKgSPN_.js", "/assets/ControlledSelect-DS21tZPo.js", "/assets/CommonCard-CX-Bpv2R.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js", "/assets/chunk-NTCQBYKE-DOyCWGPB.js", "/assets/ControlledInput-DM_7QRyE.js", "/assets/index-QAlNUwXM.js", "/assets/chunk-Z6RXEUPO-BvbrEgsC.js", "/assets/chunk-6RSEZNRH-Buq0qYbG.js", "/assets/FormSkeletons-aHE8cQ3L.js", "/assets/CommonErrors-BM3An0iK.js", "/assets/index-BPsH5PX9.js"], "css": [] }, "routes/api.download.$filename": { "id": "routes/api.download.$filename", "parentId": "routes/api.download", "path": ":filename", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.download._filename-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.order": { "id": "routes/_admin.settings.order", "parentId": "routes/_admin", "path": "settings/order", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BZyCYh3N.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/CommonCard-CX-Bpv2R.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-CMr1JJak.js", "/assets/app-BNjwh-R8.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-7D6N5TE5-Bhc1xrdf.js", "/assets/index.esm-DyDUH5B4.js", "/assets/chunk-CWVAJCXJ-DdQwH2U9.js", "/assets/chunk-H46NUPBZ-DDVxQdKp.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/chunk-46CXQZ4E-DkrYgWvl.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/SettingsFormHeading-DciLG2og.js", "/assets/requests-BghfcjWp.js", "/assets/FormSkeletons-aHE8cQ3L.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js", "/assets/ControlledCheckbox-_kt_vKvb.js", "/assets/ControlledTextarea-Ck-yw2fi.js", "/assets/FormErrors-BLIp7NlZ.js", "/assets/SettingsFormButtons-o2bbU7aj.js", "/assets/chunk-6RSEZNRH-Buq0qYbG.js"], "css": [] }, "routes/_admin.settings.tango": { "id": "routes/_admin.settings.tango", "parentId": "routes/_admin", "path": "settings/tango", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-POzHJsoe.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/CommonCard-CX-Bpv2R.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-CMr1JJak.js", "/assets/app-BNjwh-R8.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/index.esm-DyDUH5B4.js", "/assets/chunk-H46NUPBZ-DDVxQdKp.js", "/assets/chunk-6CVSDS6C-BPI29o10.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/chunk-46CXQZ4E-DkrYgWvl.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/SettingsFormHeading-DciLG2og.js", "/assets/requests-BghfcjWp.js", "/assets/FormSkeletons-aHE8cQ3L.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js", "/assets/ControlledInput-DM_7QRyE.js", "/assets/FormErrors-BLIp7NlZ.js", "/assets/SettingsFormButtons-o2bbU7aj.js", "/assets/utils-DihYaFf6.js", "/assets/misc_settings.consts-CdaQWZ0y.js", "/assets/chunk-6RSEZNRH-Buq0qYbG.js"], "css": [] }, "routes/_authorized.downloads": { "id": "routes/_authorized.downloads", "parentId": "routes/_authorized", "path": "downloads", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DIt74mEa.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/app-BNjwh-R8.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/ColorModeSelector-cYXOBYnr.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/chunk-HB6KBUMZ-Cu1NJnhZ.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/CommonCard-CX-Bpv2R.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-CMr1JJak.js", "/assets/components-F5Cv7EYO.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/Navbar-DA6Gr_Uw.js", "/assets/SettingsFormHeading-DciLG2og.js", "/assets/chunk-AMBGAKG2-Dkb6axli.js", "/assets/chunk-NTCQBYKE-DOyCWGPB.js", "/assets/FormSkeletons-aHE8cQ3L.js"], "css": [] }, "routes/api.pedido.$id_pedido": { "id": "routes/api.pedido.$id_pedido", "parentId": "routes/api.pedido", "path": ":id_pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.misc": { "id": "routes/_admin.settings.misc", "parentId": "routes/_admin", "path": "settings/misc", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DlzOebDN.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/chunk-VMD3UMGK-qWuXfS6J.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/CommonCard-CX-Bpv2R.js", "/assets/ResponsiveIconButton-z_2CCcCn.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/CloseIcon-DhOj6wIL.js", "/assets/app_resources-CMr1JJak.js", "/assets/app-BNjwh-R8.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/useDXTApiFetch-CRKnsto2.js", "/assets/ApiErrors-DYa22bq7.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-7D6N5TE5-Bhc1xrdf.js", "/assets/index.esm-DyDUH5B4.js", "/assets/chunk-CWVAJCXJ-DdQwH2U9.js", "/assets/chunk-H46NUPBZ-DDVxQdKp.js", "/assets/chunk-6CVSDS6C-BPI29o10.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/chunk-46CXQZ4E-DkrYgWvl.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-3Y4YXCR2-CV4cUf14.js", "/assets/SettingsFormHeading-DciLG2og.js", "/assets/requests-BghfcjWp.js", "/assets/FormSkeletons-aHE8cQ3L.js", "/assets/chunk-ZPFGWTBB-QYQNJcG8.js", "/assets/ControlledCheckbox-_kt_vKvb.js", "/assets/ControlledInput-DM_7QRyE.js", "/assets/ControlledTextarea-Ck-yw2fi.js", "/assets/FormErrors-BLIp7NlZ.js", "/assets/SettingsFormButtons-o2bbU7aj.js", "/assets/utils-DihYaFf6.js", "/assets/misc_settings.consts-CdaQWZ0y.js", "/assets/chunk-6RSEZNRH-Buq0qYbG.js"], "css": [] }, "routes/api.draft.$id_pedido": { "id": "routes/api.draft.$id_pedido", "parentId": "routes/api.draft", "path": ":id_pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.renglones": { "id": "routes/api.pedido.renglones", "parentId": "routes/api.pedido", "path": "renglones", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.renglones-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.start_new": { "id": "routes/api.pedido.start_new", "parentId": "routes/api.pedido", "path": "start_new", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.start_new-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.renglones": { "id": "routes/api.draft.renglones", "parentId": "routes/api.draft", "path": "renglones", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.renglones-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.start_new": { "id": "routes/api.draft.start_new", "parentId": "routes/api.draft", "path": "start_new", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.start_new-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.order": { "id": "routes/api.settings.order", "parentId": "root", "path": "api/settings/order", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.order-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.vendedor": { "id": "routes/api.tango.vendedor", "parentId": "root", "path": "api/tango/vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.password": { "id": "routes/api.auth.password", "parentId": "root", "path": "api/auth/password", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.password-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.by_ids": { "id": "routes/api.pedido.by_ids", "parentId": "routes/api.pedido", "path": "by_ids", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.by_ids-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.misc": { "id": "routes/api.settings.misc", "parentId": "root", "path": "api/settings/misc", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.misc-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.cliente": { "id": "routes/api.tango.cliente", "parentId": "root", "path": "api/tango/cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.admin.status": { "id": "routes/api.admin.status", "parentId": "root", "path": "api/admin/status", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.admin.status-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.connect": { "id": "routes/api.auth.connect", "parentId": "root", "path": "api/auth/connect", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.connect-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.vendedor": { "id": "routes/api.dxt.vendedor", "parentId": "root", "path": "api/dxt/vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.perfil": { "id": "routes/api.tango.perfil", "parentId": "root", "path": "api/tango/perfil", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.perfil-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.logout": { "id": "routes/api.auth.logout", "parentId": "root", "path": "api/auth/logout", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.logout-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.cliente": { "id": "routes/api.dxt.cliente", "parentId": "root", "path": "api/dxt/cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.db": { "id": "routes/api.settings.db", "parentId": "root", "path": "api/settings/db", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.db-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.lista": { "id": "routes/api.tango.lista", "parentId": "root", "path": "api/tango/lista", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.lista-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.login": { "id": "routes/api.auth.login", "parentId": "root", "path": "api/auth/login", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.login-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dictionary": { "id": "routes/api.dictionary", "parentId": "root", "path": "api/dictionary", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dictionary-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.download": { "id": "routes/api.download", "parentId": "root", "path": "api/download", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.download-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized": { "id": "routes/_authorized", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DdxugFe1.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/refresh_all-BUxhYGaR.js", "/assets/ClientOnly-BCy-ktpd.js"], "css": [] }, "routes/api.pedido": { "id": "routes/api.pedido", "parentId": "root", "path": "api/pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft": { "id": "routes/api.draft", "parentId": "root", "path": "api/draft", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin": { "id": "routes/_admin", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CBgyoUGP.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/refresh_all-BUxhYGaR.js", "/assets/app-BNjwh-R8.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/index-CAKzuJDV.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/ColorModeSelector-cYXOBYnr.js", "/assets/chunk-QURMB2UJ-MVBYS5yc.js", "/assets/chunk-KRPLQIP4-GMYj1Snt.js", "/assets/chunk-HB6KBUMZ-Cu1NJnhZ.js", "/assets/chunk-3ASUQ6PA-D--F2Rh3.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/chunk-BL2ZZSHG-DBE7qQ6d.js", "/assets/ClientOnly-BCy-ktpd.js", "/assets/Navbar-DA6Gr_Uw.js"], "css": [] }, "routes/_index": { "id": "routes/_index", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BAryGhfK.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-CqNy1Myq.js", "/assets/auth_context-D_Ll0_5_.js", "/assets/app-BNjwh-R8.js", "/assets/chunk-6QYXN73V-IdqMEN3a.js", "/assets/chunk-56K2BSAJ-DBk3Visf.js", "/assets/chunk-PULVB27S-DN5G48t9.js", "/assets/index.esm-DyDUH5B4.js", "/assets/chunk-H46NUPBZ-DDVxQdKp.js", "/assets/chunk-6CVSDS6C-BPI29o10.js", "/assets/chunk-7OLJDQMT-BT6Zjs5s.js", "/assets/chunk-2OOHT3W5-rJYDzyIb.js", "/assets/chunk-MFVQSVQB-D7PHvhRf.js", "/assets/utils-DihYaFf6.js", "/assets/vo_user_name-BVvoRkhQ.js", "/assets/ColorModeSelector-cYXOBYnr.js", "/assets/ControlledInput-DM_7QRyE.js", "/assets/MessageToUserDialog-DNPgtMGM.js", "/assets/components-F5Cv7EYO.js", "/assets/chunk-YQO7BFFX-b6IzIdec.js", "/assets/chunk-46CXQZ4E-DkrYgWvl.js", "/assets/chunk-NTCQBYKE-DOyCWGPB.js", "/assets/chunk-3KCBMPN5-CX7IG-95.js", "/assets/chunk-2ZHRCML3-D1DPpvNl.js"], "css": [] } }, "url": "/assets/manifest-5295c997.js", "version": "5295c997" };
 const mode = "production";
 const assetsBuildDirectory = "build/client";
 const basename = "/";
@@ -19463,21 +20289,13 @@ const routes = {
     caseSensitive: void 0,
     module: route37
   },
-  "routes/api.settings.config_file": {
-    id: "routes/api.settings.config_file",
-    parentId: "root",
-    path: "api/settings/config_file",
-    index: void 0,
-    caseSensitive: void 0,
-    module: route38
-  },
   "routes/_admin.settings.company": {
     id: "routes/_admin.settings.company",
     parentId: "routes/_admin",
     path: "settings/company",
     index: void 0,
     caseSensitive: void 0,
-    module: route39
+    module: route38
   },
   "routes/_admin.settings._index": {
     id: "routes/_admin.settings._index",
@@ -19485,7 +20303,7 @@ const routes = {
     path: "settings",
     index: true,
     caseSensitive: void 0,
-    module: route40
+    module: route39
   },
   "routes/_authorized.drafts.add": {
     id: "routes/_authorized.drafts.add",
@@ -19493,7 +20311,7 @@ const routes = {
     path: "drafts/add",
     index: void 0,
     caseSensitive: void 0,
-    module: route41
+    module: route40
   },
   "routes/_authorized.orders.add": {
     id: "routes/_authorized.orders.add",
@@ -19501,12 +20319,20 @@ const routes = {
     path: "orders/add",
     index: void 0,
     caseSensitive: void 0,
-    module: route42
+    module: route41
   },
   "routes/api.download.$filename": {
     id: "routes/api.download.$filename",
     parentId: "routes/api.download",
     path: ":filename",
+    index: void 0,
+    caseSensitive: void 0,
+    module: route42
+  },
+  "routes/_admin.settings.order": {
+    id: "routes/_admin.settings.order",
+    parentId: "routes/_admin",
+    path: "settings/order",
     index: void 0,
     caseSensitive: void 0,
     module: route43
@@ -19583,13 +20409,21 @@ const routes = {
     caseSensitive: void 0,
     module: route52
   },
+  "routes/api.settings.order": {
+    id: "routes/api.settings.order",
+    parentId: "root",
+    path: "api/settings/order",
+    index: void 0,
+    caseSensitive: void 0,
+    module: route53
+  },
   "routes/api.tango.vendedor": {
     id: "routes/api.tango.vendedor",
     parentId: "root",
     path: "api/tango/vendedor",
     index: void 0,
     caseSensitive: void 0,
-    module: route53
+    module: route54
   },
   "routes/api.auth.password": {
     id: "routes/api.auth.password",
@@ -19597,7 +20431,7 @@ const routes = {
     path: "api/auth/password",
     index: void 0,
     caseSensitive: void 0,
-    module: route54
+    module: route55
   },
   "routes/api.pedido.by_ids": {
     id: "routes/api.pedido.by_ids",
@@ -19605,7 +20439,7 @@ const routes = {
     path: "by_ids",
     index: void 0,
     caseSensitive: void 0,
-    module: route55
+    module: route56
   },
   "routes/api.settings.misc": {
     id: "routes/api.settings.misc",
@@ -19613,7 +20447,7 @@ const routes = {
     path: "api/settings/misc",
     index: void 0,
     caseSensitive: void 0,
-    module: route56
+    module: route57
   },
   "routes/api.tango.cliente": {
     id: "routes/api.tango.cliente",
@@ -19621,7 +20455,7 @@ const routes = {
     path: "api/tango/cliente",
     index: void 0,
     caseSensitive: void 0,
-    module: route57
+    module: route58
   },
   "routes/api.admin.status": {
     id: "routes/api.admin.status",
@@ -19629,7 +20463,7 @@ const routes = {
     path: "api/admin/status",
     index: void 0,
     caseSensitive: void 0,
-    module: route58
+    module: route59
   },
   "routes/api.auth.connect": {
     id: "routes/api.auth.connect",
@@ -19637,7 +20471,7 @@ const routes = {
     path: "api/auth/connect",
     index: void 0,
     caseSensitive: void 0,
-    module: route59
+    module: route60
   },
   "routes/api.dxt.vendedor": {
     id: "routes/api.dxt.vendedor",
@@ -19645,7 +20479,7 @@ const routes = {
     path: "api/dxt/vendedor",
     index: void 0,
     caseSensitive: void 0,
-    module: route60
+    module: route61
   },
   "routes/api.tango.perfil": {
     id: "routes/api.tango.perfil",
@@ -19653,7 +20487,7 @@ const routes = {
     path: "api/tango/perfil",
     index: void 0,
     caseSensitive: void 0,
-    module: route61
+    module: route62
   },
   "routes/api.auth.logout": {
     id: "routes/api.auth.logout",
@@ -19661,7 +20495,7 @@ const routes = {
     path: "api/auth/logout",
     index: void 0,
     caseSensitive: void 0,
-    module: route62
+    module: route63
   },
   "routes/api.dxt.cliente": {
     id: "routes/api.dxt.cliente",
@@ -19669,7 +20503,7 @@ const routes = {
     path: "api/dxt/cliente",
     index: void 0,
     caseSensitive: void 0,
-    module: route63
+    module: route64
   },
   "routes/api.settings.db": {
     id: "routes/api.settings.db",
@@ -19677,7 +20511,7 @@ const routes = {
     path: "api/settings/db",
     index: void 0,
     caseSensitive: void 0,
-    module: route64
+    module: route65
   },
   "routes/api.tango.lista": {
     id: "routes/api.tango.lista",
@@ -19685,7 +20519,7 @@ const routes = {
     path: "api/tango/lista",
     index: void 0,
     caseSensitive: void 0,
-    module: route65
+    module: route66
   },
   "routes/api.auth.login": {
     id: "routes/api.auth.login",
@@ -19693,7 +20527,7 @@ const routes = {
     path: "api/auth/login",
     index: void 0,
     caseSensitive: void 0,
-    module: route66
+    module: route67
   },
   "routes/api.dictionary": {
     id: "routes/api.dictionary",
@@ -19701,7 +20535,7 @@ const routes = {
     path: "api/dictionary",
     index: void 0,
     caseSensitive: void 0,
-    module: route67
+    module: route68
   },
   "routes/api.download": {
     id: "routes/api.download",
@@ -19709,7 +20543,7 @@ const routes = {
     path: "api/download",
     index: void 0,
     caseSensitive: void 0,
-    module: route68
+    module: route69
   },
   "routes/_authorized": {
     id: "routes/_authorized",
@@ -19717,7 +20551,7 @@ const routes = {
     path: void 0,
     index: void 0,
     caseSensitive: void 0,
-    module: route69
+    module: route70
   },
   "routes/api.pedido": {
     id: "routes/api.pedido",
@@ -19725,7 +20559,7 @@ const routes = {
     path: "api/pedido",
     index: void 0,
     caseSensitive: void 0,
-    module: route70
+    module: route71
   },
   "routes/api.draft": {
     id: "routes/api.draft",
@@ -19733,7 +20567,7 @@ const routes = {
     path: "api/draft",
     index: void 0,
     caseSensitive: void 0,
-    module: route71
+    module: route72
   },
   "routes/_admin": {
     id: "routes/_admin",
@@ -19741,7 +20575,7 @@ const routes = {
     path: void 0,
     index: void 0,
     caseSensitive: void 0,
-    module: route72
+    module: route73
   },
   "routes/_index": {
     id: "routes/_index",
@@ -19749,7 +20583,7 @@ const routes = {
     path: void 0,
     index: true,
     caseSensitive: void 0,
-    module: route73
+    module: route74
   }
 };
 export {

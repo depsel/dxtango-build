@@ -17,6 +17,10 @@
     .lightBLine {
       border-bottom:1px solid #ccc;
     }
+    .text-warning {
+      font-size: 20px;
+      color: #f06000;
+    }
   </mj-style>
 
 </mj-head>
@@ -25,11 +29,17 @@
   <mj-section>
     <mj-column>
       <mj-text font-size="20px">&nbsp;</mj-text>
-      <mj-text font-size="30px"><strong>{{companyName}}</strong></mj-text>
+      <mj-text font-size="30px"><strong>PEDIDO {{companyName}}</strong></mj-text>
+      
+      <mj-raw>{{#orderCreatedOrUpdated}}</mj-raw>
+        <mj-raw>{{#orderCreateUpdateMessage}}</mj-raw>
+          <mj-text><span class="text-warning">{{orderCreateUpdateMessage}}</span></mj-text>
+        <mj-raw>{{/orderCreateUpdateMessage}}</mj-raw>
+      <mj-raw>{{/orderCreatedOrUpdated}}</mj-raw>
 
       <mj-divider border-color="#666" padding-bottom="18px"></mj-divider>
 
-      <mj-text font-size="20px">Pedido <strong>{{orderCode}}</strong></mj-text>
+      <mj-text font-size="20px">Número <strong>{{orderCode}}</strong></mj-text>
       <mj-spacer height="20px" />
       <mj-raw>{{#orderDeletedOrCancelled}}</mj-raw>
         <mj-text font-size="25px" color="#F00000">
@@ -61,61 +71,63 @@
           {{#isAdministrator}}
             admnistrador
           {{/isAdministrator}}
-            
+
         </mj-text>
   
         <mj-spacer height="20px" />
 
         <mj-table>
 
-          {{#isSeller}}
+          <mj-raw>{{#isSeller}}</mj-raw>
             <tr valign="top" class="lightBLine">
               <td width="120px">Cliente</td>
               <td><b>{{customerCode}} - {{customerName}}</b></td>
             </tr>
-          {{/isSeller}}
+          <mj-raw>{{/isSeller}}</mj-raw>
 
-          {{#isCustomer}}
+          <mj-raw>{{#isCustomer}}</mj-raw>
             <tr valign="top" class="lightBLine">
               <td>Vendedor</td>
               <td><b>{{sellerCode}} - {{sellerName}}</b></td>
             </tr>
-          {{/isCustomer}}
+          <mj-raw>{{/isCustomer}}</mj-raw>
 
           <tr valign="top" class="lightBLine">
             <td>Fecha de ingreso</td>
             <td><b>{{inputDatetime}}</b></td>
           </tr>
+          <mj-raw>{{#shippingDate}}</mj-raw>
           <tr valign="top" class="lightBLine">
             <td>Fecha de entrega</td>
-            <td><b>{{deliveryDate}}</b></td>
+            <td><b>{{shippingDate}}</b></td>
           </tr>
-          {{#discount}}
+          <mj-raw>{{/shippingDate}}</mj-raw>
+          <mj-raw>{{#discount}}</mj-raw>
             <tr valign="top" class="lightBLine">
               <td>Bonificaci&oacute;n</td>
               <td><b>{{discount}}%</b></td>
             </tr>
-          {{/discount}}
+          <mj-raw>{{/discount}}</mj-raw>
           <tr valign="top" class="lightBLine">
-            <td valign="bottom">TOTAL{{#discount}} BONIFICADO{{/discount}}</td>
+            <td valign="bottom">
+              TOTAL{{#discount}} BONIFICADO{{/discount}}<br/>
+              {{taxesLabel}}
+            </td>
             <td valign="bottom"><b style="font-size: 20px">$ {{total}}</b></td>
           </tr>
         </mj-table>
 
-        <mj-spacer height="20px" />
-
-        {{#thereAreComments}}
-      	<mj-table border="1px solid #dddddd" cellpadding="10px">
-          <tr><td>Comentarios</td></tr>
-         	<tr><td>
-            <b>
-              {{#commentsLines}}
-                {{.}}<br/>
-              {{/commentsLines}}
-            </b>
-          </td></tr>
-        </mj-table>
-        {{/thereAreComments}}
+        <mj-raw>{{#thereAreCaptions}}</mj-raw>
+          <mj-spacer height="20px" />
+          <mj-table border="1px solid #dddddd" cellpadding="2px">
+            <tr><td>Leyendas</td></tr>
+            {{#captions}}
+              <tr>
+                <td><b>{{v}}</b></td>
+              </tr>
+            {{/captions}}
+          </mj-table>
+        <mj-raw>{{/thereAreCaptions}}</mj-raw>
 
         <mj-spacer height="30px" />
   
@@ -139,8 +151,11 @@
             </tr>
           {{/articles}}
           <tr height="40px" bgcolor="#eee">
-            <td colspan="6"><b>TOTAL{{#discount}} BONIFICADO{{/discount}}</b></td>
-            <td align="right" class="nowrap"><b>$ {{total}}</b></td>
+            <td colspan="6">
+              <b>TOTAL{{#discount}} BONIFICADO{{/discount}}</b><br/>
+              <b>{{taxesLabel}}</b>
+            </td>
+            <td align="right" valign="bottom" class="nowrap"><b>$ {{total}}</b></td>
           </tr>
         </mj-table>
     
