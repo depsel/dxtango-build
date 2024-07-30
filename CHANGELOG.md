@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 
+## [1.1.5] - 2022-07-30
+
+### Changed
+- Botones más grandes.
+
+
 ## [1.1.4] - 2022-07-30
 
 ### Changed

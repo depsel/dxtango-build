@@ -1,0 +1,1 @@
+import{u as t}from"./chunk-T2WCTPDH-f2xZAMUC.js";import{f as e,c as o}from"./auth_context-CRdh5zGN.js";import{j as m}from"./emotion-element-43c6fea0.browser.esm-CqNy1Myq.js";var n=e((s,a)=>{const r=t();return m.jsx(o.thead,{...s,ref:a,__css:r.thead})}),u=e(({isNumeric:s,...a},r)=>{const c=t();return m.jsx(o.th,{...a,ref:r,__css:c.th,"data-is-numeric":s})});export{n as T,u as a};
