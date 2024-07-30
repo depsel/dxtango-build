@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 
+## [1.1.7+240730d] - 2022-07-30
+
+### Changed
+- Tanto las leyendas como los mensajes internos se imprimen al final del pedido.
+- Los mensajes internos ahora se imprimen.
+
+
 ## [1.1.6+240730c] - 2022-07-30
 
 ### Fixed
