@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 
+## [1.1.4] - 2022-07-30
+
+### Changed
+- Botones más grandes, nuevos íconos.
+- Cuando la app corre en dispositivos móbiles, en la lista de pedidos y borradores, se oculta la columna "bonificado".
+
+### Fixed
+- El proceso de purgado de la tabla de campos extra de pedidos ahora está protegido contra fallos.
+
+
 ## [1.1.3] - 2022-07-29
 
 ### Changed
