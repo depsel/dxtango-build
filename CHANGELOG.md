@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 
+## [1.1.6+240730c] - 2022-07-30
+
+### Fixed
+- No mostraba la descripción del borrador en el mensaje de creación.
+
+
 ## [1.1.5] - 2022-07-30
 
 ### Changed
