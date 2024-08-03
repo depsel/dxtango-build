@@ -1,0 +1,1 @@
+import{u as r,c as s}from"./chunk-3Y4YXCR2-DyLpQq-3.js";import{l as a}from"./auth_context-W41jorqJ.js";import{r as n}from"./emotion-element-43c6fea0.browser.esm-CqNy1Myq.js";function m(t){const{theme:o}=a(),e=r();return n.useMemo(()=>s(o.direction,{...e,...t}),[t,o.direction,e])}export{m as u};

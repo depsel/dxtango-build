@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 
+## [1.2.0+240803a] - 2022-08-03
+
+### Added
+- Ahora puede agrupar artículos según su código, indicando el separador de grupo (espacio, guión, etc).
+
+### Changed
+- Si no hay acciones habilitadas para el pedido o el borrador, el botón se desactiva en vez de mostrar un menú vacío.
+
+### Fixed
+- Corregido error en la query de limpieza de datos extra de pedidos.
+- Corregidas operaciones de fecha y hora en MS SQL.
+- Corregido asunto de correo cuando no se muestra la fecha de entrega.
+
+
 ## [1.1.7+240730d] - 2022-07-30
 
 ### Changed
