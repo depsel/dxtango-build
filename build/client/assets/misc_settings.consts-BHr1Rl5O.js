@@ -1,1 +1,0 @@
-import{J as r,Q as a}from"./auth_context-o-QFsdoP.js";class o extends r{validate(t){let s=t;if(typeof s=="string"&&(s=Number.parseInt(s)),typeof s=="number"&&a(s))return s;this.throwError(t)}}const N=0,O=300,T=1,I=365;export{T as A,N as D,o as V,I as a,O as b};

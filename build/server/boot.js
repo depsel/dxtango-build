@@ -7,11 +7,9 @@ import compression from "compression";
 const DEFAULT_PROGRAM_PORT = 80;
 const isStr = (value) => typeof value === "string";
 function toNumber(raw) {
-  if (raw === void 0)
-    return void 0;
+  if (raw === void 0) return void 0;
   let maybe = Number(raw);
-  if (Number.isNaN(maybe))
-    return void 0;
+  if (Number.isNaN(maybe)) return void 0;
   return maybe;
 }
 async function checkIfFileExists(filePath) {

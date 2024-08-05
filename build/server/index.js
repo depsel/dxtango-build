@@ -98,8 +98,7 @@ function windowOrNull() {
 }
 let _jsonPolyfillsInitialized = false;
 function jsonPolyfills() {
-  if (_jsonPolyfillsInitialized)
-    return;
+  if (_jsonPolyfillsInitialized) return;
   BigInt.prototype.toJSON = function() {
     return this.toString();
   };
@@ -115,14 +114,10 @@ function parseJSON(text, reviver) {
 const isStr = (value) => typeof value === "string";
 const isNotEmptyStr = (value) => typeof value === "string" && value.length > 0;
 function valueToString(value, includeStringQuotes) {
-  if (Array.isArray(value) || isObj(value))
-    return stringifyJSON(value);
-  if (typeof value === "symbol")
-    return value.toString();
-  if (typeof value === "string" && (includeStringQuotes ?? false))
-    return `'${value}'`;
-  if (value === null)
-    return "[null]";
+  if (Array.isArray(value) || isObj(value)) return stringifyJSON(value);
+  if (typeof value === "symbol") return value.toString();
+  if (typeof value === "string" && (includeStringQuotes ?? false)) return `'${value}'`;
+  if (value === null) return "[null]";
   return value?.toString?.() ?? "[undefined]";
 }
 class ValidationException extends Error {
@@ -187,61 +182,46 @@ function isName(value, minLength, maxLength) {
   return typeof value === "string" && value.length >= minLength && value.length <= maxLength && re.test(value);
 }
 function assertEnumType(enumType) {
-  if (isRealObject(enumType))
-    return;
+  if (isRealObject(enumType)) return;
   throw new InvalidEnumObjectException(enumType);
 }
 function isValidEnumValue(enumType, value) {
   assertEnumType(enumType);
-  if (typeof value !== "number")
-    throw new InvalidEnumNumberException(value);
+  if (typeof value !== "number") throw new InvalidEnumNumberException(value);
   return typeof enumType[value] === "string";
 }
 function forceToNumber(raw) {
-  if (raw === void 0)
-    return 0;
+  if (raw === void 0) return 0;
   let maybe = Number(raw);
-  if (!Number.isFinite(maybe))
-    return 0;
+  if (!Number.isFinite(maybe)) return 0;
   return maybe;
 }
 function toBoolean(rawValue, def) {
   let value = rawValue;
-  if (typeof value === "boolean")
-    return value;
-  if (typeof value === "number")
-    return value !== 0;
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value !== 0;
   if (typeof value === "string") {
     value = value.trim().toLowerCase().trim();
-    if (value === "1" || value === "true")
-      return true;
-    if (value === "0" || value === "false")
-      return false;
+    if (value === "1" || value === "true") return true;
+    if (value === "0" || value === "false") return false;
   }
-  if (typeof def !== "boolean")
-    throw new InvalidBooleanException(rawValue);
+  if (typeof def !== "boolean") throw new InvalidBooleanException(rawValue);
   return def;
 }
 function stringToEnum(enumType, value) {
-  if (typeof value !== "string")
-    throw new InvalidEnumStringException(value);
+  if (typeof value !== "string") throw new InvalidEnumStringException(value);
   assertEnumType(enumType);
   const result = enumType[value];
-  if (typeof result === "undefined")
-    throw new InvalidEnumNumberException(result);
-  if (typeof result !== "number")
-    throw new InvalidEnumNumberException(result);
+  if (typeof result === "undefined") throw new InvalidEnumNumberException(result);
+  if (typeof result !== "number") throw new InvalidEnumNumberException(result);
   return result;
 }
 function enumToString(enumType, value) {
-  if (typeof value !== "number")
-    throw new InvalidEnumNumberException(value);
+  if (typeof value !== "number") throw new InvalidEnumNumberException(value);
   assertEnumType(enumType);
   const result = enumType[value];
-  if (typeof result === "undefined")
-    throw new InvalidEnumStringException(result);
-  if (typeof result !== "string")
-    throw new InvalidEnumStringException(result);
+  if (typeof result === "undefined") throw new InvalidEnumStringException(result);
+  if (typeof result !== "string") throw new InvalidEnumStringException(result);
   return result;
 }
 const HTTP_STATUS_SERVER_ERROR_MIN = 500;
@@ -664,8 +644,7 @@ async function _isInternetAlive() {
     const response = await fetch(IS_CLIENT_ONLINE_CHECK_URL, {
       method: "HEAD"
     });
-    if (response.ok)
-      return true;
+    if (response.ok) return true;
     return false;
   } catch (_2) {
     return false;
@@ -708,8 +687,7 @@ class SystemDisabledEvent extends BusEvent {
 }
 function isErrorInfo(data) {
   const errorInfo = data;
-  if (!isRealObject(errorInfo))
-    return false;
+  if (!isRealObject(errorInfo)) return false;
   const { status, error_code, error_description } = errorInfo;
   const statusNumber = status && typeof status === "number" ? status : Number.parseInt(status?.toString());
   const errorCodeNumber = error_code && typeof error_code === "number" ? error_code : Number.parseInt(error_code?.toString());
@@ -736,8 +714,7 @@ function exceptionToDXTErrorInfo(error) {
     }
     return originalErrorInfo;
   }
-  if (error instanceof DXTException)
-    return error.dxtError;
+  if (error instanceof DXTException) return error.dxtError;
   if (error instanceof ValidationException) {
     const statusCode = HttpStatus.BAD_REQUEST;
     const error_code2 = getErrorCodeFromHttpStatus(statusCode);
@@ -806,8 +783,7 @@ function _initEnvironmentConfig() {
     }
     _programVersion$1 = programVersionString ?? "0.0.0";
   }
-  if (!isNode())
-    return;
+  if (!isNode()) return;
   _programVersion$1 = global.dxTango.programVersion ?? "0.0.0";
   const nodeEnv = process.env.NODE_ENV;
   if (nodeEnv === "development") {
@@ -837,16 +813,14 @@ function _throwEnvironmentFatalError() {
 function getExecutionMode() {
   if (_executionMode === void 0) {
     _initEnvironmentConfig();
-    if (_executionMode === void 0)
-      _throwEnvironmentFatalError();
+    if (_executionMode === void 0) _throwEnvironmentFatalError();
   }
   return _executionMode;
 }
 function getProgramVersion() {
   if (_programVersion$1 === void 0) {
     _initEnvironmentConfig();
-    if (_programVersion$1 === void 0)
-      _throwEnvironmentFatalError();
+    if (_programVersion$1 === void 0) _throwEnvironmentFatalError();
   }
   return _programVersion$1;
 }
@@ -875,8 +849,7 @@ function jsonResponse(body, init) {
   return response;
 }
 function getDefaultHttpStatusFromMethod(method) {
-  if (!method)
-    return HttpStatus.OK;
+  if (!method) return HttpStatus.OK;
   switch (method) {
     case "POST":
       return HttpStatus.CREATED;
@@ -904,20 +877,15 @@ async function mapEndpoint(req, params, endpoints) {
   } = endpoints;
   switch (req.method) {
     case "GET":
-      if (getEndpoint != null)
-        return await getEndpoint.get(req, params);
+      if (getEndpoint != null) return await getEndpoint.get(req, params);
     case "POST":
-      if (postEndpoint != null)
-        return await postEndpoint.post(req, params);
+      if (postEndpoint != null) return await postEndpoint.post(req, params);
     case "PATCH":
-      if (patchEndpoint != null)
-        return await patchEndpoint.patch(req, params);
+      if (patchEndpoint != null) return await patchEndpoint.patch(req, params);
     case "PUT":
-      if (putEndpoint != null)
-        return await putEndpoint.put(req, params);
+      if (putEndpoint != null) return await putEndpoint.put(req, params);
     case "DELETE":
-      if (deleteEndpoint != null)
-        return await deleteEndpoint.delete(req, params);
+      if (deleteEndpoint != null) return await deleteEndpoint.delete(req, params);
   }
   return errorApiResponse(DXTErrorCode.NOT_IMPLEMENTED);
 }
@@ -1035,10 +1003,8 @@ class VOInteger extends ValueObject {
   validate(input) {
     let value = input;
     try {
-      if (typeof value === "string")
-        value = Number.parseInt(value);
-      if (typeof value === "number" && Number.isInteger(value))
-        return value;
+      if (typeof value === "string") value = Number.parseInt(value);
+      if (typeof value === "number" && Number.isInteger(value)) return value;
     } catch (_2) {
     }
     this.throwError(input);
@@ -1058,13 +1024,11 @@ class VONumberRange extends ValueObjectBase {
   validate(input) {
     let value = input;
     try {
-      if (typeof value === "string")
-        value = this.isInteger ? Number.parseInt(value) : Number.parseFloat(value);
+      if (typeof value === "string") value = this.isInteger ? Number.parseInt(value) : Number.parseFloat(value);
       if (value == null || this.isInteger && !Number.isInteger(value) || !this.isInteger && !Number.isFinite(value)) {
         this.throwError(input);
       }
-      if ((this.min == null || value >= this.min) && (this.max == null || value <= this.max))
-        return value;
+      if ((this.min == null || value >= this.min) && (this.max == null || value <= this.max)) return value;
     } catch (_2) {
     }
     this.throwError(input);
@@ -1090,12 +1054,9 @@ class VOBigIntRange extends ValueObjectBase {
   validate(input) {
     let value = input;
     try {
-      if (typeof value === "string" || typeof value === "number")
-        value = BigInt(value);
-      if (typeof value !== "bigint")
-        this.throwError(input);
-      if ((typeof this.min !== "bigint" || value >= this.min) && (typeof this.max !== "bigint" || value <= this.max))
-        return value;
+      if (typeof value === "string" || typeof value === "number") value = BigInt(value);
+      if (typeof value !== "bigint") this.throwError(input);
+      if ((typeof this.min !== "bigint" || value >= this.min) && (typeof this.max !== "bigint" || value <= this.max)) return value;
     } catch (_2) {
     }
     this.throwError(input);
@@ -1117,8 +1078,7 @@ class VOBoolean extends ValueObject {
 }
 class VOString extends ValueObject {
   validate(input) {
-    if (!isStr(input))
-      this.throwError(input);
+    if (!isStr(input)) this.throwError(input);
     return input;
   }
 }
@@ -1128,11 +1088,9 @@ class VOTrimmedString extends ValueObject {
     this.maxLength = maxLength;
   }
   validate(input) {
-    if (!isStr(input))
-      this.throwError(input);
+    if (!isStr(input)) this.throwError(input);
     const value = input.trim();
-    if (this.maxLength == null || value.length <= this.maxLength)
-      return value;
+    if (this.maxLength == null || value.length <= this.maxLength) return value;
     this.throwError(input);
   }
 }
@@ -1144,8 +1102,7 @@ class VONotEmptyString extends ValueObject {
   validate(input) {
     if (typeof input === "string") {
       const value = input.trim();
-      if (value !== "" && (this.maxLength == null || value.length <= this.maxLength))
-        return value;
+      if (value !== "" && (this.maxLength == null || value.length <= this.maxLength)) return value;
     }
     this.throwError(input);
   }
@@ -1161,10 +1118,8 @@ function limitNumber(value, min, max) {
     min = max;
     max = min;
   }
-  if (value < min)
-    return min;
-  if (value > max)
-    return max;
+  if (value < min) return min;
+  if (value > max) return max;
   return value;
 }
 const HOUR_IN_MINUTES = 60;
@@ -1187,14 +1142,12 @@ function dateToISOStringZ(date) {
 }
 class VODate extends ValueObject {
   validate(input) {
-    if (typeof input !== "string")
-      this.throwError(input);
+    if (typeof input !== "string") this.throwError(input);
     const value = input.trim();
     if (value.length === 10 && value[4] === "-" && value[7] === "-") {
       try {
         const date = new Date(value);
-        if (!Number.isNaN(date.valueOf()))
-          return date;
+        if (!Number.isNaN(date.valueOf())) return date;
       } catch (e) {
       }
     }
@@ -1215,14 +1168,12 @@ class VOEmail extends ValueObjectBase {
   }
   validate(rawAddress) {
     let address = rawAddress;
-    if (typeof address !== "string")
-      this.throwInvalidAddressError(rawAddress);
+    if (typeof address !== "string") this.throwInvalidAddressError(rawAddress);
     address = address.trim().toLowerCase();
     const isValidAddress = validator.isEmail(address, {
       domain_specific_validation: true
     });
-    if (!isValidAddress)
-      this.throwInvalidAddressError(rawAddress);
+    if (!isValidAddress) this.throwInvalidAddressError(rawAddress);
     const displayName = this.rawDisplayName?.trim();
     if (typeof displayName === "string" && !isName(displayName, 1, FULL_NAME_MAX_LENGTH)) {
       this.throwError(
@@ -1234,8 +1185,7 @@ class VOEmail extends ValueObjectBase {
   }
   toString() {
     const { address, displayName } = this.value;
-    if (displayName != null)
-      return `${displayName} <${address}>`;
+    if (displayName != null) return `${displayName} <${address}>`;
     return address;
   }
   getAddress() {
@@ -1254,16 +1204,14 @@ class VOEmailAddress extends ValueObject {
       const value = input.trim().toLowerCase();
       if (validator.isEmail(value, {
         domain_specific_validation: true
-      }))
-        return value;
+      })) return value;
     }
     this.throwError(input);
   }
 }
 class VOMD5 extends ValueObject {
   constructor(input) {
-    if (Buffer.isBuffer(input))
-      input = input.toString("hex");
+    if (Buffer.isBuffer(input)) input = input.toString("hex");
     super(input);
   }
   validate(input) {
@@ -1274,8 +1222,7 @@ class VOMD5 extends ValueObject {
     if (typeof input === "string") {
       value = input.trim().toLowerCase();
     }
-    if (typeof value === "string" && validator.isMD5(value))
-      return value;
+    if (typeof value === "string" && validator.isMD5(value)) return value;
     this.throwError(input);
   }
   toBuffer() {
@@ -1305,8 +1252,7 @@ class VOHexadecimal extends ValueObject {
     }
     if (typeof input === "string") {
       const value = input.trim().toLowerCase();
-      if (validator.isHexadecimal(value))
-        return value;
+      if (validator.isHexadecimal(value)) return value;
     }
     this.throwError(input);
   }
@@ -1320,8 +1266,7 @@ class VOSHA1 extends ValueObject {
     if (typeof input === "string") {
       value = input.trim().toLowerCase();
     }
-    if (typeof value === "string" && validator.isHash(value, "sha1"))
-      return value;
+    if (typeof value === "string" && validator.isHash(value, "sha1")) return value;
     this.throwError(input);
   }
   toBuffer() {
@@ -1329,18 +1274,15 @@ class VOSHA1 extends ValueObject {
   }
   static random() {
     const randomBytes = Array(20);
-    for (let i = 0; i < randomBytes.length; i++)
-      randomBytes[i] = random(0, 255);
+    for (let i = 0; i < randomBytes.length; i++) randomBytes[i] = random(0, 255);
     return new VOSHA1(Buffer.from(randomBytes));
   }
 }
 class VOTCPPort extends ValueObject {
   validate(input) {
     let value = input;
-    if (typeof value === "string")
-      value = Number.parseInt(value);
-    if (typeof value === "number" && isTCPPort(value))
-      return value;
+    if (typeof value === "string") value = Number.parseInt(value);
+    if (typeof value === "number" && isTCPPort(value)) return value;
     this.throwError(input);
   }
 }
@@ -1349,8 +1291,7 @@ class VOHost extends ValueObject {
     let value = input;
     if (typeof value === "string") {
       value = value.trim().toLowerCase();
-      if (isHost(value))
-        return value;
+      if (isHost(value)) return value;
     }
     this.throwError(input);
   }
@@ -1358,11 +1299,9 @@ class VOHost extends ValueObject {
 class VOUUIdV4 extends ValueObject {
   validate(input) {
     let value = input;
-    if (typeof value != "string")
-      this.throwError(input);
+    if (typeof value != "string") this.throwError(input);
     try {
-      if (validator.isUUID(value, 4))
-        return value;
+      if (validator.isUUID(value, 4)) return value;
     } catch (e) {
     }
     this.throwError(input);
@@ -1457,10 +1396,8 @@ function numberToUserRole(value) {
 class VOUserRole extends ValueObject {
   validate(value) {
     try {
-      if (typeof value === "string")
-        return stringToUserRole(value);
-      if (isValidEnumValue(UserRole, value))
-        return value;
+      if (typeof value === "string") return stringToUserRole(value);
+      if (isValidEnumValue(UserRole, value)) return value;
     } catch (_2) {
     }
     this.throwError(value);
@@ -1488,8 +1425,7 @@ class VOUserName extends ValueObject {
   validate(rawValue) {
     if (typeof rawValue === "string") {
       const value = rawValue.trim();
-      if (isUserName(value))
-        return value;
+      if (isUserName(value)) return value;
     }
     this.throwError(rawValue);
   }
@@ -1645,8 +1581,7 @@ function createAdminUserEntity(email, passwordHash) {
   });
 }
 async function resolveUserStateException(user, tangoUserNotFoundErrorCode) {
-  if (!user.tangoUserExists())
-    return new DXTException(tangoUserNotFoundErrorCode);
+  if (!user.tangoUserExists()) return new DXTException(tangoUserNotFoundErrorCode);
   let errorCode;
   if (user.habilitadoEnTango?.valueOf() === false) {
     errorCode = DXTErrorCode.TANGO_USER_DISABLED;
@@ -1703,26 +1638,22 @@ class UnknownSchemaKeysException extends ValidationException {
   }
 }
 function validateSchema(schema, input, options) {
-  if (!isObj(schema))
-    throw new InvalidValidationSchemaException();
+  if (!isObj(schema)) throw new InvalidValidationSchemaException();
   const invalidValues = [];
   const inputIsObject = isObj(input);
   const entries = Object.entries(schema);
   const validatedResult = Array(entries.length);
-  if (!isObj(input))
-    input = {};
+  if (!isObj(input)) input = {};
   let i = 0;
   for (const [field, validator2] of entries) {
     const valIsObject = isObj(validator2);
     const fieldName = valIsObject && "n" in validator2 ? validator2.n : field;
     const validatorFuncion = valIsObject && "f" in validator2 ? validator2.f : validator2;
-    if (typeof validatorFuncion !== "function")
-      throw new InvalidSchemaValidatorFunctionException(fieldName);
+    if (typeof validatorFuncion !== "function") throw new InvalidSchemaValidatorFunctionException(fieldName);
     const inputValue = inputIsObject ? input[field] : void 0;
     try {
       let result2 = validatorFuncion(inputValue);
-      if (result2 instanceof ValueObjectBase)
-        result2 = result2.valueOf();
+      if (result2 instanceof ValueObjectBase) result2 = result2.valueOf();
       if (invalidValues.length === 0) {
         validatedResult[i++] = [
           field,
@@ -1744,8 +1675,7 @@ function validateSchema(schema, input, options) {
   const valuesKeys = Object.keys(input);
   const unknownKeys = [];
   for (const key of valuesKeys) {
-    if (!(key in schema))
-      unknownKeys.push(key);
+    if (!(key in schema)) unknownKeys.push(key);
   }
   if (unknownKeys.length > 0) {
     const defaultError = new UnknownSchemaKeysException(unknownKeys);
@@ -1805,14 +1735,10 @@ function dxtPasswordStatus(value) {
     tooLong = !tooShort && value.length > DXT_PASSWORD_MAX_LENGTH;
     for (let i = 0; i < value.length; i++) {
       const char = value[i];
-      if (DXT_PASSWORD_LOWERCASE_CHARS.includes(char))
-        ;
-      else if (DXT_PASSWORD_UPPERCASE_CHARS.includes(char))
-        ;
-      else if (char >= "0" && char <= "9")
-        ;
-      else if (DXT_PASSWORD_SPECIAL_CHARS.includes(char))
-        ;
+      if (DXT_PASSWORD_LOWERCASE_CHARS.includes(char)) ;
+      else if (DXT_PASSWORD_UPPERCASE_CHARS.includes(char)) ;
+      else if (char >= "0" && char <= "9") ;
+      else if (DXT_PASSWORD_SPECIAL_CHARS.includes(char)) ;
       else {
         invalidCharsPresent = true;
       }
@@ -1832,8 +1758,7 @@ function dxtPasswordStatus(value) {
   };
 }
 function isDXTPassword(value) {
-  if (typeof value !== "string")
-    return false;
+  if (typeof value !== "string") return false;
   return dxtPasswordStatus(value).passwordIsValid;
 }
 function _getRandomChars(collection, length) {
@@ -1887,26 +1812,21 @@ class StoredProgramConfigDTO extends DTO {
   }
 }
 function isMSSqlName(v) {
-  if (typeof v !== "string")
-    return false;
-  if (v.length < 1)
-    return false;
+  if (typeof v !== "string") return false;
+  if (v.length < 1) return false;
   const firstChar = v[0];
-  if (firstChar >= "0" && firstChar <= "9")
-    return false;
+  if (firstChar >= "0" && firstChar <= "9") return false;
   return /^[A-Za-z0-9_]*$/.test(v);
 }
 function isMSSqlDBName(v) {
-  if (!isMSSqlName(v))
-    return false;
+  if (!isMSSqlName(v)) return false;
   return typeof v === "string" && v[0] !== "_";
 }
 class VOMSSqlDBName extends ValueObject {
   validate(rawValue) {
     if (typeof rawValue === "string") {
       const value = rawValue.trim();
-      if (isMSSqlDBName(rawValue))
-        return value;
+      if (isMSSqlDBName(rawValue)) return value;
     }
     this.throwError(rawValue);
   }
@@ -2042,8 +1962,7 @@ class SettingsProvider {
     await this.getOrderSettings(ignoreCache);
   }
   async getProgramConfig(ignoreCache) {
-    if ((ignoreCache ?? false) || this._programConfig == null)
-      this._programConfig = await this._loadProgramConfig();
+    if ((ignoreCache ?? false) || this._programConfig == null) this._programConfig = await this._loadProgramConfig();
     return this._programConfig.data;
   }
   getProgramConfigSync() {
@@ -2051,8 +1970,7 @@ class SettingsProvider {
   }
   async isSystemDisabled() {
     const { disable_system_file } = await this.getProgramConfig();
-    if (disable_system_file.length == 0)
-      return false;
+    if (disable_system_file.length == 0) return false;
     try {
       const info = await stat(disable_system_file);
       return info.isFile();
@@ -2074,8 +1992,7 @@ class SettingsProvider {
     return this._programConfig.data;
   }
   async getDBSettings(ignoreCache) {
-    if ((ignoreCache ?? false) || this._dbSettings == null)
-      this._dbSettings = await this._loadDBSettings();
+    if ((ignoreCache ?? false) || this._dbSettings == null) this._dbSettings = await this._loadDBSettings();
     return this._dbSettings.data;
   }
   async setDBSettings(settings2) {
@@ -2083,8 +2000,7 @@ class SettingsProvider {
     return this._dbSettings.data;
   }
   async getMiscSettings(ignoreCache) {
-    if ((ignoreCache ?? false) || this._miscSettings == null)
-      this._miscSettings = await this._loadMiscSettings();
+    if ((ignoreCache ?? false) || this._miscSettings == null) this._miscSettings = await this._loadMiscSettings();
     return this._miscSettings.data;
   }
   async setMiscSettings(settings2) {
@@ -2100,8 +2016,7 @@ class SettingsProvider {
     return this._miscSettings.data;
   }
   async getOrderSettings(ignoreCache) {
-    if ((ignoreCache ?? false) || this._orderSettings == null)
-      this._orderSettings = await this._loadOrderSettings();
+    if ((ignoreCache ?? false) || this._orderSettings == null) this._orderSettings = await this._loadOrderSettings();
     return this._orderSettings.data;
   }
   async setOrderSettings(settings2) {
@@ -2167,12 +2082,9 @@ const _workerId = 0;
 function loadPackageJsonInfo() {
   try {
     const pjson = parseJSON(readFileSync(join(projectDirectory, "package.json"), "utf8"));
-    if (isStr(pjson.name))
-      _programName = pjson.name.toUpperCase();
-    if (isStr(pjson.description))
-      _programDescription = pjson.description;
-    if (isStr(pjson.version))
-      _programVersion = pjson.version;
+    if (isStr(pjson.name)) _programName = pjson.name.toUpperCase();
+    if (isStr(pjson.description)) _programDescription = pjson.description;
+    if (isStr(pjson.version)) _programVersion = pjson.version;
     const semVer = new SemVer(_programVersion);
     if (Array.isArray(semVer.build) && semVer.build.length > 0) {
       _programBuild = semVer.build[0];
@@ -2185,8 +2097,7 @@ function loadPackageJsonInfo() {
   }
 }
 function loadPackageAndReturn(valueProvider) {
-  if (!_packageJsonInfoLoaded)
-    loadPackageJsonInfo();
+  if (!_packageJsonInfoLoaded) loadPackageJsonInfo();
   return valueProvider();
 }
 const programNameFromNode = loadPackageAndReturn(() => _programName);
@@ -2327,8 +2238,7 @@ class VOWeakCheckAuthToken extends ValueObject {
     return typeof rawValue === "string" ? rawValue : JSON.stringify(rawValue);
   }
   getVerificationHashString() {
-    if (!this.verificationHash)
-      throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "VOWeakCheckAuthToken.verificationHash == [undefined]");
+    if (!this.verificationHash) throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "VOWeakCheckAuthToken.verificationHash == [undefined]");
     return this.verificationHash.toString();
   }
   getPayloadString() {
@@ -2350,8 +2260,7 @@ function getStorageKey(base) {
   return `${base}_${_storeKeyHash}`;
 }
 function getStorage() {
-  if (isNavigator())
-    return window.localStorage;
+  if (isNavigator()) return window.localStorage;
   return null;
 }
 const authConfig = {
@@ -2371,8 +2280,7 @@ const useTokenExistenceCheck = () => {
     [authTokenKey, getStoredToken()]
   );
   useEffect(() => {
-    if (!storage)
-      return;
+    if (!storage) return;
     window.addEventListener("storage", handleTokenExistence);
     return () => {
       window.removeEventListener("storage", handleTokenExistence);
@@ -2381,31 +2289,26 @@ const useTokenExistenceCheck = () => {
   return tokenExists;
 };
 function getStoredToken() {
-  if (!storage)
-    return null;
+  if (!storage) return null;
   return storage.getItem(authConfig.storageAuthTokenKey);
 }
 function getStoredUserInfo() {
-  if (!storage)
-    return null;
+  if (!storage) return null;
   return parseJSON(storage.getItem(authConfig.storageUserInfoKey) ?? "");
 }
 function setStoredToken(token) {
-  if (!storage)
-    return;
+  if (!storage) return;
   if (token !== getStoredToken()) {
     storage.setItem(authConfig.storageAuthTokenKey, token);
     window.dispatchEvent(new Event("storage"));
   }
 }
 function setStoredUserInfo(userInfo) {
-  if (!storage)
-    return;
+  if (!storage) return;
   storage.setItem(authConfig.storageUserInfoKey, JSON.stringify(userInfo));
 }
 function deleteAuthStoredData() {
-  if (!storage)
-    return;
+  if (!storage) return;
   if (storage.getItem(authConfig.storageAuthTokenKey) != null || storage.getItem(authConfig.storageUserInfoKey) != null) {
     storage.removeItem(authConfig.storageAuthTokenKey);
     storage.removeItem(authConfig.storageUserInfoKey);
@@ -2415,14 +2318,10 @@ function deleteAuthStoredData() {
 class AuthState {
   mapOrElse(options) {
     const { changingToken, loading, loggedIn, disconnected, orElse } = options;
-    if (this instanceof AuthStateLoading && loading)
-      return loading(this);
-    if (this instanceof AuthStateChangingToken && changingToken)
-      return changingToken(this);
-    if (this instanceof AuthStateLoggedIn && loggedIn)
-      return loggedIn(this);
-    if (this instanceof AuthStateDisconnected && disconnected)
-      return disconnected(this);
+    if (this instanceof AuthStateLoading && loading) return loading(this);
+    if (this instanceof AuthStateChangingToken && changingToken) return changingToken(this);
+    if (this instanceof AuthStateLoggedIn && loggedIn) return loggedIn(this);
+    if (this instanceof AuthStateDisconnected && disconnected) return disconnected(this);
     return orElse(this);
   }
   mapReadyOrNot(options) {
@@ -2463,8 +2362,7 @@ class AuthState {
     return this instanceof AuthStateDisconnected && !this.isRedirecting;
   }
   userOrThrow() {
-    if (this instanceof AuthStateLoggedIn)
-      return this.userInfo;
+    if (this instanceof AuthStateLoggedIn) return this.userInfo;
     throw new DXTException(DXTErrorCode.UNAUTHORIZED);
   }
   userOrNull() {
@@ -2503,8 +2401,7 @@ class AuthState {
   nonSilentErrorOrNull() {
     const isDisconnected = this instanceof AuthStateDisconnected;
     const silent = isDisconnected && typeof this.error?.is_silent === "boolean" && this.error?.is_silent;
-    if (isDisconnected && !silent)
-      return this.error ?? null;
+    if (isDisconnected && !silent) return this.error ?? null;
     return null;
   }
 }
@@ -2551,10 +2448,8 @@ class DXTApiRequestState {
   }
   map(options) {
     const { success, error } = options;
-    if (this instanceof DXTApiRequestStateSuccess && success)
-      return success(this);
-    if (this instanceof DXTApiRequestStateError && error)
-      return error(this);
+    if (this instanceof DXTApiRequestStateSuccess && success) return success(this);
+    if (this instanceof DXTApiRequestStateError && error) return error(this);
     throw Error("Invalid ApiRequestState state");
   }
   isSuccess() {
@@ -2564,8 +2459,7 @@ class DXTApiRequestState {
     return this instanceof DXTApiRequestStateError;
   }
   errorInfoOrNull() {
-    if (this instanceof DXTApiRequestStateError)
-      return this.info;
+    if (this instanceof DXTApiRequestStateError) return this.info;
     return null;
   }
   flat() {
@@ -2603,8 +2497,7 @@ function createDXTApiParams(app, options) {
   }
   let newTransformers = [
     (data, headers) => {
-      if (typeof data !== "undefined")
-        return parseJSON(data);
+      if (typeof data !== "undefined") return parseJSON(data);
     }
   ];
   const token = app?.authToken;
@@ -2651,13 +2544,10 @@ async function dxtApiRequest(params, app) {
         dxtApiError,
         dxtParams
       );
-      if (!app || !isBasicAppResources(app))
-        return errorState;
-      if (params?.silent ?? false)
-        return errorState;
+      if (!app || !isBasicAppResources(app)) return errorState;
+      if (params?.silent ?? false) return errorState;
       retry = typeof app.retryCallback === "function" && await app.retryCallback({ message: dxtApiError.error_description });
-      if (!retry)
-        return errorState;
+      if (!retry) return errorState;
     }
   }
   const impossibleError = exceptionToDXTErrorInfo(new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "Impossible state"));
@@ -2672,16 +2562,13 @@ function urlJoin(base, ...paths) {
   let result = typeof base === "string" ? base : "/";
   if (paths?.length > 0) {
     for (let path2 of paths) {
-      if (typeof path2 !== "string")
-        path2 = "";
+      if (typeof path2 !== "string") path2 = "";
       const resultLastChar = result.length > 0 ? result[result.length - 1] : "";
       const pathFirstChar = path2.length > 0 ? path2[0] : "";
       if (resultLastChar != "/") {
-        if (pathFirstChar != "/")
-          result += "/";
+        if (pathFirstChar != "/") result += "/";
       } else {
-        if (pathFirstChar == "/")
-          path2 = path2.substring(1);
+        if (pathFirstChar == "/") path2 = path2.substring(1);
       }
       result += path2;
     }
@@ -2782,8 +2669,7 @@ class AuthActionLogin extends AuthAction {
       error: async (errorState) => {
         const apiErrorInfo = errorState.info;
         setAuthState(new AuthStateDisconnected(apiErrorInfo));
-        if (this.errorCallback)
-          this.errorCallback(apiErrorInfo);
+        if (this.errorCallback) this.errorCallback(apiErrorInfo);
       }
     });
   }
@@ -2821,8 +2707,7 @@ const PASSWORD_INVALID_CHARS = "Evite caracteres no válidos";
 const PASSWORD_CHANGED = "Contraseña modificada";
 const AN_ERROR_OCCURRED = "Ha ocurrido un error";
 const dateToLocale = (value) => {
-  if (value == null)
-    return NO_DATE;
+  if (value == null) return NO_DATE;
   const date = value instanceof Date ? value : new Date(value);
   return date.toLocaleDateString("es-AR", {
     year: "numeric",
@@ -2831,8 +2716,7 @@ const dateToLocale = (value) => {
   });
 };
 const datetimeToLocale = (value) => {
-  if (value == null)
-    return NO_DATE;
+  if (value == null) return NO_DATE;
   const date = value instanceof Date ? value : new Date(value);
   return date.toLocaleDateString("es-AR", {
     year: "numeric",
@@ -2844,8 +2728,7 @@ const datetimeToLocale = (value) => {
   });
 };
 const timeToLocale = (value) => {
-  if (value == null)
-    return NO_DATE;
+  if (value == null) return NO_DATE;
   const date = value instanceof Date ? value : new Date(value);
   return date.toLocaleTimeString("es-AR", {
     hour: "2-digit",
@@ -2869,8 +2752,7 @@ function paramsToUrl(url, pathParams) {
   return url;
 }
 function getSelectedValue(arrayOfObjects, selected, key) {
-  if (arrayOfObjects.length === 1)
-    return arrayOfObjects[0][key ?? "id"];
+  if (arrayOfObjects.length === 1) return arrayOfObjects[0][key ?? "id"];
   const foundArray = arrayOfObjects.find((arr) => arr[selected ?? "selected"] === true);
   return foundArray?.[key ?? "id"];
 }
@@ -2952,8 +2834,7 @@ class AuthActionChangeToken extends AuthAction {
       error: (errorState) => {
         const apiErrorInfo = errorState.info;
         setAuthState(new AuthStateDisconnected(apiErrorInfo));
-        if (this.errorCallback)
-          this.errorCallback(apiErrorInfo);
+        if (this.errorCallback) this.errorCallback(apiErrorInfo);
       }
     });
   }
@@ -2963,8 +2844,7 @@ function isTokenError(errorCode) {
 }
 const checkTokenErrorAndRedirect = async (app, status) => {
   const forceLogin = isTokenError(status);
-  if (!forceLogin)
-    return false;
+  if (!forceLogin) return false;
   if (app.authState && app.authState instanceof AuthStateLoggedIn) {
     await app.authDispatch?.call(void 0, new AuthActionLogout(true));
   }
@@ -2991,8 +2871,7 @@ class AuthActionRefreshAll extends AuthAction {
     this.errorCallback = errorCallback;
   }
   async run(authState, setAuthState, app, onRetryCallback) {
-    if (!(authState instanceof AuthStateLoggedIn))
-      throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "Must be logged in");
+    if (!(authState instanceof AuthStateLoggedIn)) throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "Must be logged in");
     const storedToken = getStoredToken();
     if (storedToken == null || authState.authToken !== storedToken) {
       setAuthState(new AuthStateDisconnected());
@@ -3130,8 +3009,7 @@ const defaultValues = {
 };
 const AuthContext = createContext(defaultValues);
 function _resolveState() {
-  if (typeof window === "undefined")
-    return new AuthStateDisconnected();
+  if (typeof window === "undefined") return new AuthStateDisconnected();
   const queryparams = new URLSearchParams(window.location.search);
   const storedToken = getStoredToken();
   const newToken = queryparams.get("at") ?? null;
@@ -3146,8 +3024,7 @@ function _resolveState() {
     return new AuthStateChangingToken(storedToken);
   }
   const userInfo = getStoredUserInfo();
-  if (userInfo)
-    return new AuthStateLoggedIn(storedToken, userInfo);
+  if (userInfo) return new AuthStateLoggedIn(storedToken, userInfo);
   return new AuthStateChangingToken(storedToken);
 }
 const AuthProvider = ({ children, onRetry }) => {
@@ -3175,11 +3052,9 @@ const AuthProvider = ({ children, onRetry }) => {
   };
   useEffect(() => {
     setTimeout(() => {
-      if (authState instanceof AuthStateChangingToken)
-        return;
+      if (authState instanceof AuthStateChangingToken) return;
       const newState = _resolveState();
-      if (_.isEqual(newState, authState))
-        return;
+      if (_.isEqual(newState, authState)) return;
       setAuthState(newState);
     }, 250);
   }, [tokenExistence]);
@@ -3947,15 +3822,12 @@ class ApiEndpoint {
   async run(req, options) {
     try {
       const method = options?.method;
-      if (method && method !== req.method)
-        throw new NotImplementedException();
+      if (method && method !== req.method) throw new NotImplementedException();
       const error = await this._prepareRequest(req, options);
-      if (error)
-        return await this.controller.onError(error, req);
+      if (error) return await this.controller.onError(error, req);
       await this.controller.onRequest(req);
       const result = await this.handle(req);
-      if (result instanceof Response)
-        return result;
+      if (result instanceof Response) return result;
       const status = this.options?.status ?? getDefaultHttpStatusFromMethod(options?.method);
       return jsonResponse(result, {
         status
@@ -3967,8 +3839,7 @@ class ApiEndpoint {
   async _streamToString(stream) {
     const chunks = Array();
     for await (const chunk of stream) {
-      if (chunk instanceof Uint8Array)
-        chunks.push(chunk);
+      if (chunk instanceof Uint8Array) chunks.push(chunk);
     }
     return Buffer.concat(chunks).toString("utf8");
   }
@@ -4001,8 +3872,7 @@ class ApiEndpoint {
       let requestBody = req.body != null ? await this._streamToString(req.body) : null;
       if (typeof requestBody === "string") {
         requestBody = requestBody.trim();
-        if (requestBody.length === 0)
-          requestBody = "{}";
+        if (requestBody.length === 0) requestBody = "{}";
       }
       req.bodyJson = options?.body ?? (requestBody != null ? parseJSON(requestBody) : null);
     } catch (e) {
@@ -4017,36 +3887,28 @@ class ApiEndpoint {
   }
   _validateAllRequestValues(req) {
     const { options } = this;
-    if (options == null)
-      return void 0;
+    if (options == null) return void 0;
     const { validation } = options;
-    if (validation == null)
-      return void 0;
+    if (validation == null) return void 0;
     const result = {};
     const { body, query, params } = validation;
-    if (body != null)
-      result.body = this._validateRequestValue(0, "body", req.bodyJson, body);
-    if (query != null)
-      result.query = this._validateRequestValues(1, req.query, query);
-    if (params != null)
-      result.params = this._validateRequestValues(2, req.params, params);
-    if (result.body === void 0 && result.query === void 0 && result.params === void 0)
-      return void 0;
+    if (body != null) result.body = this._validateRequestValue(0, "body", req.bodyJson, body);
+    if (query != null) result.query = this._validateRequestValues(1, req.query, query);
+    if (params != null) result.params = this._validateRequestValues(2, req.params, params);
+    if (result.body === void 0 && result.query === void 0 && result.params === void 0) return void 0;
     return result;
   }
   _validateRequestValues(target, values, validators) {
     const result = {};
     Object.entries(validators).forEach(([key, validatorFunction]) => {
-      if (typeof validatorFunction !== "function")
-        return;
+      if (typeof validatorFunction !== "function") return;
       const validatedValue = this._validateRequestValue(target, key, values[key], validatorFunction);
       result[key] = validatedValue;
     });
     return result;
   }
   _validateRequestValue(target, key, value, validatorFunction) {
-    if (typeof validatorFunction !== "function")
-      return void 0;
+    if (typeof validatorFunction !== "function") return void 0;
     try {
       return validatorFunction(value);
     } catch (e) {
@@ -4318,8 +4180,7 @@ class TDBProvider {
   }
 }
 function dbErrorToDXTException(e) {
-  if (e instanceof DXTException)
-    return e;
+  if (e instanceof DXTException) return e;
   if (!isRealObject(e)) {
     return new DXTException(new DXTError(
       DXTErrorCode.UNEXPECTED_ERROR,
@@ -4396,15 +4257,13 @@ class MemoryCache {
   }
   _onDBSettingsChanged(event) {
     const { newDictionary, newCompany, resetCache } = event.payload;
-    if (newDictionary || newCompany || resetCache)
-      this.clear();
+    if (newDictionary || newCompany || resetCache) this.clear();
   }
   _onTablesChanged(event) {
     const { payload: tablesChanged } = event;
     const dependencies = this._cacheOwnerStatus.getDependencies();
     const mainTableChanged = tablesChanged.findIndex((table) => dependencies.includes(table)) >= 0;
-    if (mainTableChanged)
-      this.clear();
+    if (mainTableChanged) this.clear();
   }
   async clear() {
     this._byIdCache.clear();
@@ -4414,8 +4273,7 @@ class MemoryCache {
   }
   async _autoClear() {
     const now2 = Date.now();
-    if (now2 - this._lastClear < CACHE_AUTOCLEAN_INTERNAL_MILLIS)
-      return;
+    if (now2 - this._lastClear < CACHE_AUTOCLEAN_INTERNAL_MILLIS) return;
     this._consoleLog(`Cache._autoClear()`);
     await this.clear();
   }
@@ -4427,13 +4285,11 @@ class MemoryCache {
     return true;
   }
   async getByIdBuffer() {
-    if (!await this.isReady())
-      return;
+    if (!await this.isReady()) return;
     return this._byIdCache;
   }
   async getMetadata(id) {
-    if (!await this.isReady())
-      return;
+    if (!await this.isReady()) return;
     const data = this._metadataCache.get(id);
     if (data != null) {
       this._consoleLog(`Cache.getMetadata("${id}")`);
@@ -4441,20 +4297,17 @@ class MemoryCache {
     return data;
   }
   async setMetadata(id, data) {
-    if (!await this.isReady())
-      return;
+    if (!await this.isReady()) return;
     this._consoleLog(`Cache.setMetadata("${id}")`);
     this._metadataCache.set(id, data);
   }
   async setById(id, data) {
-    if (!await this.isReady())
-      return;
+    if (!await this.isReady()) return;
     this._consoleLog(`Cache.setById("${id}")`);
     this._byIdCache.set(id, data);
   }
   async getById(id) {
-    if (!await this.isReady())
-      return;
+    if (!await this.isReady()) return;
     const data = this._byIdCache.get(id);
     if (data != null) {
       this._consoleLog(`Cache.getById("${id}")`);
@@ -4462,8 +4315,7 @@ class MemoryCache {
     return data;
   }
   async invalidateById(id) {
-    if (!await this.isReady())
-      return;
+    if (!await this.isReady()) return;
     if (isDevelopment()) {
       console.info(`Cache.invalidateById("${id}")`);
     }
@@ -4717,17 +4569,14 @@ class DictionaryRepository extends TDBProvider {
     this._numeroPedidoRange = void 0;
     this._numeroPedidoLongitud = void 0;
     const result = await k(DATASET_TABLE).first("*").where({ Dataset: PEDIDO_TABLE });
-    if (result == null)
-      throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "DictionaryProvider._prepareNumeroPedido");
+    if (result == null) throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "DictionaryProvider._prepareNumeroPedido");
     const datasetId = result[DATASET_ID_FIELD];
     const campos = await k(CAMPO_TABLE).select("*").where({
       [DATASET_ID_FIELD]: datasetId,
       Campo: "N_REMITO"
     });
-    if (campos.length === 0)
-      throw new Error("Error");
-    if (campos.length > 1)
-      throw new Error("Error");
+    if (campos.length === 0) throw new Error("Error");
+    if (campos.length > 1) throw new Error("Error");
     const nroPedidoLongitud = campos[0].Longitud;
     if (nroPedidoLongitud < LONGITUD_MINIMA_PEDIDO_PRECISION) {
       throw new DXTException(
@@ -4773,14 +4622,12 @@ class DictionaryRepository extends TDBProvider {
   }
   async getNumeroPedidoLongitud() {
     await this.getDictionary();
-    if (this._numeroPedidoLongitud == null)
-      throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "DictionaryProvider.getNumeroPedidoLongitud");
+    if (this._numeroPedidoLongitud == null) throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "DictionaryProvider.getNumeroPedidoLongitud");
     return this._numeroPedidoLongitud;
   }
   async getNumeroPedidoRange() {
     await this.getDictionary();
-    if (this._numeroPedidoRange == null)
-      throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "DictionaryProvider.getNumeroPedidoRange");
+    if (this._numeroPedidoRange == null) throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "DictionaryProvider.getNumeroPedidoRange");
     return this._numeroPedidoRange;
   }
   async formatNumeroPedido(id) {
@@ -4798,37 +4645,29 @@ class DictionaryRepository extends TDBProvider {
 const dictionaryRepository = new DictionaryRepository();
 class VOOrderRows extends ValueObject {
   validate(input) {
-    if (!Array.isArray(input))
-      this.throwError(input, "Input is not an array");
+    if (!Array.isArray(input)) this.throwError(input, "Input is not an array");
     return input.map((e) => {
-      if (!isObj(e))
-        this.throwError(input);
+      if (!isObj(e)) this.throwError(input);
       const { id, quantity } = e;
-      if (!isAnInteger(id))
-        this.throwError(input, "Id field missing or invalid");
-      if (!isANumber(quantity))
-        this.throwError(input, "Quantity field missing or invalid");
+      if (!isAnInteger(id)) this.throwError(input, "Id field missing or invalid");
+      if (!isANumber(quantity)) this.throwError(input, "Quantity field missing or invalid");
       return { id, quantity };
     });
   }
 }
 class VOStrings extends ValueObject {
   validate(input) {
-    if (typeof input === "string")
-      return [input];
-    if (!Array.isArray(input))
-      this.throwError(input);
+    if (typeof input === "string") return [input];
+    if (!Array.isArray(input)) this.throwError(input);
     return input.map((e) => {
-      if (e == null)
-        this.throwError(input);
+      if (e == null) this.throwError(input);
       return e.toString();
     });
   }
 }
 class VODXTPassword extends ValueObject {
   validate(value) {
-    if (typeof value === "string" && isDXTPassword(value))
-      return value;
+    if (typeof value === "string" && isDXTPassword(value)) return value;
     this.throwError(value);
   }
   static random() {
@@ -4839,10 +4678,8 @@ class VOIntegers extends ValueObject {
   validate(input) {
     let values = Array.isArray(input) ? input : [input];
     return values.map((v) => {
-      if (typeof v === "string")
-        v = Number.parseInt(v);
-      if (typeof v === "number" && Number.isInteger(v))
-        return v;
+      if (typeof v === "string") v = Number.parseInt(v);
+      if (typeof v === "number" && Number.isInteger(v)) return v;
       this.throwError(input);
     });
   }
@@ -4902,8 +4739,7 @@ const validateUpdateDraftInput = (input) => validateInput(updateDraftInputSchema
 const validateCreateDraftInput = (input) => validateInput(createDraftInputSchema, input);
 function _extraValidation(values) {
   const { fecha_alta, fecha_entrega } = values;
-  if (fecha_entrega < fecha_alta)
-    throw new DXTException(DXTErrorCode.DELIVERY_DATE_IS_EARLIER);
+  if (fecha_entrega < fecha_alta) throw new DXTException(DXTErrorCode.DELIVERY_DATE_IS_EARLIER);
 }
 const validateUpdateOrderInput = (input) => validateInput(updateOrderInputSchema, input, (v) => {
   _extraValidation(v);
@@ -5141,8 +4977,7 @@ class CompanyInitProvider extends TDBProvider {
     this._knexInstance = void 0;
     this._cleanDBChanges();
     await originalKnexInstance?.destroy();
-    if (companyDBName === "")
-      throw new DXTException(DXTErrorCode.TANGO_COMPANY_NOT_SELECTED);
+    if (companyDBName === "") throw new DXTException(DXTErrorCode.TANGO_COMPANY_NOT_SELECTED);
     if (this.connectionChangeRequired === TangoConnectionChangeRequired.fullReload) {
       this.cleanConnectionError();
     }
@@ -5158,8 +4993,7 @@ class CompanyInitProvider extends TDBProvider {
     this._dbChanges.clear();
   }
   async _queryChangesAndContinue(knexInstance, dbName) {
-    if (isCacheDisabledGlobally)
-      return knexInstance;
+    if (isCacheDisabledGlobally) return knexInstance;
     const result = await knexInstance.raw(
       "SELECT OBJECT_NAME(OBJECT_ID) AS tableName, user_updates as updates FROM sys.dm_db_index_usage_stats WHERE user_updates>0 and database_id = DB_ID( :dbName )",
       { dbName }
@@ -5271,15 +5105,13 @@ class CompanyInitProvider extends TDBProvider {
         tableWithUnknownColumns = true;
       }
     }
-    if (tableWithUnknownColumns)
-      throw new DXTException(DXTErrorCode.TANGO_COMPANY_INITIALIZATION_ERROR, `Tabla con formato no válido: ${tableName}`);
+    if (tableWithUnknownColumns) throw new DXTException(DXTErrorCode.TANGO_COMPANY_INITIALIZATION_ERROR, `Tabla con formato no válido: ${tableName}`);
     const fieldDefinitions = Object.entries(fields).map(([field, sql]) => `${field} ${sql}`);
     const allDefinitions = [...fieldDefinitions, ...indexes].join(",");
     const creationSql = `CREATE TABLE ${tableName} (${allDefinitions});`;
     try {
       const result = await knex2.raw(creationSql);
-      if (postCommands == null)
-        return;
+      if (postCommands == null) return;
       for (const postCommandSql of postCommands) {
         const result2 = await knex2.raw(postCommandSql);
       }
@@ -5295,8 +5127,7 @@ const _CompanyProvider = class _CompanyProvider extends CompanyInitProvider {
     this.config = config2;
     const { dependencies, mainTable } = config2;
     const _collectedProviders = [];
-    if (dependencies != null)
-      _collectDependencies(dependencies, _collectedProviders);
+    if (dependencies != null) _collectDependencies(dependencies, _collectedProviders);
     this._dependencies = [
       mainTable,
       ..._collectedProviders.map((p) => isStr(p) ? p : p.config.mainTable)
@@ -5319,8 +5150,7 @@ const _CompanyProvider = class _CompanyProvider extends CompanyInitProvider {
     const { mainTable } = this.config;
     const data = await k(mainTable).count({ count: "*" });
     const validCount = Array.isArray(data) && data.length > 0 && isANumber(data[0].count);
-    if (!validCount)
-      throw new DXTException(DXTErrorCode.FATAL_DB_QUERY_FAILED, `CompanyProvider.count() on ${mainTable}`);
+    if (!validCount) throw new DXTException(DXTErrorCode.FATAL_DB_QUERY_FAILED, `CompanyProvider.count() on ${mainTable}`);
     return data[0].count;
   }
   async _getById(id, options) {
@@ -5328,8 +5158,7 @@ const _CompanyProvider = class _CompanyProvider extends CompanyInitProvider {
     const useCache = options?.useCache ?? true;
     if (useCache) {
       const cachedData = await this.cache.getById(id);
-      if (cachedData != null)
-        return cachedData;
+      if (cachedData != null) return cachedData;
     }
     const { mainTable, mainIdField, parallelTable } = this.config;
     const columns = this._prepareColumns(this.config);
@@ -5339,8 +5168,7 @@ const _CompanyProvider = class _CompanyProvider extends CompanyInitProvider {
       query = query.leftOuterJoin(name, `${mainTable}.${mainIdField}`, `${name}.${mainIdField}`);
     }
     const data = id != null ? await query.where(`${mainTable}.${mainIdField}`, id) : await query;
-    if (data == null)
-      return null;
+    if (data == null) return null;
     const result = this.toResult(data);
     if (useCache) {
       await this.cache.setById(id, result);
@@ -5365,8 +5193,7 @@ const _CompanyProvider = class _CompanyProvider extends CompanyInitProvider {
     const cacheKey = this._getByColumnCacheKey(columnName, columnValue, first ? `_FIRST` : "", options);
     if (cacheKey != null) {
       const cachedData = await this.cache.getMetadata(cacheKey);
-      if (cachedData != null)
-        return cachedData;
+      if (cachedData != null) return cachedData;
     }
     const { mainTable, mainIdField, parallelTable } = this.config;
     const columns = this._prepareColumns(this.config);
@@ -5385,8 +5212,7 @@ const _CompanyProvider = class _CompanyProvider extends CompanyInitProvider {
       query = query.where(`${mainTable}.${where.field}`, where.value);
     }
     const data = await query.andWhere(columnName, columnValue);
-    if (data == null)
-      return [];
+    if (data == null) return [];
     const result = Array.isArray(data) ? data.map((m) => this.toResult(m)) : [this.toResult(data)];
     if (cacheKey != null) {
       await this.cache.setMetadata(cacheKey, result);
@@ -5402,14 +5228,12 @@ const _CompanyProvider = class _CompanyProvider extends CompanyInitProvider {
         first: true
       }
     );
-    if (data.length == 0)
-      return null;
+    if (data.length == 0) return null;
     return data[0];
   }
   async getOne(columnName, columnValue, options) {
     const result = await this.getOneOrNull(columnName, columnValue, options);
-    if (result == null)
-      throw new DXTException(DXTErrorCode.NOT_FOUND);
+    if (result == null) throw new DXTException(DXTErrorCode.NOT_FOUND);
     return result;
   }
   async getFirstOrNull(options) {
@@ -5420,22 +5244,19 @@ const _CompanyProvider = class _CompanyProvider extends CompanyInitProvider {
   }
   async getById(id, options) {
     const result = await this.getByIdOrNull(id, options);
-    if (result == null)
-      throw new DXTException(DXTErrorCode.NOT_FOUND);
+    if (result == null) throw new DXTException(DXTErrorCode.NOT_FOUND);
     return result;
   }
   async getFirst(options) {
     const result = await this.getFirstOrNull(options);
-    if (result == null)
-      throw new DXTException(DXTErrorCode.NOT_FOUND);
+    if (result == null) throw new DXTException(DXTErrorCode.NOT_FOUND);
     return result;
   }
   async getAll(options) {
     const cacheKey = this.getAllCacheKey(options);
     if (cacheKey != null) {
       const cachedData = await this.cache.getMetadata(cacheKey);
-      if (cachedData)
-        return cachedData;
+      if (cachedData) return cachedData;
     }
     const { mainTable, columns, sortField } = this.config;
     const k = options?.trx ?? await this.getCompany();
@@ -5448,41 +5269,35 @@ const _CompanyProvider = class _CompanyProvider extends CompanyInitProvider {
     if (whereIn != null) {
       query = query.whereIn(whereIn.field, whereIn.values);
     }
-    if (sortField != null)
-      query = query.orderBy(sortField);
+    if (sortField != null) query = query.orderBy(sortField);
     if (options?.offset != null) {
       query = query.offset(options?.offset).limit(options?.limit ?? 10);
     }
     const data = await query.select(...columns ?? "*");
     const result = data.map((p) => this.toResult(p));
-    if (cacheKey != null)
-      await this.cache.setMetadata(cacheKey, result);
+    if (cacheKey != null) await this.cache.setMetadata(cacheKey, result);
     return result;
   }
   async deleteById(id, options) {
     const { mainTable, mainIdField } = this.config;
     const k = options?.trx ?? await this.getCompany();
     const result = await k(mainTable).where(mainIdField, id).del();
-    if (result <= 0)
-      throw new DXTException(DXTErrorCode.NOT_FOUND);
+    if (result <= 0) throw new DXTException(DXTErrorCode.NOT_FOUND);
     await this.cache.invalidateById(id);
   }
   getAllByUserCacheKey(role, tangoUserId, options) {
     const useCache = options?.useCache ?? true;
-    if (!useCache)
-      return null;
+    if (!useCache) return null;
     return `${this.config.mainTable}_BTU_${this.getOptionsCacheKey(options)}_${role}_${tangoUserId ?? "A"}`;
   }
   getAllListByUserCacheKey(role, tangoUserId, options) {
     const useCache = options?.useCache ?? true;
-    if (!useCache)
-      return null;
+    if (!useCache) return null;
     return `${this.config.mainTable}_LBTU_${this.getOptionsCacheKey(options)}_${role}_${tangoUserId ?? "A"}`;
   }
   _getByColumnCacheKey(columnName, columnValue, extraKey, options) {
     const useCache = options?.useCache ?? true;
-    if (!useCache)
-      return null;
+    if (!useCache) return null;
     const finalColumnName = valueToString(columnName?.toString?.());
     const finalColumnValue = columnValue?.toString() ?? _CompanyProvider._noValueCacheKey;
     const { mainTable } = this.config;
@@ -5490,14 +5305,12 @@ const _CompanyProvider = class _CompanyProvider extends CompanyInitProvider {
   }
   getAllCacheKey(options) {
     const useCache = options?.useCache ?? true;
-    if (!useCache)
-      return null;
+    if (!useCache) return null;
     const { mainTable } = this.config;
     return `${mainTable}_ALL_${this.getOptionsCacheKey(options)}`;
   }
   getOptionsCacheKey(options) {
-    if (options == null)
-      return "NO";
+    if (options == null) return "NO";
     const {
       offset,
       limit,
@@ -5521,19 +5334,15 @@ function _collectDependencies(providers, collectedProviders) {
   providers.forEach((p) => {
     const providerName = _providerUniqueName(p);
     const providerAlreadyExists = collectedProviders.findIndex((el) => _providerUniqueName(el) == providerName) >= 0;
-    if (providerAlreadyExists)
-      return;
+    if (providerAlreadyExists) return;
     collectedProviders.push(p);
-    if (isStr(p))
-      return;
+    if (isStr(p)) return;
     const { dependencies } = p.config;
-    if (dependencies != null)
-      _collectDependencies(dependencies, collectedProviders);
+    if (dependencies != null) _collectDependencies(dependencies, collectedProviders);
   });
 }
 function _providerUniqueName(p) {
-  if (isStr(p))
-    return p;
+  if (isStr(p)) return p;
   return `${p.constructor.name}.${p.config.mainTable}`;
 }
 class TangoProvider extends CompanyProvider {
@@ -5569,10 +5378,8 @@ function resolveScreenName(screenNameFields, model, def = NO_NAME) {
   return def;
 }
 function customerTrulyEnabled(habilitado, sellerExists, fechaInhabilitacion) {
-  if (!habilitado)
-    return false;
-  if (!sellerExists)
-    return false;
+  if (!habilitado) return false;
+  if (!sellerExists) return false;
   const currentTime = now();
   const year = fechaInhabilitacion?.getUTCFullYear() ?? 0;
   const disableTimestamp = fechaInhabilitacion?.getTime() ?? 0;
@@ -5593,12 +5400,9 @@ const tangoCondicionModelMapper = (m) => {
 };
 const tangoAsientoModelMapper = (m) => {
   const { [ASIENTO_ID_FIELD]: id, [ASIENTO_CODE_FIELD]: tipo, CONC_ASI, COD_CUENTA: codigo_cuenta } = m;
-  if (!isAnInteger(id))
-    throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, `tangoAsientoModelMapper -> ${ASIENTO_ID_FIELD}`);
-  if (!isAnInteger(codigo_cuenta))
-    throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, `tangoAsientoModelMapper -> codigo_cuenta`);
-  if (!isNotEmptyStr(tipo))
-    throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, `tangoAsientoModelMapper -> ${ASIENTO_CODE_FIELD}`);
+  if (!isAnInteger(id)) throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, `tangoAsientoModelMapper -> ${ASIENTO_ID_FIELD}`);
+  if (!isAnInteger(codigo_cuenta)) throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, `tangoAsientoModelMapper -> codigo_cuenta`);
+  if (!isNotEmptyStr(tipo)) throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, `tangoAsientoModelMapper -> ${ASIENTO_CODE_FIELD}`);
   const name = CONC_ASI ?? id.toString();
   return { id, code: tipo, tipo, name, codigo_cuenta };
 };
@@ -5669,20 +5473,13 @@ const tangoPerfilModelMapper = (m) => {
   } = m;
   const bonificacion = isStr(BONIF_DEF) && BONIF_DEF.trim().toUpperCase() == "O" ? isANumber(D_BONIFIC) ? D_BONIFIC : 0 : null;
   const codigo_condicion_venta = isNotEmptyStr(D_COND_VEN) ? Number.parseInt(D_COND_VEN.trim()) : void 0;
-  if (!isAnInteger(D_TAL_FACT))
-    throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, "tangoPerfilModelMapper -> D_TAL_FACT");
-  if (!isAnInteger(D_TAL_PED))
-    throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, "tangoPerfilModelMapper -> D_TAL_PED");
-  if (!isAnInteger(D_TAL_REMI))
-    throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, "tangoPerfilModelMapper -> D_TAL_REMI");
-  if (!isAnInteger(codigo_condicion_venta))
-    throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, "tangoPerfilModelMapper -> codigoCondicionVenta");
-  if (!isAnInteger(D_LISTA_PR))
-    throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, "tangoPerfilModelMapper -> D_LISTA_PR");
-  if (!isNotEmptyStr(D_TIPO_ASI))
-    throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, "tangoPerfilModelMapper -> D_TIPO_ASI");
-  if (!isAnInteger(ID_ASIENTO_MODELO_GV))
-    throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, "tangoPerfilModelMapper -> ID_ASIENTO_MODELO_GV");
+  if (!isAnInteger(D_TAL_FACT)) throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, "tangoPerfilModelMapper -> D_TAL_FACT");
+  if (!isAnInteger(D_TAL_PED)) throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, "tangoPerfilModelMapper -> D_TAL_PED");
+  if (!isAnInteger(D_TAL_REMI)) throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, "tangoPerfilModelMapper -> D_TAL_REMI");
+  if (!isAnInteger(codigo_condicion_venta)) throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, "tangoPerfilModelMapper -> codigoCondicionVenta");
+  if (!isAnInteger(D_LISTA_PR)) throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, "tangoPerfilModelMapper -> D_LISTA_PR");
+  if (!isNotEmptyStr(D_TIPO_ASI)) throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, "tangoPerfilModelMapper -> D_TIPO_ASI");
+  if (!isAnInteger(ID_ASIENTO_MODELO_GV)) throw new DXTException(DXTErrorCode.TANGO_PERFIL_DB_DATA_ERROR, "tangoPerfilModelMapper -> ID_ASIENTO_MODELO_GV");
   return {
     code,
     id,
@@ -5718,13 +5515,11 @@ const tangoPerfilModelMapper = (m) => {
   };
 };
 function _isEditable(field) {
-  if (!isStr(field))
-    return false;
+  if (!isStr(field)) return false;
   return field.trim().toUpperCase() === "E";
 }
 function _isVisible(field) {
-  if (!isStr(field))
-    return false;
+  if (!isStr(field)) return false;
   const c = field.trim().toUpperCase();
   return c === "M" || c === "E";
 }
@@ -5800,18 +5595,12 @@ const tangoExtendedClienteModelMapper = (m) => {
     SOBRE_II,
     PORC_DESC
   } = m;
-  if (!isAnInteger(id_vendedor))
-    throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper -> ${VENDEDOR_ID_FIELD}`);
-  if (!isNotEmptyStr(codigo_vendedor))
-    throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper ${VENDEDOR_CODE_FIELD}`);
-  if (!isAnInteger(id_lista))
-    throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper ${LISTA_ID_FIELD}`);
-  if (!isAnInteger(codigo_lista))
-    throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper NRO_LISTA`);
-  if (!isAnInteger(id_condicion))
-    throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper ${CONDICION_ID_FIELD}`);
-  if (!isAnInteger(codigo_condicion))
-    throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper ${CONDICION_CODE_FIELD}`);
+  if (!isAnInteger(id_vendedor)) throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper -> ${VENDEDOR_ID_FIELD}`);
+  if (!isNotEmptyStr(codigo_vendedor)) throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper ${VENDEDOR_CODE_FIELD}`);
+  if (!isAnInteger(id_lista)) throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper ${LISTA_ID_FIELD}`);
+  if (!isAnInteger(codigo_lista)) throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper NRO_LISTA`);
+  if (!isAnInteger(id_condicion)) throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper ${CONDICION_ID_FIELD}`);
+  if (!isAnInteger(codigo_condicion)) throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `tangoExtendedClienteModelMapper ${CONDICION_CODE_FIELD}`);
   return {
     ...tangoClienteModelMapper(m),
     id_vendedor,
@@ -5833,8 +5622,7 @@ const tangoExtendedClienteModelMapper = (m) => {
   };
 };
 function taxFieldIsYes(field) {
-  if (!isStr(field))
-    return false;
+  if (!isStr(field)) return false;
   return field.trim().toUpperCase() === "S";
 }
 class ClienteRepository extends TangoProvider {
@@ -5849,8 +5637,7 @@ class ClienteRepository extends TangoProvider {
   async customerBelongsToSeller(customerId, sellerId) {
     const cacheKey = `belongs_${sellerId}_${customerId}`;
     const cachedData = await this.cache.getMetadata(cacheKey);
-    if (cachedData != null)
-      return cachedData;
+    if (cachedData != null) return cachedData;
     const { mainTable, columns } = this.config;
     const k = await this.getCompany();
     const data = await k(mainTable).count({ count: "*" }).where({
@@ -5864,8 +5651,7 @@ class ClienteRepository extends TangoProvider {
   async getAllBySeller(sellerId) {
     const cacheKey = `bySeller_${sellerId}`;
     const cachedData = await this.cache.getMetadata(cacheKey);
-    if (cachedData != null)
-      return cachedData;
+    if (cachedData != null) return cachedData;
     const { mainTable, columns } = this.config;
     const k = await this.getCompany();
     const data = await k(mainTable).select(...columns ?? "*").where({
@@ -5881,21 +5667,18 @@ class ClienteRepository extends TangoProvider {
   async getExtendedByIdOrNull(customerId) {
     const cacheKey = `fullById_${customerId}`;
     const cachedData = await this.cache.getMetadata(cacheKey);
-    if (cachedData != null)
-      return cachedData;
+    if (cachedData != null) return cachedData;
     const { mainTable, mainIdField, columns } = this.config;
     const k = await this.getCompany();
     const data = await k(mainTable).first(...columns ?? "*").where(mainIdField, customerId);
-    if (data == null)
-      return null;
+    if (data == null) return null;
     const result = this._toExtendedResult(data);
     await this.cache.setMetadata(cacheKey, result);
     return result;
   }
   async getExtendedById(customerId) {
     const result = await this.getExtendedByIdOrNull(customerId);
-    if (result == null)
-      throw new DXTException(DXTErrorCode.DXT_CUSTOMER_NOT_FOUND);
+    if (result == null) throw new DXTException(DXTErrorCode.DXT_CUSTOMER_NOT_FOUND);
     return result;
   }
   toResult(m) {
@@ -5924,8 +5707,7 @@ class DXTUserRepository extends CompanyProvider {
     const cacheKey = useCache ? this._getUserWithRelationsByIdCacheKey(id, tangoUserRequired) : null;
     if (cacheKey != null) {
       const cachedData = await this.cache.getMetadata(cacheKey);
-      if (cachedData)
-        return cachedData;
+      if (cachedData) return cachedData;
     }
     const { mainIdField } = this.config;
     const k = await this.getCompany();
@@ -5945,8 +5727,7 @@ class DXTUserRepository extends CompanyProvider {
     const cacheKey = useCache ? this._getUserWithRelationsByNameCacheKey(username, tangoUserRequired) : null;
     if (cacheKey != null) {
       const cachedData = await this.cache.getMetadata(cacheKey);
-      if (cachedData)
-        return cachedData;
+      if (cachedData) return cachedData;
     }
     const k = await this.getCompany();
     return await this._getUserWithRelationsByWhere(k, "username", username, tangoUserRequired, cacheKey);
@@ -5962,22 +5743,18 @@ class DXTUserRepository extends CompanyProvider {
         tangoIdField
       }
     ).first("*").where(field, value);
-    if (modelAndRelations == null)
-      throw new DXTException(dxtUserNotFoundErrorCode);
+    if (modelAndRelations == null) throw new DXTException(dxtUserNotFoundErrorCode);
     const tangoUserExists = modelAndRelations[tangoIdField] != null;
-    if (tangoUserRequired && !tangoUserExists)
-      throw new DXTException(tangoUserNotFoundErrorCode);
+    if (tangoUserRequired && !tangoUserExists) throw new DXTException(tangoUserNotFoundErrorCode);
     const unsafe = this.toResultWithRelations(modelAndRelations);
-    if (tangoUserExists && cacheKey != null)
-      this.cache.setMetadata(cacheKey, unsafe);
+    if (tangoUserExists && cacheKey != null) this.cache.setMetadata(cacheKey, unsafe);
     return unsafe;
   }
   async getAllWithRelations(options) {
     const cacheKey = this.getAllCacheKey(options);
     if (cacheKey != null) {
       const cachedData = await this.cache.getMetadata(cacheKey);
-      if (cachedData)
-        return cachedData;
+      if (cachedData) return cachedData;
     }
     const { mainTable, mainIdField, sortField, tangoTable, tangoIdField, tangoColumns } = this.config;
     const k = await this.getCompany();
@@ -5989,8 +5766,7 @@ class DXTUserRepository extends CompanyProvider {
         tangoIdField
       }
     );
-    if (sortField != null)
-      query = query.orderBy(sortField);
+    if (sortField != null) query = query.orderBy(sortField);
     if (options?.offset != null) {
       query = query.offset(options?.offset).limit(options?.limit ?? 10);
     }
@@ -6003,8 +5779,7 @@ class DXTUserRepository extends CompanyProvider {
       ...(tangoColumns ?? []).map((c) => `${tangoTable}.${c}`)
     );
     const result = modelAndRelationss?.map((model) => this.createUserMinimalInfo(model));
-    if (cacheKey != null)
-      await this.cache.setMetadata(cacheKey, result);
+    if (cacheKey != null) await this.cache.setMetadata(cacheKey, result);
     return result;
   }
   createUserMinimalInfo(modelAndRelations) {
@@ -6032,19 +5807,16 @@ class DXTUserRepository extends CompanyProvider {
     await this._throwIfUserNameExists(input.username, current_dxt_user_id);
     const profile = await perfilRepository.getByIdOrNull(input.perfil_facturacion_id);
     const customer = profile != null ? await clienteRepository.getByIdOrNull(input.tango_id) : null;
-    if (profile == null || customer == null)
-      throw new DXTException(DXTErrorCode.INVALID_PARAMETER);
+    if (profile == null || customer == null) throw new DXTException(DXTErrorCode.INVALID_PARAMETER);
   }
   async _throwIfUserNameExists(username, current_dxt_user_id) {
     if (current_dxt_user_id != null) {
       const currentTableUser = await this.getOneOrNull("username", username);
-      if (currentTableUser != null && currentTableUser.id != current_dxt_user_id)
-        throw new DXTException(DXTErrorCode.USERNAME_ALREADY_EXISTS);
+      if (currentTableUser != null && currentTableUser.id != current_dxt_user_id) throw new DXTException(DXTErrorCode.USERNAME_ALREADY_EXISTS);
     }
     const { twinRepository } = this.config;
     const twinTableUser = await twinRepository().getOneOrNull("username", username);
-    if (twinTableUser != null)
-      throw new DXTException(DXTErrorCode.USERNAME_ALREADY_EXISTS);
+    if (twinTableUser != null) throw new DXTException(DXTErrorCode.USERNAME_ALREADY_EXISTS);
   }
   async preCreate(k, input) {
   }
@@ -6072,8 +5844,7 @@ class DXTUserRepository extends CompanyProvider {
     const { mainTable, mainIdField } = this.config;
     try {
       const result = await k(mainTable).where(mainIdField, id).update(inputModel);
-      if (result <= 0)
-        throw new DXTException(DXTErrorCode.NOT_FOUND);
+      if (result <= 0) throw new DXTException(DXTErrorCode.NOT_FOUND);
     } catch (e) {
       throw dbErrorToDXTException(e);
     }
@@ -6082,8 +5853,7 @@ class DXTUserRepository extends CompanyProvider {
   }
   async delete(id, username) {
     const user = await this.getById(id);
-    if (user.username !== username)
-      throw new DXTException(DXTErrorCode.INVALID_PARAMETER, "username no coincide");
+    if (user.username !== username) throw new DXTException(DXTErrorCode.INVALID_PARAMETER, "username no coincide");
     return await this.deleteById(id);
   }
   userInputToModel(input) {
@@ -6155,8 +5925,7 @@ class DXTVendedorRepository extends DXTUserRepository {
   }
   toResult(m) {
     const { dxt_vendedor_id, habilitado_en_dxt, password_hash, tango_id } = m;
-    if (dxt_vendedor_id == null)
-      throw Error("DXTVendedorRepository.toResult() -> dxt_vendedor_id == null");
+    if (dxt_vendedor_id == null) throw Error("DXTVendedorRepository.toResult() -> dxt_vendedor_id == null");
     return {
       ...m,
       password_hash,
@@ -6205,8 +5974,7 @@ class DXTClienteRepository extends DXTUserRepository {
       email,
       ...remaining
     } = m;
-    if (dxt_cliente_id == null)
-      throw Error("DXTClienteRepository.toResult() -> dxt_cliente_id == null");
+    if (dxt_cliente_id == null) throw Error("DXTClienteRepository.toResult() -> dxt_cliente_id == null");
     return {
       ...remaining,
       id: dxt_cliente_id,
@@ -6260,8 +6028,7 @@ class DXTClienteRepository extends DXTUserRepository {
   }
   async _matchSiblingsData(k, input, siblings) {
     const ids = siblings.map((sibling) => sibling.id);
-    if (ids.length == 0)
-      return;
+    if (ids.length == 0) return;
     const {
       perfil_facturacion_id,
       id_lista_adicional,
@@ -6281,8 +6048,7 @@ class DXTClienteRepository extends DXTUserRepository {
   }
   async getSiblings(dxt_cliente_id, tango_id) {
     const result = await this.getMany("tango_id", tango_id);
-    if (dxt_cliente_id == null)
-      return result;
+    if (dxt_cliente_id == null) return result;
     return result.filter((customer) => customer.id != dxt_cliente_id);
   }
 }
@@ -6407,18 +6173,15 @@ function sha1ToString(value, secret, encoding = "hex") {
 const AUTH_SECRET = "Ema0PpqK0jMhUl64n5q6ZVhc1WukcYSpKW8GdaQCd1b0W7jh6rwvyopI8UB7DBaU";
 class VOAuthToken extends VOWeakCheckAuthToken {
   validate(rawValue) {
-    if (rawValue instanceof AuthTokenProps)
-      return rawValue;
+    if (rawValue instanceof AuthTokenProps) return rawValue;
     if (typeof rawValue === "string") {
       const value = rawValue.trim().toLowerCase();
       const p = value.lastIndexOf("-");
-      if (p < 0)
-        this.throwError(rawValue);
+      if (p < 0) this.throwError(rawValue);
       const result = super.validate(value);
       const payloadHash = sha1ToString(value.substring(0, p), AUTH_SECRET);
       const weakCheckTokenHash = this.verificationHash?.toString();
-      if (payloadHash !== weakCheckTokenHash)
-        this.throwError(rawValue);
+      if (payloadHash !== weakCheckTokenHash) this.throwError(rawValue);
       return result;
     }
     this.throwError(rawValue);
@@ -6447,8 +6210,7 @@ class AuthTokenRepository {
       bufferSize: 200
     });
     for await (const dirent of dir) {
-      if (!dirent.isFile())
-        continue;
+      if (!dirent.isFile()) continue;
       let token = null;
       try {
         token = new VOAuthToken(dirent.name);
@@ -6529,8 +6291,7 @@ async function connectWorker(authTokenString) {
   }
   const tokenExists = await authTokenRepository.tokenExists(token);
   if (!tokenExists) {
-    if (!isAutoLoginEnabled)
-      throw new DXTException(DXTErrorCode.MISSING_AUTH_TOKEN);
+    if (!isAutoLoginEnabled) throw new DXTException(DXTErrorCode.MISSING_AUTH_TOKEN);
     authTokenRepository.save(token);
   }
   const tokenProps = token.valueOf();
@@ -6543,10 +6304,8 @@ async function connectWorker(authTokenString) {
     };
   }
   tokenProps.universalId.valueOf();
-  if (role === UserRole.customer)
-    return await _testUserConnect(dxtClienteRepository, token, DXTErrorCode.TANGO_CUSTOMER_NO_LONGER_EXISTS);
-  if (role === UserRole.seller)
-    return await _testUserConnect(dxtVendedorRepository, token, DXTErrorCode.TANGO_SELLER_NO_LONGER_EXISTS);
+  if (role === UserRole.customer) return await _testUserConnect(dxtClienteRepository, token, DXTErrorCode.TANGO_CUSTOMER_NO_LONGER_EXISTS);
+  if (role === UserRole.seller) return await _testUserConnect(dxtVendedorRepository, token, DXTErrorCode.TANGO_SELLER_NO_LONGER_EXISTS);
   throw new DXTException(DXTErrorCode.MISSING_AUTH_TOKEN);
 }
 async function _testUserConnect(repository, authToken, tangoUserNotFoundErrorCode) {
@@ -6561,8 +6320,7 @@ async function _testUserConnect(repository, authToken, tangoUserNotFoundErrorCod
     throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, message);
   }
   const userStateException = await resolveUserStateException(userEntity, tangoUserNotFoundErrorCode);
-  if (userStateException)
-    throw userStateException;
+  if (userStateException) throw userStateException;
   return {
     auth_token: authToken.toString(),
     user: userEntity
@@ -6584,16 +6342,14 @@ async function loginWorker(username, password) {
     passwordHash,
     DXTErrorCode.TANGO_CUSTOMER_NO_LONGER_EXISTS
   );
-  if (result)
-    return result;
+  if (result) return result;
   result = await _testUserLogin(
     dxtVendedorRepository,
     username,
     passwordHash,
     DXTErrorCode.TANGO_SELLER_NO_LONGER_EXISTS
   );
-  if (result)
-    return result;
+  if (result) return result;
   throw new DXTException(DXTErrorCode.INVALID_USERNAME_OR_PASSWORD);
 }
 async function _testUserLogin(repository, username, passwordHash, tangoUserNotFoundErrorCode) {
@@ -6602,18 +6358,14 @@ async function _testUserLogin(repository, username, passwordHash, tangoUserNotFo
     userUnsafe = await repository.getUserWithRelationsByName(username, false);
   } catch (e) {
     const notFoundError = isNotFoundException(e);
-    if (!notFoundError)
-      throw e;
+    if (!notFoundError) throw e;
   }
   const user = userUnsafe ? new UserEntity(userUnsafe) : void 0;
-  if (user == null)
-    return void 0;
+  if (user == null) return void 0;
   const userPasswordHash = user.passwordHash.valueOf();
-  if (passwordHash !== userPasswordHash)
-    return void 0;
+  if (passwordHash !== userPasswordHash) return void 0;
   const userStateException = await resolveUserStateException(user, tangoUserNotFoundErrorCode);
-  if (userStateException)
-    throw userStateException;
+  if (userStateException) throw userStateException;
   const userInfo = await authTokenRepository.createUserAuthToken(user);
   return userInfo;
 }
@@ -6654,26 +6406,21 @@ class AuthenticatedRootController extends RootController {
   async onRequest(req) {
     await super.onRequest(req);
     let token = req.headers.get("authorization")?.toLowerCase();
-    if (typeof token !== "string")
-      token = req.query["auth"];
+    if (typeof token !== "string") token = req.query["auth"];
     if (typeof token !== "string") {
-      if (!isAutoLoginEnabled)
-        throw new DXTException(DXTErrorCode.UNAUTHORIZED);
+      if (!isAutoLoginEnabled) throw new DXTException(DXTErrorCode.UNAUTHORIZED);
       const devUsername = process.env.DEV_AUTH_USERNAME;
       const devPassword = process.env.DEV_AUTH_PASSWORD;
       if (devUsername != null && devPassword != null) {
         const result2 = await authService.login(devUsername, devPassword);
         token = result2.auth_token;
       }
-      if (typeof token !== "string")
-        throw new DXTException(DXTErrorCode.INVALID_USERNAME_OR_PASSWORD);
+      if (typeof token !== "string") throw new DXTException(DXTErrorCode.INVALID_USERNAME_OR_PASSWORD);
     }
     token = token.trim();
-    if (token.substring(0, 7) === "bearer ")
-      token = token.substring(7).trim();
+    if (token.substring(0, 7) === "bearer ") token = token.substring(7).trim();
     const result = await authService.connect(token);
-    if (result == null)
-      throw new DXTException(DXTErrorCode.UNAUTHORIZED);
+    if (result == null) throw new DXTException(DXTErrorCode.UNAUTHORIZED);
     req.auth = result;
   }
 }
@@ -6698,8 +6445,7 @@ const baseUserInputSchema = {
   tango_id: (v) => new VOUInt32(v),
   username: (v) => {
     const s = new VOUserName(v).valueOf();
-    if (s.toLowerCase() == ADMIN_USERNAME)
-      throw new DXTException(DXTErrorCode.FORBIDDEN_ADMIN_USERNAME);
+    if (s.toLowerCase() == ADMIN_USERNAME) throw new DXTException(DXTErrorCode.FORBIDDEN_ADMIN_USERNAME);
     return s;
   },
   password: (v) => v != null ? new VODXTPassword(v) : void 0,
@@ -6763,43 +6509,34 @@ const optionalStringValidator = (v, def) => v == null ? def : new VOString(v).va
 const ARTICLE_GROUP_NO_NAME = "_";
 function _getDXTArticuloListParam(s) {
   const chunks = s.split("=", 2);
-  if (chunks.length != 2)
-    return null;
+  if (chunks.length != 2) return null;
   const key = chunks[0].trim().toLowerCase();
   const value = chunks[1].trimEnd();
-  if (key.length == 0)
-    return null;
+  if (key.length == 0) return null;
   return { key, value };
 }
 function strToDXTArticuloListRecord(s) {
-  if (!isStr(s))
-    return null;
+  if (!isStr(s)) return null;
   let p = s.indexOf(";");
-  if (p <= 0)
-    p = s.length;
+  if (p <= 0) p = s.length;
   const codigo_articulo = s.substring(0, p).trimEnd();
-  if (codigo_articulo.length == 0)
-    return null;
+  if (codigo_articulo.length == 0) return null;
   const params = s.substring(p + 1).trim();
-  if (codigo_articulo == ARTICLE_GROUP_NO_NAME)
-    throw new DXTException(DXTErrorCode.RESERVED_ARTICLE_GROUP_NAME, `"${ARTICLE_GROUP_NO_NAME}"`);
-  if (params.length == 0)
-    return { codigo_articulo };
+  if (codigo_articulo == ARTICLE_GROUP_NO_NAME) throw new DXTException(DXTErrorCode.RESERVED_ARTICLE_GROUP_NAME, `"${ARTICLE_GROUP_NO_NAME}"`);
+  if (params.length == 0) return { codigo_articulo };
   return {
     codigo_articulo,
     params
   };
 }
 function strToDXTArticuloListParams(paramsStr) {
-  if (paramsStr == null)
-    return void 0;
+  if (paramsStr == null) return void 0;
   const result = {};
   let emptyParams = true;
   const chunks = paramsStr.split(";");
   chunks.forEach((s, i) => {
     const paramEntry = _getDXTArticuloListParam(s);
-    if (paramEntry == null)
-      return;
+    if (paramEntry == null) return;
     const { key, value } = paramEntry;
     result[key] = value;
     emptyParams = false;
@@ -6807,29 +6544,21 @@ function strToDXTArticuloListParams(paramsStr) {
   return emptyParams ? void 0 : result;
 }
 function applyTangoDiscount(price, discount) {
-  if (price == null)
-    return null;
-  if (!isANumber(price))
-    price = 0;
-  if (!isANumber(discount))
-    discount = 0;
+  if (price == null) return null;
+  if (!isANumber(price)) price = 0;
+  if (!isANumber(discount)) discount = 0;
   discount = limitNumber(discount, 0, 100);
   return price - price * discount / 100;
 }
 function invertedTangoDiscount(price, priceListDiscount, orderDiscount) {
-  if (!isANumber(price))
-    price = 0;
-  if (priceListDiscount == null)
-    return price;
-  if (!isANumber(priceListDiscount))
-    priceListDiscount = 0;
-  if (!isANumber(orderDiscount))
-    orderDiscount = 0;
+  if (!isANumber(price)) price = 0;
+  if (priceListDiscount == null) return price;
+  if (!isANumber(priceListDiscount)) priceListDiscount = 0;
+  if (!isANumber(orderDiscount)) orderDiscount = 0;
   priceListDiscount = limitNumber(priceListDiscount, 0, 100);
   orderDiscount = limitNumber(orderDiscount, 0, 100);
   price = price - price * priceListDiscount / 100;
-  if (orderDiscount >= 100)
-    return 0;
+  if (orderDiscount >= 100) return 0;
   return price * 100 / (100 - orderDiscount);
 }
 function tangoArticuloModelMapper(m) {
@@ -6876,8 +6605,7 @@ function tangoFullArticleModelMapper(m, listId1, discount1, listId2, discount2) 
 function tangoFullArticleOrGroupNameModelMapper(m, listId1, discount1, listId2, discount2) {
   const { DXTO_CODIGO_ARTICULO, [ARTICULO_CODE_FIELD]: codigoArticulo } = m;
   const isGroupLabel = DXTO_CODIGO_ARTICULO != null && DXTO_CODIGO_ARTICULO !== codigoArticulo;
-  if (isGroupLabel)
-    return DXTO_CODIGO_ARTICULO.trim();
+  if (isGroupLabel) return DXTO_CODIGO_ARTICULO.trim();
   return tangoFullArticleModelMapper(
     m,
     listId1,
@@ -7090,10 +6818,8 @@ const dxtVendedorGetCustomersEndpoint = createApiEndpoint(
   async (req) => {
     const { user } = req.auth;
     const tangoId = user.tangoId?.valueOf();
-    if (!user.role.isSeller())
-      throw new DXTException(DXTErrorCode.SELLER_ROLE_REQUIRED);
-    if (typeof tangoId !== "number")
-      throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "dxtVendedorGetCustomersEndpoint");
+    if (!user.role.isSeller()) throw new DXTException(DXTErrorCode.SELLER_ROLE_REQUIRED);
+    if (typeof tangoId !== "number") throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "dxtVendedorGetCustomersEndpoint");
     return await clienteRepository.getAllBySeller(tangoId);
   }
 );
@@ -7203,12 +6929,9 @@ class FetchState {
   }
   mapOrElse(options) {
     const { loading, success, error, orElse } = options;
-    if (this instanceof FetchStateLoading && loading)
-      return loading(this);
-    if (this instanceof FetchStateSuccess && success)
-      return success(this);
-    if (this instanceof FetchStateError && error)
-      return error(this);
+    if (this instanceof FetchStateLoading && loading) return loading(this);
+    if (this instanceof FetchStateSuccess && success) return success(this);
+    if (this instanceof FetchStateError && error) return error(this);
     return orElse(this);
   }
   map(options) {
@@ -7232,8 +6955,7 @@ class FetchState {
     return this instanceof FetchStateError;
   }
   errorOrNull() {
-    if (this instanceof FetchStateError)
-      return this.error;
+    if (this instanceof FetchStateError) return this.error;
     return null;
   }
   callIfLoading(func) {
@@ -7317,14 +7039,11 @@ function useDXTApiFetch(params) {
   useEffect(() => {
     (async () => {
       const isSilent = params?.silent ?? false;
-      if (isSilent)
-        return;
-      if (!(state instanceof FetchStateError))
-        return;
+      if (isSilent) return;
+      if (!(state instanceof FetchStateError)) return;
       const stateError = state.error;
       const isTokenError2 = await checkTokenErrorAndRedirect(app, stateError.status);
-      if (isTokenError2)
-        return;
+      if (isTokenError2) return;
       if (retryCallback && await retryCallback({
         message: stateError.error_description
       }))
@@ -7940,8 +7659,7 @@ const ControlledSelect = (props) => {
   function compareByLabel(a, b) {
     return a.label.localeCompare(b.label);
   }
-  if (shouldSort ?? false)
-    fieldProps.options.sort(compareByLabel);
+  if (shouldSort ?? false) fieldProps.options.sort(compareByLabel);
   const {
     field: { ref, onChange, value },
     fieldState: { invalid },
@@ -8775,8 +8493,7 @@ function yupVOValidation(VO, value) {
 const baseUserValidation = {
   tango_id: yup.number().integer().min(1, "Seleccione un cliente de Tango").required("Seleccione un cliente de Tango").typeError("Seleccione un cliente de Tango"),
   username: yup.string().required("Ingrese un nombre de usuario").test("username", "Ingrese un nombre de usuario válido", (v) => {
-    if (!yupVOValidation(VOUserName, v))
-      return false;
+    if (!yupVOValidation(VOUserName, v)) return false;
     return v.toLowerCase() != ADMIN_USERNAME;
   }),
   email: yup.string().email("Ingrese un correo electrónico válido"),
@@ -8894,8 +8611,7 @@ function transformCreateSellerSchemaData(data) {
     /*lista_adicional_vendedor: _,*/
     ...remaining
   } = _commonNormalization(data);
-  if (password == null)
-    return null;
+  if (password == null) return null;
   return {
     ...remaining,
     password
@@ -8916,8 +8632,7 @@ function transformCreateCustomerSchemaData(data) {
     /*lista_adicional_vendedor,*/
     ...remaining
   } = _commonNormalization(data);
-  if (password == null)
-    return null;
+  if (password == null) return null;
   return {
     ...remaining,
     // lista_adicional_vendedor: lista_adicional_vendedor === true,
@@ -9123,8 +8838,7 @@ function getEstadoPedidoText(estado) {
   }
 }
 function numberToEstadoPedido(value) {
-  if (!Number.isInteger(value))
-    return EstadoPedido.INVALIDO;
+  if (!Number.isInteger(value)) return EstadoPedido.INVALIDO;
   switch (value) {
     case EstadoPedido.INGRESADO:
       return EstadoPedido.INGRESADO;
@@ -9142,18 +8856,15 @@ function numberToEstadoPedido(value) {
 function realOrderStatus(header, rows) {
   const { estado } = header;
   const canBeInProgress = rows != null && (estado == EstadoPedido.APROBADO || estado == EstadoPedido.INGRESADO);
-  if (!canBeInProgress)
-    return estado;
+  if (!canBeInProgress) return estado;
   for (const row of rows) {
     const { a_descontar, a_facturar, pendiente_descontar, pendiente_facturar } = row;
-    if (a_descontar != pendiente_descontar || a_facturar != pendiente_facturar)
-      return EstadoPedido.EN_PROGRESO;
+    if (a_descontar != pendiente_descontar || a_facturar != pendiente_facturar) return EstadoPedido.EN_PROGRESO;
   }
   return estado;
 }
 function realOrderTotal(header, rows) {
-  if (rows == null)
-    return null;
+  if (rows == null) return null;
   let total = 0;
   for (const row of rows) {
     total += (row.cantidad ?? 0) * (row.precio ?? 0);
@@ -9164,38 +8875,27 @@ function realOrderTotal(header, rows) {
 }
 function isUserAllowedToModifyOrder(user, orderStatus) {
   const isAdmin = user instanceof UserEntity ? user.isAdmin() : user.role == UserRole.admin;
-  if (isAdmin)
-    return false;
-  if (orderStatus != EstadoPedido.INGRESADO)
-    return false;
+  if (isAdmin) return false;
+  if (orderStatus != EstadoPedido.INGRESADO) return false;
   return true;
 }
 function isUserAllowedToCancelOrDeleteOrder(user, orderStatus) {
   const isAdmin = user instanceof UserEntity ? user.isAdmin() : user.role == UserRole.admin;
   const puedeAnular = isAdmin ? true : user instanceof UserEntity ? user.puedeAnularPedido.valueOf() : user.puede_anular_pedido;
-  if (!puedeAnular)
-    return false;
-  if (orderStatus == EstadoPedido.INGRESADO)
-    return true;
+  if (!puedeAnular) return false;
+  if (orderStatus == EstadoPedido.INGRESADO) return true;
   const aprobarAlCrear = user instanceof UserEntity ? user.aprobarPedidoAlCrear.valueOf() : user.aprobar_pedido_al_crear;
-  if (orderStatus == EstadoPedido.APROBADO && (isAdmin || aprobarAlCrear))
-    return true;
-  if ((orderStatus == EstadoPedido.EN_PROGRESO || orderStatus == EstadoPedido.ANULADO) && isAdmin)
-    return true;
+  if (orderStatus == EstadoPedido.APROBADO && (isAdmin || aprobarAlCrear)) return true;
+  if ((orderStatus == EstadoPedido.EN_PROGRESO || orderStatus == EstadoPedido.ANULADO) && isAdmin) return true;
   return false;
 }
 function orderCaptionsToArray(c1, c2, c3, c4, c5) {
   const result = [];
-  if (c1 != null && c1.length > 0)
-    result.push({ k: 1, v: c1 });
-  if (c2 != null && c2.length > 0)
-    result.push({ k: 2, v: c2 });
-  if (c3 != null && c3.length > 0)
-    result.push({ k: 3, v: c3 });
-  if (c4 != null && c4.length > 0)
-    result.push({ k: 4, v: c4 });
-  if (c5 != null && c5.length > 0)
-    result.push({ k: 5, v: c5 });
+  if (c1 != null && c1.length > 0) result.push({ k: 1, v: c1 });
+  if (c2 != null && c2.length > 0) result.push({ k: 2, v: c2 });
+  if (c3 != null && c3.length > 0) result.push({ k: 3, v: c3 });
+  if (c4 != null && c4.length > 0) result.push({ k: 4, v: c4 });
+  if (c5 != null && c5.length > 0) result.push({ k: 5, v: c5 });
   return result;
 }
 function getDateHHMMSS(date) {
@@ -9216,11 +8916,9 @@ function composeDateTime(date, time) {
   return result;
 }
 function _getHMS(hms) {
-  if (!isStr(hms))
-    return [0, 0, 0];
+  if (!isStr(hms)) return [0, 0, 0];
   hms = hms.trim();
-  if (hms.length != 6)
-    return [0, 0, 0];
+  if (hms.length != 6) return [0, 0, 0];
   const hStr = hms.substring(0, 2);
   const mStr = hms.substring(2, 4);
   const sStr = hms.substring(4, 6);
@@ -9273,14 +8971,10 @@ const pedidoModelMapper = (m) => {
     COMP_STK: compromete_stock,
     ID_ASIENTO_MODELO_GV: id_asiento_modelo_gv
   } = m;
-  if (!(FECHA_PEDI instanceof Date))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> FECHA_PEDI");
-  if (!(FECHA_ENTR === null || FECHA_ENTR instanceof Date))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> FECHA_ENTR");
-  if (!(FECHA_INGRESO === null || FECHA_INGRESO instanceof Date))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> FECHA_INGRESO");
-  if (!(FECHA_ULTIMA_MODIFICACION === null || FECHA_ULTIMA_MODIFICACION instanceof Date))
-    throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> FECHA_ULTIMA_MODIFICACION");
+  if (!(FECHA_PEDI instanceof Date)) throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> FECHA_PEDI");
+  if (!(FECHA_ENTR === null || FECHA_ENTR instanceof Date)) throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> FECHA_ENTR");
+  if (!(FECHA_INGRESO === null || FECHA_INGRESO instanceof Date)) throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> FECHA_INGRESO");
+  if (!(FECHA_ULTIMA_MODIFICACION === null || FECHA_ULTIMA_MODIFICACION instanceof Date)) throw new DXTException(DXTErrorCode.TANGO_PEDIDO_DB_DATA_ERROR, "pedidoModelMapper -> FECHA_ULTIMA_MODIFICACION");
   const fecha_hora_alta = composeDateTime(FECHA_PEDI, HORA);
   const fecha_hora_ingreso = composeDateTime(FECHA_INGRESO, HORA_INGRESO);
   const fecha_hora_modificacion = composeDateTime(FECHA_ULTIMA_MODIFICACION, HORA_ULTIMA_MODIFICACION);
@@ -9343,27 +9037,21 @@ const pedidoAndRelationsModelMapper = (m) => {
   const nombre_deposito = m.NOMBRE_SUC?.trim();
   const direccion_cliente = m.DIRECCION;
   let localidad_cliente = void 0;
-  if (m.LOCALIDAD != null)
-    localidad_cliente = m.LOCALIDAD.trim();
+  if (m.LOCALIDAD != null) localidad_cliente = m.LOCALIDAD.trim();
   if (localidad_cliente != null) {
     localidad_cliente = localidad_cliente.trim();
-    if (localidad_cliente == "")
-      localidad_cliente = void 0;
+    if (localidad_cliente == "") localidad_cliente = void 0;
   }
   let telefono_cliente = void 0;
-  if (m.TELEFONO1 != null)
-    telefono_cliente = m.TELEFONO1.trim();
+  if (m.TELEFONO1 != null) telefono_cliente = m.TELEFONO1.trim();
   if (m.TELEFONO2 != null) {
-    if (telefono_cliente != null && telefono_cliente.length)
-      telefono_cliente += " ";
-    else
-      telefono_cliente = "";
+    if (telefono_cliente != null && telefono_cliente.length) telefono_cliente += " ";
+    else telefono_cliente = "";
     telefono_cliente += m.TELEFONO2;
   }
   if (telefono_cliente != null) {
     telefono_cliente = telefono_cliente.trim();
-    if (telefono_cliente == "")
-      telefono_cliente = void 0;
+    if (telefono_cliente == "") telefono_cliente = void 0;
   }
   return {
     ...r,
@@ -9389,8 +9077,7 @@ const tangoParametrosModelMapper = (m) => {
   const { PED_AUT_CO, PROX_NDOC } = m;
   const idsPedidosAutomaticos = toBoolean(PED_AUT_CO, false);
   const proximoId = PROX_NDOC;
-  if (proximoId == null || !Number.isFinite(proximoId))
-    throw new DXTException(DXTErrorCode.TANGO_DB_INVALID_DATA, "tangoParametrosModelMapper -> PROX_NDOC");
+  if (proximoId == null || !Number.isFinite(proximoId)) throw new DXTException(DXTErrorCode.TANGO_DB_INVALID_DATA, "tangoParametrosModelMapper -> PROX_NDOC");
   return {
     idsPedidosAutomaticos,
     proximoId
@@ -9517,11 +9204,10 @@ class PedidoBaseRepository extends CompanyProvider {
     const k = await this.getCompany();
     const where = this._getUserRoleWhere(userRole, tangoUserId);
     let query = k(mainTable);
-    if (where != null)
-      query = query.where(
-        `${mainTable}.${where.field}`,
-        where.value
-      );
+    if (where != null) query = query.where(
+      `${mainTable}.${where.field}`,
+      where.value
+    );
     const mainColumns = (columns ?? ["*"]).map((c) => `${mainTable}.${c.toString()}`);
     const pedidoClienteColumns = [...PEDIDO_CLIENTE_COLUMNS].map((c) => `${CLIENTE_TABLE}.${c}`);
     const vendedorNombreColumns = VENDEDOR_NAME_COLUMNS.map((c) => `${VENDEDOR_TABLE}.${c}`);
@@ -9543,23 +9229,20 @@ class PedidoBaseRepository extends CompanyProvider {
       query = query.leftOuterJoin(name, `${mainTable}.${PEDIDO_ID_FIELD}`, `${name}.${PEDIDO_ID_FIELD}`);
     }
     const data = await query;
-    if (data == null)
-      throw new DXTException(DXTErrorCode.NOT_FOUND);
+    if (data == null) throw new DXTException(DXTErrorCode.NOT_FOUND);
     let transformedData = [];
     for (const pedido of data) {
       transformedData.push(
         await this.finalTransformer(user, this.toResultWithRelations(pedido))
       );
     }
-    if (cacheKey != null)
-      await this.cache.setMetadata(cacheKey, transformedData);
+    if (cacheKey != null) await this.cache.setMetadata(cacheKey, transformedData);
     const settings2 = await settingsProvider.getOrderSettings();
     const result = this._removePrivateFields(userRole, transformedData, settings2);
     return result;
   }
   _removePrivateFields(userRole, source, settings2) {
-    if (userRole != UserRole.customer)
-      return source;
+    if (userRole != UserRole.customer) return source;
     const includeShippingDate = settings2.show_shipping_date_to_customers;
     return source.map((order) => {
       const {
@@ -9582,8 +9265,7 @@ class PedidoBaseRepository extends CompanyProvider {
       const result2 = await trx(orderTable).where(orderIdField, orderId).del();
       return result2;
     });
-    if (result <= 0)
-      throw new DXTException(DXTErrorCode.NOT_FOUND);
+    if (result <= 0) throw new DXTException(DXTErrorCode.NOT_FOUND);
   }
   composeUpsertRecord(userRole, customer, orderAndRows) {
     const {
@@ -9680,8 +9362,7 @@ class PedidoBaseRepository extends CompanyProvider {
         [PEDIDO_CODE_FIELD]: newOrderCodeStr
       });
       const createdOrder = await this.getOneOrNull(PEDIDO_CODE_FIELD, newOrderCode, { trx });
-      if (createdOrder == null)
-        throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "PedidoBaseRepository.create -> createdOrder not found");
+      if (createdOrder == null) throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "PedidoBaseRepository.create -> createdOrder not found");
       const newOrderId = createdOrder.id;
       let rowIndex = 0;
       for (const row of rows) {
@@ -9711,13 +9392,10 @@ class PedidoBaseRepository extends CompanyProvider {
           PEDIDO_ID_FIELD,
           idPedido
         ).update(orderModel);
-        if (changedRecords != 1)
-          throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, `PedidoBaseRepository.update -> Invalid count of changed records: ${changedRecords}`);
+        if (changedRecords != 1) throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, `PedidoBaseRepository.update -> Invalid count of changed records: ${changedRecords}`);
         const updatedOrder = await this.getByIdOrNull(params.idPedido);
-        if (updatedOrder == null)
-          throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "PedidoBaseRepository.update -> Updated record not found");
-        if (updatedOrder.id == null)
-          throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "PedidoBaseRepository.update -> updatedOrder.id == null");
+        if (updatedOrder == null) throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "PedidoBaseRepository.update -> Updated record not found");
+        if (updatedOrder.id == null) throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "PedidoBaseRepository.update -> updatedOrder.id == null");
         await trx(rowsTable).where(orderIdField, updatedOrder.id).orWhere(PEDIDO_CODE_FIELD, updatedOrder.numero_pedido).del();
         let rowIndex = 0;
         for (const row of rows) {
@@ -9781,8 +9459,7 @@ class PedidoBaseRepository extends CompanyProvider {
     let newId = initialOrderCode;
     while (await this.getOrderIdFromCode(await this.formatOrderCode(newId), trx) != null) {
       newId++;
-      if (newId >= max)
-        newId = min;
+      if (newId >= max) newId = min;
     }
     return newId;
   }
@@ -9807,8 +9484,7 @@ const renglonPedidoModelMapper = (m) => {
   const precio = applyTangoDiscount(PRECIO, discount);
   const cantidad = CANT_PEDID ?? 0;
   const es_precio_especial = marcaPrecioEspecial === TERMINAL_MODIFICACION_PRECIO_ESPECIAL;
-  if (!isNotEmptyStr(codigo_articulo))
-    throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `renglonPedidoModelMapper ${ARTICULO_CODE_FIELD}`);
+  if (!isNotEmptyStr(codigo_articulo)) throw new DXTException(DXTErrorCode.TANGO_CLIENTE_DB_DATA_ERROR, `renglonPedidoModelMapper ${ARTICULO_CODE_FIELD}`);
   return {
     id_articulo,
     codigo_articulo,
@@ -9865,8 +9541,7 @@ class DXTArticuloListRepository extends CompanyProvider {
     const rows = await this.getAll();
     return rows.map((v) => {
       const line = v.codigo_articulo;
-      if (v.params == null)
-        return line;
+      if (v.params == null) return line;
       return `${line}; ${v.params}`;
     });
   }
@@ -9892,13 +9567,11 @@ class DXTArticuloListRepository extends CompanyProvider {
   async getIdsWithParams(paramsToReturn) {
     const cacheKey = `ids_${paramsToReturn?.join(".")}`;
     const resultFromCache = await this.cache.getMetadata(cacheKey);
-    if (resultFromCache != null)
-      return resultFromCache;
+    if (resultFromCache != null) return resultFromCache;
     const { mainTable } = this.config;
     const k = await this.getCompany();
     const rawData = await k(mainTable).select(...this.mainColumns, ...this.articuloColumns).innerJoin(ARTICULO_TABLE, `${mainTable}.${DXT_LIST_ARTICULO_CODE_FIELD}`, `${ARTICULO_TABLE}.${ARTICULO_CODE_FIELD}`).orderBy(DXT_LIST_ARTICULO_ID_FIELD);
-    if (rawData == null)
-      throw new DXTException(DXTErrorCode.NOT_FOUND);
+    if (rawData == null) throw new DXTException(DXTErrorCode.NOT_FOUND);
     const data = rawData.map((m) => this.toArticuloIdResult(m, paramsToReturn));
     await this.cache.setMetadata(cacheKey, data);
     return data;
@@ -9907,8 +9580,7 @@ class DXTArticuloListRepository extends CompanyProvider {
     const { [ARTICULO_ID_FIELD]: id_articulo } = m;
     const params = strToDXTArticuloListParams(m.params);
     if (paramsToReturn.length == 0) {
-      if (params != null)
-        return [id_articulo, params];
+      if (params != null) return [id_articulo, params];
       return id_articulo;
     }
     const filteredParamsEntries = params == null ? null : Object.entries(params).filter(
@@ -9938,12 +9610,10 @@ class DXTArticuloPrintListRepository extends DXTArticuloListRepository {
   async getPackagePrintListMap() {
     const cacheKey = `pack_printlist`;
     const resultFromCache = await this.cache.getMetadata(cacheKey);
-    if (resultFromCache != null)
-      return resultFromCache;
+    if (resultFromCache != null) return resultFromCache;
     const printListRaw = await this.getIdsWithParams([PRINT_LIST_PACKAGE_PARAM]);
     const result = new Map(printListRaw.map((row, index) => {
-      if (isANumber(row))
-        return [row, void 0];
+      if (isANumber(row)) return [row, void 0];
       const bultoRaw = Number.parseInt(row[1][PRINT_LIST_PACKAGE_PARAM]);
       const bulto = isAnInteger(bultoRaw) && bultoRaw > 0 ? bultoRaw : void 0;
       return [row[0], {
@@ -9995,24 +9665,17 @@ class DXTArticuloEditListRepository extends DXTArticuloListRepository {
     const aPricesQuery = k(PRECIO_TABLE).select(precioColumns).where(LISTA_ID_FIELD, aListId).as("tpa");
     const bPricesQuery = bListId != null ? k(PRECIO_TABLE).select(precioColumns).where(LISTA_ID_FIELD, bListId).as("tpb") : null;
     const cPricesQuery = cListId != null ? k(PRECIO_TABLE).select(precioColumns).where(LISTA_ID_FIELD, cListId).as("tpc") : null;
-    if (useArticleEditList)
-      query = query.leftOuterJoin(ARTICULO_TABLE, fullDXTArticuloListCodeField, fullArticuloCodeField);
+    if (useArticleEditList) query = query.leftOuterJoin(ARTICULO_TABLE, fullDXTArticuloListCodeField, fullArticuloCodeField);
     query = query.leftOuterJoin(aPricesQuery, useArticleEditList ? fullDXTArticuloListCodeField : fullArticuloCodeField, `tpa.${ARTICULO_CODE_FIELD}`);
-    if (bPricesQuery != null)
-      query = query.leftOuterJoin(bPricesQuery, useArticleEditList ? fullDXTArticuloListCodeField : fullArticuloCodeField, `tpb.${ARTICULO_CODE_FIELD}`);
-    if (cPricesQuery != null)
-      query = query.leftOuterJoin(cPricesQuery, useArticleEditList ? fullDXTArticuloListCodeField : fullArticuloCodeField, `tpc.${ARTICULO_CODE_FIELD}`);
+    if (bPricesQuery != null) query = query.leftOuterJoin(bPricesQuery, useArticleEditList ? fullDXTArticuloListCodeField : fullArticuloCodeField, `tpb.${ARTICULO_CODE_FIELD}`);
+    if (cPricesQuery != null) query = query.leftOuterJoin(cPricesQuery, useArticleEditList ? fullDXTArticuloListCodeField : fullArticuloCodeField, `tpc.${ARTICULO_CODE_FIELD}`);
     let whereRawQuery = `tpa.${LISTA_ID_FIELD} = ?`;
-    if (bListId != null)
-      whereRawQuery += ` OR tpb.${LISTA_ID_FIELD} = ?`;
-    if (cListId != null)
-      whereRawQuery += ` OR tpc.${LISTA_ID_FIELD} = ?`;
+    if (bListId != null) whereRawQuery += ` OR tpb.${LISTA_ID_FIELD} = ?`;
+    if (cListId != null) whereRawQuery += ` OR tpc.${LISTA_ID_FIELD} = ?`;
     if (useArticleEditList) {
       whereRawQuery += ` OR (${fullDXTArticuloListCodeField} IS NOT NULL AND tpa.${LISTA_ID_FIELD} IS NULL AND `;
-      if (bListId != null)
-        whereRawQuery += `tpb.${LISTA_ID_FIELD} IS NULL AND `;
-      if (cListId != null)
-        whereRawQuery += `tpc.${LISTA_ID_FIELD} IS NULL AND `;
+      if (bListId != null) whereRawQuery += `tpb.${LISTA_ID_FIELD} IS NULL AND `;
+      if (cListId != null) whereRawQuery += `tpc.${LISTA_ID_FIELD} IS NULL AND `;
       whereRawQuery += `${fullArticuloCodeField} IS NULL )`;
     }
     const whereParams = cListId != null ? [aListId, bListId, cListId] : bListId != null ? [aListId, bListId] : [aListId];
@@ -10056,16 +9719,13 @@ class DXTArticuloEditListRepository extends DXTArticuloListRepository {
   async getHiddenArticlesMap() {
     const cacheKey = `hidden_articles`;
     const resultFromCache = await this.cache.getMetadata(cacheKey);
-    if (resultFromCache != null)
-      return resultFromCache;
+    if (resultFromCache != null) return resultFromCache;
     const editListRaw = await this.getIdsWithParams([HIDDEN_ARTICLE_PARAM]);
     const result = new Map(editListRaw.filter((row) => !isANumber(row)).map((row, index) => {
-      if (isANumber(row))
-        return ["", void 0];
+      if (isANumber(row)) return ["", void 0];
       const articleCodeRaw = row[1][HIDDEN_ARTICLE_PARAM];
       const articleCode = isStr(articleCodeRaw) && articleCodeRaw.length > 0 ? articleCodeRaw : void 0;
-      if (articleCode == null)
-        return ["", void 0];
+      if (articleCode == null) return ["", void 0];
       return [articleCode, row[0]];
     }));
     await this.cache.setMetadata(cacheKey, result);
@@ -10075,8 +9735,7 @@ class DXTArticuloEditListRepository extends DXTArticuloListRepository {
 const dxtArticuloEditListRepository = new DXTArticuloEditListRepository();
 function applyArticlePrintList(data, printList) {
   return data.map((row) => {
-    if (isStr(row))
-      return row;
+    if (isStr(row)) return row;
     const { id_articulo } = row;
     const printData = id_articulo != null ? printList.get(id_articulo) : null;
     return {
@@ -10117,22 +9776,19 @@ class RenglonPedidoBaseRepository extends CompanyProvider {
   async _getByWhere(user, whereColumn, whereValue) {
     const cacheKey = `byWhere_${whereColumn ?? "x"}_${whereValue ?? "x"}`;
     const resultFromCache = await this.cache.getMetadata(cacheKey);
-    if (resultFromCache != null)
-      return resultFromCache;
+    if (resultFromCache != null) return resultFromCache;
     const { mainTable } = this.config;
     const pedidoTable = this._pedidoTable;
     const k = await this.getCompany();
     let query = k(mainTable);
-    if (whereColumn != null)
-      query = query.where(whereColumn, whereValue);
+    if (whereColumn != null) query = query.where(whereColumn, whereValue);
     const allColumns = [
       ...this.mainColumns,
       ...this.articuloColumns,
       ...this.pedidoColumns
     ];
     const rawData = await query.select(allColumns).leftOuterJoin(ARTICULO_TABLE, `${mainTable}.${ARTICULO_CODE_FIELD}`, `${ARTICULO_TABLE}.${ARTICULO_CODE_FIELD}`).innerJoin(pedidoTable, `${mainTable}.${PEDIDO_CODE_FIELD}`, `${pedidoTable}.${PEDIDO_CODE_FIELD}`).orderBy([PEDIDO_ID_FIELD, "N_RENGLON"]);
-    if (rawData == null)
-      throw new DXTException(DXTErrorCode.NOT_FOUND);
+    if (rawData == null) throw new DXTException(DXTErrorCode.NOT_FOUND);
     const preTransformedData = rawData.map((renglonPedido) => this.toRenglonPedidoWithIdPedido(renglonPedido));
     const printList = await dxtArticuloPrintListRepository.getPackagePrintListMap();
     const data = applyArticlePrintList(
@@ -10187,8 +9843,7 @@ class RenglonPedidoBaseRepository extends CompanyProvider {
   }
   toRenglonPedidoWithIdPedido(m) {
     const id_pedido = m[PEDIDO_ID_FIELD];
-    if (id_pedido == null)
-      throw new DXTException(DXTErrorCode.TANGO_DB_INVALID_DATA, `RenglonPedidoRepository.toRenglonWithIdPedido -> ${PEDIDO_ID_FIELD}`);
+    if (id_pedido == null) throw new DXTException(DXTErrorCode.TANGO_DB_INVALID_DATA, `RenglonPedidoRepository.toRenglonWithIdPedido -> ${PEDIDO_ID_FIELD}`);
     return {
       ...renglonPedidoAndTaxesModelMapper(m),
       id_pedido
@@ -10323,8 +9978,7 @@ class DXTPedidoExtraRepository extends TangoProvider {
   }
 }
 const dxtPedidoExtraRepository = new DXTPedidoExtraRepository();
-if (isDevelopment())
-  dxtPedidoExtraRepository.deleteOrphanData();
+if (isDevelopment()) dxtPedidoExtraRepository.deleteOrphanData();
 setInterval(() => {
   dxtPedidoExtraRepository.deleteOrphanData();
 }, DAY_IN_MILLIS);
@@ -10532,18 +10186,12 @@ async function getAuxiliares(customerId) {
     getCondiciones(),
     getTalonarios()
   ]);
-  if (transportes.length == 0)
-    throw new DXTException(DXTErrorCode.EMPTY_TRANSPORTE_LIST);
-  if (depositos.length == 0)
-    throw new DXTException(DXTErrorCode.EMPTY_DEPOSITO_LIST);
-  if (condiciones.length == 0)
-    throw new DXTException(DXTErrorCode.EMPTY_CONDICION_LIST);
-  if (asientos.length == 0)
-    throw new DXTException(DXTErrorCode.EMPTY_ASIENTO_LIST);
-  if (talonarios.length == 0)
-    throw new DXTException(DXTErrorCode.EMPTY_TALONARIO_LIST);
-  if (direcciones.length == 0)
-    throw new DXTException(DXTErrorCode.EMPTY_DIRECCION_LIST);
+  if (transportes.length == 0) throw new DXTException(DXTErrorCode.EMPTY_TRANSPORTE_LIST);
+  if (depositos.length == 0) throw new DXTException(DXTErrorCode.EMPTY_DEPOSITO_LIST);
+  if (condiciones.length == 0) throw new DXTException(DXTErrorCode.EMPTY_CONDICION_LIST);
+  if (asientos.length == 0) throw new DXTException(DXTErrorCode.EMPTY_ASIENTO_LIST);
+  if (talonarios.length == 0) throw new DXTException(DXTErrorCode.EMPTY_TALONARIO_LIST);
+  if (direcciones.length == 0) throw new DXTException(DXTErrorCode.EMPTY_DIRECCION_LIST);
   return {
     ...listas,
     transportes,
@@ -10556,12 +10204,10 @@ async function getAuxiliares(customerId) {
 }
 function getPropertyIfSameOrNull(data, propertyName) {
   const l = data.length;
-  if (l == 0)
-    return null;
+  if (l == 0) return null;
   const first = data[0][propertyName];
   for (let i = 1; i < l; i++) {
-    if (data[i][propertyName] != first)
-      return null;
+    if (data[i][propertyName] != first) return null;
   }
   return first;
 }
@@ -10595,15 +10241,12 @@ async function getOptimalBillingProfile(user, customer) {
     fecha_alta_visible: ubp.fecha_alta_visible,
     fecha_entrega_visible: (!user.isCustomer() || show_shipping_date_to_customers) && ubp.fecha_entrega_visible
   };
-  if (customer.discrimina_iva)
-    return optimalBillingProfile;
+  if (customer.discrimina_iva) return optimalBillingProfile;
   const talonarios = await getTalonarios();
   const selectedTalonario = talonarios.find((talonario) => talonario.code == optimalBillingProfile.codigo_talonario_factura);
-  if (selectedTalonario != null && _talonarioConsumidorFinal(selectedTalonario))
-    return optimalBillingProfile;
+  if (selectedTalonario != null && _talonarioConsumidorFinal(selectedTalonario)) return optimalBillingProfile;
   const talonarioConsumidorFinal = talonarios.find((talonario) => _talonarioConsumidorFinal(talonario));
-  if (!talonarioConsumidorFinal)
-    throw new DXTException(DXTErrorCode.INVALID_CONSUMIDOR_FINAL_TALONARIO);
+  if (!talonarioConsumidorFinal) throw new DXTException(DXTErrorCode.INVALID_CONSUMIDOR_FINAL_TALONARIO);
   return {
     ...optimalBillingProfile,
     codigo_talonario_factura: talonarioConsumidorFinal.code
@@ -10650,21 +10293,18 @@ class DXTPedidoDraftRepository extends PedidoBaseRepository {
     };
   }
   async descriptionExists(user, description, draftIdToIgnore) {
-    if (user.isAdmin())
-      throw new DXTException(DXTErrorCode.CUSTOMER_OR_SELLER_ROLE_REQUIRED);
+    if (user.isAdmin()) throw new DXTException(DXTErrorCode.CUSTOMER_OR_SELLER_ROLE_REQUIRED);
     const isCustomer = user.isCustomer();
     const column = isCustomer ? CLIENTE_ID_FIELD : VENDEDOR_ID_FIELD;
     const tangoId = user.tangoId?.valueOf();
-    if (tangoId == null)
-      throw new DXTException(isCustomer ? DXTErrorCode.TANGO_CUSTOMER_NO_LONGER_EXISTS : DXTErrorCode.TANGO_SELLER_NO_LONGER_EXISTS);
+    if (tangoId == null) throw new DXTException(isCustomer ? DXTErrorCode.TANGO_CUSTOMER_NO_LONGER_EXISTS : DXTErrorCode.TANGO_SELLER_NO_LONGER_EXISTS);
     const data = await this.getOneOrNull(column, tangoId, {
       where: {
         field: PEDIDO_DESCRIPTION_FIELD,
         value: description
       }
     });
-    if (draftIdToIgnore != null && data?.id === draftIdToIgnore)
-      return false;
+    if (draftIdToIgnore != null && data?.id === draftIdToIgnore) return false;
     return data != null;
   }
   composeUpsertRecord(userRole, customer, params) {
@@ -10719,8 +10359,7 @@ class DXTPedidoDraftRepository extends PedidoBaseRepository {
     ).update({
       [PEDIDO_IS_FAVORITE_FIELD]: isFavorite === true
     });
-    if (result < 1)
-      throw new DXTException(DXTErrorCode.DRAFT_NOT_FOUND);
+    if (result < 1) throw new DXTException(DXTErrorCode.DRAFT_NOT_FOUND);
   }
 }
 class DXTPedidoDraftClientesRepository extends DXTPedidoDraftRepository {
@@ -10749,8 +10388,7 @@ function getDraftRowRepository(user) {
 }
 function _isCustomer(user) {
   const role = user.role.valueOf();
-  if (role == UserRole.admin)
-    throw new DXTException(DXTErrorCode.CUSTOMER_OR_SELLER_ROLE_REQUIRED);
+  if (role == UserRole.admin) throw new DXTException(DXTErrorCode.CUSTOMER_OR_SELLER_ROLE_REQUIRED);
   return role == UserRole.customer;
 }
 async function getOrder(user, idPedido, isDraft, adminAllowed, includeRows) {
@@ -10759,8 +10397,7 @@ async function getOrder(user, idPedido, isDraft, adminAllowed, includeRows) {
   const header = await buyListRepository.getById(idPedido);
   const rows = includeRows ? isDraft ? await buyListRowRepository.getByIdPedido(user, idPedido) : await buyListRowRepository.getByNumeroPedido(user, header.numero_pedido) : null;
   const rowsOk = rows != null || !includeRows;
-  if (header == null || !rowsOk)
-    throw new DXTException(isDraft ? DXTErrorCode.DRAFT_NOT_FOUND : DXTErrorCode.ORDER_NOT_FOUND);
+  if (header == null || !rowsOk) throw new DXTException(isDraft ? DXTErrorCode.DRAFT_NOT_FOUND : DXTErrorCode.ORDER_NOT_FOUND);
   const { estado, ...remaining } = header;
   const finalHeader = {
     ...remaining,
@@ -10786,8 +10423,7 @@ async function getOrder(user, idPedido, isDraft, adminAllowed, includeRows) {
 async function _checkUserIsOwnerOrThrow(user, orderHeader, adminAllowed) {
   const { role } = user;
   if (role.isAdmin()) {
-    if (!adminAllowed)
-      throw new DXTException(DXTErrorCode.CUSTOMER_OR_SELLER_ROLE_REQUIRED);
+    if (!adminAllowed) throw new DXTException(DXTErrorCode.CUSTOMER_OR_SELLER_ROLE_REQUIRED);
     return;
   }
   if (role.isSeller()) {
@@ -10796,13 +10432,11 @@ async function _checkUserIsOwnerOrThrow(user, orderHeader, adminAllowed) {
       orderHeader.id_cliente,
       idVendedor
     );
-    if (!isSellerCustomer)
-      throw new DXTException(DXTErrorCode.ORDER_CUSTOMER_DOES_NOT_BELONGS_TO_SELLER);
+    if (!isSellerCustomer) throw new DXTException(DXTErrorCode.ORDER_CUSTOMER_DOES_NOT_BELONGS_TO_SELLER);
     return;
   }
   const idCliente = user.tangoId.valueOf();
-  if (orderHeader.id_cliente !== idCliente)
-    throw new DXTException(DXTErrorCode.ORDER_DOES_NOT_BELONGS_TO_CUSTOMER);
+  if (orderHeader.id_cliente !== idCliente) throw new DXTException(DXTErrorCode.ORDER_DOES_NOT_BELONGS_TO_CUSTOMER);
 }
 async function getArticlesWithTaxes(user, customer, alwaysIncludeArticlesWithoutPrice, splitInGroups) {
   let additionalListId1 = null;
@@ -10813,8 +10447,7 @@ async function getArticlesWithTaxes(user, customer, alwaysIncludeArticlesWithout
     const dxtCustomers = await dxtClienteRepository.getMany("tango_id", customer.id);
     const dxtCustomerExists = dxtCustomers.length > 0;
     additionalListId1 = user.idListaAdicional?.valueOf();
-    if (additionalListId1 != null)
-      additionalDiscount1 = user.bonificacionListaAdicional?.valueOf();
+    if (additionalListId1 != null) additionalDiscount1 = user.bonificacionListaAdicional?.valueOf();
     if (dxtCustomerExists) {
       const customerAdditionalListId = getPropertyIfSameOrNull(dxtCustomers, "id_lista_adicional");
       const customerAdditionalDiscount = customerAdditionalListId != null ? getPropertyIfSameOrNull(dxtCustomers, "bonificacion_lista_adicional") : null;
@@ -10887,8 +10520,7 @@ function _splitByOrderListGroup(data) {
     const isGroupLabel = isStr(item);
     if (isGroupLabel) {
       lastGroupName = item.trim();
-      if (lastGroupName.length == 0)
-        lastGroupName = ARTICLE_GROUP_NO_NAME;
+      if (lastGroupName.length == 0) lastGroupName = ARTICLE_GROUP_NO_NAME;
       currentList = result[lastGroupName];
       if (currentList == null) {
         currentList = [];
@@ -10915,8 +10547,7 @@ function _splitByArticleCode(groupSeparator, data) {
     const groups = _getGroups(groupSeparator, codigo.trim());
     if (id_lista != null) {
       const groupLength = groups.length;
-      if (groupLength > maxGroupLength)
-        maxGroupLength = groupLength;
+      if (groupLength > maxGroupLength) maxGroupLength = groupLength;
       totalGroups += groupLength;
     }
     return {
@@ -10947,8 +10578,7 @@ function _splitByArticleCode(groupSeparator, data) {
 }
 function _getGroups(groupSeparator, code) {
   code = code.trim().toUpperCase();
-  if (groupSeparator == ArticleGroupSeparator.none)
-    return [code];
+  if (groupSeparator == ArticleGroupSeparator.none) return [code];
   if (groupSeparator == ArticleGroupSeparator.space) {
     const groupsBySpace = code.split(" ");
     return groupsBySpace.map((g, i) => i == 0 ? g : ` ${g}`);
@@ -10975,16 +10605,14 @@ function _splitLettersAndNumbers(input) {
     let char = input[i];
     const isNumber = char >= "0" && char <= "9";
     if (preIsNumber == null || preIsNumber !== isNumber) {
-      if (currentGroup.length > 0)
-        result.push(currentGroup);
+      if (currentGroup.length > 0) result.push(currentGroup);
       currentGroup = char;
       preIsNumber = isNumber;
     } else {
       currentGroup += char;
     }
   }
-  if (currentGroup.length > 0)
-    result.push(currentGroup);
+  if (currentGroup.length > 0) result.push(currentGroup);
   return result;
 }
 async function getArticles(user, customer) {
@@ -11011,8 +10639,7 @@ function percentageToFactor(value) {
 }
 function adjustPrice(params, article, listasById, alicuotas, forceTaxesElimination) {
   const { id_lista, codigo_iva, codigo_ii, codigo_sobre_iva, codigo_sobre_ii, precio } = article;
-  if (id_lista == null || precio == null)
-    return null;
+  if (id_lista == null || precio == null) return null;
   const { usuarioAplicaSobreIVA, usuarioAplicaSobreII } = params;
   const lista = id_lista != null ? listasById.get(id_lista) : null;
   const listaIncluyeIVA = lista?.incluye_iva ?? params.listaIncluyeIVA;
@@ -11096,8 +10723,7 @@ function _getRowsWithUnknownPrices(articles, rows) {
     const { id_articulo, codigo_articulo } = row;
     const priceFromArticle = id_articulo != null ? articlesByIdMap.get(id_articulo) : articlesByCodeMap.get(codigo_articulo);
     const isOrphan = priceFromArticle == null;
-    if (isOrphan)
-      result.push(row);
+    if (isOrphan) result.push(row);
   });
   return result;
 }
@@ -11151,15 +10777,12 @@ function _addQuantitiesAndAdjustPrices(orderHeader, articles, alicuotas, listasB
   );
 }
 async function prepareOrderHeader(user, originalOrder, customer, billingProfile, auxiliares, createNew, startDraft) {
-  if (!createNew && originalOrder == null)
-    throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "prepareOrderHeader() -> createNew must be true if originalOrder is null");
+  if (!createNew && originalOrder == null) throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "prepareOrderHeader() -> createNew must be true if originalOrder is null");
   const originalOrderIsDraft = originalOrder?.isDraft === true;
   const sameType = originalOrderIsDraft == startDraft;
-  if (!createNew && !sameType)
-    throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "prepareOrderHeader() -> When createNew is false, both originalOrder.isDraft and startDraft must be the same");
+  if (!createNew && !sameType) throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "prepareOrderHeader() -> When createNew is false, both originalOrder.isDraft and startDraft must be the same");
   const sellerId = user.vendedorId?.valueOf();
-  if (sellerId == null)
-    throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "prepareOrderHeader() -> sellerId is null");
+  if (sellerId == null) throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "prepareOrderHeader() -> sellerId is null");
   const seller = await vendedorRepository.getById(sellerId);
   const {
     depositos,
@@ -11230,8 +10853,7 @@ async function prepareOrderHeader(user, originalOrder, customer, billingProfile,
   const direccion_habitual = direcciones.find((direccion) => direccion.habitual);
   const codigo_direccion = direccion_habitual?.code ?? direcciones[0].code;
   const lista = listasByCode.get(codigo_lista_precio);
-  if (lista == null)
-    throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "prepareOrderHeader() -> Lista de precios inexistente");
+  if (lista == null) throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "prepareOrderHeader() -> Lista de precios inexistente");
   const result = {
     es_borrador: startDraft,
     descripcion,
@@ -11287,21 +10909,17 @@ async function prepareOrderHeader(user, originalOrder, customer, billingProfile,
   return result;
 }
 function _setSelectedItem(list, editable, unknownElementError, targetValue, checkSelected) {
-  if (targetValue == null)
-    return list;
+  if (targetValue == null) return list;
   if (editable) {
     return list.map((el, index) => ({
       ...el,
       selected: checkSelected?.(el, index) === true ? true : void 0
     }));
   }
-  if (checkSelected == null)
-    throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "_setSelectedItem -> <checkSelected> must be defined when <editable> is false");
+  if (checkSelected == null) throw new DXTException(DXTErrorCode.INTERNAL_SERVER_ERROR, "_setSelectedItem -> <checkSelected> must be defined when <editable> is false");
   let result = list.filter((el, index) => checkSelected(el, index));
-  if (result.length == 0)
-    result = list.slice(1);
-  if (result.length == 0)
-    throw new DXTException(unknownElementError, valueToString(targetValue));
+  if (result.length == 0) result = list.slice(1);
+  if (result.length == 0) throw new DXTException(unknownElementError, valueToString(targetValue));
   return result;
 }
 async function prepareStartValues(user, originalOrder, customerId, createNew, startDraft) {
@@ -11346,10 +10964,8 @@ async function startPedido(user, params) {
   const { mode: mode2 } = params;
   const createNew = mode2 != 0;
   const startDraft = mode2 == 0 ? params.isDraft : params.createDraft;
-  if (!startDraft && createNew && !user.puedeCrearPedido.valueOf())
-    throw new DXTException(DXTErrorCode.USER_CANNOT_CREATE_ORDERS);
-  if (!startDraft && !createNew && !user.puedeEditarPedido.valueOf())
-    throw new DXTException(DXTErrorCode.USER_CANNOT_UPDATE_ORDERS);
+  if (!startDraft && createNew && !user.puedeCrearPedido.valueOf()) throw new DXTException(DXTErrorCode.USER_CANNOT_CREATE_ORDERS);
+  if (!startDraft && !createNew && !user.puedeEditarPedido.valueOf()) throw new DXTException(DXTErrorCode.USER_CANNOT_UPDATE_ORDERS);
   const originalOrder = mode2 == 1 ? null : await getOrder(user, params.idPedido, params.isDraft, false, true);
   if (mode2 == 0 && originalOrder != null && !isUserAllowedToModifyOrder(user, originalOrder.header.estado)) {
     throw new DXTException(DXTErrorCode.USER_CANNOT_UPDATE_ORDER_IN_CURRENT_STATUS);
@@ -11383,8 +10999,7 @@ const customerRootController = new CustomerRootController();
 class SellerRootController extends AuthenticatedRootController {
   async onRequest(req) {
     await super.onRequest(req);
-    if (!req.auth.user.role.isSeller())
-      throw new DXTException(DXTErrorCode.FORBIDDEN);
+    if (!req.auth.user.role.isSeller()) throw new DXTException(DXTErrorCode.FORBIDDEN);
   }
 }
 const sellerRootController = new SellerRootController();
@@ -11404,8 +11019,7 @@ const idPedidoValidationOptions = {
 };
 async function _startNew(user, createDraft) {
   const { tangoId, role } = user;
-  if (tangoId == null || !role.isCustomer())
-    throw new DXTException(DXTErrorCode.CUSTOMER_ROLE_REQUIRED);
+  if (tangoId == null || !role.isCustomer()) throw new DXTException(DXTErrorCode.CUSTOMER_ROLE_REQUIRED);
   return await startPedido(user, {
     mode: StartPedidoMode.create,
     idCliente: tangoId.valueOf(),
@@ -11414,8 +11028,7 @@ async function _startNew(user, createDraft) {
 }
 async function _startNewForCustomer(user, idCliente, createDraft) {
   const { tangoId, role } = user;
-  if (tangoId == null || !role.isSeller())
-    throw new DXTException(DXTErrorCode.SELLER_ROLE_REQUIRED);
+  if (tangoId == null || !role.isSeller()) throw new DXTException(DXTErrorCode.SELLER_ROLE_REQUIRED);
   return await startPedido(user, {
     mode: StartPedidoMode.create,
     idCliente,
@@ -11502,8 +11115,7 @@ async function readDir(directory, options) {
     throw new NotDirectoryError(directory);
   const files = await fs.promises.readdir(directory);
   for (const file of files) {
-    if (file === "." || file === "..")
-      break;
+    if (file === "." || file === "..") break;
     const fullname = path.join(directory, file);
     const isDirectory = (await fs.promises.stat(fullname)).isDirectory();
     if ((!isDirectory || includeDirs) && (!filter || filter(file, directory)))
@@ -11516,8 +11128,7 @@ async function readDir(directory, options) {
 }
 function getFileExtension(filename) {
   const lastDotIndex = filename.lastIndexOf(".");
-  if (lastDotIndex === -1)
-    return ".";
+  if (lastDotIndex === -1) return ".";
   return filename.substring(lastDotIndex);
 }
 const MJML_EXTENSION = ".mjml";
@@ -11538,8 +11149,7 @@ class EmailProvider {
     })();
   }
   async _initTransporter() {
-    if (this._initializingTransporter)
-      return;
+    if (this._initializingTransporter) return;
     this._initializingTransporter = true;
     try {
       await this._loadEmailTemplates();
@@ -11596,8 +11206,7 @@ class EmailProvider {
     this._templates = newTemplates;
   }
   async sendEmail(from, to, cc, subject, templateName, values) {
-    if (this._transporter == null)
-      return;
+    if (this._transporter == null) return;
     const template = this._templates?.get(templateName);
     let renderedSubject;
     let renderedBody;
@@ -11607,8 +11216,7 @@ class EmailProvider {
     } catch (e) {
       console.error(e);
     }
-    if (renderedSubject == null || renderedBody == null)
-      return;
+    if (renderedSubject == null || renderedBody == null) return;
     let mailOptions = {
       from: from.toString(),
       to: to?.toString(),
@@ -11638,8 +11246,7 @@ const ORDER_CANCELLED_SUBJECT = "Se ha anulado el pedido {{{orderCode}}}";
 const ORDER_CREATED_SUBJECT = "Nuevo pedido {{{orderCode}}} para {{{customerName}}} {{{subjectShippingDate}}}";
 const ORDER_UPDATED_SUBJECT = "Se ha modificado el pedido {{{orderCode}}} para {{{customerName}}} {{{subjectShippingDate}}}";
 function formatPrice(precio, moneda) {
-  if (precio == null)
-    return "SIN PRECIO";
+  if (precio == null) return "SIN PRECIO";
   return `${moneda != null ? moneda + " " : ""}${_formatNumber(precio)}`;
 }
 function _formatNumber(num) {
@@ -11649,23 +11256,18 @@ function _formatNumber(num) {
   });
 }
 function formatArticleName(nombre, descriptionAdicional) {
-  if (nombre == null)
-    return NO_NAME;
+  if (nombre == null) return NO_NAME;
   let result = nombre.trim();
-  if (descriptionAdicional != null && descriptionAdicional.trim().length > 0)
-    result = `${result} (${descriptionAdicional.trim()})`;
+  if (descriptionAdicional != null && descriptionAdicional.trim().length > 0) result = `${result} (${descriptionAdicional.trim()})`;
   return result;
 }
 function fullArticleDescription(nombre, codigo_articulo, descriptionAdicional) {
-  if (codigo_articulo == null)
-    return NONEXISTENT_PRODUCT;
-  if (nombre == null)
-    return NO_NAME;
+  if (codigo_articulo == null) return NONEXISTENT_PRODUCT;
+  if (nombre == null) return NO_NAME;
   return `${codigo_articulo} - ${formatArticleName(nombre, descriptionAdicional)}`;
 }
 function formatAuxiliares(codigo, nombre, gender) {
-  if (codigo != null && nombre != null)
-    return `${codigo} - ${nombre}`;
+  if (codigo != null && nombre != null) return `${codigo} - ${nombre}`;
   return gender === "f" ? NONE_F : NONE_M;
 }
 function formatClienteVendedor(codigo, nombre) {
@@ -11675,8 +11277,7 @@ const calculateTotals = (quantities, prices, orderDiscount) => {
   let total = 0;
   quantities.forEach((quantity, id) => {
     const { amount, discount } = prices[id];
-    if (amount == null)
-      return;
+    if (amount == null) return;
     const finalDiscount = discount ?? orderDiscount;
     const subtotal = applyTangoDiscount(quantity * amount, finalDiscount);
     total += subtotal ?? 0;
@@ -11690,8 +11291,7 @@ function formatTaxesLabel(exentoIVA, exentoII) {
   return exentoII ? "con IVA" : "impuestos incluídos";
 }
 function calculateBoxesAndUnits(quantity, perBox) {
-  if (perBox == null)
-    return null;
+  if (perBox == null) return null;
   const boxes = Math.floor(quantity / perBox);
   const units = quantity % perBox;
   return (boxes > 0 ? `${boxes}b` : "") + (units > 0 ? (boxes > 0 ? ` ` : ``) + `${units}u` : "");
@@ -11804,14 +11404,12 @@ async function resolveTargetEmails(user, adminEmail, order) {
     ...customersEmails.map((r) => r.email)
   ]).map((e) => new VOEmail(e));
   const anyEmail = to != null || cc.length > 0;
-  if (!anyEmail)
-    return null;
+  if (!anyEmail) return null;
   return { to, cc };
 }
 function applyTaxesToPrice(params, article, alicuotas) {
   const { codigo_iva, codigo_ii, codigo_sobre_iva, codigo_sobre_ii, precio } = article;
-  if (precio == null)
-    return null;
+  if (precio == null) return null;
   const { usuarioAplicaSobreIVA, usuarioAplicaSobreII } = params;
   const agregarIVA = !params.usuarioExentoIVA;
   const agregarII = !params.usuarioExentoII;
@@ -11947,8 +11545,7 @@ async function sendOrderEmail(options) {
     adminEmail,
     emailOrderData
   );
-  if (targetEmails == null)
-    return;
+  if (targetEmails == null) return;
   const fromEmailAddress = smtp_from_email ?? admin_email ?? DEFAULT_SMTP_FROM_EMAIL;
   const fromEmail = new VOEmail(fromEmailAddress, company_name);
   await dispatchOrderEmail(
@@ -11972,8 +11569,7 @@ async function createOrUpdateOrder(user, customer, input) {
     numero_pedido: orderHeader.numero_pedido,
     message_to_user: order_create_update_message.length > 0 ? order_create_update_message : void 0
   };
-  if (input.saveDraft)
-    return result;
+  if (input.saveDraft) return result;
   if (isUpdating) {
     sendOrderEmail({
       action: EmailOrderAction.update,
@@ -12006,20 +11602,16 @@ async function validateInputRows(user, originalOrder, customer, billingProfile, 
   const sortedRows = rawResult.sort((a, b) => {
     const aOrder = printList.get(a.idArticle)?.order;
     const bOrder = printList.get(b.idArticle)?.order;
-    if (aOrder != null && bOrder == null)
-      return -1;
-    if (aOrder == null && bOrder != null)
-      return 1;
-    if (aOrder != null && bOrder != null)
-      return aOrder - bOrder;
+    if (aOrder != null && bOrder == null) return -1;
+    if (aOrder == null && bOrder != null) return 1;
+    if (aOrder != null && bOrder != null) return aOrder - bOrder;
     return a.codeArticle.localeCompare(b.codeArticle);
   });
   const { listasById } = auxiliares;
   const alicuotas = await alicuotaRepository.getAllPercentages();
   const { idListaDePrecio, bonificacion } = validatedOrderHeader;
   const lista = listasById.get(idListaDePrecio);
-  if (lista == null)
-    throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "validateInputRows -> lista == null");
+  if (lista == null) throw new DXTException(DXTErrorCode.UNEXPECTED_ERROR, "validateInputRows -> lista == null");
   const { incluye_iva, incluye_ii } = lista;
   const adjustPriceParams = {
     // bonificacion: bonificacion,
@@ -12057,8 +11649,7 @@ function _validateOrderRow(row, article) {
   const {
     quantity
   } = row;
-  if (article == null)
-    throw new DXTException(DXTErrorCode.INACCESIBLE_ORDER_ROW_ARTICLE);
+  if (article == null) throw new DXTException(DXTErrorCode.INACCESIBLE_ORDER_ROW_ARTICLE);
   const {
     id,
     codigo,
@@ -12118,8 +11709,7 @@ async function validateInputHeader(user, originalOrder, customer, params, billin
       input.descripcion,
       draftIdToIgnore
     );
-    if (descriptionExists)
-      throw new DXTException(DXTErrorCode.DUPLICATED_DRAFT_DESCRIPTION);
+    if (descriptionExists) throw new DXTException(DXTErrorCode.DUPLICATED_DRAFT_DESCRIPTION);
   }
   const {
     leyenda1,
@@ -12217,8 +11807,7 @@ async function validateInputHeader(user, originalOrder, customer, params, billin
 function _checkSelection(list, isEditable, selectedId, errorCode) {
   const pickFirst = !isEditable;
   const index = list.findIndex((item) => pickFirst || item.id == selectedId);
-  if (index < 0)
-    throw new DXTException(errorCode);
+  if (index < 0) throw new DXTException(errorCode);
   return [
     list[index].id,
     list[index].code
@@ -12299,12 +11888,9 @@ async function deleteDraft(user, idDraft) {
 async function savePedido(user, params) {
   const { mode: mode2, saveDraft, input } = params;
   const createNew = mode2 == SaveOrderMode.create;
-  if (user.isAdmin())
-    throw new DXTException(DXTErrorCode.CUSTOMER_OR_SELLER_ROLE_REQUIRED);
-  if (!saveDraft && createNew && !user.puedeCrearPedido.valueOf())
-    throw new DXTException(DXTErrorCode.USER_CANNOT_CREATE_ORDERS);
-  if (!saveDraft && !createNew && !user.puedeEditarPedido.valueOf())
-    throw new DXTException(DXTErrorCode.USER_CANNOT_UPDATE_ORDERS);
+  if (user.isAdmin()) throw new DXTException(DXTErrorCode.CUSTOMER_OR_SELLER_ROLE_REQUIRED);
+  if (!saveDraft && createNew && !user.puedeCrearPedido.valueOf()) throw new DXTException(DXTErrorCode.USER_CANNOT_CREATE_ORDERS);
+  if (!saveDraft && !createNew && !user.puedeEditarPedido.valueOf()) throw new DXTException(DXTErrorCode.USER_CANNOT_UPDATE_ORDERS);
   const originalIsDraft = mode2 == SaveOrderMode.update && saveDraft;
   const originalOrder = mode2 == SaveOrderMode.update ? await getOrder(user, input.id_pedido, originalIsDraft, false, true) : null;
   if (!saveDraft && !createNew && originalOrder.header.estado != EstadoPedido.INGRESADO) {
@@ -12313,8 +11899,7 @@ async function savePedido(user, params) {
   const idCliente = mode2 == SaveOrderMode.update ? originalOrder.header.id_cliente : input.id_cliente;
   const customer = await clienteRepository.getExtendedById(idCliente);
   const idCustomerVendedor = customer.id_vendedor;
-  if (user.isSeller() && idCustomerVendedor != user.vendedorId?.valueOf())
-    throw new DXTException(DXTErrorCode.CUSTOMER_DOES_NOT_BELONGS_TO_SELLER);
+  if (user.isSeller() && idCustomerVendedor != user.vendedorId?.valueOf()) throw new DXTException(DXTErrorCode.CUSTOMER_DOES_NOT_BELONGS_TO_SELLER);
   const validatedOrder = await validateInputParams(
     user,
     originalOrder,
@@ -12390,8 +11975,7 @@ const updateDraftEndpoint = createApiEndpoint(
 async function cancelPedido(user, idPedido) {
   const deleteOrder = user.borrarPedidoAlAnular.valueOf();
   if (!user.puedeAnularPedido.valueOf()) {
-    if (deleteOrder)
-      throw new DXTException(DXTErrorCode.USER_CANNOT_DELETE_ORDERS);
+    if (deleteOrder) throw new DXTException(DXTErrorCode.USER_CANNOT_DELETE_ORDERS);
     throw new DXTException(DXTErrorCode.USER_CANNOT_CANCEL_ORDERS);
   }
   const pedidoOriginal = await getOrder(user, idPedido, false, true, true);
@@ -12399,8 +11983,7 @@ async function cancelPedido(user, idPedido) {
   const currentStatus = header.estado;
   const canCancelOrDelete = isUserAllowedToCancelOrDeleteOrder(user, currentStatus);
   if (!canCancelOrDelete) {
-    if (deleteOrder)
-      throw new DXTException(DXTErrorCode.USER_CANNOT_DELETE_ORDER_IN_CURRENT_STATUS);
+    if (deleteOrder) throw new DXTException(DXTErrorCode.USER_CANNOT_DELETE_ORDER_IN_CURRENT_STATUS);
     throw new DXTException(DXTErrorCode.USER_CANNOT_CANCEL_ORDER_IN_CURRENT_STATUS);
   }
   if (deleteOrder) {
@@ -12450,8 +12033,7 @@ function _filterVisibleOrders(user, orders) {
   const verPedidosCumplidos = user.verPedidosCumplidos.valueOf();
   return orders.filter((pedido) => {
     const { estado } = pedido;
-    if (estado == EstadoPedido.ANULADO || estado == EstadoPedido.INVALIDO)
-      return false;
+    if (estado == EstadoPedido.ANULADO || estado == EstadoPedido.INVALIDO) return false;
     if (estado == EstadoPedido.CERRADO || estado == EstadoPedido.CUMPLIDO) {
       return verPedidosCumplidos;
     }
@@ -12495,8 +12077,7 @@ async function updateRowsPrices(user, ordersById, rows) {
     let articles = articlesBuffer.get(customer.id);
     if (articles == null) {
       articles = await getArticles(user, customer);
-      if (articles != null)
-        articlesBuffer.set(customer.id, articles);
+      if (articles != null) articlesBuffer.set(customer.id, articles);
     }
     const { incluye_iva, incluye_ii } = lista;
     const adjustPriceParams = {
@@ -12509,8 +12090,7 @@ async function updateRowsPrices(user, ordersById, rows) {
     };
     const newRows = sourceRows.map((row) => {
       const { id_articulo } = row;
-      if (id_articulo == null)
-        return row;
+      if (id_articulo == null) return row;
       const article = articles.get(id_articulo);
       if (article == null) {
         const renglon2 = removeTaxesFields(row);
@@ -12584,8 +12164,7 @@ async function getAllPedidosRows(user, isDraft) {
   const rowsRepository = isDraft ? getDraftRowRepository(user) : renglonPedidoRepository;
   const cacheKey = `ALL_${isDraft ? "DRAFT" : "ORDER"}_ROWS_${user.isSeller() ? "S" : "C"}_${user.id.valueOf()}`;
   const cachedData = await rowsRepository.cache.getMetadata(cacheKey);
-  if (cachedData != null)
-    return cachedData;
+  if (cachedData != null) return cachedData;
   const rowsByOrder = await rowsRepository.getAllByUser(user);
   const orders = await orderRepository.getAllByUser(user);
   const ordersById = new Map(orders.map((order) => [order.id, order]));
@@ -12848,8 +12427,7 @@ function useSearchField(data, fieldsToFilter) {
 }
 function _filter(data, query, fieldsToFilter) {
   if (_.isArray(data)) {
-    if (query == null)
-      return [...data];
+    if (query == null) return [...data];
     const filteredData = _.filter(data, (obj) => {
       return _.some(fieldsToFilter, (prop) => {
         return String(_.get(obj, prop)).toLowerCase().includes(query.toLowerCase());
@@ -12858,8 +12436,7 @@ function _filter(data, query, fieldsToFilter) {
     return filteredData;
   }
   if (_.isObject(data)) {
-    if (query == null)
-      return { ...data };
+    if (query == null) return { ...data };
     const filteredData = {};
     _.forEach(data, (array, key) => {
       const filteredArray = _.filter(array, (obj) => {
@@ -13091,15 +12668,12 @@ const SearchField = ({
   const handleSearchReset = () => {
     setSearchValue(null);
     handleSearchInputChange();
-    if (inputChangeRef.current)
-      clearTimeout(inputChangeRef.current);
-    if (inputRef.current)
-      inputRef.current.focus();
+    if (inputChangeRef.current) clearTimeout(inputChangeRef.current);
+    if (inputRef.current) inputRef.current.focus();
   };
   const handleOnChange = (e) => {
     setSearchValue(e.target.value);
-    if (inputChangeRef.current)
-      clearTimeout(inputChangeRef.current);
+    if (inputChangeRef.current) clearTimeout(inputChangeRef.current);
     inputChangeRef.current = setTimeout(() => {
       handleSearchInputChange(e.target.value);
     }, 500);
@@ -13475,8 +13049,7 @@ const useCustomValidationSchema$1 = (isDraft) => {
     id_direccion: yup.number().required("Seleccione una dirección"),
     bonificacion: yup.number().required("Ingrese bonificación").typeError("Ingrese una bonificación válida").min(0, "La bonificación debe encontrarse entre 0 y 100%").max(100, "La bonificación debe encontrarse entre 0 y 100%"),
     quantities: yup.array().test("at-least-one-quantity", "Ingrese al menos una cantidad", function(value) {
-      if (value == null || value.length === 0)
-        return false;
+      if (value == null || value.length === 0) return false;
       return value.some((quantity) => quantity != null && quantity > 0);
     }).required("Ingrese al menos una cantidad"),
     leyenda1: yup.string().default("").max(LEYENDA_MAX_LENGTH, leyendaError),
@@ -13799,8 +13372,7 @@ const CalendarPanel = ({
                     calendar.weeks.map((week, weekIdx) => {
                       return week.map((dateObj, index) => {
                         const key = `${calendar.month}-${calendar.year}-${weekIdx}-${index}`;
-                        if (dateObj == "")
-                          return /* @__PURE__ */ jsx(Box, {}, key);
+                        if (dateObj == "") return /* @__PURE__ */ jsx(Box, {}, key);
                         const { date } = dateObj;
                         return /* @__PURE__ */ jsx(
                           DayOfMonth,
@@ -13811,8 +13383,7 @@ const CalendarPanel = ({
                             isInRange: isInRange && isInRange(date),
                             disabledDates,
                             onMouseEnter: () => {
-                              if (onMouseEnterHighlight)
-                                onMouseEnterHighlight(date);
+                              if (onMouseEnterHighlight) onMouseEnterHighlight(date);
                             }
                           },
                           key
@@ -13890,19 +13461,16 @@ const SingleDatepicker = (props) => {
     setOffset(0);
   };
   const handleOnDateSelected = ({ selectable, date }) => {
-    if (!selectable)
-      return;
+    if (!selectable) return;
     if (date instanceof Date && !isNaN(date.getTime())) {
       onDateChange(date);
-      if (closeOnSelect)
-        onClose();
+      if (closeOnSelect) onClose();
       return;
     }
   };
   const handleInputChange = (event) => {
     setInputVal(event.target.value);
-    if (inputChangeRef.current)
-      clearTimeout(inputChangeRef.current);
+    if (inputChangeRef.current) clearTimeout(inputChangeRef.current);
     inputChangeRef.current = setTimeout(() => {
       const newDate = parse$1(
         event.target.value,
@@ -13914,8 +13482,7 @@ const SingleDatepicker = (props) => {
         return;
       }
       const isDisabled = disabledDates?.has(startOfDay(newDate).getTime());
-      if (isDisabled === true)
-        return;
+      if (isDisabled === true) return;
       onDateChange(newDate);
     }, 500);
   };
@@ -14151,8 +13718,7 @@ const OrderInfo = (props) => {
   const fecha_altaWatch = watch("fecha_alta");
   useEffect(() => {
     const handleDetailsToggle = () => {
-      if (isOpen)
-        onToggle();
+      if (isOpen) onToggle();
     };
     eventBus.on("togglePedidoCategory", handleDetailsToggle);
     return () => {
@@ -14498,22 +14064,17 @@ const OrderInfo = (props) => {
                       width: "100px",
                       textAlign: "left",
                       onKeyDown: (e) => {
-                        if (/^(,|-|\+)$/.test(e.key))
-                          e.preventDefault();
+                        if (/^(,|-|\+)$/.test(e.key)) e.preventDefault();
                       },
                       onFocus: (e) => {
                         e.target.select();
                       },
                       onChange: (e) => {
-                        if (e.target.value === "")
-                          return;
+                        if (e.target.value === "") return;
                         const parsedValue = parseFloat(e.target.value);
-                        if (!parsedValue)
-                          e.target.value = "0";
-                        if (parsedValue < 0)
-                          e.target.value = "0";
-                        if (parsedValue > 100)
-                          e.target.value = "100";
+                        if (!parsedValue) e.target.value = "0";
+                        if (parsedValue < 0) e.target.value = "0";
+                        if (parsedValue > 100) e.target.value = "100";
                       },
                       isReadOnly: !cabecera.bonificacion_editable
                     },
@@ -14590,8 +14151,7 @@ const ProductsRow = (props) => {
     inputMode: "tel",
     size: 5,
     onKeyDown: (e) => {
-      if (/^(\.|,|-|\+)$/.test(e.key))
-        e.preventDefault();
+      if (/^(\.|,|-|\+)$/.test(e.key)) e.preventDefault();
     },
     onChange: (e) => {
       return parseInt(e.target.value);
@@ -14828,8 +14388,7 @@ const ProductsTable = (props) => {
     setIndex(isFiltering ? _.range(totalCategories) : null);
   }, [isFiltering]);
   useEffect(() => {
-    if (index != null)
-      eventBus.emit("togglePedidoCategory");
+    if (index != null) eventBus.emit("togglePedidoCategory");
   }, [index]);
   useEffect(() => {
     const handleEvent = ({ show }) => {
@@ -14977,8 +14536,7 @@ ${ORPHAN_ROWS_FOOTER}`;
   const quantitiesToRenglones = (quantities2) => {
     const renglones = [];
     quantities2.forEach((quantity, id) => {
-      if (quantity != null && quantity > 0)
-        renglones.push({ id, quantity });
+      if (quantity != null && quantity > 0) renglones.push({ id, quantity });
     });
     return renglones;
   };
@@ -15120,8 +14678,7 @@ ${ORPHAN_ROWS_FOOTER}`;
     });
   };
   useEffect(() => {
-    if (Object.keys(errors).length == 1 && errors.quantities)
-      window.scrollTo(0, 0);
+    if (Object.keys(errors).length == 1 && errors.quantities) window.scrollTo(0, 0);
   }, [formState]);
   const handlePedidoSummary = () => {
     const renglones = quantitiesToRenglones(quantitiesWatch);
@@ -15322,8 +14879,7 @@ const _OrderEditPage = (props) => {
   const { id_pedido, useFetch, isDraft, saveDraft, editMode, deleteOriginal } = props;
   const idPedido = id_pedido != null ? Number.parseInt(id_pedido) : null;
   const idPedidoIsValid = isAnInteger(idPedido) && idPedido > 0;
-  if (!idPedidoIsValid)
-    return /* @__PURE__ */ jsx(OrderInvalidParameterError, { isDraft });
+  if (!idPedidoIsValid) return /* @__PURE__ */ jsx(OrderInvalidParameterError, { isDraft });
   const { state, retry } = useFetch(idPedido);
   const draftIdToDelete = deleteOriginal === true && editMode === OrderEditMode.copying && isDraft ? idPedido : void 0;
   return /* @__PURE__ */ jsx(OrderEdit, { state, retry, saveDraft, isDraft, editMode, draftIdToDelete });
@@ -15781,8 +15337,7 @@ const Pagination = (props) => {
     siblingCount,
     pageSize
   });
-  if (!paginationRange)
-    return null;
+  if (!paginationRange) return null;
   if (currentPage === 0 || paginationRange.length < 2) {
     return null;
   }
@@ -16259,11 +15814,9 @@ const route23 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePrope
 }, Symbol.toStringTag, { value: "Module" }));
 class VOArticuloListRecords extends ValueObject {
   validate(rawValue) {
-    if (!Array.isArray(rawValue))
-      this.throwError(rawValue);
+    if (!Array.isArray(rawValue)) this.throwError(rawValue);
     for (const e in rawValue) {
-      if (typeof e !== "string")
-        this.throwError(rawValue);
+      if (typeof e !== "string") this.throwError(rawValue);
     }
     const result = rawValue.map(
       (s) => strToDXTArticuloListRecord(s)
@@ -16907,8 +16460,7 @@ const OrdersNav = ({
   ] });
 };
 function calculateRealOrderStatus(pedido, stateRenglones) {
-  if (!stateRenglones.isSuccess())
-    return pedido.estado;
+  if (!stateRenglones.isSuccess()) return pedido.estado;
   return realOrderStatus(
     pedido,
     stateRenglones.data[pedido.id]
@@ -16935,8 +16487,7 @@ function getEstadoPedidoColor(estado, suffix) {
     default:
       color = "gray";
   }
-  if (suffix == null)
-    return color;
+  if (suffix == null) return color;
   return `${color}${suffix}`;
 }
 const PedidoMenu = ({
@@ -17045,8 +16596,7 @@ const PedidoMenu = ({
         )
       );
     }
-    if (menuItems.length > 0)
-      menuItems.push(/* @__PURE__ */ jsx(MenuDivider, {}, menuItems.length));
+    if (menuItems.length > 0) menuItems.push(/* @__PURE__ */ jsx(MenuDivider, {}, menuItems.length));
     menuItems.push(
       /* @__PURE__ */ jsx(
         MenuItem,
@@ -17059,8 +16609,7 @@ const PedidoMenu = ({
     );
   }
   if (isFavorite) {
-    if (menuItems.length > 0)
-      menuItems.push(/* @__PURE__ */ jsx(MenuDivider, {}, menuItems.length));
+    if (menuItems.length > 0) menuItems.push(/* @__PURE__ */ jsx(MenuDivider, {}, menuItems.length));
     menuItems.push(
       /* @__PURE__ */ jsx(
         MenuItem,
@@ -17073,8 +16622,7 @@ const PedidoMenu = ({
     );
   }
   if (isDraft || isUserAllowedToCancelOrDeleteOrder(user, pedido.estado)) {
-    if (menuItems.length > 0)
-      menuItems.push(/* @__PURE__ */ jsx(MenuDivider, {}, menuItems.length));
+    if (menuItems.length > 0) menuItems.push(/* @__PURE__ */ jsx(MenuDivider, {}, menuItems.length));
     menuItems.push(
       /* @__PURE__ */ jsx(
         MenuItem,
@@ -17207,8 +16755,7 @@ const Renglones = ({ wasOpen, pedido, stateRenglones, esCliente }) => {
     success: (state) => {
       const { id } = pedido;
       const renglones = state.data?.[id];
-      if (!Array.isArray(renglones))
-        return /* @__PURE__ */ jsx(RenglonesEmpty, {});
+      if (!Array.isArray(renglones)) return /* @__PURE__ */ jsx(RenglonesEmpty, {});
       return /* @__PURE__ */ jsx(
         RenglonesPedido,
         {
@@ -17427,8 +16974,7 @@ const DraftHeader = (props) => {
   );
 };
 function calculateRealOrderTotal(pedido, stateRenglones) {
-  if (!stateRenglones.isSuccess())
-    return null;
+  if (!stateRenglones.isSuccess()) return null;
   return realOrderTotal(pedido, stateRenglones.data[pedido.id]);
 }
 const TOGGLE_PEDIDO_DETAILS_EVENT = "togglePedidoDetails";
@@ -17462,8 +17008,7 @@ const Pedido = ({
   );
   const handleToggleDetails = () => {
     const nowIsOpen = !isOpen;
-    if (nowIsOpen)
-      wasOpen.current = true;
+    if (nowIsOpen) wasOpen.current = true;
     setIsOpen(nowIsOpen);
     eventBus.emit(TOGGLE_PEDIDO_DETAILS_EVENT, { id: pedido.id });
   };
@@ -17473,8 +17018,7 @@ const Pedido = ({
   };
   useEffect(() => {
     const handleEvent = ({ id: id2 }) => {
-      if (pedido.id !== id2)
-        setIsOpen(false);
+      if (pedido.id !== id2) setIsOpen(false);
     };
     eventBus.on(TOGGLE_PEDIDO_DETAILS_EVENT, handleEvent);
     return () => {
@@ -17619,8 +17163,7 @@ function PedidoList(props) {
   const handleMarkAsFavorite = async (draftId, isFavorite) => {
     if (isFavorite) {
       const result = await markDraftAsFavoriteRequest(draftId, app);
-      if (result.isSuccess())
-        await reloadData();
+      if (result.isSuccess()) await reloadData();
       return;
     }
     const dialogResult = await confirmationDialog({
@@ -17629,8 +17172,7 @@ function PedidoList(props) {
     });
     if (dialogResult == ConfirmationDialogResult.accept) {
       const result = await removeDraftFavoriteMarkRequest(draftId, app);
-      if (result.isSuccess())
-        await reloadData();
+      if (result.isSuccess()) await reloadData();
     }
   };
   return /* @__PURE__ */ jsx(TableContainer, { sx: { p: 0, m: 0 }, children: /* @__PURE__ */ jsx(
@@ -17690,8 +17232,7 @@ const OrdersReady = (props) => {
     silent: true,
     transformResponse: (data) => {
       Object.values(data).forEach((rows) => {
-        if (!Array.isArray(rows))
-          return;
+        if (!Array.isArray(rows)) return;
         rows.sort((a, b) => a.renglon - b.renglon);
       });
       return data;
@@ -17746,16 +17287,14 @@ function _draftCmp(a, b) {
   const aFav = a.es_favorito ? 1 : 0;
   const bFav = b.es_favorito ? 1 : 0;
   const favDif = aFav - bFav;
-  if (favDif != 0)
-    return favDif;
+  if (favDif != 0) return favDif;
   const aIngreso = new Date(a.fecha_hora_ingreso).getTime();
   const bIngreso = new Date(b.fecha_hora_ingreso).getTime();
   return bIngreso - aIngreso;
 }
 function _orderCmp$1(a, b) {
   const estadoDif = a.estado - b.estado;
-  if (estadoDif != 0)
-    return estadoDif;
+  if (estadoDif != 0) return estadoDif;
   const aNumeroPedido = a.numero_pedido;
   const bNumeroPedido = b.numero_pedido;
   return aNumeroPedido.localeCompare(bNumeroPedido);
@@ -18035,11 +17574,9 @@ const PrintOrderPage = (props) => {
     const safeOrders = [];
     orders.forEach((order) => {
       const idValidated = tryVOValue(() => new VOInteger(order), null);
-      if (idValidated != null)
-        safeOrders.push(idValidated);
+      if (idValidated != null) safeOrders.push(idValidated);
     });
-    if (safeOrders.length > 0)
-      return /* @__PURE__ */ jsx(_PrintOrderPage, { orders: safeOrders, fixedPageWidth });
+    if (safeOrders.length > 0) return /* @__PURE__ */ jsx(_PrintOrderPage, { orders: safeOrders, fixedPageWidth });
   }
   return /* @__PURE__ */ jsx(
     CommonErrors,
@@ -18457,14 +17994,12 @@ const route42 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePrope
 }, Symbol.toStringTag, { value: "Module" }));
 async function getDownloadableFiles() {
   const { downloads_path } = await settingsProvider.getProgramConfig();
-  if (downloads_path == "")
-    return [];
+  if (downloads_path == "") return [];
   let result = [];
   try {
     const items = await readdir(downloads_path, { withFileTypes: true });
     for (const item of items) {
-      if (item.isFile())
-        result.push(item.name);
+      if (item.isFile()) result.push(item.name);
     }
   } catch (err) {
   }
@@ -18472,8 +18007,7 @@ async function getDownloadableFiles() {
 }
 async function downloadFile(filename) {
   const downloadableFiles = await getDownloadableFiles();
-  if (!downloadableFiles.includes(filename))
-    throw new DXTException(DXTErrorCode.NOT_FOUND);
+  if (!downloadableFiles.includes(filename)) throw new DXTException(DXTErrorCode.NOT_FOUND);
   const { downloads_path } = await settingsProvider.getProgramConfig();
   const filePath = path__default.join(downloads_path, filename);
   try {
@@ -19041,8 +18575,7 @@ function DownloadItem(props) {
 }
 function _removeFileExtension(filename) {
   const lastDotIndex = filename.lastIndexOf(".");
-  if (lastDotIndex === -1)
-    return filename;
+  if (lastDotIndex === -1) return filename;
   return filename.substring(0, lastDotIndex);
 }
 const DownloadsReady = ({ files }) => {
@@ -19760,11 +19293,9 @@ async function getPedidosByIds(user, ids) {
   const rows = await getAllPedidosRows(user, false);
   return ids.map((id) => {
     const order = ordersById.get(id);
-    if (order == null)
-      return null;
+    if (order == null) return null;
     const orderRows = rows[id];
-    if (orderRows == null)
-      return null;
+    if (orderRows == null) return null;
     const newTotal = orderRows.reduce((total, row) => {
       const precioBonificado = applyTangoDiscount(row.precio, order.descuento) ?? 0;
       return total + precioBonificado * row.cantidad;
@@ -19868,12 +19399,10 @@ const getAdminStatusEndpoint = createApiEndpoint(
       dictionary_ok = false;
       const errorInfo = exceptionToDXTErrorInfo(e);
       dictionary_error = errorInfo.error_description;
-      if (isDXTException(e, DXTErrorCode.TANGO_DB_ACCESS_ERROR))
-        tangoError = e;
+      if (isDXTException(e, DXTErrorCode.TANGO_DB_ACCESS_ERROR)) tangoError = e;
     }
     try {
-      if (tangoError != null)
-        throw tangoError;
+      if (tangoError != null) throw tangoError;
       await tangoRepository.getCompany();
     } catch (e) {
       company_ok = false;
@@ -20013,15 +19542,14 @@ const updateDBSettingsEndpoint = createApiEndpoint(
     const passiveDBChanges = oldTimeout !== newTimeout && !thereIsANewDictionary && !thereIsANewCompany;
     const anyChange = passiveDBChanges || thereIsANewDictionary || thereIsANewCompany;
     await settingsProvider.setDBSettings(finalSettingsDTO);
-    if (anyChange)
-      emitBusEvent(
-        new DBSettingsChangedEvent({
-          passiveDBChanges,
-          newDictionary: thereIsANewDictionary,
-          newCompany: thereIsANewCompany,
-          resetCache: thereIsANewCompany
-        })
-      );
+    if (anyChange) emitBusEvent(
+      new DBSettingsChangedEvent({
+        passiveDBChanges,
+        newDictionary: thereIsANewDictionary,
+        newCompany: thereIsANewCompany,
+        resetCache: thereIsANewCompany
+      })
+    );
     const {
       tango_active_company,
       ...remaining
@@ -20228,7 +19756,10 @@ function Index() {
       }
     }
   }, [authState]);
-  return /* @__PURE__ */ jsxs(Fragment, { children: [
+  if (authState.isLoggedIn()) {
+    return /* @__PURE__ */ jsx(Fragment, {});
+  }
+  return /* @__PURE__ */ jsxs(ClientOnly, { children: [
     /* @__PURE__ */ jsx(
       Box,
       {
@@ -20339,7 +19870,7 @@ const route75 = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.definePrope
   default: Index,
   loader
 }, Symbol.toStringTag, { value: "Module" }));
-const serverManifest = { "entry": { "module": "/assets/entry.client-iji_34g_.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/styleContexts-C0Oa09Yw.js", "/assets/components-BGc_6s7t.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": true, "module": "/assets/root-Cbk3a2dk.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/styleContexts-C0Oa09Yw.js", "/assets/components-BGc_6s7t.js", "/assets/auth_context-o-QFsdoP.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/index-BANIvhx6.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/index-CIB9SwPf.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-AMBGAKG2-CIYbT-8p.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/CommonErrors-DeOQWaaF.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-NTCQBYKE-B1Tq5lBC.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js"], "css": ["/assets/root-qw4Y9WXH.css"] }, "routes/api.dxt.cliente.$id_cliente.siblings.$tango_id": { "id": "routes/api.dxt.cliente.$id_cliente.siblings.$tango_id", "parentId": "routes/api.dxt.cliente.$id_cliente", "path": "siblings/:tango_id", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente._id_cliente.siblings._tango_id-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.users.customers.$id.edit": { "id": "routes/_admin.settings.users.customers.$id.edit", "parentId": "routes/_admin", "path": "settings/users/customers/:id/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BfJUh2ux.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/AccountCancelIcon-CPwvhWWL.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/CommonCard-CNKA2ktH.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/app_resources-v7SdCuXf.js", "/assets/components-BGc_6s7t.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/index.esm-Dw-Md1--.js", "/assets/chunk-H46NUPBZ-bbDm42L7.js", "/assets/chunk-6CVSDS6C-HiurDJg9.js", "/assets/index-BANIvhx6.js", "/assets/index.esm-PRUp6yKW.js", "/assets/chunk-HB6KBUMZ-CPHrrJPO.js", "/assets/chunk-7D6N5TE5-xUeJJcj_.js", "/assets/chunk-VTV6N5LE-DkNWA3C3.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/ControlledInput-6nHeRWma.js", "/assets/chunk-2ZHRCML3-2pQo53d0.js", "/assets/chunk-Z6RXEUPO-DHpWC4hW.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/FormSkeletons-DRR2_CBk.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/useTangoList-Bd-_R57b.js", "/assets/ControlledSelect-Dly2IKC-.js", "/assets/ControlledSwitch-DLtn2KyM.js", "/assets/FormErrors-CbGnKS3X.js", "/assets/vo_dxt_password-DHEG7EuY.js", "/assets/InlineError-0CLFEneh.js", "/assets/SettingsFormButtons-xXBQWHLS.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js", "/assets/utils-DQu-C9ov.js", "/assets/vo_user_name-DZjr6Uf6.js", "/assets/settings-qH5I2rQn.js", "/assets/CommonErrors-DeOQWaaF.js", "/assets/SettingsFormHeading-4dxgzrMK.js", "/assets/schema_transformers-Q62744nO.js", "/assets/utils-DTXYOP_7.js"], "css": [] }, "routes/_admin.settings.users.sellers.$id.edit": { "id": "routes/_admin.settings.users.sellers.$id.edit", "parentId": "routes/_admin", "path": "settings/users/sellers/:id/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-h0JA49oH.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/AccountCancelIcon-CPwvhWWL.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/CommonCard-CNKA2ktH.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/app_resources-v7SdCuXf.js", "/assets/components-BGc_6s7t.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/index.esm-Dw-Md1--.js", "/assets/chunk-H46NUPBZ-bbDm42L7.js", "/assets/chunk-6CVSDS6C-HiurDJg9.js", "/assets/index-BANIvhx6.js", "/assets/index.esm-PRUp6yKW.js", "/assets/chunk-HB6KBUMZ-CPHrrJPO.js", "/assets/chunk-7D6N5TE5-xUeJJcj_.js", "/assets/chunk-VTV6N5LE-DkNWA3C3.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/ControlledInput-6nHeRWma.js", "/assets/chunk-2ZHRCML3-2pQo53d0.js", "/assets/chunk-Z6RXEUPO-DHpWC4hW.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/FormSkeletons-DRR2_CBk.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/useTangoList-Bd-_R57b.js", "/assets/ControlledSelect-Dly2IKC-.js", "/assets/ControlledSwitch-DLtn2KyM.js", "/assets/FormErrors-CbGnKS3X.js", "/assets/vo_dxt_password-DHEG7EuY.js", "/assets/InlineError-0CLFEneh.js", "/assets/SettingsFormButtons-xXBQWHLS.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js", "/assets/utils-DQu-C9ov.js", "/assets/vo_user_name-DZjr6Uf6.js", "/assets/settings-qH5I2rQn.js", "/assets/CommonErrors-DeOQWaaF.js", "/assets/SettingsFormHeading-4dxgzrMK.js", "/assets/schema_transformers-Q62744nO.js", "/assets/utils-DTXYOP_7.js"], "css": [] }, "routes/api.pedido.$id_pedido.start_new_draft": { "id": "routes/api.pedido.$id_pedido.start_new_draft", "parentId": "routes/api.pedido.$id_pedido", "path": "start_new_draft", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_new_draft-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.$id_pedido.start_new_order": { "id": "routes/api.draft.$id_pedido.start_new_order", "parentId": "routes/api.draft.$id_pedido", "path": "start_new_order", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_new_order-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.users.customers.add": { "id": "routes/_admin.settings.users.customers.add", "parentId": "routes/_admin", "path": "settings/users/customers/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DyhD8Fkw.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/AccountCancelIcon-CPwvhWWL.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/app_resources-v7SdCuXf.js", "/assets/components-BGc_6s7t.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/index.esm-Dw-Md1--.js", "/assets/chunk-H46NUPBZ-bbDm42L7.js", "/assets/chunk-6CVSDS6C-HiurDJg9.js", "/assets/index-BANIvhx6.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/index.esm-PRUp6yKW.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/chunk-HB6KBUMZ-CPHrrJPO.js", "/assets/chunk-7D6N5TE5-xUeJJcj_.js", "/assets/chunk-VTV6N5LE-DkNWA3C3.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/ControlledInput-6nHeRWma.js", "/assets/chunk-2ZHRCML3-2pQo53d0.js", "/assets/chunk-Z6RXEUPO-DHpWC4hW.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/FormSkeletons-DRR2_CBk.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/useTangoList-Bd-_R57b.js", "/assets/CommonCard-CNKA2ktH.js", "/assets/ControlledSelect-Dly2IKC-.js", "/assets/ControlledSwitch-DLtn2KyM.js", "/assets/FormErrors-CbGnKS3X.js", "/assets/vo_dxt_password-DHEG7EuY.js", "/assets/InlineError-0CLFEneh.js", "/assets/SettingsFormButtons-xXBQWHLS.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js", "/assets/utils-DQu-C9ov.js", "/assets/vo_user_name-DZjr6Uf6.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/settings-qH5I2rQn.js", "/assets/schema_transformers-Q62744nO.js", "/assets/SettingsFormHeading-4dxgzrMK.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.order": { "id": "routes/_authorized.drafts.$id_pedido.order", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/order", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-m1mchvu6.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/TextPrice-pccCkRr2.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/ColorModeSelector-C-0XELcU.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/chunk-6CVSDS6C-HiurDJg9.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/chunk-2ZHRCML3-2pQo53d0.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/index-CIB9SwPf.js", "/assets/index-BANIvhx6.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-CPHrrJPO.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/index.esm-Dw-Md1--.js", "/assets/chunk-H46NUPBZ-bbDm42L7.js", "/assets/index.esm-PRUp6yKW.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/app_resources-v7SdCuXf.js", "/assets/components-BGc_6s7t.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/order.api_hooks-UoRT4hUd.js", "/assets/OrdersContainer-DpyKwkmg.js", "/assets/SearchField-D5tty-Kn.js", "/assets/FormErrors-CbGnKS3X.js", "/assets/Navbar-BW-7L37M.js", "/assets/MessageToUserDialog-BdXavBH6.js", "/assets/chunk-T2WCTPDH-jfcXLuOc.js", "/assets/useTangoList-Bd-_R57b.js", "/assets/CommonCard-CNKA2ktH.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/chunk-NTCQBYKE-B1Tq5lBC.js", "/assets/ControlledInput-6nHeRWma.js", "/assets/ControlledSelect-Dly2IKC-.js", "/assets/ControlledTextarea-DrJmpSKb.js", "/assets/index-DO0XrkEQ.js", "/assets/chunk-Z6RXEUPO-DHpWC4hW.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js", "/assets/FormSkeletons-DRR2_CBk.js", "/assets/CommonErrors-DeOQWaaF.js", "/assets/index-D_lJ_DVr.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.draft": { "id": "routes/_authorized.orders.$id_pedido.draft", "parentId": "routes/_authorized", "path": "orders/:id_pedido/draft", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-Cw6qfd2t.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/TextPrice-pccCkRr2.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/ColorModeSelector-C-0XELcU.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/chunk-6CVSDS6C-HiurDJg9.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/chunk-2ZHRCML3-2pQo53d0.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/index-CIB9SwPf.js", "/assets/index-BANIvhx6.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-CPHrrJPO.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/index.esm-Dw-Md1--.js", "/assets/chunk-H46NUPBZ-bbDm42L7.js", "/assets/index.esm-PRUp6yKW.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/app_resources-v7SdCuXf.js", "/assets/components-BGc_6s7t.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/order.api_hooks-UoRT4hUd.js", "/assets/OrdersContainer-DpyKwkmg.js", "/assets/SearchField-D5tty-Kn.js", "/assets/FormErrors-CbGnKS3X.js", "/assets/Navbar-BW-7L37M.js", "/assets/MessageToUserDialog-BdXavBH6.js", "/assets/chunk-T2WCTPDH-jfcXLuOc.js", "/assets/useTangoList-Bd-_R57b.js", "/assets/CommonCard-CNKA2ktH.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/chunk-NTCQBYKE-B1Tq5lBC.js", "/assets/ControlledInput-6nHeRWma.js", "/assets/ControlledSelect-Dly2IKC-.js", "/assets/ControlledTextarea-DrJmpSKb.js", "/assets/index-DO0XrkEQ.js", "/assets/chunk-Z6RXEUPO-DHpWC4hW.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js", "/assets/FormSkeletons-DRR2_CBk.js", "/assets/CommonErrors-DeOQWaaF.js", "/assets/index-D_lJ_DVr.js"], "css": [] }, "routes/_admin.settings.product_list.print": { "id": "routes/_admin.settings.product_list.print", "parentId": "routes/_admin", "path": "settings/product_list/print", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-MWDEPQez.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/app_resources-v7SdCuXf.js", "/assets/app-DHK1Xtws.js", "/assets/components-BGc_6s7t.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/index.esm-Dw-Md1--.js", "/assets/chunk-H46NUPBZ-bbDm42L7.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/index-BANIvhx6.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/CommonCard-CNKA2ktH.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/index.esm-PRUp6yKW.js", "/assets/chunk-HB6KBUMZ-CPHrrJPO.js", "/assets/chunk-7D6N5TE5-xUeJJcj_.js", "/assets/chunk-VTV6N5LE-DkNWA3C3.js", "/assets/FormSkeletons-DRR2_CBk.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/ControlledTextarea-DrJmpSKb.js", "/assets/FormErrors-CbGnKS3X.js", "/assets/SettingsFormButtons-xXBQWHLS.js", "/assets/index-CIB9SwPf.js", "/assets/utils-DQu-C9ov.js", "/assets/index-DO0XrkEQ.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js", "/assets/SettingsFormHeading-4dxgzrMK.js", "/assets/ControlledSelect-Dly2IKC-.js", "/assets/ControlledSwitch-DLtn2KyM.js", "/assets/index-BCu4Y9A_.js"], "css": [] }, "routes/_admin.settings.users.$type._index": { "id": "routes/_admin.settings.users.$type._index", "parentId": "routes/_admin", "path": "settings/users/:type", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BSK3Tqm0.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/AccountCancelIcon-CPwvhWWL.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/CommonCard-CNKA2ktH.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/app_resources-v7SdCuXf.js", "/assets/components-BGc_6s7t.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/chunk-6CVSDS6C-HiurDJg9.js", "/assets/chunk-2ZHRCML3-2pQo53d0.js", "/assets/chunk-T2WCTPDH-jfcXLuOc.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/index-BANIvhx6.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/settings-qH5I2rQn.js", "/assets/CommonErrors-DeOQWaaF.js", "/assets/SettingsFormHeading-4dxgzrMK.js", "/assets/FormSkeletons-DRR2_CBk.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/ConfirmationDialog-DfhWjji0.js", "/assets/SearchField-D5tty-Kn.js", "/assets/chunk-NTCQBYKE-B1Tq5lBC.js", "/assets/chunk-MGVPL3OH-BLxQa9e0.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.copy": { "id": "routes/_authorized.drafts.$id_pedido.copy", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/copy", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DENYaAoP.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/TextPrice-pccCkRr2.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/ColorModeSelector-C-0XELcU.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/chunk-6CVSDS6C-HiurDJg9.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/chunk-2ZHRCML3-2pQo53d0.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/index-CIB9SwPf.js", "/assets/index-BANIvhx6.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-CPHrrJPO.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/index.esm-Dw-Md1--.js", "/assets/chunk-H46NUPBZ-bbDm42L7.js", "/assets/index.esm-PRUp6yKW.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/app_resources-v7SdCuXf.js", "/assets/components-BGc_6s7t.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/order.api_hooks-UoRT4hUd.js", "/assets/OrdersContainer-DpyKwkmg.js", "/assets/SearchField-D5tty-Kn.js", "/assets/FormErrors-CbGnKS3X.js", "/assets/Navbar-BW-7L37M.js", "/assets/MessageToUserDialog-BdXavBH6.js", "/assets/chunk-T2WCTPDH-jfcXLuOc.js", "/assets/useTangoList-Bd-_R57b.js", "/assets/CommonCard-CNKA2ktH.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/chunk-NTCQBYKE-B1Tq5lBC.js", "/assets/ControlledInput-6nHeRWma.js", "/assets/ControlledSelect-Dly2IKC-.js", "/assets/ControlledTextarea-DrJmpSKb.js", "/assets/index-DO0XrkEQ.js", "/assets/chunk-Z6RXEUPO-DHpWC4hW.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js", "/assets/FormSkeletons-DRR2_CBk.js", "/assets/CommonErrors-DeOQWaaF.js", "/assets/index-D_lJ_DVr.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.edit": { "id": "routes/_authorized.drafts.$id_pedido.edit", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CC2HCHYI.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/TextPrice-pccCkRr2.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/ColorModeSelector-C-0XELcU.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/chunk-6CVSDS6C-HiurDJg9.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/chunk-2ZHRCML3-2pQo53d0.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/index-CIB9SwPf.js", "/assets/index-BANIvhx6.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-CPHrrJPO.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/index.esm-Dw-Md1--.js", "/assets/chunk-H46NUPBZ-bbDm42L7.js", "/assets/index.esm-PRUp6yKW.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/app_resources-v7SdCuXf.js", "/assets/components-BGc_6s7t.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/order.api_hooks-UoRT4hUd.js", "/assets/OrdersContainer-DpyKwkmg.js", "/assets/SearchField-D5tty-Kn.js", "/assets/FormErrors-CbGnKS3X.js", "/assets/Navbar-BW-7L37M.js", "/assets/MessageToUserDialog-BdXavBH6.js", "/assets/chunk-T2WCTPDH-jfcXLuOc.js", "/assets/useTangoList-Bd-_R57b.js", "/assets/CommonCard-CNKA2ktH.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/chunk-NTCQBYKE-B1Tq5lBC.js", "/assets/ControlledInput-6nHeRWma.js", "/assets/ControlledSelect-Dly2IKC-.js", "/assets/ControlledTextarea-DrJmpSKb.js", "/assets/index-DO0XrkEQ.js", "/assets/chunk-Z6RXEUPO-DHpWC4hW.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js", "/assets/FormSkeletons-DRR2_CBk.js", "/assets/CommonErrors-DeOQWaaF.js", "/assets/index-D_lJ_DVr.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.copy": { "id": "routes/_authorized.orders.$id_pedido.copy", "parentId": "routes/_authorized", "path": "orders/:id_pedido/copy", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-Dld9Hgum.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/TextPrice-pccCkRr2.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/ColorModeSelector-C-0XELcU.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/chunk-6CVSDS6C-HiurDJg9.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/chunk-2ZHRCML3-2pQo53d0.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/index-CIB9SwPf.js", "/assets/index-BANIvhx6.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-CPHrrJPO.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/index.esm-Dw-Md1--.js", "/assets/chunk-H46NUPBZ-bbDm42L7.js", "/assets/index.esm-PRUp6yKW.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/app_resources-v7SdCuXf.js", "/assets/components-BGc_6s7t.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/order.api_hooks-UoRT4hUd.js", "/assets/OrdersContainer-DpyKwkmg.js", "/assets/SearchField-D5tty-Kn.js", "/assets/FormErrors-CbGnKS3X.js", "/assets/Navbar-BW-7L37M.js", "/assets/MessageToUserDialog-BdXavBH6.js", "/assets/chunk-T2WCTPDH-jfcXLuOc.js", "/assets/useTangoList-Bd-_R57b.js", "/assets/CommonCard-CNKA2ktH.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/chunk-NTCQBYKE-B1Tq5lBC.js", "/assets/ControlledInput-6nHeRWma.js", "/assets/ControlledSelect-Dly2IKC-.js", "/assets/ControlledTextarea-DrJmpSKb.js", "/assets/index-DO0XrkEQ.js", "/assets/chunk-Z6RXEUPO-DHpWC4hW.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js", "/assets/FormSkeletons-DRR2_CBk.js", "/assets/CommonErrors-DeOQWaaF.js", "/assets/index-D_lJ_DVr.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.edit": { "id": "routes/_authorized.orders.$id_pedido.edit", "parentId": "routes/_authorized", "path": "orders/:id_pedido/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-Dhv3QDpO.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/TextPrice-pccCkRr2.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/ColorModeSelector-C-0XELcU.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/chunk-6CVSDS6C-HiurDJg9.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/chunk-2ZHRCML3-2pQo53d0.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/index-CIB9SwPf.js", "/assets/index-BANIvhx6.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-CPHrrJPO.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/index.esm-Dw-Md1--.js", "/assets/chunk-H46NUPBZ-bbDm42L7.js", "/assets/index.esm-PRUp6yKW.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/app_resources-v7SdCuXf.js", "/assets/components-BGc_6s7t.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/order.api_hooks-UoRT4hUd.js", "/assets/OrdersContainer-DpyKwkmg.js", "/assets/SearchField-D5tty-Kn.js", "/assets/FormErrors-CbGnKS3X.js", "/assets/Navbar-BW-7L37M.js", "/assets/MessageToUserDialog-BdXavBH6.js", "/assets/chunk-T2WCTPDH-jfcXLuOc.js", "/assets/useTangoList-Bd-_R57b.js", "/assets/CommonCard-CNKA2ktH.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/chunk-NTCQBYKE-B1Tq5lBC.js", "/assets/ControlledInput-6nHeRWma.js", "/assets/ControlledSelect-Dly2IKC-.js", "/assets/ControlledTextarea-DrJmpSKb.js", "/assets/index-DO0XrkEQ.js", "/assets/chunk-Z6RXEUPO-DHpWC4hW.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js", "/assets/FormSkeletons-DRR2_CBk.js", "/assets/CommonErrors-DeOQWaaF.js", "/assets/index-D_lJ_DVr.js"], "css": [] }, "routes/api.dxt.cliente.siblings.$tango_id": { "id": "routes/api.dxt.cliente.siblings.$tango_id", "parentId": "routes/api.dxt.cliente", "path": "siblings/:tango_id", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente.siblings._tango_id-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.$id_pedido.start_update": { "id": "routes/api.pedido.$id_pedido.start_update", "parentId": "routes/api.pedido.$id_pedido", "path": "start_update", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_update-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.product_list.edit": { "id": "routes/_admin.settings.product_list.edit", "parentId": "routes/_admin", "path": "settings/product_list/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-C9Wae61V.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/app_resources-v7SdCuXf.js", "/assets/app-DHK1Xtws.js", "/assets/components-BGc_6s7t.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/index.esm-Dw-Md1--.js", "/assets/chunk-H46NUPBZ-bbDm42L7.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/index-BANIvhx6.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/CommonCard-CNKA2ktH.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/index.esm-PRUp6yKW.js", "/assets/chunk-HB6KBUMZ-CPHrrJPO.js", "/assets/chunk-7D6N5TE5-xUeJJcj_.js", "/assets/chunk-VTV6N5LE-DkNWA3C3.js", "/assets/FormSkeletons-DRR2_CBk.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/ControlledTextarea-DrJmpSKb.js", "/assets/FormErrors-CbGnKS3X.js", "/assets/SettingsFormButtons-xXBQWHLS.js", "/assets/index-CIB9SwPf.js", "/assets/utils-DQu-C9ov.js", "/assets/index-DO0XrkEQ.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js", "/assets/SettingsFormHeading-4dxgzrMK.js", "/assets/ControlledSelect-Dly2IKC-.js", "/assets/ControlledSwitch-DLtn2KyM.js", "/assets/index-BCu4Y9A_.js"], "css": [] }, "routes/_admin.settings.users.sellers.add": { "id": "routes/_admin.settings.users.sellers.add", "parentId": "routes/_admin", "path": "settings/users/sellers/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-C-lUgUu9.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/AccountCancelIcon-CPwvhWWL.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/app_resources-v7SdCuXf.js", "/assets/components-BGc_6s7t.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/index.esm-Dw-Md1--.js", "/assets/chunk-H46NUPBZ-bbDm42L7.js", "/assets/chunk-6CVSDS6C-HiurDJg9.js", "/assets/index-BANIvhx6.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/index.esm-PRUp6yKW.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/chunk-HB6KBUMZ-CPHrrJPO.js", "/assets/chunk-7D6N5TE5-xUeJJcj_.js", "/assets/chunk-VTV6N5LE-DkNWA3C3.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/ControlledInput-6nHeRWma.js", "/assets/chunk-2ZHRCML3-2pQo53d0.js", "/assets/chunk-Z6RXEUPO-DHpWC4hW.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/FormSkeletons-DRR2_CBk.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/useTangoList-Bd-_R57b.js", "/assets/CommonCard-CNKA2ktH.js", "/assets/ControlledSelect-Dly2IKC-.js", "/assets/ControlledSwitch-DLtn2KyM.js", "/assets/FormErrors-CbGnKS3X.js", "/assets/vo_dxt_password-DHEG7EuY.js", "/assets/InlineError-0CLFEneh.js", "/assets/SettingsFormButtons-xXBQWHLS.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js", "/assets/utils-DQu-C9ov.js", "/assets/vo_user_name-DZjr6Uf6.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/settings-qH5I2rQn.js", "/assets/schema_transformers-Q62744nO.js", "/assets/SettingsFormHeading-4dxgzrMK.js"], "css": [] }, "routes/api.draft.$id_pedido.start_update": { "id": "routes/api.draft.$id_pedido.start_update", "parentId": "routes/api.draft.$id_pedido", "path": "start_update", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_update-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.$id_pedido.start_copy": { "id": "routes/api.pedido.$id_pedido.start_copy", "parentId": "routes/api.pedido.$id_pedido", "path": "start_copy", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_copy-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.start_new.$id_cliente": { "id": "routes/api.pedido.start_new.$id_cliente", "parentId": "routes/api.pedido.start_new", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.start_new._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.$id_pedido.start_copy": { "id": "routes/api.draft.$id_pedido.start_copy", "parentId": "routes/api.draft.$id_pedido", "path": "start_copy", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_copy-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.start_new.$id_cliente": { "id": "routes/api.draft.start_new.$id_cliente", "parentId": "routes/api.draft.start_new", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.start_new._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.articulo.print_list.ids": { "id": "routes/api.dxt.articulo.print_list.ids", "parentId": "routes/api.dxt.articulo.print_list", "path": "ids", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.print_list.ids-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.drafts.$client.add": { "id": "routes/_authorized.drafts.$client.add", "parentId": "routes/_authorized", "path": "drafts/:client/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-C00NpyvV.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/TextPrice-pccCkRr2.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/ColorModeSelector-C-0XELcU.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/chunk-6CVSDS6C-HiurDJg9.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/chunk-2ZHRCML3-2pQo53d0.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/index-CIB9SwPf.js", "/assets/index-BANIvhx6.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-CPHrrJPO.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/index.esm-Dw-Md1--.js", "/assets/chunk-H46NUPBZ-bbDm42L7.js", "/assets/index.esm-PRUp6yKW.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/app_resources-v7SdCuXf.js", "/assets/components-BGc_6s7t.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/order.api_hooks-UoRT4hUd.js", "/assets/OrdersContainer-DpyKwkmg.js", "/assets/SearchField-D5tty-Kn.js", "/assets/FormErrors-CbGnKS3X.js", "/assets/Navbar-BW-7L37M.js", "/assets/MessageToUserDialog-BdXavBH6.js", "/assets/chunk-T2WCTPDH-jfcXLuOc.js", "/assets/useTangoList-Bd-_R57b.js", "/assets/CommonCard-CNKA2ktH.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/chunk-NTCQBYKE-B1Tq5lBC.js", "/assets/ControlledInput-6nHeRWma.js", "/assets/ControlledSelect-Dly2IKC-.js", "/assets/ControlledTextarea-DrJmpSKb.js", "/assets/index-DO0XrkEQ.js", "/assets/chunk-Z6RXEUPO-DHpWC4hW.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js", "/assets/FormSkeletons-DRR2_CBk.js", "/assets/CommonErrors-DeOQWaaF.js", "/assets/index-D_lJ_DVr.js"], "css": [] }, "routes/_authorized.orders.$client.add": { "id": "routes/_authorized.orders.$client.add", "parentId": "routes/_authorized", "path": "orders/:client/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-Bf4SOW5Z.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/TextPrice-pccCkRr2.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/ColorModeSelector-C-0XELcU.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/chunk-6CVSDS6C-HiurDJg9.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/chunk-2ZHRCML3-2pQo53d0.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/index-CIB9SwPf.js", "/assets/index-BANIvhx6.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-CPHrrJPO.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/index.esm-Dw-Md1--.js", "/assets/chunk-H46NUPBZ-bbDm42L7.js", "/assets/index.esm-PRUp6yKW.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/app_resources-v7SdCuXf.js", "/assets/components-BGc_6s7t.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/order.api_hooks-UoRT4hUd.js", "/assets/OrdersContainer-DpyKwkmg.js", "/assets/SearchField-D5tty-Kn.js", "/assets/FormErrors-CbGnKS3X.js", "/assets/Navbar-BW-7L37M.js", "/assets/MessageToUserDialog-BdXavBH6.js", "/assets/chunk-T2WCTPDH-jfcXLuOc.js", "/assets/useTangoList-Bd-_R57b.js", "/assets/CommonCard-CNKA2ktH.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/chunk-NTCQBYKE-B1Tq5lBC.js", "/assets/ControlledInput-6nHeRWma.js", "/assets/ControlledSelect-Dly2IKC-.js", "/assets/ControlledTextarea-DrJmpSKb.js", "/assets/index-DO0XrkEQ.js", "/assets/chunk-Z6RXEUPO-DHpWC4hW.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js", "/assets/FormSkeletons-DRR2_CBk.js", "/assets/CommonErrors-DeOQWaaF.js", "/assets/index-D_lJ_DVr.js"], "css": [] }, "routes/api.dictionary.active_company": { "id": "routes/api.dictionary.active_company", "parentId": "routes/api.dictionary", "path": "active_company", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dictionary.active_company-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.$id_pedido.favorite": { "id": "routes/api.draft.$id_pedido.favorite", "parentId": "routes/api.draft.$id_pedido", "path": "favorite", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.favorite-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.vendedor.$id_vendedor": { "id": "routes/api.dxt.vendedor.$id_vendedor", "parentId": "routes/api.dxt.vendedor", "path": ":id_vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor._id_vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.change_password": { "id": "routes/_authorized.change_password", "parentId": "routes/_authorized", "path": "change_password", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DjB5Jwp-.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/index-CIB9SwPf.js", "/assets/index-BANIvhx6.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/ColorModeSelector-C-0XELcU.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-CPHrrJPO.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/CommonCard-CNKA2ktH.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/index.esm-Dw-Md1--.js", "/assets/chunk-H46NUPBZ-bbDm42L7.js", "/assets/chunk-6CVSDS6C-HiurDJg9.js", "/assets/ControlledInput-6nHeRWma.js", "/assets/chunk-2ZHRCML3-2pQo53d0.js", "/assets/chunk-Z6RXEUPO-DHpWC4hW.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/Navbar-BW-7L37M.js", "/assets/SettingsFormHeading-4dxgzrMK.js", "/assets/app_resources-v7SdCuXf.js", "/assets/refresh_all-C9GhRqB0.js", "/assets/FormErrors-CbGnKS3X.js", "/assets/vo_dxt_password-DHEG7EuY.js", "/assets/SettingsFormButtons-xXBQWHLS.js", "/assets/utils-DQu-C9ov.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js"], "css": [] }, "routes/api.dxt.articulo.print_list": { "id": "routes/api.dxt.articulo.print_list", "parentId": "root", "path": "api/dxt/articulo/print_list", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.print_list-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.cliente.$id_cliente": { "id": "routes/api.dxt.cliente.$id_cliente", "parentId": "routes/api.dxt.cliente", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.articulo.edit_list": { "id": "routes/api.dxt.articulo.edit_list", "parentId": "root", "path": "api/dxt/articulo/edit_list", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.edit_list-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.usuario.auxiliares": { "id": "routes/api.dxt.usuario.auxiliares", "parentId": "root", "path": "api/dxt/usuario/auxiliares", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.usuario.auxiliares-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.drafts._index": { "id": "routes/_authorized.drafts._index", "parentId": "routes/_authorized", "path": "drafts", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-NPxW8l5j.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/app_resources-v7SdCuXf.js", "/assets/app-DHK1Xtws.js", "/assets/components-BGc_6s7t.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/index-CIB9SwPf.js", "/assets/index-BANIvhx6.js", "/assets/ColorModeSelector-C-0XELcU.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-CPHrrJPO.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/TextPrice-pccCkRr2.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/chunk-6CVSDS6C-HiurDJg9.js", "/assets/chunk-2ZHRCML3-2pQo53d0.js", "/assets/vo_user_name-DZjr6Uf6.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-7D6N5TE5-xUeJJcj_.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/FormSkeletons-DRR2_CBk.js", "/assets/Navbar-BW-7L37M.js", "/assets/OrdersContainer-DpyKwkmg.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/SearchField-D5tty-Kn.js", "/assets/index-D-hx8tz2.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/AccountCancelIcon-CPwvhWWL.js", "/assets/ConfirmationDialog-DfhWjji0.js", "/assets/index.esm-PRUp6yKW.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/chunk-NTCQBYKE-B1Tq5lBC.js", "/assets/chunk-Z6RXEUPO-DHpWC4hW.js", "/assets/chunk-CWVAJCXJ-Bx_GRDS0.js", "/assets/chunk-T2WCTPDH-jfcXLuOc.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js", "/assets/index-D4J5LoYv.js"], "css": [] }, "routes/_authorized.orders._index": { "id": "routes/_authorized.orders._index", "parentId": "routes/_authorized", "path": "orders", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-lCdrmsoD.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/app_resources-v7SdCuXf.js", "/assets/app-DHK1Xtws.js", "/assets/components-BGc_6s7t.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/index-CIB9SwPf.js", "/assets/index-BANIvhx6.js", "/assets/ColorModeSelector-C-0XELcU.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-CPHrrJPO.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/TextPrice-pccCkRr2.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/chunk-6CVSDS6C-HiurDJg9.js", "/assets/chunk-2ZHRCML3-2pQo53d0.js", "/assets/vo_user_name-DZjr6Uf6.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-7D6N5TE5-xUeJJcj_.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/FormSkeletons-DRR2_CBk.js", "/assets/Navbar-BW-7L37M.js", "/assets/OrdersContainer-DpyKwkmg.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/SearchField-D5tty-Kn.js", "/assets/index-D-hx8tz2.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/AccountCancelIcon-CPwvhWWL.js", "/assets/ConfirmationDialog-DfhWjji0.js", "/assets/index.esm-PRUp6yKW.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/chunk-NTCQBYKE-B1Tq5lBC.js", "/assets/chunk-Z6RXEUPO-DHpWC4hW.js", "/assets/chunk-CWVAJCXJ-Bx_GRDS0.js", "/assets/chunk-T2WCTPDH-jfcXLuOc.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js", "/assets/index-D4J5LoYv.js"], "css": [] }, "routes/_authorized.orders.print": { "id": "routes/_authorized.orders.print", "parentId": "routes/_authorized", "path": "orders/print", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-d5QPLcmu.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/TextPrice-pccCkRr2.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/app_resources-v7SdCuXf.js", "/assets/app-DHK1Xtws.js", "/assets/components-BGc_6s7t.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/vo_user_name-DZjr6Uf6.js", "/assets/chunk-T2WCTPDH-jfcXLuOc.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/index-BANIvhx6.js", "/assets/chunk-7D6N5TE5-xUeJJcj_.js", "/assets/utils-DTXYOP_7.js", "/assets/order.api_hooks-UoRT4hUd.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/CommonErrors-DeOQWaaF.js", "/assets/index-D-hx8tz2.js", "/assets/chunk-MGVPL3OH-BLxQa9e0.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/chunk-VTV6N5LE-DkNWA3C3.js", "/assets/chunk-H46NUPBZ-bbDm42L7.js"], "css": [] }, "routes/api.dxt.vendedor.cliente": { "id": "routes/api.dxt.vendedor.cliente", "parentId": "routes/api.dxt.vendedor", "path": "cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.company": { "id": "routes/_admin.settings.company", "parentId": "routes/_admin", "path": "settings/company", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-D4GYK0y9.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/CommonCard-CNKA2ktH.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/index-BANIvhx6.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/index.esm-Dw-Md1--.js", "/assets/index.esm-PRUp6yKW.js", "/assets/chunk-HB6KBUMZ-CPHrrJPO.js", "/assets/chunk-H46NUPBZ-bbDm42L7.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/chunk-Z6RXEUPO-DHpWC4hW.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/app-DHK1Xtws.js", "/assets/SettingsFormHeading-4dxgzrMK.js", "/assets/app_resources-v7SdCuXf.js", "/assets/useTangoList-Bd-_R57b.js", "/assets/ControlledSelect-Dly2IKC-.js", "/assets/FormErrors-CbGnKS3X.js", "/assets/InlineError-0CLFEneh.js", "/assets/SettingsFormButtons-xXBQWHLS.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js"], "css": [] }, "routes/_admin.settings._index": { "id": "routes/_admin.settings._index", "parentId": "routes/_admin", "path": "settings", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-C-q_Xctv.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/app_resources-v7SdCuXf.js", "/assets/app-DHK1Xtws.js", "/assets/components-BGc_6s7t.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/chunk-NTCQBYKE-B1Tq5lBC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/chunk-Z6RXEUPO-DHpWC4hW.js"], "css": [] }, "routes/_authorized.drafts.add": { "id": "routes/_authorized.drafts.add", "parentId": "routes/_authorized", "path": "drafts/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CN_dWZ7f.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/TextPrice-pccCkRr2.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/ColorModeSelector-C-0XELcU.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/chunk-6CVSDS6C-HiurDJg9.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/chunk-2ZHRCML3-2pQo53d0.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/index-CIB9SwPf.js", "/assets/index-BANIvhx6.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-CPHrrJPO.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/index.esm-Dw-Md1--.js", "/assets/chunk-H46NUPBZ-bbDm42L7.js", "/assets/index.esm-PRUp6yKW.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/app_resources-v7SdCuXf.js", "/assets/components-BGc_6s7t.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/order.api_hooks-UoRT4hUd.js", "/assets/OrdersContainer-DpyKwkmg.js", "/assets/SearchField-D5tty-Kn.js", "/assets/FormErrors-CbGnKS3X.js", "/assets/Navbar-BW-7L37M.js", "/assets/MessageToUserDialog-BdXavBH6.js", "/assets/chunk-T2WCTPDH-jfcXLuOc.js", "/assets/useTangoList-Bd-_R57b.js", "/assets/CommonCard-CNKA2ktH.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/chunk-NTCQBYKE-B1Tq5lBC.js", "/assets/ControlledInput-6nHeRWma.js", "/assets/ControlledSelect-Dly2IKC-.js", "/assets/ControlledTextarea-DrJmpSKb.js", "/assets/index-DO0XrkEQ.js", "/assets/chunk-Z6RXEUPO-DHpWC4hW.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js", "/assets/FormSkeletons-DRR2_CBk.js", "/assets/CommonErrors-DeOQWaaF.js", "/assets/index-D_lJ_DVr.js"], "css": [] }, "routes/_authorized.orders.add": { "id": "routes/_authorized.orders.add", "parentId": "routes/_authorized", "path": "orders/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DBlQpVME.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/TextPrice-pccCkRr2.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/ColorModeSelector-C-0XELcU.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/chunk-6CVSDS6C-HiurDJg9.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/chunk-2ZHRCML3-2pQo53d0.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/index-CIB9SwPf.js", "/assets/index-BANIvhx6.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-CPHrrJPO.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/index.esm-Dw-Md1--.js", "/assets/chunk-H46NUPBZ-bbDm42L7.js", "/assets/index.esm-PRUp6yKW.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/app_resources-v7SdCuXf.js", "/assets/components-BGc_6s7t.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/order.api_hooks-UoRT4hUd.js", "/assets/OrdersContainer-DpyKwkmg.js", "/assets/SearchField-D5tty-Kn.js", "/assets/FormErrors-CbGnKS3X.js", "/assets/Navbar-BW-7L37M.js", "/assets/MessageToUserDialog-BdXavBH6.js", "/assets/chunk-T2WCTPDH-jfcXLuOc.js", "/assets/useTangoList-Bd-_R57b.js", "/assets/CommonCard-CNKA2ktH.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/chunk-NTCQBYKE-B1Tq5lBC.js", "/assets/ControlledInput-6nHeRWma.js", "/assets/ControlledSelect-Dly2IKC-.js", "/assets/ControlledTextarea-DrJmpSKb.js", "/assets/index-DO0XrkEQ.js", "/assets/chunk-Z6RXEUPO-DHpWC4hW.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js", "/assets/FormSkeletons-DRR2_CBk.js", "/assets/CommonErrors-DeOQWaaF.js", "/assets/index-D_lJ_DVr.js"], "css": [] }, "routes/api.download.$filename": { "id": "routes/api.download.$filename", "parentId": "routes/api.download", "path": ":filename", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.download._filename-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.order": { "id": "routes/_admin.settings.order", "parentId": "routes/_admin", "path": "settings/order", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BElpZABK.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/CommonCard-CNKA2ktH.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/app_resources-v7SdCuXf.js", "/assets/app-DHK1Xtws.js", "/assets/components-BGc_6s7t.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/index-BANIvhx6.js", "/assets/chunk-7D6N5TE5-xUeJJcj_.js", "/assets/index.esm-Dw-Md1--.js", "/assets/chunk-CWVAJCXJ-Bx_GRDS0.js", "/assets/chunk-H46NUPBZ-bbDm42L7.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/SettingsFormHeading-4dxgzrMK.js", "/assets/requests-6J8-6hNY.js", "/assets/FormSkeletons-DRR2_CBk.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/ControlledCheckbox-DBqfAjlo.js", "/assets/ControlledTextarea-DrJmpSKb.js", "/assets/FormErrors-CbGnKS3X.js", "/assets/SettingsFormButtons-xXBQWHLS.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js"], "css": [] }, "routes/_admin.settings.tango": { "id": "routes/_admin.settings.tango", "parentId": "routes/_admin", "path": "settings/tango", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BSZfbIAl.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/CommonCard-CNKA2ktH.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/app_resources-v7SdCuXf.js", "/assets/app-DHK1Xtws.js", "/assets/components-BGc_6s7t.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/index.esm-Dw-Md1--.js", "/assets/chunk-H46NUPBZ-bbDm42L7.js", "/assets/chunk-6CVSDS6C-HiurDJg9.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/index-CIB9SwPf.js", "/assets/index-BANIvhx6.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/SettingsFormHeading-4dxgzrMK.js", "/assets/requests-6J8-6hNY.js", "/assets/FormSkeletons-DRR2_CBk.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/ControlledInput-6nHeRWma.js", "/assets/FormErrors-CbGnKS3X.js", "/assets/SettingsFormButtons-xXBQWHLS.js", "/assets/utils-DQu-C9ov.js", "/assets/misc_settings.consts-BHr1Rl5O.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js"], "css": [] }, "routes/_authorized.downloads": { "id": "routes/_authorized.downloads", "parentId": "routes/_authorized", "path": "downloads", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DKed5hhJ.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/index-CIB9SwPf.js", "/assets/index-BANIvhx6.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/ColorModeSelector-C-0XELcU.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-CPHrrJPO.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/CommonCard-CNKA2ktH.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/app_resources-v7SdCuXf.js", "/assets/components-BGc_6s7t.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/Navbar-BW-7L37M.js", "/assets/SettingsFormHeading-4dxgzrMK.js", "/assets/chunk-AMBGAKG2-CIYbT-8p.js", "/assets/chunk-NTCQBYKE-B1Tq5lBC.js", "/assets/FormSkeletons-DRR2_CBk.js"], "css": [] }, "routes/api.pedido.$id_pedido": { "id": "routes/api.pedido.$id_pedido", "parentId": "routes/api.pedido", "path": ":id_pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.misc": { "id": "routes/_admin.settings.misc", "parentId": "routes/_admin", "path": "settings/misc", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-wMaLbrFr.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/chunk-VMD3UMGK-H-jGd6rm.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/CommonCard-CNKA2ktH.js", "/assets/ResponsiveIconButton-DPkbktow.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/CloseIcon-zI_k4qMr.js", "/assets/app_resources-v7SdCuXf.js", "/assets/app-DHK1Xtws.js", "/assets/components-BGc_6s7t.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/useDXTApiFetch-CrYRM0vP.js", "/assets/ApiErrors-BF4FVKaX.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/index-BANIvhx6.js", "/assets/chunk-7D6N5TE5-xUeJJcj_.js", "/assets/index.esm-Dw-Md1--.js", "/assets/chunk-CWVAJCXJ-Bx_GRDS0.js", "/assets/chunk-H46NUPBZ-bbDm42L7.js", "/assets/chunk-6CVSDS6C-HiurDJg9.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/index-CIB9SwPf.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-3Y4YXCR2-DQF11Gk3.js", "/assets/SettingsFormHeading-4dxgzrMK.js", "/assets/requests-6J8-6hNY.js", "/assets/FormSkeletons-DRR2_CBk.js", "/assets/chunk-ZPFGWTBB-CvOtOCTn.js", "/assets/ControlledCheckbox-DBqfAjlo.js", "/assets/ControlledInput-6nHeRWma.js", "/assets/ControlledTextarea-DrJmpSKb.js", "/assets/FormErrors-CbGnKS3X.js", "/assets/SettingsFormButtons-xXBQWHLS.js", "/assets/utils-DQu-C9ov.js", "/assets/misc_settings.consts-BHr1Rl5O.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-6RSEZNRH-BQPG2CNv.js"], "css": [] }, "routes/api.draft.$id_pedido": { "id": "routes/api.draft.$id_pedido", "parentId": "routes/api.draft", "path": ":id_pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.renglones": { "id": "routes/api.pedido.renglones", "parentId": "routes/api.pedido", "path": "renglones", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.renglones-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.start_new": { "id": "routes/api.pedido.start_new", "parentId": "routes/api.pedido", "path": "start_new", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.start_new-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.renglones": { "id": "routes/api.draft.renglones", "parentId": "routes/api.draft", "path": "renglones", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.renglones-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.start_new": { "id": "routes/api.draft.start_new", "parentId": "routes/api.draft", "path": "start_new", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.start_new-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.order": { "id": "routes/api.settings.order", "parentId": "root", "path": "api/settings/order", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.order-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.vendedor": { "id": "routes/api.tango.vendedor", "parentId": "root", "path": "api/tango/vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.password": { "id": "routes/api.auth.password", "parentId": "root", "path": "api/auth/password", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.password-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.by_ids": { "id": "routes/api.pedido.by_ids", "parentId": "routes/api.pedido", "path": "by_ids", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.by_ids-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.misc": { "id": "routes/api.settings.misc", "parentId": "root", "path": "api/settings/misc", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.misc-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.cliente": { "id": "routes/api.tango.cliente", "parentId": "root", "path": "api/tango/cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.admin.status": { "id": "routes/api.admin.status", "parentId": "root", "path": "api/admin/status", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.admin.status-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.connect": { "id": "routes/api.auth.connect", "parentId": "root", "path": "api/auth/connect", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.connect-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.vendedor": { "id": "routes/api.dxt.vendedor", "parentId": "root", "path": "api/dxt/vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.perfil": { "id": "routes/api.tango.perfil", "parentId": "root", "path": "api/tango/perfil", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.perfil-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.logout": { "id": "routes/api.auth.logout", "parentId": "root", "path": "api/auth/logout", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.logout-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.cliente": { "id": "routes/api.dxt.cliente", "parentId": "root", "path": "api/dxt/cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.db": { "id": "routes/api.settings.db", "parentId": "root", "path": "api/settings/db", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.db-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.lista": { "id": "routes/api.tango.lista", "parentId": "root", "path": "api/tango/lista", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.lista-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.login": { "id": "routes/api.auth.login", "parentId": "root", "path": "api/auth/login", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.login-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dictionary": { "id": "routes/api.dictionary", "parentId": "root", "path": "api/dictionary", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dictionary-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.download": { "id": "routes/api.download", "parentId": "root", "path": "api/download", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.download-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized": { "id": "routes/_authorized", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-O__eUXyG.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/refresh_all-C9GhRqB0.js", "/assets/ClientOnly-Y69k1Wg_.js"], "css": [] }, "routes/api.pedido": { "id": "routes/api.pedido", "parentId": "root", "path": "api/pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft": { "id": "routes/api.draft", "parentId": "root", "path": "api/draft", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin": { "id": "routes/_admin", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-D6-Gxgcu.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/refresh_all-C9GhRqB0.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/index-CIB9SwPf.js", "/assets/index-BANIvhx6.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/ColorModeSelector-C-0XELcU.js", "/assets/chunk-QURMB2UJ-lkfg7u0_.js", "/assets/chunk-KRPLQIP4-CzoNRLSk.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-CPHrrJPO.js", "/assets/chunk-3ASUQ6PA-BtRLtW3F.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/chunk-BL2ZZSHG-YlViSguk.js", "/assets/ClientOnly-Y69k1Wg_.js", "/assets/Navbar-BW-7L37M.js"], "css": [] }, "routes/_index": { "id": "routes/_index", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-Bl7zJGCR.js", "imports": ["/assets/emotion-element-43c6fea0.browser.esm-B14dlTTQ.js", "/assets/auth_context-o-QFsdoP.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-DuvmeX8Y.js", "/assets/chunk-56K2BSAJ-sHIJjNP8.js", "/assets/chunk-PULVB27S-CTGxufhx.js", "/assets/index.esm-Dw-Md1--.js", "/assets/chunk-H46NUPBZ-bbDm42L7.js", "/assets/chunk-6CVSDS6C-HiurDJg9.js", "/assets/chunk-7OLJDQMT-DXq5cz3n.js", "/assets/chunk-2OOHT3W5-BiVR3QPi.js", "/assets/chunk-MFVQSVQB-gFjt-wgC.js", "/assets/utils-DQu-C9ov.js", "/assets/vo_user_name-DZjr6Uf6.js", "/assets/ColorModeSelector-C-0XELcU.js", "/assets/ControlledInput-6nHeRWma.js", "/assets/MessageToUserDialog-BdXavBH6.js", "/assets/components-BGc_6s7t.js", "/assets/chunk-YQO7BFFX-47bIbVCp.js", "/assets/chunk-46CXQZ4E-BGRD5_qx.js", "/assets/chunk-NTCQBYKE-B1Tq5lBC.js", "/assets/chunk-3KCBMPN5-CDYb5DH_.js", "/assets/chunk-2ZHRCML3-2pQo53d0.js"], "css": [] } }, "url": "/assets/manifest-4f848ea8.js", "version": "4f848ea8" };
+const serverManifest = { "entry": { "module": "/assets/entry.client-C9LwBq5G.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/styleContexts-2JMs7XDn.js", "/assets/components-DJTbJwhK.js"], "css": [] }, "routes": { "root": { "id": "root", "parentId": void 0, "path": "", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": true, "module": "/assets/root-crK5kRi9.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/styleContexts-2JMs7XDn.js", "/assets/components-DJTbJwhK.js", "/assets/auth_context-1lRrAoj9.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/index-BtnUei1e.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/index-CIB9SwPf.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-AMBGAKG2-CvyvrgY-.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/CommonErrors-BvuvNaw-.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-NTCQBYKE-BT9zAAaQ.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js"], "css": ["/assets/root-CrxCMxI6.css"] }, "routes/api.dxt.cliente.$id_cliente.siblings.$tango_id": { "id": "routes/api.dxt.cliente.$id_cliente.siblings.$tango_id", "parentId": "routes/api.dxt.cliente.$id_cliente", "path": "siblings/:tango_id", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente._id_cliente.siblings._tango_id-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.users.customers.$id.edit": { "id": "routes/_admin.settings.users.customers.$id.edit", "parentId": "routes/_admin", "path": "settings/users/customers/:id/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BB4vxayQ.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/AccountCancelIcon-DHAhsmYE.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/CommonCard-ZsFI_XX0.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/app_resources-7xCa0BDG.js", "/assets/components-DJTbJwhK.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/index.esm-CzxlHhdA.js", "/assets/chunk-H46NUPBZ-BIanLneB.js", "/assets/chunk-6CVSDS6C-DQNwoFo1.js", "/assets/index-BtnUei1e.js", "/assets/index.esm-Njxra2I5.js", "/assets/chunk-HB6KBUMZ-BCkqSJTL.js", "/assets/chunk-7D6N5TE5-BrgqCDH4.js", "/assets/chunk-VTV6N5LE-CojVCCMd.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/ControlledInput-D8DKSpFc.js", "/assets/chunk-2ZHRCML3-siIePHBt.js", "/assets/chunk-Z6RXEUPO-BIbhqgv7.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/FormSkeletons-CCz5n5Mq.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/useTangoList-apP1YyLy.js", "/assets/ControlledSelect-P32LK7nc.js", "/assets/ControlledSwitch-Dj6AtEy6.js", "/assets/FormErrors-CLM3bwt7.js", "/assets/vo_dxt_password-CL3l4ykX.js", "/assets/InlineError-CYxK_qzh.js", "/assets/SettingsFormButtons-v13JEq_c.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js", "/assets/utils-DQu-C9ov.js", "/assets/vo_user_name-gTZKlTBJ.js", "/assets/settings-BnAXf6XY.js", "/assets/CommonErrors-BvuvNaw-.js", "/assets/SettingsFormHeading-pg9uw8W1.js", "/assets/schema_transformers-BeFQ2yTP.js", "/assets/utils-DTXYOP_7.js"], "css": [] }, "routes/_admin.settings.users.sellers.$id.edit": { "id": "routes/_admin.settings.users.sellers.$id.edit", "parentId": "routes/_admin", "path": "settings/users/sellers/:id/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BqhIi20l.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/AccountCancelIcon-DHAhsmYE.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/CommonCard-ZsFI_XX0.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/app_resources-7xCa0BDG.js", "/assets/components-DJTbJwhK.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/index.esm-CzxlHhdA.js", "/assets/chunk-H46NUPBZ-BIanLneB.js", "/assets/chunk-6CVSDS6C-DQNwoFo1.js", "/assets/index-BtnUei1e.js", "/assets/index.esm-Njxra2I5.js", "/assets/chunk-HB6KBUMZ-BCkqSJTL.js", "/assets/chunk-7D6N5TE5-BrgqCDH4.js", "/assets/chunk-VTV6N5LE-CojVCCMd.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/ControlledInput-D8DKSpFc.js", "/assets/chunk-2ZHRCML3-siIePHBt.js", "/assets/chunk-Z6RXEUPO-BIbhqgv7.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/FormSkeletons-CCz5n5Mq.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/useTangoList-apP1YyLy.js", "/assets/ControlledSelect-P32LK7nc.js", "/assets/ControlledSwitch-Dj6AtEy6.js", "/assets/FormErrors-CLM3bwt7.js", "/assets/vo_dxt_password-CL3l4ykX.js", "/assets/InlineError-CYxK_qzh.js", "/assets/SettingsFormButtons-v13JEq_c.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js", "/assets/utils-DQu-C9ov.js", "/assets/vo_user_name-gTZKlTBJ.js", "/assets/settings-BnAXf6XY.js", "/assets/CommonErrors-BvuvNaw-.js", "/assets/SettingsFormHeading-pg9uw8W1.js", "/assets/schema_transformers-BeFQ2yTP.js", "/assets/utils-DTXYOP_7.js"], "css": [] }, "routes/api.pedido.$id_pedido.start_new_draft": { "id": "routes/api.pedido.$id_pedido.start_new_draft", "parentId": "routes/api.pedido.$id_pedido", "path": "start_new_draft", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_new_draft-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.$id_pedido.start_new_order": { "id": "routes/api.draft.$id_pedido.start_new_order", "parentId": "routes/api.draft.$id_pedido", "path": "start_new_order", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_new_order-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.users.customers.add": { "id": "routes/_admin.settings.users.customers.add", "parentId": "routes/_admin", "path": "settings/users/customers/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-r9SnIIkL.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/AccountCancelIcon-DHAhsmYE.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/app_resources-7xCa0BDG.js", "/assets/components-DJTbJwhK.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/index.esm-CzxlHhdA.js", "/assets/chunk-H46NUPBZ-BIanLneB.js", "/assets/chunk-6CVSDS6C-DQNwoFo1.js", "/assets/index-BtnUei1e.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/index.esm-Njxra2I5.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/chunk-HB6KBUMZ-BCkqSJTL.js", "/assets/chunk-7D6N5TE5-BrgqCDH4.js", "/assets/chunk-VTV6N5LE-CojVCCMd.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/ControlledInput-D8DKSpFc.js", "/assets/chunk-2ZHRCML3-siIePHBt.js", "/assets/chunk-Z6RXEUPO-BIbhqgv7.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/FormSkeletons-CCz5n5Mq.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/useTangoList-apP1YyLy.js", "/assets/CommonCard-ZsFI_XX0.js", "/assets/ControlledSelect-P32LK7nc.js", "/assets/ControlledSwitch-Dj6AtEy6.js", "/assets/FormErrors-CLM3bwt7.js", "/assets/vo_dxt_password-CL3l4ykX.js", "/assets/InlineError-CYxK_qzh.js", "/assets/SettingsFormButtons-v13JEq_c.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js", "/assets/utils-DQu-C9ov.js", "/assets/vo_user_name-gTZKlTBJ.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/settings-BnAXf6XY.js", "/assets/schema_transformers-BeFQ2yTP.js", "/assets/SettingsFormHeading-pg9uw8W1.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.order": { "id": "routes/_authorized.drafts.$id_pedido.order", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/order", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DJZXS-17.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/TextPrice-DRi4xO88.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/ColorModeSelector-j0gj2PXA.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/chunk-6CVSDS6C-DQNwoFo1.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/chunk-2ZHRCML3-siIePHBt.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/index-CIB9SwPf.js", "/assets/index-BtnUei1e.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-BCkqSJTL.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/index.esm-CzxlHhdA.js", "/assets/chunk-H46NUPBZ-BIanLneB.js", "/assets/index.esm-Njxra2I5.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/app_resources-7xCa0BDG.js", "/assets/components-DJTbJwhK.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/order.api_hooks-BgzQOWCq.js", "/assets/OrdersContainer-ordJRUSM.js", "/assets/SearchField-DB61HOgy.js", "/assets/FormErrors-CLM3bwt7.js", "/assets/Navbar-Dz6d1sX-.js", "/assets/MessageToUserDialog-DgPEqlF9.js", "/assets/chunk-T2WCTPDH-BYgpKtUX.js", "/assets/useTangoList-apP1YyLy.js", "/assets/CommonCard-ZsFI_XX0.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/chunk-NTCQBYKE-BT9zAAaQ.js", "/assets/ControlledInput-D8DKSpFc.js", "/assets/ControlledSelect-P32LK7nc.js", "/assets/ControlledTextarea-qOPAe3cp.js", "/assets/index-Cd2PmgfM.js", "/assets/chunk-Z6RXEUPO-BIbhqgv7.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js", "/assets/FormSkeletons-CCz5n5Mq.js", "/assets/CommonErrors-BvuvNaw-.js", "/assets/index-D0WJCdOL.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.draft": { "id": "routes/_authorized.orders.$id_pedido.draft", "parentId": "routes/_authorized", "path": "orders/:id_pedido/draft", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-Cuz0MYvt.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/TextPrice-DRi4xO88.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/ColorModeSelector-j0gj2PXA.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/chunk-6CVSDS6C-DQNwoFo1.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/chunk-2ZHRCML3-siIePHBt.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/index-CIB9SwPf.js", "/assets/index-BtnUei1e.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-BCkqSJTL.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/index.esm-CzxlHhdA.js", "/assets/chunk-H46NUPBZ-BIanLneB.js", "/assets/index.esm-Njxra2I5.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/app_resources-7xCa0BDG.js", "/assets/components-DJTbJwhK.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/order.api_hooks-BgzQOWCq.js", "/assets/OrdersContainer-ordJRUSM.js", "/assets/SearchField-DB61HOgy.js", "/assets/FormErrors-CLM3bwt7.js", "/assets/Navbar-Dz6d1sX-.js", "/assets/MessageToUserDialog-DgPEqlF9.js", "/assets/chunk-T2WCTPDH-BYgpKtUX.js", "/assets/useTangoList-apP1YyLy.js", "/assets/CommonCard-ZsFI_XX0.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/chunk-NTCQBYKE-BT9zAAaQ.js", "/assets/ControlledInput-D8DKSpFc.js", "/assets/ControlledSelect-P32LK7nc.js", "/assets/ControlledTextarea-qOPAe3cp.js", "/assets/index-Cd2PmgfM.js", "/assets/chunk-Z6RXEUPO-BIbhqgv7.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js", "/assets/FormSkeletons-CCz5n5Mq.js", "/assets/CommonErrors-BvuvNaw-.js", "/assets/index-D0WJCdOL.js"], "css": [] }, "routes/_admin.settings.product_list.print": { "id": "routes/_admin.settings.product_list.print", "parentId": "routes/_admin", "path": "settings/product_list/print", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-nux2O0Th.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/app_resources-7xCa0BDG.js", "/assets/app-DHK1Xtws.js", "/assets/components-DJTbJwhK.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/index.esm-CzxlHhdA.js", "/assets/chunk-H46NUPBZ-BIanLneB.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/index-BtnUei1e.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/CommonCard-ZsFI_XX0.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/index.esm-Njxra2I5.js", "/assets/chunk-HB6KBUMZ-BCkqSJTL.js", "/assets/chunk-7D6N5TE5-BrgqCDH4.js", "/assets/chunk-VTV6N5LE-CojVCCMd.js", "/assets/FormSkeletons-CCz5n5Mq.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/ControlledTextarea-qOPAe3cp.js", "/assets/FormErrors-CLM3bwt7.js", "/assets/SettingsFormButtons-v13JEq_c.js", "/assets/index-CIB9SwPf.js", "/assets/utils-DQu-C9ov.js", "/assets/index-Cd2PmgfM.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js", "/assets/SettingsFormHeading-pg9uw8W1.js", "/assets/ControlledSelect-P32LK7nc.js", "/assets/ControlledSwitch-Dj6AtEy6.js", "/assets/index-DwOHGu8N.js"], "css": [] }, "routes/_admin.settings.users.$type._index": { "id": "routes/_admin.settings.users.$type._index", "parentId": "routes/_admin", "path": "settings/users/:type", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-chepAF15.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/AccountCancelIcon-DHAhsmYE.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/CommonCard-ZsFI_XX0.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/app_resources-7xCa0BDG.js", "/assets/components-DJTbJwhK.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/chunk-6CVSDS6C-DQNwoFo1.js", "/assets/chunk-2ZHRCML3-siIePHBt.js", "/assets/chunk-T2WCTPDH-BYgpKtUX.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/index-BtnUei1e.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/settings-BnAXf6XY.js", "/assets/CommonErrors-BvuvNaw-.js", "/assets/SettingsFormHeading-pg9uw8W1.js", "/assets/FormSkeletons-CCz5n5Mq.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/ConfirmationDialog-B2A0coDp.js", "/assets/SearchField-DB61HOgy.js", "/assets/chunk-NTCQBYKE-BT9zAAaQ.js", "/assets/chunk-MGVPL3OH-D0J1QxuJ.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.copy": { "id": "routes/_authorized.drafts.$id_pedido.copy", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/copy", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BKHWZ9-v.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/TextPrice-DRi4xO88.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/ColorModeSelector-j0gj2PXA.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/chunk-6CVSDS6C-DQNwoFo1.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/chunk-2ZHRCML3-siIePHBt.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/index-CIB9SwPf.js", "/assets/index-BtnUei1e.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-BCkqSJTL.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/index.esm-CzxlHhdA.js", "/assets/chunk-H46NUPBZ-BIanLneB.js", "/assets/index.esm-Njxra2I5.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/app_resources-7xCa0BDG.js", "/assets/components-DJTbJwhK.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/order.api_hooks-BgzQOWCq.js", "/assets/OrdersContainer-ordJRUSM.js", "/assets/SearchField-DB61HOgy.js", "/assets/FormErrors-CLM3bwt7.js", "/assets/Navbar-Dz6d1sX-.js", "/assets/MessageToUserDialog-DgPEqlF9.js", "/assets/chunk-T2WCTPDH-BYgpKtUX.js", "/assets/useTangoList-apP1YyLy.js", "/assets/CommonCard-ZsFI_XX0.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/chunk-NTCQBYKE-BT9zAAaQ.js", "/assets/ControlledInput-D8DKSpFc.js", "/assets/ControlledSelect-P32LK7nc.js", "/assets/ControlledTextarea-qOPAe3cp.js", "/assets/index-Cd2PmgfM.js", "/assets/chunk-Z6RXEUPO-BIbhqgv7.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js", "/assets/FormSkeletons-CCz5n5Mq.js", "/assets/CommonErrors-BvuvNaw-.js", "/assets/index-D0WJCdOL.js"], "css": [] }, "routes/_authorized.drafts.$id_pedido.edit": { "id": "routes/_authorized.drafts.$id_pedido.edit", "parentId": "routes/_authorized", "path": "drafts/:id_pedido/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CD4iuqfp.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/TextPrice-DRi4xO88.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/ColorModeSelector-j0gj2PXA.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/chunk-6CVSDS6C-DQNwoFo1.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/chunk-2ZHRCML3-siIePHBt.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/index-CIB9SwPf.js", "/assets/index-BtnUei1e.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-BCkqSJTL.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/index.esm-CzxlHhdA.js", "/assets/chunk-H46NUPBZ-BIanLneB.js", "/assets/index.esm-Njxra2I5.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/app_resources-7xCa0BDG.js", "/assets/components-DJTbJwhK.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/order.api_hooks-BgzQOWCq.js", "/assets/OrdersContainer-ordJRUSM.js", "/assets/SearchField-DB61HOgy.js", "/assets/FormErrors-CLM3bwt7.js", "/assets/Navbar-Dz6d1sX-.js", "/assets/MessageToUserDialog-DgPEqlF9.js", "/assets/chunk-T2WCTPDH-BYgpKtUX.js", "/assets/useTangoList-apP1YyLy.js", "/assets/CommonCard-ZsFI_XX0.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/chunk-NTCQBYKE-BT9zAAaQ.js", "/assets/ControlledInput-D8DKSpFc.js", "/assets/ControlledSelect-P32LK7nc.js", "/assets/ControlledTextarea-qOPAe3cp.js", "/assets/index-Cd2PmgfM.js", "/assets/chunk-Z6RXEUPO-BIbhqgv7.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js", "/assets/FormSkeletons-CCz5n5Mq.js", "/assets/CommonErrors-BvuvNaw-.js", "/assets/index-D0WJCdOL.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.copy": { "id": "routes/_authorized.orders.$id_pedido.copy", "parentId": "routes/_authorized", "path": "orders/:id_pedido/copy", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DqfM-55P.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/TextPrice-DRi4xO88.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/ColorModeSelector-j0gj2PXA.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/chunk-6CVSDS6C-DQNwoFo1.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/chunk-2ZHRCML3-siIePHBt.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/index-CIB9SwPf.js", "/assets/index-BtnUei1e.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-BCkqSJTL.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/index.esm-CzxlHhdA.js", "/assets/chunk-H46NUPBZ-BIanLneB.js", "/assets/index.esm-Njxra2I5.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/app_resources-7xCa0BDG.js", "/assets/components-DJTbJwhK.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/order.api_hooks-BgzQOWCq.js", "/assets/OrdersContainer-ordJRUSM.js", "/assets/SearchField-DB61HOgy.js", "/assets/FormErrors-CLM3bwt7.js", "/assets/Navbar-Dz6d1sX-.js", "/assets/MessageToUserDialog-DgPEqlF9.js", "/assets/chunk-T2WCTPDH-BYgpKtUX.js", "/assets/useTangoList-apP1YyLy.js", "/assets/CommonCard-ZsFI_XX0.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/chunk-NTCQBYKE-BT9zAAaQ.js", "/assets/ControlledInput-D8DKSpFc.js", "/assets/ControlledSelect-P32LK7nc.js", "/assets/ControlledTextarea-qOPAe3cp.js", "/assets/index-Cd2PmgfM.js", "/assets/chunk-Z6RXEUPO-BIbhqgv7.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js", "/assets/FormSkeletons-CCz5n5Mq.js", "/assets/CommonErrors-BvuvNaw-.js", "/assets/index-D0WJCdOL.js"], "css": [] }, "routes/_authorized.orders.$id_pedido.edit": { "id": "routes/_authorized.orders.$id_pedido.edit", "parentId": "routes/_authorized", "path": "orders/:id_pedido/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CPqDxkfX.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/TextPrice-DRi4xO88.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/ColorModeSelector-j0gj2PXA.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/chunk-6CVSDS6C-DQNwoFo1.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/chunk-2ZHRCML3-siIePHBt.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/index-CIB9SwPf.js", "/assets/index-BtnUei1e.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-BCkqSJTL.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/index.esm-CzxlHhdA.js", "/assets/chunk-H46NUPBZ-BIanLneB.js", "/assets/index.esm-Njxra2I5.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/app_resources-7xCa0BDG.js", "/assets/components-DJTbJwhK.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/order.api_hooks-BgzQOWCq.js", "/assets/OrdersContainer-ordJRUSM.js", "/assets/SearchField-DB61HOgy.js", "/assets/FormErrors-CLM3bwt7.js", "/assets/Navbar-Dz6d1sX-.js", "/assets/MessageToUserDialog-DgPEqlF9.js", "/assets/chunk-T2WCTPDH-BYgpKtUX.js", "/assets/useTangoList-apP1YyLy.js", "/assets/CommonCard-ZsFI_XX0.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/chunk-NTCQBYKE-BT9zAAaQ.js", "/assets/ControlledInput-D8DKSpFc.js", "/assets/ControlledSelect-P32LK7nc.js", "/assets/ControlledTextarea-qOPAe3cp.js", "/assets/index-Cd2PmgfM.js", "/assets/chunk-Z6RXEUPO-BIbhqgv7.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js", "/assets/FormSkeletons-CCz5n5Mq.js", "/assets/CommonErrors-BvuvNaw-.js", "/assets/index-D0WJCdOL.js"], "css": [] }, "routes/api.dxt.cliente.siblings.$tango_id": { "id": "routes/api.dxt.cliente.siblings.$tango_id", "parentId": "routes/api.dxt.cliente", "path": "siblings/:tango_id", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente.siblings._tango_id-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.$id_pedido.start_update": { "id": "routes/api.pedido.$id_pedido.start_update", "parentId": "routes/api.pedido.$id_pedido", "path": "start_update", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_update-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.product_list.edit": { "id": "routes/_admin.settings.product_list.edit", "parentId": "routes/_admin", "path": "settings/product_list/edit", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DSs0-mFh.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/app_resources-7xCa0BDG.js", "/assets/app-DHK1Xtws.js", "/assets/components-DJTbJwhK.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/index.esm-CzxlHhdA.js", "/assets/chunk-H46NUPBZ-BIanLneB.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/index-BtnUei1e.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/CommonCard-ZsFI_XX0.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/index.esm-Njxra2I5.js", "/assets/chunk-HB6KBUMZ-BCkqSJTL.js", "/assets/chunk-7D6N5TE5-BrgqCDH4.js", "/assets/chunk-VTV6N5LE-CojVCCMd.js", "/assets/FormSkeletons-CCz5n5Mq.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/ControlledTextarea-qOPAe3cp.js", "/assets/FormErrors-CLM3bwt7.js", "/assets/SettingsFormButtons-v13JEq_c.js", "/assets/index-CIB9SwPf.js", "/assets/utils-DQu-C9ov.js", "/assets/index-Cd2PmgfM.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js", "/assets/SettingsFormHeading-pg9uw8W1.js", "/assets/ControlledSelect-P32LK7nc.js", "/assets/ControlledSwitch-Dj6AtEy6.js", "/assets/index-DwOHGu8N.js"], "css": [] }, "routes/_admin.settings.users.sellers.add": { "id": "routes/_admin.settings.users.sellers.add", "parentId": "routes/_admin", "path": "settings/users/sellers/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CMnmsfr6.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/AccountCancelIcon-DHAhsmYE.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/app_resources-7xCa0BDG.js", "/assets/components-DJTbJwhK.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/index.esm-CzxlHhdA.js", "/assets/chunk-H46NUPBZ-BIanLneB.js", "/assets/chunk-6CVSDS6C-DQNwoFo1.js", "/assets/index-BtnUei1e.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/index.esm-Njxra2I5.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/chunk-HB6KBUMZ-BCkqSJTL.js", "/assets/chunk-7D6N5TE5-BrgqCDH4.js", "/assets/chunk-VTV6N5LE-CojVCCMd.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/ControlledInput-D8DKSpFc.js", "/assets/chunk-2ZHRCML3-siIePHBt.js", "/assets/chunk-Z6RXEUPO-BIbhqgv7.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/FormSkeletons-CCz5n5Mq.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/useTangoList-apP1YyLy.js", "/assets/CommonCard-ZsFI_XX0.js", "/assets/ControlledSelect-P32LK7nc.js", "/assets/ControlledSwitch-Dj6AtEy6.js", "/assets/FormErrors-CLM3bwt7.js", "/assets/vo_dxt_password-CL3l4ykX.js", "/assets/InlineError-CYxK_qzh.js", "/assets/SettingsFormButtons-v13JEq_c.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js", "/assets/utils-DQu-C9ov.js", "/assets/vo_user_name-gTZKlTBJ.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/settings-BnAXf6XY.js", "/assets/schema_transformers-BeFQ2yTP.js", "/assets/SettingsFormHeading-pg9uw8W1.js"], "css": [] }, "routes/api.draft.$id_pedido.start_update": { "id": "routes/api.draft.$id_pedido.start_update", "parentId": "routes/api.draft.$id_pedido", "path": "start_update", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_update-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.$id_pedido.start_copy": { "id": "routes/api.pedido.$id_pedido.start_copy", "parentId": "routes/api.pedido.$id_pedido", "path": "start_copy", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido.start_copy-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.start_new.$id_cliente": { "id": "routes/api.pedido.start_new.$id_cliente", "parentId": "routes/api.pedido.start_new", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.start_new._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.$id_pedido.start_copy": { "id": "routes/api.draft.$id_pedido.start_copy", "parentId": "routes/api.draft.$id_pedido", "path": "start_copy", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.start_copy-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.start_new.$id_cliente": { "id": "routes/api.draft.start_new.$id_cliente", "parentId": "routes/api.draft.start_new", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.start_new._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.articulo.print_list.ids": { "id": "routes/api.dxt.articulo.print_list.ids", "parentId": "routes/api.dxt.articulo.print_list", "path": "ids", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.print_list.ids-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.drafts.$client.add": { "id": "routes/_authorized.drafts.$client.add", "parentId": "routes/_authorized", "path": "drafts/:client/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-D_AN0n20.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/TextPrice-DRi4xO88.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/ColorModeSelector-j0gj2PXA.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/chunk-6CVSDS6C-DQNwoFo1.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/chunk-2ZHRCML3-siIePHBt.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/index-CIB9SwPf.js", "/assets/index-BtnUei1e.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-BCkqSJTL.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/index.esm-CzxlHhdA.js", "/assets/chunk-H46NUPBZ-BIanLneB.js", "/assets/index.esm-Njxra2I5.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/app_resources-7xCa0BDG.js", "/assets/components-DJTbJwhK.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/order.api_hooks-BgzQOWCq.js", "/assets/OrdersContainer-ordJRUSM.js", "/assets/SearchField-DB61HOgy.js", "/assets/FormErrors-CLM3bwt7.js", "/assets/Navbar-Dz6d1sX-.js", "/assets/MessageToUserDialog-DgPEqlF9.js", "/assets/chunk-T2WCTPDH-BYgpKtUX.js", "/assets/useTangoList-apP1YyLy.js", "/assets/CommonCard-ZsFI_XX0.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/chunk-NTCQBYKE-BT9zAAaQ.js", "/assets/ControlledInput-D8DKSpFc.js", "/assets/ControlledSelect-P32LK7nc.js", "/assets/ControlledTextarea-qOPAe3cp.js", "/assets/index-Cd2PmgfM.js", "/assets/chunk-Z6RXEUPO-BIbhqgv7.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js", "/assets/FormSkeletons-CCz5n5Mq.js", "/assets/CommonErrors-BvuvNaw-.js", "/assets/index-D0WJCdOL.js"], "css": [] }, "routes/_authorized.orders.$client.add": { "id": "routes/_authorized.orders.$client.add", "parentId": "routes/_authorized", "path": "orders/:client/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CNYk8igl.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/TextPrice-DRi4xO88.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/ColorModeSelector-j0gj2PXA.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/chunk-6CVSDS6C-DQNwoFo1.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/chunk-2ZHRCML3-siIePHBt.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/index-CIB9SwPf.js", "/assets/index-BtnUei1e.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-BCkqSJTL.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/index.esm-CzxlHhdA.js", "/assets/chunk-H46NUPBZ-BIanLneB.js", "/assets/index.esm-Njxra2I5.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/app_resources-7xCa0BDG.js", "/assets/components-DJTbJwhK.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/order.api_hooks-BgzQOWCq.js", "/assets/OrdersContainer-ordJRUSM.js", "/assets/SearchField-DB61HOgy.js", "/assets/FormErrors-CLM3bwt7.js", "/assets/Navbar-Dz6d1sX-.js", "/assets/MessageToUserDialog-DgPEqlF9.js", "/assets/chunk-T2WCTPDH-BYgpKtUX.js", "/assets/useTangoList-apP1YyLy.js", "/assets/CommonCard-ZsFI_XX0.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/chunk-NTCQBYKE-BT9zAAaQ.js", "/assets/ControlledInput-D8DKSpFc.js", "/assets/ControlledSelect-P32LK7nc.js", "/assets/ControlledTextarea-qOPAe3cp.js", "/assets/index-Cd2PmgfM.js", "/assets/chunk-Z6RXEUPO-BIbhqgv7.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js", "/assets/FormSkeletons-CCz5n5Mq.js", "/assets/CommonErrors-BvuvNaw-.js", "/assets/index-D0WJCdOL.js"], "css": [] }, "routes/api.dictionary.active_company": { "id": "routes/api.dictionary.active_company", "parentId": "routes/api.dictionary", "path": "active_company", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dictionary.active_company-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.$id_pedido.favorite": { "id": "routes/api.draft.$id_pedido.favorite", "parentId": "routes/api.draft.$id_pedido", "path": "favorite", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido.favorite-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.vendedor.$id_vendedor": { "id": "routes/api.dxt.vendedor.$id_vendedor", "parentId": "routes/api.dxt.vendedor", "path": ":id_vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor._id_vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.change_password": { "id": "routes/_authorized.change_password", "parentId": "routes/_authorized", "path": "change_password", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-bIUONI7r.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/index-CIB9SwPf.js", "/assets/index-BtnUei1e.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/ColorModeSelector-j0gj2PXA.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-BCkqSJTL.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/CommonCard-ZsFI_XX0.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/index.esm-CzxlHhdA.js", "/assets/chunk-H46NUPBZ-BIanLneB.js", "/assets/chunk-6CVSDS6C-DQNwoFo1.js", "/assets/ControlledInput-D8DKSpFc.js", "/assets/chunk-2ZHRCML3-siIePHBt.js", "/assets/chunk-Z6RXEUPO-BIbhqgv7.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/Navbar-Dz6d1sX-.js", "/assets/SettingsFormHeading-pg9uw8W1.js", "/assets/app_resources-7xCa0BDG.js", "/assets/refresh_all-BF-tDFF2.js", "/assets/FormErrors-CLM3bwt7.js", "/assets/vo_dxt_password-CL3l4ykX.js", "/assets/SettingsFormButtons-v13JEq_c.js", "/assets/utils-DQu-C9ov.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js"], "css": [] }, "routes/api.dxt.articulo.print_list": { "id": "routes/api.dxt.articulo.print_list", "parentId": "root", "path": "api/dxt/articulo/print_list", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.print_list-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.cliente.$id_cliente": { "id": "routes/api.dxt.cliente.$id_cliente", "parentId": "routes/api.dxt.cliente", "path": ":id_cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente._id_cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.articulo.edit_list": { "id": "routes/api.dxt.articulo.edit_list", "parentId": "root", "path": "api/dxt/articulo/edit_list", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.articulo.edit_list-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.usuario.auxiliares": { "id": "routes/api.dxt.usuario.auxiliares", "parentId": "root", "path": "api/dxt/usuario/auxiliares", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.usuario.auxiliares-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized.drafts._index": { "id": "routes/_authorized.drafts._index", "parentId": "routes/_authorized", "path": "drafts", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-B1g5d46P.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/app_resources-7xCa0BDG.js", "/assets/app-DHK1Xtws.js", "/assets/components-DJTbJwhK.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/index-CIB9SwPf.js", "/assets/index-BtnUei1e.js", "/assets/ColorModeSelector-j0gj2PXA.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-BCkqSJTL.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/TextPrice-DRi4xO88.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/chunk-6CVSDS6C-DQNwoFo1.js", "/assets/chunk-2ZHRCML3-siIePHBt.js", "/assets/vo_user_name-gTZKlTBJ.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-7D6N5TE5-BrgqCDH4.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/FormSkeletons-CCz5n5Mq.js", "/assets/Navbar-Dz6d1sX-.js", "/assets/OrdersContainer-ordJRUSM.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/SearchField-DB61HOgy.js", "/assets/index-CA6I6xno.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/AccountCancelIcon-DHAhsmYE.js", "/assets/ConfirmationDialog-B2A0coDp.js", "/assets/index.esm-Njxra2I5.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/chunk-NTCQBYKE-BT9zAAaQ.js", "/assets/chunk-Z6RXEUPO-BIbhqgv7.js", "/assets/chunk-CWVAJCXJ-B3WRl_Ui.js", "/assets/chunk-T2WCTPDH-BYgpKtUX.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js", "/assets/index-DSr8s1tE.js"], "css": [] }, "routes/_authorized.orders._index": { "id": "routes/_authorized.orders._index", "parentId": "routes/_authorized", "path": "orders", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-ESW9q6Rp.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/app_resources-7xCa0BDG.js", "/assets/app-DHK1Xtws.js", "/assets/components-DJTbJwhK.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/index-CIB9SwPf.js", "/assets/index-BtnUei1e.js", "/assets/ColorModeSelector-j0gj2PXA.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-BCkqSJTL.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/TextPrice-DRi4xO88.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/chunk-6CVSDS6C-DQNwoFo1.js", "/assets/chunk-2ZHRCML3-siIePHBt.js", "/assets/vo_user_name-gTZKlTBJ.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-7D6N5TE5-BrgqCDH4.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/FormSkeletons-CCz5n5Mq.js", "/assets/Navbar-Dz6d1sX-.js", "/assets/OrdersContainer-ordJRUSM.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/SearchField-DB61HOgy.js", "/assets/index-CA6I6xno.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/AccountCancelIcon-DHAhsmYE.js", "/assets/ConfirmationDialog-B2A0coDp.js", "/assets/index.esm-Njxra2I5.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/chunk-NTCQBYKE-BT9zAAaQ.js", "/assets/chunk-Z6RXEUPO-BIbhqgv7.js", "/assets/chunk-CWVAJCXJ-B3WRl_Ui.js", "/assets/chunk-T2WCTPDH-BYgpKtUX.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js", "/assets/index-DSr8s1tE.js"], "css": [] }, "routes/_authorized.orders.print": { "id": "routes/_authorized.orders.print", "parentId": "routes/_authorized", "path": "orders/print", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-B4F5r8B5.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/TextPrice-DRi4xO88.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/app_resources-7xCa0BDG.js", "/assets/app-DHK1Xtws.js", "/assets/components-DJTbJwhK.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/vo_user_name-gTZKlTBJ.js", "/assets/chunk-T2WCTPDH-BYgpKtUX.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/index-BtnUei1e.js", "/assets/chunk-7D6N5TE5-BrgqCDH4.js", "/assets/utils-DTXYOP_7.js", "/assets/order.api_hooks-BgzQOWCq.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/CommonErrors-BvuvNaw-.js", "/assets/index-CA6I6xno.js", "/assets/chunk-MGVPL3OH-D0J1QxuJ.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/chunk-VTV6N5LE-CojVCCMd.js", "/assets/chunk-H46NUPBZ-BIanLneB.js"], "css": [] }, "routes/api.dxt.vendedor.cliente": { "id": "routes/api.dxt.vendedor.cliente", "parentId": "routes/api.dxt.vendedor", "path": "cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.company": { "id": "routes/_admin.settings.company", "parentId": "routes/_admin", "path": "settings/company", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-B3PnY33v.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/CommonCard-ZsFI_XX0.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/index-BtnUei1e.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/index.esm-Njxra2I5.js", "/assets/chunk-HB6KBUMZ-BCkqSJTL.js", "/assets/index.esm-CzxlHhdA.js", "/assets/chunk-H46NUPBZ-BIanLneB.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/chunk-Z6RXEUPO-BIbhqgv7.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/app-DHK1Xtws.js", "/assets/SettingsFormHeading-pg9uw8W1.js", "/assets/app_resources-7xCa0BDG.js", "/assets/useTangoList-apP1YyLy.js", "/assets/ControlledSelect-P32LK7nc.js", "/assets/FormErrors-CLM3bwt7.js", "/assets/InlineError-CYxK_qzh.js", "/assets/SettingsFormButtons-v13JEq_c.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js"], "css": [] }, "routes/_admin.settings._index": { "id": "routes/_admin.settings._index", "parentId": "routes/_admin", "path": "settings", "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-D7R3JYCd.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/app_resources-7xCa0BDG.js", "/assets/app-DHK1Xtws.js", "/assets/components-DJTbJwhK.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/chunk-NTCQBYKE-BT9zAAaQ.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/chunk-Z6RXEUPO-BIbhqgv7.js"], "css": [] }, "routes/_authorized.drafts.add": { "id": "routes/_authorized.drafts.add", "parentId": "routes/_authorized", "path": "drafts/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-Ycpy_-4X.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/TextPrice-DRi4xO88.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/ColorModeSelector-j0gj2PXA.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/chunk-6CVSDS6C-DQNwoFo1.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/chunk-2ZHRCML3-siIePHBt.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/index-CIB9SwPf.js", "/assets/index-BtnUei1e.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-BCkqSJTL.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/index.esm-CzxlHhdA.js", "/assets/chunk-H46NUPBZ-BIanLneB.js", "/assets/index.esm-Njxra2I5.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/app_resources-7xCa0BDG.js", "/assets/components-DJTbJwhK.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/order.api_hooks-BgzQOWCq.js", "/assets/OrdersContainer-ordJRUSM.js", "/assets/SearchField-DB61HOgy.js", "/assets/FormErrors-CLM3bwt7.js", "/assets/Navbar-Dz6d1sX-.js", "/assets/MessageToUserDialog-DgPEqlF9.js", "/assets/chunk-T2WCTPDH-BYgpKtUX.js", "/assets/useTangoList-apP1YyLy.js", "/assets/CommonCard-ZsFI_XX0.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/chunk-NTCQBYKE-BT9zAAaQ.js", "/assets/ControlledInput-D8DKSpFc.js", "/assets/ControlledSelect-P32LK7nc.js", "/assets/ControlledTextarea-qOPAe3cp.js", "/assets/index-Cd2PmgfM.js", "/assets/chunk-Z6RXEUPO-BIbhqgv7.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js", "/assets/FormSkeletons-CCz5n5Mq.js", "/assets/CommonErrors-BvuvNaw-.js", "/assets/index-D0WJCdOL.js"], "css": [] }, "routes/_authorized.orders.add": { "id": "routes/_authorized.orders.add", "parentId": "routes/_authorized", "path": "orders/add", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BRLHc6Tc.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/TextPrice-DRi4xO88.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/ColorModeSelector-j0gj2PXA.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/chunk-6CVSDS6C-DQNwoFo1.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/chunk-2ZHRCML3-siIePHBt.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/index-CIB9SwPf.js", "/assets/index-BtnUei1e.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-BCkqSJTL.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/index.esm-CzxlHhdA.js", "/assets/chunk-H46NUPBZ-BIanLneB.js", "/assets/index.esm-Njxra2I5.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/app_resources-7xCa0BDG.js", "/assets/components-DJTbJwhK.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/order.api_hooks-BgzQOWCq.js", "/assets/OrdersContainer-ordJRUSM.js", "/assets/SearchField-DB61HOgy.js", "/assets/FormErrors-CLM3bwt7.js", "/assets/Navbar-Dz6d1sX-.js", "/assets/MessageToUserDialog-DgPEqlF9.js", "/assets/chunk-T2WCTPDH-BYgpKtUX.js", "/assets/useTangoList-apP1YyLy.js", "/assets/CommonCard-ZsFI_XX0.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/chunk-NTCQBYKE-BT9zAAaQ.js", "/assets/ControlledInput-D8DKSpFc.js", "/assets/ControlledSelect-P32LK7nc.js", "/assets/ControlledTextarea-qOPAe3cp.js", "/assets/index-Cd2PmgfM.js", "/assets/chunk-Z6RXEUPO-BIbhqgv7.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js", "/assets/FormSkeletons-CCz5n5Mq.js", "/assets/CommonErrors-BvuvNaw-.js", "/assets/index-D0WJCdOL.js"], "css": [] }, "routes/api.download.$filename": { "id": "routes/api.download.$filename", "parentId": "routes/api.download", "path": ":filename", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.download._filename-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.order": { "id": "routes/_admin.settings.order", "parentId": "routes/_admin", "path": "settings/order", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DrttrMaa.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/CommonCard-ZsFI_XX0.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/app_resources-7xCa0BDG.js", "/assets/app-DHK1Xtws.js", "/assets/components-DJTbJwhK.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/index-BtnUei1e.js", "/assets/chunk-7D6N5TE5-BrgqCDH4.js", "/assets/index.esm-CzxlHhdA.js", "/assets/chunk-CWVAJCXJ-B3WRl_Ui.js", "/assets/chunk-H46NUPBZ-BIanLneB.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/SettingsFormHeading-pg9uw8W1.js", "/assets/requests-C4_E01ZT.js", "/assets/FormSkeletons-CCz5n5Mq.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/ControlledCheckbox-z14aLT7x.js", "/assets/ControlledTextarea-qOPAe3cp.js", "/assets/FormErrors-CLM3bwt7.js", "/assets/SettingsFormButtons-v13JEq_c.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js"], "css": [] }, "routes/_admin.settings.tango": { "id": "routes/_admin.settings.tango", "parentId": "routes/_admin", "path": "settings/tango", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-BYdMMEE_.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/CommonCard-ZsFI_XX0.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/app_resources-7xCa0BDG.js", "/assets/app-DHK1Xtws.js", "/assets/components-DJTbJwhK.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/index.esm-CzxlHhdA.js", "/assets/chunk-H46NUPBZ-BIanLneB.js", "/assets/chunk-6CVSDS6C-DQNwoFo1.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/index-CIB9SwPf.js", "/assets/index-BtnUei1e.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/SettingsFormHeading-pg9uw8W1.js", "/assets/requests-C4_E01ZT.js", "/assets/FormSkeletons-CCz5n5Mq.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/ControlledInput-D8DKSpFc.js", "/assets/FormErrors-CLM3bwt7.js", "/assets/SettingsFormButtons-v13JEq_c.js", "/assets/utils-DQu-C9ov.js", "/assets/misc_settings.consts-DRZRQ4zo.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js"], "css": [] }, "routes/_authorized.downloads": { "id": "routes/_authorized.downloads", "parentId": "routes/_authorized", "path": "downloads", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-CTTF3ZwB.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/index-CIB9SwPf.js", "/assets/index-BtnUei1e.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/ColorModeSelector-j0gj2PXA.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-BCkqSJTL.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/CommonCard-ZsFI_XX0.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/app_resources-7xCa0BDG.js", "/assets/components-DJTbJwhK.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/Navbar-Dz6d1sX-.js", "/assets/SettingsFormHeading-pg9uw8W1.js", "/assets/chunk-AMBGAKG2-CvyvrgY-.js", "/assets/chunk-NTCQBYKE-BT9zAAaQ.js", "/assets/FormSkeletons-CCz5n5Mq.js"], "css": [] }, "routes/api.pedido.$id_pedido": { "id": "routes/api.pedido.$id_pedido", "parentId": "routes/api.pedido", "path": ":id_pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido._id_pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin.settings.misc": { "id": "routes/_admin.settings.misc", "parentId": "routes/_admin", "path": "settings/misc", "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-xkzcj9TW.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/chunk-VMD3UMGK-C_4Hu6X3.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/CommonCard-ZsFI_XX0.js", "/assets/ResponsiveIconButton-BxPaX8A-.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/CloseIcon-B6Be6esX.js", "/assets/app_resources-7xCa0BDG.js", "/assets/app-DHK1Xtws.js", "/assets/components-DJTbJwhK.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/useDXTApiFetch-DkCgIYCg.js", "/assets/ApiErrors-BAr_xJ4-.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/index-BtnUei1e.js", "/assets/chunk-7D6N5TE5-BrgqCDH4.js", "/assets/index.esm-CzxlHhdA.js", "/assets/chunk-CWVAJCXJ-B3WRl_Ui.js", "/assets/chunk-H46NUPBZ-BIanLneB.js", "/assets/chunk-6CVSDS6C-DQNwoFo1.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/index-CIB9SwPf.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-3Y4YXCR2-CtodgM6Z.js", "/assets/SettingsFormHeading-pg9uw8W1.js", "/assets/requests-C4_E01ZT.js", "/assets/FormSkeletons-CCz5n5Mq.js", "/assets/chunk-ZPFGWTBB-lx3V9y0x.js", "/assets/ControlledCheckbox-z14aLT7x.js", "/assets/ControlledInput-D8DKSpFc.js", "/assets/ControlledTextarea-qOPAe3cp.js", "/assets/FormErrors-CLM3bwt7.js", "/assets/SettingsFormButtons-v13JEq_c.js", "/assets/utils-DQu-C9ov.js", "/assets/misc_settings.consts-DRZRQ4zo.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-6RSEZNRH-02MJPxwp.js"], "css": [] }, "routes/api.draft.$id_pedido": { "id": "routes/api.draft.$id_pedido", "parentId": "routes/api.draft", "path": ":id_pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft._id_pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.renglones": { "id": "routes/api.pedido.renglones", "parentId": "routes/api.pedido", "path": "renglones", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.renglones-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.start_new": { "id": "routes/api.pedido.start_new", "parentId": "routes/api.pedido", "path": "start_new", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.start_new-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.renglones": { "id": "routes/api.draft.renglones", "parentId": "routes/api.draft", "path": "renglones", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.renglones-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft.start_new": { "id": "routes/api.draft.start_new", "parentId": "routes/api.draft", "path": "start_new", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft.start_new-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.order": { "id": "routes/api.settings.order", "parentId": "root", "path": "api/settings/order", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.order-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.vendedor": { "id": "routes/api.tango.vendedor", "parentId": "root", "path": "api/tango/vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.password": { "id": "routes/api.auth.password", "parentId": "root", "path": "api/auth/password", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.password-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.pedido.by_ids": { "id": "routes/api.pedido.by_ids", "parentId": "routes/api.pedido", "path": "by_ids", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido.by_ids-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.misc": { "id": "routes/api.settings.misc", "parentId": "root", "path": "api/settings/misc", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.misc-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.cliente": { "id": "routes/api.tango.cliente", "parentId": "root", "path": "api/tango/cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.admin.status": { "id": "routes/api.admin.status", "parentId": "root", "path": "api/admin/status", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.admin.status-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.connect": { "id": "routes/api.auth.connect", "parentId": "root", "path": "api/auth/connect", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.connect-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.vendedor": { "id": "routes/api.dxt.vendedor", "parentId": "root", "path": "api/dxt/vendedor", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.vendedor-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.perfil": { "id": "routes/api.tango.perfil", "parentId": "root", "path": "api/tango/perfil", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.perfil-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.logout": { "id": "routes/api.auth.logout", "parentId": "root", "path": "api/auth/logout", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.logout-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dxt.cliente": { "id": "routes/api.dxt.cliente", "parentId": "root", "path": "api/dxt/cliente", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dxt.cliente-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.settings.db": { "id": "routes/api.settings.db", "parentId": "root", "path": "api/settings/db", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.settings.db-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.tango.lista": { "id": "routes/api.tango.lista", "parentId": "root", "path": "api/tango/lista", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.tango.lista-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.auth.login": { "id": "routes/api.auth.login", "parentId": "root", "path": "api/auth/login", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.auth.login-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.dictionary": { "id": "routes/api.dictionary", "parentId": "root", "path": "api/dictionary", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.dictionary-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.download": { "id": "routes/api.download", "parentId": "root", "path": "api/download", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.download-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_authorized": { "id": "routes/_authorized", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-DQt8ccLo.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/refresh_all-BF-tDFF2.js", "/assets/AuthGuard-CqDWiMjx.js", "/assets/ClientOnly-CruWkRVx.js"], "css": [] }, "routes/api.pedido": { "id": "routes/api.pedido", "parentId": "root", "path": "api/pedido", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.pedido-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/api.draft": { "id": "routes/api.draft", "parentId": "root", "path": "api/draft", "index": void 0, "caseSensitive": void 0, "hasAction": true, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/api.draft-l0sNRNKZ.js", "imports": [], "css": [] }, "routes/_admin": { "id": "routes/_admin", "parentId": "root", "path": void 0, "index": void 0, "caseSensitive": void 0, "hasAction": false, "hasLoader": false, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-y_ZTF-i1.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/refresh_all-BF-tDFF2.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/index-CIB9SwPf.js", "/assets/index-BtnUei1e.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/ColorModeSelector-j0gj2PXA.js", "/assets/chunk-QURMB2UJ-DnrdiWvU.js", "/assets/chunk-KRPLQIP4-X72JD14b.js", "/assets/program_config.consts-tkpR5RSB.js", "/assets/order_settings.consts-BS2ZOo_e.js", "/assets/chunk-HB6KBUMZ-BCkqSJTL.js", "/assets/chunk-3ASUQ6PA-0kQqFn_h.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/chunk-BL2ZZSHG-VTIM7Pff.js", "/assets/AuthGuard-CqDWiMjx.js", "/assets/ClientOnly-CruWkRVx.js", "/assets/Navbar-Dz6d1sX-.js"], "css": [] }, "routes/_index": { "id": "routes/_index", "parentId": "root", "path": void 0, "index": true, "caseSensitive": void 0, "hasAction": false, "hasLoader": true, "hasClientAction": false, "hasClientLoader": false, "hasErrorBoundary": false, "module": "/assets/route-PF6jS-cG.js", "imports": ["/assets/emotion-element-5486c51c.browser.esm-CMT9BBIk.js", "/assets/auth_context-1lRrAoj9.js", "/assets/app-DHK1Xtws.js", "/assets/chunk-6QYXN73V-D4AeCydz.js", "/assets/chunk-56K2BSAJ-BQuanzzh.js", "/assets/chunk-PULVB27S-DtbcLAA3.js", "/assets/index.esm-CzxlHhdA.js", "/assets/chunk-H46NUPBZ-BIanLneB.js", "/assets/chunk-6CVSDS6C-DQNwoFo1.js", "/assets/chunk-7OLJDQMT-BCYTowu1.js", "/assets/chunk-2OOHT3W5-rFMCTWJa.js", "/assets/chunk-MFVQSVQB-nS3zYPqC.js", "/assets/utils-DQu-C9ov.js", "/assets/vo_user_name-gTZKlTBJ.js", "/assets/ColorModeSelector-j0gj2PXA.js", "/assets/ControlledInput-D8DKSpFc.js", "/assets/MessageToUserDialog-DgPEqlF9.js", "/assets/ClientOnly-CruWkRVx.js", "/assets/components-DJTbJwhK.js", "/assets/chunk-YQO7BFFX-C0kTL7iy.js", "/assets/chunk-46CXQZ4E-xzSkmIKk.js", "/assets/chunk-NTCQBYKE-BT9zAAaQ.js", "/assets/chunk-3KCBMPN5--NnBMJog.js", "/assets/chunk-2ZHRCML3-siIePHBt.js"], "css": [] } }, "url": "/assets/manifest-2f06cb6d.js", "version": "2f06cb6d" };
 const mode = "production";
 const assetsBuildDirectory = "build/client";
 const basename = "/";

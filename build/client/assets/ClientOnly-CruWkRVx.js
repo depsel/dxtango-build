@@ -1,0 +1,1 @@
+import{r as n,j as r}from"./emotion-element-5486c51c.browser.esm-CMT9BBIk.js";function s(){return()=>{}}function u(){return n.useSyncExternalStore(s,()=>!0,()=>!1)}function o({children:t,fallback:e=null}){return u()?r.jsx(r.Fragment,{children:t}):r.jsx(r.Fragment,{children:e})}export{o as C};

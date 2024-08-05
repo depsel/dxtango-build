@@ -4,8 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
 
+## [1.2.3+240805c] - 2022-08-05
+
+### Added
+- Script install.bat, para instalación en Windows.
+
+### Changed
+- Actualizadas todas la dependencias.
+
+### Fixed
+- Cuando se ingresaba a la app se mostraba la caja de inicio de sesión, a pesar de que el usuario ya estaba logueado.
+
+
+1.2.3+240805c
 
 ## [1.2.2+240805b] - 2022-08-05
 
