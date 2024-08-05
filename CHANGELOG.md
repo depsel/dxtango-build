@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 
+## [1.2.1+240805a] - 2022-08-05
+
+### Added
+- Agregado nuevo parámetro en dxtango.cfg para personalizar el logo de inicio de sesión.
+
+### Changed
+- Los boones para interactuar con borradores ahora se diferencian de los botones par interactuar con pedidos.
+
+### Fixed
+- Corregido un bug que no permitía al administrador eliminar pedidos aprobados.
+
+
 ## [1.2.0+240803a] - 2022-08-03
 
 ### Added
