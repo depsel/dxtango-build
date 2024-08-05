@@ -1,0 +1,38 @@
+# Define el puerto en el que la aplicación correrá.
+# Si no se especifica, el valor por omisión es 80.
+#
+port=80
+
+
+# Permite deshabilitar el caché de base de datos. 
+# Su valor por omisión es <false>
+#
+disable_cache=false
+
+
+# Directorio que contiene los archivos de descarga disponibles para los usuarios de DXTango.
+# Si se omite el sistema no mostrará la página de descarga.
+#
+# downloads_path=/Users/depsel/dxtango/downloads
+
+
+# Si el archivo especificado con la opción `DISABLE_SYSTEM_FILE` existe, el sistema
+# se bloquea y muestra el mensaje contenido en dicho archivo.
+#
+# disable_system_file=/Users/depsel/dxtango/disable_system.txt
+
+
+# Define el nombre de la empresa. El valor por defecto es "DXTango"
+#
+company_name=DXTango
+
+
+# Permite personalizar el mensaje de bienvenida durante el inicio de sesión.
+#
+welcome_message=Bienvenido a DXTango
+
+
+# Especifica la ruta del logo de bienvenida, que aparece en el inicio de sesión.
+# La imagen debe ser un archivo en formato SVG.
+#
+# welcome_logo=/Users/depsel/dxtango/logo-dxtango.svg

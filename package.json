@@ -1,6 +1,6 @@
 {
   "name": "dxtango",
-  "version": "1.2.1+240805a",
+  "version": "1.2.2+240805b",
   "description": "Extensión para software Tango",
   "main": "index.js",
   "type": "module",

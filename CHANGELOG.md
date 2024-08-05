@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 
 
+## [1.2.2+240805b] - 2022-08-05
+
+### Fixed
+- Corregido un bug en boot.js que evitaba personalizar el puerto.
+- Modificado el script de build para que oncluya el archivo dxtangi.cfg.DEFAULT
+
+
 ## [1.2.1+240805a] - 2022-08-05
 
 ### Added

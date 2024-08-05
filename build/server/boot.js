@@ -29,7 +29,7 @@ async function getConfig() {
     const iniFileContent = await readFile(programConfigFilename, { encoding: "utf-8" });
     const settingsInput = parse(iniFileContent);
     const welcomeLogo = isStr(settingsInput?.welcome_logo) ? settingsInput?.welcome_logo.trim() : void 0;
-    const port = toNumber(settingsInput?.PORT) ?? DEFAULT_PROGRAM_PORT;
+    const port = toNumber(settingsInput?.port) ?? DEFAULT_PROGRAM_PORT;
     return {
       welcome_logo: welcomeLogo != null && await checkIfFileExists(welcomeLogo) ? welcomeLogo : void 0,
       port
