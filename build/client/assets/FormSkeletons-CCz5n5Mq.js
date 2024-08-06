@@ -1,1 +1,0 @@
-import{j as o}from"./emotion-element-5486c51c.browser.esm-CMT9BBIk.js";import{S as e}from"./ApiErrors-BAr_xJ4-.js";const a=({height:t})=>o.jsx(e,{width:"full",height:t??"36px",borderRadius:"md"}),i=({height:t})=>o.jsx(e,{width:"full",height:t??"80px",borderRadius:"md"});export{a as F,i as a};
