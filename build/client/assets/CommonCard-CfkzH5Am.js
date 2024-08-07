@@ -1,0 +1,1 @@
+import{j as o}from"./emotion-element-5486c51c.browser.esm-CMT9BBIk.js";import{g as e}from"./auth_context-CCfWU2Jo.js";import{C as m,a as n}from"./chunk-YQO7BFFX-BA4DVzl3.js";const p=r=>{const{children:s,cardProps:a,cardBodyProps:d}=r,t=e("gray.200","white.200");return o.jsx(m,{boxShadow:"lg",sx:{mb:4},borderColor:t,...a,children:o.jsx(n,{...d,children:s})})};export{p as C};

@@ -1,0 +1,1 @@
+import{f as i,u as t,o as c,c as m,d as l}from"./auth_context-CCfWU2Jo.js";import{j as k}from"./emotion-element-5486c51c.browser.esm-CMT9BBIk.js";var f=i(function(s,r){const e=t("Link",s),{className:n,isExternal:a,...o}=c(s);return k.jsx(m.a,{target:a?"_blank":void 0,rel:a?"noopener":void 0,ref:r,className:l("chakra-link",n),...o,__css:e})});f.displayName="Link";export{f as L};

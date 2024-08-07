@@ -1,0 +1,1 @@
+import{j as e}from"./emotion-element-5486c51c.browser.esm-CMT9BBIk.js";import{B as o}from"./chunk-Z6RXEUPO-CxfasoKf.js";const s=({error:r})=>e.jsx(o,{colorScheme:"red",sx:{mt:2,p:2,whiteSpace:"normal"},children:r});export{s as I};

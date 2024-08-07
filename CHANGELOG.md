@@ -1,13 +1,13 @@
-# Change Log
-All notable changes to this project will be documented in this file.
- 
-The format is based on [Keep a Changelog](http://keepachangelog.com/)
-and this project adheres to [Semantic Versioning](http://semver.org/).
+# HISTORIAL DE CAMBIOS
 
 
-## [1.2.4+240806a] - 2022-08-06
+## [1.2.4+240807a] - 2022-08-07
+
+### Added
+- Versión e historial de cambios.
 
 ### Changed
+- Mejora en la configuración de lista de artículos para edición.
 - Actualizadas todas la dependencias.
 
 
@@ -23,13 +23,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Cuando se ingresaba a la app se mostraba la caja de inicio de sesión, a pesar de que el usuario ya estaba logueado.
 
 
-1.2.3+240805c
-
 ## [1.2.2+240805b] - 2022-08-05
 
 ### Fixed
 - Corregido un bug en boot.js que evitaba personalizar el puerto.
-- Modificado el script de build para que oncluya el archivo dxtangi.cfg.DEFAULT
+- Modificado el script de build para que incluya el archivo dxtango.cfg.DEFAULT
 
 
 ## [1.2.1+240805a] - 2022-08-05
@@ -120,17 +118,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Se visualizan todos los valores sin impuestos.
 - Los comentarios se convierten en 5 líneas de leyenda (100% compatible con Tango).
 - Envía correo a todos los participantes (administrador, vendedores y clientes)
-- Ahora puede convertir en borrador un pedido que está siendo duplicado
+- Ahora puede convertir en borrador un pedido que está siendo duplicado.
 
 ### Fixed
-- Corregido un error durante el filtrado de datos
+- Corregido un error durante el filtrado de datos.
 
 ## [1.0.1] - 2022-07-22
  
 ### Fixed
-- Ingreso de cantidades en editor de borrador 
+- Ingreso de cantidades en editor de borrador.
 
 
 ## [1.0.0] - 2022-07-21
 
-Versión inicial
+### Added
+- Versión inicial.
