@@ -1,6 +1,12 @@
 # HISTORIAL DE CAMBIOS
 
 
+## [1.2.5+240807b] - 2022-08-07
+
+### Changed
+- Ordena por nombre todas las listas de selección en edición de pedidos y borradores.
+
+
 ## [1.2.4+240807a] - 2022-08-07
 
 ### Added
