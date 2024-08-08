@@ -5,6 +5,7 @@
 
 ### Changed
 - Cambios en la vista de edición de borrador para diferenciarla de la edición de pedidos.
+- El input de cantidades ahora está limitado a 10 dígitos.
 
 ### Fixed
 - Al editar un borrador favorito, la marca de favorito se perdía.
