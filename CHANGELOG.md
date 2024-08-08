@@ -1,6 +1,15 @@
 # HISTORIAL DE CAMBIOS
 
 
+## [1.2.6+240807c] - 2022-08-07
+
+### Changed
+- Cambios en la vista de edición de borrador para diferenciarla de la edición de pedidos.
+
+### Fixed
+- Al editar un borrador favorito, la marca de favorito se perdía.
+
+
 ## [1.2.5+240807b] - 2022-08-07
 
 ### Changed
