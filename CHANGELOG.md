@@ -8,6 +8,7 @@
 
 ### Fixed
 - Al editar un borrador favorito, la marca de favorito se perdía.
+- El input de cantidades permitía algunos caracteres inválidos.
 
 
 ## [1.2.5+240807b] - 2022-08-07
